@@ -1,0 +1,75 @@
+ESPECIFICAÇÃO - BOLETIM DIÁRIO PLANTADEIRAS
+
+1. CARACTERÍSTICAS DO RELATÓRIO
+- Volume de dados: 4.000 a 6.000 linhas
+- Formato de entrada: Excel
+- Saída: Relatório com gráficos, tabelas e imagens
+
+2. COMPONENTES NECESSÁRIOS
+
+A. PROCESSADOR DE DADOS (PYTHON)
+├── processors/
+│   └── boletim_plantadeiras.py    # Processador específico para este relatório
+│       - Leitura do Excel
+│       - Processamento das tabelas dinâmicas
+│       - Geração de gráficos
+│       - Exportação de dados processados
+
+B. INTERFACE STREAMLIT (PROTÓTIPO)
+- Upload do arquivo Excel
+- Preview dos dados carregados
+- Área de cola de imagens (Ctrl+V)
+- Visualização dos gráficos gerados
+- Organização das imagens coladas
+- Preview do relatório final
+
+C. INTERFACE NEXT.JS (FINAL)
+Components/
+├── BoletimPlantadeiras/
+│   ├── ExcelUploader.tsx          # Componente de upload do Excel
+│   ├── ImagePasteArea.tsx         # Área de cola de imagens
+│   ├── DataPreview.tsx            # Visualização dos dados
+│   ├── ChartDisplay.tsx           # Exibição dos gráficos
+│   └── ReportLayout.tsx           # Layout do relatório final
+
+3. FUNCIONALIDADE DE COLA DE IMAGENS
+- Implementação de área de cola (clipboard) para imagens
+- Suporte a múltiplas imagens
+- Preview instantâneo após cola
+- Organização/reordenação das imagens
+- Opção de remoção de imagens
+- Armazenamento temporário das imagens
+
+4. PROCESSAMENTO DE DADOS
+- Leitura e validação do Excel
+- Identificação de colunas principais
+- Geração de tabelas dinâmicas
+- Cálculos estatísticos
+- Geração de gráficos
+  * Tipos de gráficos a serem definidos após visualização do PDF
+  * Customização de cores e estilos
+  * Exportação em formato adequado
+
+5. ARMAZENAMENTO
+- Armazenamento temporário das imagens coladas
+- Cache de dados processados
+- Histórico de relatórios gerados
+- Backup dos dados originais
+
+6. PRÓXIMOS PASSOS
+1. Aguardar PDF do relatório final para:
+   - Identificar tipos de gráficos necessários
+   - Definir layout exato do relatório
+   - Estabelecer regras de negócio específicas
+2. Implementar processador básico do Excel
+3. Criar protótipo da área de cola de imagens
+4. Desenvolver geração de gráficos
+5. Integrar todos os componentes
+
+7. CONSIDERAÇÕES TÉCNICAS
+- Uso de biblioteca clipboard.js para manipulação do ctrl+V
+- Processamento em chunks para arquivos grandes
+- Otimização de memória para grande volume de dados
+- Validação de formato das imagens coladas
+- Compressão de imagens se necessário
+- Cache de processamento para reuso 

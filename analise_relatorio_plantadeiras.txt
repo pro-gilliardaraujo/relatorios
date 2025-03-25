@@ -1,0 +1,128 @@
+ANÁLISE DO RELATÓRIO DIÁRIO PLANTADEIRAS
+
+1. ESTRUTURA DO RELATÓRIO
+O relatório está dividido em seções claras que monitoram diferentes aspectos das plantadeiras:
+
+A. INDICADORES DE TEMPO E EFICIÊNCIA
+- TOP 5 Ofensores (Gráfico de barras com percentuais)
+  * Mostra principais causas de tempo perdido
+  * Usa código de cores (vermelho) para indicar problemas
+  * Apresenta valores em horas e percentuais
+
+- Horas Trabalhadas Plantadeira (Gráfico de barras)
+  * Separado por equipamento (6126, 6128, 6129)
+  * Apresenta tempo efetivo de trabalho
+  * Usa cor verde para indicar produtividade
+
+B. ANÁLISE DE MOTOR
+- Motor Ocioso (Gráfico combinado)
+  * Barras para tempo total
+  * Linha para percentual de ociosidade
+  * Separado por equipamento com tendência
+
+- Motor Ocioso Por Operação (Gráfico cascata)
+  * Detalhamento das causas de ociosidade
+  * Ordenado por tempo decrescente
+  * Mostra impacto de cada operação
+
+C. INDICADORES DE PERFORMANCE
+- Disponibilidade Mecânica (Gráfico de barras)
+  * Percentual por equipamento
+  * Código de cores (vermelho/verde)
+  * Comparativo entre máquinas
+
+- Utilização RTK (Gráficos de rosca)
+  * Percentual de utilização por equipamento
+  * Visual claro de status (vermelho/verde)
+  * Identificação por número do equipamento
+
+- Média de Velocidade (Gráfico de barras horizontais)
+  * Separado por tipo de operação
+  * Categorias: Deslocamento, Manobra, Trabalhando
+  * Código de cores por atividade
+
+D. ANÁLISE OPERACIONAL
+- Grupo de Operação (Gráficos de pizza)
+  * Distribuição de tempo por atividade
+  * Múltiplas categorias por equipamento
+  * Legenda detalhada de atividades
+
+- Utilização Motor Ligado (Gráfico de barras)
+  * Análise temporal por estado
+  * Categorização por tipo de atividade
+  * Código de cores por estado
+
+E. MAPAS DE OPERAÇÃO
+1. Área de Plantio
+   * Visualização geográfica
+   * Indicador de progresso
+   * Cobertura da área
+
+2. Mapa de Velocidade
+   * Heat map de velocidades
+   * Legendas com faixas de velocidade
+   * Visualização lado a lado
+
+3. Mapa de RPM
+   * Distribuição de RPM
+   * Faixas de operação
+   * Percentuais por faixa
+
+4. Consumo de Combustível
+   * Mapa de consumo
+   * Faixas de consumo
+   * Análise por região
+
+5. Mapa de Temperatura Motor
+   * Monitoramento térmico
+   * Faixas de temperatura
+   * Alertas visuais
+
+6. Mapa Por Área Total
+   * Status operacional
+   * Diferentes estados de operação
+   * Visão completa da área
+
+2. CONSIDERAÇÕES PARA IMPLEMENTAÇÃO
+
+A. LAYOUT E CONTAINERS
+- Necessidade de containers flexíveis para dois tipos de visualização:
+  * Gráficos estatísticos (charts)
+  * Mapas geográficos
+- Sistema de grid adaptativo para:
+  * Visualização única
+  * Visualização lado a lado
+  * Responsividade
+
+B. PROCESSAMENTO DE IMAGENS
+- Mapas precisam manter aspecto ratio
+- Necessidade de zoom para detalhes
+- Legendas devem permanecer legíveis
+
+C. AGRUPAMENTO LÓGICO
+- Agrupar indicadores relacionados
+- Manter consistência visual
+- Permitir comparação fácil
+
+DÚVIDAS PARA ESCLARECIMENTO:
+
+1. Sobre os dados:
+   - Qual a frequência de atualização dos dados?
+   - Os dados vêm em tempo real ou são consolidados?
+   - Existe um padrão nas colunas do Excel ou pode variar?
+
+2. Sobre a operação:
+   - Qual o significado específico de "Plantio de Muda"?
+   - Como são definidos os limites de cada faixa nos mapas?
+   - O que determina os estados de "Deslocamento p/ Desc" vs "Deslocamento"?
+
+3. Sobre a visualização:
+   - Existe preferência de ordem para exibição dos gráficos?
+   - Os mapas precisam ter interatividade (zoom, pan)?
+   - É necessário manter todas as visualizações em uma única página?
+   - Existe necessidade de exportação dos gráficos individualmente?
+
+4. Sobre o processamento:
+   - Como são gerados os mapas atualmente?
+   - Os dados geográficos vêm no mesmo Excel ou são separados?
+   - Qual o formato das coordenadas geográficas? 
