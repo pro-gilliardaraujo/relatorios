@@ -1,21 +1,33 @@
-import { Providers } from './providers'
-import type { Metadata } from 'next'
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Boletim Plantadeiras',
-  description: 'Sistema de processamento e visualização de dados de plantadeiras',
-}
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { theme } from '@/styles/theme';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  }
+});
 
 export default function RootLayout({
-  children,
+  children
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="pt-BR">
       <body>
-        <Providers>{children}</Providers>
+        <QueryClientProvider client={queryClient}>
+          <ChakraProvider theme={theme}>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+            {children}
+          </ChakraProvider>
+        </QueryClientProvider>
       </body>
     </html>
-  )
+  );
 } 
