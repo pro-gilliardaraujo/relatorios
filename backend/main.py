@@ -18,7 +18,7 @@ app.add_middleware(
 )
 
 # Incluindo as rotas
-app.include_router(reports.router, prefix="/api/v1/reports", tags=["reports"])
+app.include_router(reports.router, prefix="/api/v1/relatorios", tags=["relatorios"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
 
 if __name__ == "__main__":

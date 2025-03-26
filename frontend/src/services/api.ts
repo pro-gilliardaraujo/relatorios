@@ -35,7 +35,7 @@ export const reportService = {
     formData.append('file', file);
     
     const response = await api.post<{ message: string; data: DailyReportData }>(
-      '/reports/upload',
+      '/relatorios/upload',
       formData,
       {
         params: { save_processed: saveProcessed },
@@ -49,7 +49,7 @@ export const reportService = {
   },
 
   async getDailyReport(date: string, equipmentIds?: string[], metrics?: string[]) {
-    const response = await api.get<DailyReportData>('/reports/daily', {
+    const response = await api.get<DailyReportData>('/relatorios/daily', {
       params: {
         report_date: date,
         equipment_ids: equipmentIds,
@@ -66,7 +66,7 @@ export const reportService = {
     equipmentIds?: string[],
     groupBy?: string
   ) {
-    const response = await api.get('/reports/analytics', {
+    const response = await api.get('/relatorios/analytics', {
       params: {
         start_date: startDate,
         end_date: endDate,
