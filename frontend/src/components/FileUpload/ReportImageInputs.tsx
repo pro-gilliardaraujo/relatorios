@@ -141,7 +141,7 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
               
               <Box 
                 position="relative" 
-                h={{ base: "165px", md: "185px", lg: "205px" }}
+                h={{ base: "145px", md: "165px", lg: "180px" }}
                 border="1px"
                 borderColor="gray.200"
                 borderRadius="md"
@@ -158,13 +158,26 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
                       onClick={() => removeImage(section.id)}
                       zIndex={1}
                     />
-                    <Image
-                      src={section.image}
-                      alt={section.label}
+                    <Box
+                      position="relative"
                       w="100%"
                       h="100%"
-                      objectFit="cover"
-                    />
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      overflow="hidden"
+                    >
+                      <Image
+                        src={section.image}
+                        alt={section.label}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain',
+                          objectPosition: 'center'
+                        }}
+                      />
+                    </Box>
                   </>
                 ) : (
                   <Box

@@ -132,20 +132,20 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false }: ExcelU
       <Button
         as="label"
         htmlFor="excel-upload"
-        leftIcon={<FiUpload />}
-        colorScheme={isDragging ? "blue" : "gray"}
-        variant={isDragging ? "solid" : "outline"}
+        colorScheme="blue"
+        variant="outline"
         size="md"
         cursor={isEnabled ? "pointer" : "not-allowed"}
+        opacity={isEnabled ? 1 : 0.5}
+        color="black"
+        _hover={{ bg: 'gray.50' }}
+        w={{ base: "100%", sm: "auto" }}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        transition="all 0.2s"
-        _hover={isEnabled ? { transform: "translateY(-1px)" } : undefined}
-        opacity={isEnabled ? 1 : 0.6}
-        title={isEnabled ? undefined : "Preencha o tipo de relatório, data e frente"}
       >
-        {file ? file.name : 'Arquivo Excel'}
+        <FiUpload />
+        <Text ml={2}>Upload Excel</Text>
       </Button>
     </Box>
   );

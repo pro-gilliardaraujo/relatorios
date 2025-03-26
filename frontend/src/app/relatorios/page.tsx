@@ -40,24 +40,24 @@ export default function ReportsPage() {
       {/* Sidebar */}
       <Box
         w="250px"
-        bg="blue.500"
+        bg="#2B79C2"
         display={{ base: 'none', lg: 'block' }}
       >
-        <Text color="white" p={4} fontSize="sm">Menu</Text>
+        <Text color="white" p={2} fontSize="sm">Menu</Text>
       </Box>
 
       {/* Conteúdo Principal */}
-      <Box flex="1">
+      <Box flex="1" bg="white">
         {/* Header */}
-        <Box px={6} py={4} borderBottom="1px" borderColor="gray.200" bg="white">
+        <Box p={2} borderBottom="1px" borderColor="gray.300" bg="white">
           <Flex 
             justify="space-between" 
             align="center"
             direction={{ base: "column", md: "row" }}
-            gap={4}
+            gap={2}
           >
             <Flex 
-              gap={4} 
+              gap={2} 
               direction={{ base: "column", sm: "row" }}
               w={{ base: "100%", md: "auto" }}
             >
@@ -66,12 +66,15 @@ export default function ReportsPage() {
                   placeholder="Tipo de Relatório"
                   size="md"
                   bg="white"
+                  color="black"
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "gray.400" }}
                 >
-                  <option value="plantio">Plantio</option>
-                  <option value="colheita">Colheita</option>
-                  <option value="cav">CAV</option>
+                  <option style={{ color: 'black' }} value="plantio">Plantio</option>
+                  <option style={{ color: 'black' }} value="colheita">Colheita</option>
+                  <option style={{ color: 'black' }} value="cav">CAV</option>
                 </Select>
               </Box>
               <Box w={{ base: "100%", sm: "200px" }}>
@@ -81,6 +84,9 @@ export default function ReportsPage() {
                   onChange={(e) => setSelectedDate(e.target.value)}
                   size="md"
                   bg="white"
+                  color="black"
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "gray.400" }}
                 />
               </Box>
               <Box w={{ base: "100%", sm: "200px" }}>
@@ -88,12 +94,15 @@ export default function ReportsPage() {
                   placeholder="Selecione a Frente"
                   size="md"
                   bg="white"
+                  color="black"
                   value={selectedFrente}
                   onChange={(e) => setSelectedFrente(e.target.value)}
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "gray.400" }}
                 >
-                  <option value="frente1">Frente 1</option>
-                  <option value="frente2">Frente 2</option>
-                  <option value="frente3">Frente 3</option>
+                  <option style={{ color: 'black' }} value="frente1">Frente 1</option>
+                  <option style={{ color: 'black' }} value="frente2">Frente 2</option>
+                  <option style={{ color: 'black' }} value="frente3">Frente 3</option>
                 </Select>
               </Box>
               <Box w={{ base: "100%", sm: "auto" }}>
@@ -106,11 +115,14 @@ export default function ReportsPage() {
             <Button
               leftIcon={<FiEye />}
               colorScheme="blue"
+              variant="outline"
               size="md"
               isDisabled={!isReportGenerated}
               onClick={() => {/* Implementar visualização */}}
               w={{ base: "100%", md: "auto" }}
               title={!isReportGenerated ? "Aguardando geração do relatório pelo servidor" : "Visualizar relatório gerado"}
+              color="black"
+              _hover={{ bg: 'gray.50' }}
             >
               Visualizar Relatório
             </Button>
@@ -118,15 +130,14 @@ export default function ReportsPage() {
         </Box>
 
         {/* Área de Conteúdo */}
-        <Box p={2} h="calc(100vh - 82px)" overflow="auto">
-          <Flex direction="column" gap={4} h="100%">
+        <Box p={2} h="calc(100vh - 65px)" overflow="auto" bg="white">
+          <Flex direction="column" gap={2} h="100%">
             {/* Seção Superior - Upload Excel */}
             <Box
               bg="white"
-              borderRadius="lg"
-              boxShadow="sm"
+              borderRadius="md"
               border="1px"
-              borderColor="gray.100"
+              borderColor="gray.300"
               h="250px"
               minH="250px"
               maxH="250px"
@@ -134,19 +145,16 @@ export default function ReportsPage() {
               <Flex 
                 p={2}
                 borderBottom="1px" 
-                borderColor="gray.100"
-                justify="space-between"
+                borderColor="gray.300"
+                justify="center"
                 align="center"
-                direction={{ base: "column", sm: "row" }}
-                gap={2}
+                bg="white"
               >
-                <Box flex="1" textAlign="center">
-                  <Heading size="sm" color="gray.700">
-                    Dados do Excel
-                  </Heading>
-                </Box>
+                <Heading size="sm" color="gray.700">
+                  Dados do Excel
+                </Heading>
               </Flex>
-              <Box p={2} h="calc(100% - 45px)" overflow="hidden">
+              <Box p={2} h="calc(100% - 37px)" overflow="hidden">
                 <ExcelPreview preview={previewData} />
               </Box>
             </Box>
@@ -154,26 +162,25 @@ export default function ReportsPage() {
             {/* Seção Inferior - Imagens */}
             <Box
               bg="white"
-              borderRadius="lg"
-              boxShadow="sm"
+              borderRadius="md"
               border="1px"
-              borderColor="gray.100"
+              borderColor="gray.300"
               flex="1"
-              minH="400px"
               overflow="auto"
             >
               <Flex 
-                p={3}
+                p={2}
                 borderBottom="1px" 
-                borderColor="gray.100"
+                borderColor="gray.300"
                 justify="center"
                 align="center"
+                bg="white"
               >
                 <Heading size="sm" color="gray.700">
                   {`Imagens do Relatório${reportType ? ` - ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}` : ''}${selectedFrente ? ` - ${selectedFrente.charAt(0).toUpperCase() + selectedFrente.slice(1)}` : ''}`}
                 </Heading>
               </Flex>
-              <Box p={2} h="calc(100% - 45px)" overflow="auto">
+              <Box p={2}>
                 <ReportImageInputs 
                   reportType={reportType} 
                   frente={selectedFrente}
