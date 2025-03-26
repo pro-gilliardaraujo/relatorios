@@ -1,116 +1,123 @@
-# Processador de Boletim Diário - Plantadeiras
+# Boletim Plantadeiras - Sistema de Análise
 
-Este projeto implementa um sistema de processamento e visualização de dados para o Boletim Diário de Plantadeiras, permitindo a análise de dados operacionais e geração de relatórios com gráficos e indicadores de performance.
+Sistema de análise e geração de relatórios para dados de plantadeiras, com backend em Python/FastAPI e frontend em Next.js.
 
-## Funcionalidades
+## Estrutura do Projeto
 
-- Processamento de arquivos Excel/CSV com dados operacionais
-- Cálculo de indicadores de performance (disponibilidade, utilização, etc.)
-- Geração de gráficos e visualizações
-- Interface web com Streamlit
-- Suporte para colagem de imagens (Ctrl+V)
-- Validação e limpeza de dados
-- Exportação de relatórios
+```
+.
+├── backend/                      # API e processamento (Python/FastAPI)
+│   ├── app/
+│   │   ├── api/                 # Endpoints da API
+│   │   ├── core/               # Configurações principais
+│   │   ├── processors/         # Processadores de dados
+│   │   └── models/             # Modelos de dados
+│   └── main.py                 # Ponto de entrada da API
+└── frontend/                    # Interface (Next.js)
+```
 
 ## Requisitos
 
 - Python 3.8+
-- pip (gerenciador de pacotes Python)
-- Navegador web moderno
+- Node.js 18+
+- PostgreSQL (opcional)
+- Redis (opcional, para cache)
 
 ## Instalação
 
 1. Clone o repositório:
 ```bash
 git clone [URL_DO_REPOSITORIO]
-cd [NOME_DO_DIRETORIO]
+cd boletim-plantadeiras
 ```
 
-2. Crie um ambiente virtual Python:
+2. Configure o ambiente Python:
 ```bash
 python -m venv venv
-```
-
-3. Ative o ambiente virtual:
-- Windows:
-```bash
-venv\Scripts\activate
-```
-- Linux/Mac:
-```bash
-source venv/bin/activate
-```
-
-4. Instale as dependências:
-```bash
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 ```
 
-## Uso
-
-1. Ative o ambiente virtual (se ainda não estiver ativo)
-
-2. Execute a aplicação Streamlit:
+3. Configure as variáveis de ambiente:
 ```bash
-streamlit run src/interface/app.py
+cp .env.example .env
+# Edite o arquivo .env com suas configurações
 ```
 
-3. Acesse a interface web no navegador (geralmente em http://localhost:8501)
+## Executando o Backend
 
-4. Na interface:
-   - Use o botão "Carregar arquivo Excel/CSV" para selecionar o arquivo de dados
-   - Cole imagens usando Ctrl+V na área designada
-   - Visualize os gráficos e indicadores gerados
-   - Exporte os resultados conforme necessário
-
-## Estrutura do Projeto
-
-```
-.
-├── data/                  # Diretório para armazenamento de dados
-├── src/                   # Código fonte
-│   ├── processors/       # Processadores de dados
-│   ├── interface/        # Interface Streamlit
-│   ├── config/          # Configurações
-│   └── utils/           # Utilitários
-├── tests/                # Testes
-├── temp_data/            # Dados temporários
-├── requirements.txt      # Dependências
-└── README.md            # Este arquivo
-```
-
-## Configuração
-
-As principais configurações podem ser ajustadas no arquivo `src/config/settings.py`:
-
-- Estados operacionais
-- Colunas obrigatórias
-- Cores dos gráficos
-- Parâmetros de processamento
-- Configurações de layout
-
-## Desenvolvimento
-
-Para contribuir com o projeto:
-
-1. Crie um branch para suas alterações
-2. Mantenha os testes atualizados
-3. Siga o padrão de código existente
-4. Documente novas funcionalidades
-5. Faça um pull request
-
-## Testes
-
-Para executar os testes:
-
+1. Ative o ambiente virtual:
 ```bash
-pytest tests/
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 ```
 
-## Suporte
+2. Execute o servidor de desenvolvimento:
+```bash
+cd backend
+uvicorn main:app --reload
+```
 
-Para reportar problemas ou sugerir melhorias, abra uma issue no repositório.
+O servidor estará disponível em `http://localhost:8000`
+
+## API Endpoints
+
+### Upload de Arquivo
+```http
+POST /api/v1/reports/upload
+```
+- Aceita arquivos Excel (.xlsx) ou CSV
+- Parâmetro opcional `save_processed=true` para salvar dados processados
+
+### Relatório Diário
+```http
+GET /api/v1/reports/daily?report_date=2024-03-25
+```
+- Parâmetros opcionais:
+  - `equipment_ids`: Lista de IDs de equipamentos
+  - `metrics`: Lista de métricas específicas
+
+### Análises
+```http
+GET /api/v1/reports/analytics
+```
+- Parâmetros obrigatórios:
+  - `start_date`: Data inicial
+  - `end_date`: Data final
+- Parâmetros opcionais:
+  - `equipment_ids`: Lista de IDs de equipamentos
+  - `group_by`: Agrupamento (equipment, operation, state)
+
+## Dados Processados
+
+O sistema processa os seguintes tipos de dados:
+
+1. Métricas Operacionais
+   - Tempo total por estado
+   - Média de velocidade por operação
+   - Tempo de motor ocioso
+
+2. Indicadores de Performance
+   - Disponibilidade mecânica
+   - Utilização do RTK
+   - Horas totais e de manutenção
+
+3. Análise de Tempo
+   - Distribuição por grupo de operação
+   - Top 5 ofensores (tempos perdidos)
+
+4. Dados Geográficos
+   - Coordenadas de operação
+   - Estado operacional por ponto
+   - Velocidade e RPM por localização
+
+## Contribuindo
+
+1. Crie uma branch para sua feature
+2. Faça commit das suas alterações
+3. Envie um pull request
 
 ## Licença
 
-[Tipo de Licença] - Veja o arquivo LICENSE para detalhes. 
+Este projeto está licenciado sob a [MIT License](LICENSE). 

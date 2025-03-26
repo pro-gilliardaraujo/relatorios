@@ -1,40 +1,34 @@
-from pathlib import Path
-from typing import List
 from pydantic_settings import BaseSettings
+from typing import List
+import os
+from pathlib import Path
 
 class Settings(BaseSettings):
-    """Configurações da aplicação."""
-    
-    # API
-    API_V1_STR: str = "/api/v1"
+    # Configurações básicas
     PROJECT_NAME: str = "Boletim Plantadeiras API"
+    VERSION: str = "1.0.0"
+    API_V1_STR: str = "/api/v1"
     
-    # CORS
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",  # Frontend Next.js
-        "http://localhost:8000",  # Backend FastAPI
-    ]
+    # Configurações do servidor
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
     
-    # Diretórios
-    BASE_DIR: Path = Path(__file__).parent.parent.parent
-    TEMP_DIR: Path = BASE_DIR / "temp"
-    DATA_DIR: Path = BASE_DIR / "data"
-    TEMP_IMAGES_DIR: Path = TEMP_DIR / "images"
+    # Configurações de segurança
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-here")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 dias
     
-    # Limites
+    # Configurações de arquivos
+    UPLOAD_DIR: Path = Path("uploads")
+    ALLOWED_EXTENSIONS: List[str] = ["xlsx", "csv"]
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
     
-    # Processamento
-    ALLOWED_EXTENSIONS: List[str] = [".xlsx", ".csv"]
-    ALLOWED_IMAGE_TYPES: List[str] = ["image/jpeg", "image/png", "image/gif"]
+    # Configurações de cache
+    CACHE_EXPIRE_MINUTES: int = 60  # 1 hora
     
     class Config:
         case_sensitive = True
 
-# Cria uma instância das configurações
 settings = Settings()
 
-# Cria os diretórios necessários
-settings.TEMP_DIR.mkdir(exist_ok=True)
-settings.DATA_DIR.mkdir(exist_ok=True)
-settings.TEMP_IMAGES_DIR.mkdir(exist_ok=True) 
+# Criar diretório de uploads se não existir
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True) 

@@ -1,83 +1,114 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
-from typing import Dict, Optional
-import tempfile
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query
+from typing import List, Optional
+from datetime import date, datetime
+from ...processors.excel_processor import ExcelProcessor
+from ...core.config import settings
+import json
 from pathlib import Path
 
-from ...processors.plantadeiras_processor import PlantadeirasProcessor
-from ...schemas.report import ReportResponse, ProcessingError
-
 router = APIRouter()
+processor = ExcelProcessor()
 
-@router.post("/process", response_model=ReportResponse)
-async def process_report(file: UploadFile = File(...)):
+@router.post("/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    save_processed: bool = Query(False, description="Salvar dados processados para uso futuro")
+):
     """
-    Processa um arquivo Excel/CSV e retorna os dados processados.
+    Upload e processamento de arquivo Excel/CSV
     """
-    if not file.filename.endswith(('.xlsx', '.csv')):
-        raise HTTPException(
-            status_code=400,
-            detail="Formato de arquivo inválido. Use Excel (.xlsx) ou CSV."
-        )
-    
     try:
-        # Salva o arquivo temporariamente
-        with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as temp_file:
-            content = await file.read()
-            temp_file.write(content)
-            temp_path = Path(temp_file.name)
+        # Validar arquivo
+        await processor.validate_file(file)
         
-        # Processa os dados
-        processor = PlantadeirasProcessor()
-        processor.load_data(temp_path)
+        # Processar arquivo
+        processed_data = await processor.process_file(file)
         
-        # Valida os dados
-        is_valid, errors = processor.validate_data()
-        if not is_valid:
-            return JSONResponse(
-                status_code=400,
-                content={"errors": errors}
-            )
-        
-        # Processa e retorna os resultados
-        results = processor.process_data()
-        graphs = processor.generate_graphs(results)
+        if save_processed:
+            # Criar nome único para o arquivo processado
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            processed_filename = f"processed_{timestamp}.json"
+            
+            # Salvar dados processados
+            processed_path = settings.UPLOAD_DIR / processed_filename
+            with open(processed_path, 'w', encoding='utf-8') as f:
+                json.dump(processed_data, f, ensure_ascii=False, indent=2)
         
         return {
-            "status": "success",
-            "data": results,
-            "graphs": graphs
+            "message": "Arquivo processado com sucesso",
+            "data": processed_data
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/daily")
+async def get_daily_report(
+    report_date: date = Query(..., description="Data do relatório (YYYY-MM-DD)"),
+    equipment_ids: Optional[List[str]] = Query(None, description="IDs dos equipamentos"),
+    metrics: Optional[List[str]] = Query(None, description="Métricas específicas para retornar")
+):
+    """
+    Recupera relatório diário processado
+    """
+    try:
+        # Construir padrão do nome do arquivo
+        date_str = report_date.strftime("%Y%m%d")
+        files = list(settings.UPLOAD_DIR.glob(f"processed_{date_str}_*.json"))
+        
+        if not files:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Nenhum relatório encontrado para a data {report_date}"
+            )
+        
+        # Pegar o arquivo mais recente
+        latest_file = max(files, key=lambda x: x.stat().st_mtime)
+        
+        # Carregar dados
+        with open(latest_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Filtrar por equipamento se especificado
+        if equipment_ids:
+            # Implementar filtro por equipamento
+            pass
+        
+        # Filtrar métricas se especificado
+        if metrics:
+            filtered_data = {k: v for k, v in data.items() if k in metrics}
+            return filtered_data
+        
+        return data
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/analytics")
+async def get_analytics(
+    start_date: date = Query(..., description="Data inicial (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="Data final (YYYY-MM-DD)"),
+    equipment_ids: Optional[List[str]] = Query(None, description="IDs dos equipamentos"),
+    group_by: Optional[str] = Query(None, description="Agrupar por (equipment, operation, state)")
+):
+    """
+    Recupera análises agregadas por período
+    """
+    try:
+        # Implementar lógica de agregação de dados
+        # Esta é uma implementação básica que deve ser expandida
+        
+        analytics_data = {
+            "period": {
+                "start": start_date.isoformat(),
+                "end": end_date.isoformat()
+            },
+            "equipment_ids": equipment_ids,
+            "group_by": group_by,
+            # Adicionar dados agregados aqui
         }
         
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erro ao processar arquivo: {str(e)}"
-        )
+        return analytics_data
     
-    finally:
-        # Limpa o arquivo temporário
-        if 'temp_path' in locals() and temp_path.exists():
-            temp_path.unlink()
-
-@router.get("/{report_id}")
-async def get_report(report_id: str):
-    """
-    Recupera um relatório processado pelo ID.
-    """
-    # TODO: Implementar recuperação de relatório do banco de dados
-    raise HTTPException(
-        status_code=501,
-        detail="Funcionalidade ainda não implementada"
-    )
-
-@router.post("/generate")
-async def generate_report(report_id: str):
-    """
-    Gera o relatório final com dados e imagens.
-    """
-    # TODO: Implementar geração de relatório final
-    raise HTTPException(
-        status_code=501,
-        detail="Funcionalidade ainda não implementada"
-    ) 
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) 
