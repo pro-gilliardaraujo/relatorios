@@ -12,52 +12,72 @@ import {
   Image,
   CloseButton,
   Flex,
+  Select,
 } from '@chakra-ui/react';
+import { useReportStore } from '@/store/useReportStore';
 
 interface ImageSection {
   id: string;
   label: string;
   image: string | null;
+  fonte: string;
 }
 
 interface ReportImageInputsProps {
   reportType: string;
   frente: string;
+  fonte: string;
 }
 
 // Definindo as seções de imagens para cada tipo de relatório
 const reportSections: Record<string, ImageSection[]> = {
   plantio: [
-    { id: 'areaPlantio', label: 'Área de Plantio', image: null },
-    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null },
-    { id: 'mapaRPM', label: 'Mapa de RPM', image: null },
-    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null },
-    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null },
-    { id: 'mapaAreaTotal', label: 'Mapa por Área Total', image: null },
+    { id: 'areaPlantio', label: 'Área de Plantio', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaRPM', label: 'Mapa de RPM', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaAreaTotal', label: 'Mapa por Área Total', image: null, fonte: 'SGPA - Solinftec' },
   ],
   colheita: [
-    { id: 'areaColheita', label: 'Área de Colheita', image: null },
-    { id: 'mapaProdutividade', label: 'Mapa de Produtividade', image: null },
-    { id: 'mapaUmidade', label: 'Mapa de Umidade', image: null },
-    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null },
-    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null },
+    { id: 'areaColheita', label: 'Área de Colheita', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaProdutividade', label: 'Mapa de Produtividade', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaUmidade', label: 'Mapa de Umidade', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null, fonte: 'SGPA - Solinftec' },
   ],
   cav: [
-    { id: 'areaCobertura', label: 'Área de Cobertura', image: null },
-    { id: 'mapaAplicacao', label: 'Mapa de Aplicação', image: null },
-    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null },
-    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null },
+    { id: 'areaCobertura', label: 'Área de Cobertura', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaAplicacao', label: 'Mapa de Aplicação', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: 'SGPA - Solinftec' },
   ],
 };
 
-export default function ReportImageInputs({ reportType, frente }: ReportImageInputsProps) {
+export default function ReportImageInputs({ reportType, frente, fonte }: ReportImageInputsProps) {
   const [sections, setSections] = useState<ImageSection[]>([]);
+  const { addImage, removeImage, images, updateImageFonte } = useReportStore();
 
   useEffect(() => {
     if (reportType) {
       setSections(reportSections[reportType] || []);
     }
   }, [reportType]);
+
+  useEffect(() => {
+    if (fonte) {
+      // Atualiza as seções locais
+      setSections(prev => prev.map(section => ({
+        ...section,
+        fonte
+      })));
+      
+      // Atualiza as fontes das imagens existentes no store
+      images.forEach(image => {
+        updateImageFonte(image.containerId, fonte);
+      });
+    }
+  }, [fonte, updateImageFonte, images]);
 
   const handlePaste = (sectionId: string) => async (e: React.ClipboardEvent) => {
     e.preventDefault();
@@ -78,6 +98,12 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
                 ? { ...section, image: dataUrl }
                 : section
             ));
+            // Adicionar imagem ao store global com a fonte atual
+            addImage({
+              data: dataUrl,
+              containerId: sectionId,
+              fonte: fonte || 'SGPA - Solinftec'
+            });
           };
           reader.readAsDataURL(file);
         }
@@ -85,12 +111,60 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
     }
   };
 
-  const removeImage = (sectionId: string) => {
+  const handleDrop = (sectionId: string) => async (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    
+    const imageFile = files.find(file => file.type.startsWith('image/'));
+    if (imageFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setSections(sections.map(section => 
+          section.id === sectionId 
+            ? { ...section, image: dataUrl }
+            : section
+        ));
+        // Adicionar imagem ao store global com a fonte atual
+        addImage({
+          data: dataUrl,
+          containerId: sectionId,
+          fonte: fonte || 'SGPA - Solinftec'
+        });
+      };
+      reader.readAsDataURL(imageFile);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLElement;
+    target.style.backgroundColor = '#EDF2F7';
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLElement;
+    target.style.backgroundColor = '#F7FAFC';
+  };
+
+  const handleRemoveImage = (sectionId: string) => {
     setSections(sections.map(section =>
       section.id === sectionId
         ? { ...section, image: null }
         : section
     ));
+    removeImage(sectionId);
+  };
+
+  const handleFonteChange = (sectionId: string, newFonte: string) => {
+    setSections(sections.map(section =>
+      section.id === sectionId
+        ? { ...section, fonte: newFonte }
+        : section
+    ));
+    // Atualizar a fonte no store global
+    updateImageFonte(sectionId, newFonte);
   };
 
   if (!reportType) {
@@ -126,18 +200,16 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
         {sections.map((section) => (
           <GridItem key={section.id}>
             <FormControl>
-              <Grid templateColumns="1fr" gap={2} mb={2}>
-                <FormLabel
-                  m={0}
-                  fontSize={{ base: "xs", md: "sm" }}
-                  color="gray.700"
-                  fontWeight="medium"
-                  textAlign="center"
-                  w="100%"
-                >
-                  {section.label}
-                </FormLabel>
-              </Grid>
+              <FormLabel
+                m={0}
+                fontSize={{ base: "xs", md: "sm" }}
+                color="gray.700"
+                fontWeight="medium"
+                textAlign="center"
+                w="100%"
+              >
+                {section.label}
+              </FormLabel>
               
               <Box 
                 position="relative" 
@@ -155,8 +227,12 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
                       right={1}
                       top={1}
                       bg="white"
-                      onClick={() => removeImage(section.id)}
-                      zIndex={1}
+                      onClick={() => handleRemoveImage(section.id)}
+                      zIndex={2}
+                      boxShadow="md"
+                      borderRadius="full"
+                      color="black"
+                      _hover={{ bg: 'gray.100' }}
                     />
                     <Box
                       position="relative"
@@ -177,6 +253,44 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
                           objectPosition: 'center'
                         }}
                       />
+                      <Box
+                        position="absolute"
+                        bottom={2}
+                        right={2}
+                        display="flex"
+                        alignItems="center"
+                        gap={2}
+                        bg="white"
+                        px={2}
+                        py={1}
+                        borderRadius="sm"
+                        boxShadow="sm"
+                      >
+                        <Text fontSize="xs" color="gray.600">
+                          Fonte:
+                        </Text>
+                        <Select
+                          size="xs"
+                          value={section.fonte}
+                          onChange={(e) => handleFonteChange(section.id, e.target.value)}
+                          bg="white"
+                          color="black"
+                          border="none"
+                          _focus={{ border: "none" }}
+                          w="auto"
+                          pl={0}
+                          sx={{
+                            option: {
+                              bg: 'white',
+                              color: 'black'
+                            }
+                          }}
+                        >
+                          <option value="">Não Informar</option>
+                          <option value="SGPA - Solinftec">SGPA - Solinftec</option>
+                          <option value="Operations Center - John Deere">Operations Center - John Deere</option>
+                        </Select>
+                      </Box>
                     </Box>
                   </>
                 ) : (
@@ -185,7 +299,14 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
                     role="button"
                     tabIndex={0}
                     onPaste={handlePaste(section.id)}
-                    onKeyDown={(e) => e.key === 'v' && e.ctrlKey && handlePaste(section.id)}
+                    onDrop={handleDrop(section.id)}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onKeyDown={(e) => {
+                      if (e.key === 'v' && e.ctrlKey) {
+                        handlePaste(section.id)(e as unknown as React.ClipboardEvent);
+                      }
+                    }}
                     cursor="pointer"
                     w="100%"
                     h="100%"
@@ -203,7 +324,7 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
                       gap={2}
                     >
                       <Text fontSize={{ base: "xs", md: "sm" }} color="gray.400">
-                        Aguardando imagem
+                        Arraste uma imagem ou use Ctrl+V
                       </Text>
                       <Box
                         px={3}
@@ -215,7 +336,7 @@ export default function ReportImageInputs({ reportType, frente }: ReportImageInp
                         borderColor="gray.300"
                       >
                         <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
-                          Ctrl+V
+                          Ctrl+V ou Arraste
                         </Text>
                       </Box>
                     </Flex>

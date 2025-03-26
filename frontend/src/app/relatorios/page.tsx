@@ -5,6 +5,8 @@ import { FiEye } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
 import { useState, useEffect } from 'react';
+import { useReportStore } from '@/store/useReportStore';
+import { useRouter } from 'next/navigation';
 
 interface PreviewData {
   headers: string[];
@@ -12,6 +14,18 @@ interface PreviewData {
 }
 
 export default function ReportsPage() {
+  const router = useRouter();
+  const { 
+    isReportGenerated, 
+    setReportGenerated, 
+    images, 
+    setChartFonte,
+    chartFontes,
+    updateImageFonte 
+  } = useReportStore();
+  const [excelFonte, setExcelFonte] = useState<string>('');
+  const [imagemFonte, setImagemFonte] = useState<string>('');
+
   // Configurando a data de ontem como padrão
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -22,18 +36,71 @@ export default function ReportsPage() {
   const [selectedFrente, setSelectedFrente] = useState<string>('');
   const [isReportReady, setIsReportReady] = useState(false);
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
-  const [isReportGenerated, setIsReportGenerated] = useState(false);
 
   const isUploadEnabled = Boolean(reportType && selectedDate && selectedFrente);
 
   useEffect(() => {
     // Reseta o estado de geração do relatório quando qualquer dado muda
-    setIsReportGenerated(false);
+    setReportGenerated(false);
   }, [previewData, reportType, selectedDate, selectedFrente]);
 
   useEffect(() => {
-    setIsReportReady(Boolean(previewData && reportType && selectedDate && selectedFrente));
-  }, [previewData, reportType, selectedDate, selectedFrente]);
+    setIsReportReady(Boolean(
+      previewData && 
+      reportType && 
+      selectedDate && 
+      selectedFrente && 
+      excelFonte && 
+      imagemFonte
+    ));
+  }, [previewData, reportType, selectedDate, selectedFrente, excelFonte, imagemFonte]);
+
+  const handleGenerateReport = () => {
+    console.log('=== Iniciando geração do relatório ===');
+    console.log('Tipo de relatório:', reportType);
+    console.log('Data selecionada:', selectedDate);
+    console.log('Frente:', selectedFrente);
+    console.log('Fonte Excel:', excelFonte);
+    console.log('Fonte Imagens:', imagemFonte);
+    console.log('Total de imagens:', images.length);
+    console.log('Containers com fonte:', chartFontes.length);
+    
+    setReportGenerated(true);
+    console.log('Relatório marcado como gerado');
+  };
+
+  const handleViewReport = () => {
+    // Navegar para a página de visualização quando implementada
+    router.push('/relatorios/visualizacao/a4/plantio');
+  };
+
+  const handleExcelFonteChange = (newFonte: string) => {
+    setExcelFonte(newFonte);
+    console.log('Atualizando fonte dos gráficos para:', newFonte);
+    // Atualizar todos os containers de gráficos com a nova fonte
+    [
+      'topOfensores',
+      'horasPlantadeira',
+      'motorOcioso',
+      'motorOciosoOperacao',
+      'disponibilidadeMecanica',
+      'utilizacaoRTK',
+      'mediaVelocidade',
+      'grupoOperacao',
+      'utilizacaoMotor'
+    ].forEach(containerId => {
+      setChartFonte(containerId, newFonte);
+    });
+  };
+
+  const handleImagemFonteChange = (newFonte: string) => {
+    setImagemFonte(newFonte);
+    console.log('Atualizando fonte das imagens para:', newFonte);
+    // Atualizar todas as imagens existentes com a nova fonte
+    images.forEach(img => {
+      updateImageFonte(img.containerId, newFonte);
+    });
+  };
 
   return (
     <Flex h="100vh" overflow="hidden">
@@ -71,10 +138,16 @@ export default function ReportsPage() {
                   onChange={(e) => setReportType(e.target.value)}
                   borderColor="gray.300"
                   _hover={{ borderColor: "gray.400" }}
+                  sx={{
+                    option: {
+                      bg: 'white',
+                      color: 'black'
+                    }
+                  }}
                 >
-                  <option style={{ color: 'black' }} value="plantio">Plantio</option>
-                  <option style={{ color: 'black' }} value="colheita">Colheita</option>
-                  <option style={{ color: 'black' }} value="cav">CAV</option>
+                  <option value="plantio">Plantio</option>
+                  <option value="colheita">Colheita</option>
+                  <option value="cav">CAV</option>
                 </Select>
               </Box>
               <Box w={{ base: "100%", sm: "200px" }}>
@@ -99,10 +172,16 @@ export default function ReportsPage() {
                   onChange={(e) => setSelectedFrente(e.target.value)}
                   borderColor="gray.300"
                   _hover={{ borderColor: "gray.400" }}
+                  sx={{
+                    option: {
+                      bg: 'white',
+                      color: 'black'
+                    }
+                  }}
                 >
-                  <option style={{ color: 'black' }} value="frente1">Frente 1</option>
-                  <option style={{ color: 'black' }} value="frente2">Frente 2</option>
-                  <option style={{ color: 'black' }} value="frente3">Frente 3</option>
+                  <option value="frente1">Frente 1</option>
+                  <option value="frente2">Frente 2</option>
+                  <option value="frente3">Frente 3</option>
                 </Select>
               </Box>
               <Box w={{ base: "100%", sm: "auto" }}>
@@ -112,20 +191,37 @@ export default function ReportsPage() {
                 />
               </Box>
             </Flex>
-            <Button
-              leftIcon={<FiEye />}
-              colorScheme="blue"
-              variant="outline"
-              size="md"
-              isDisabled={!isReportGenerated}
-              onClick={() => {/* Implementar visualização */}}
+            <Flex 
+              gap={2} 
+              direction={{ base: "column", sm: "row" }}
               w={{ base: "100%", md: "auto" }}
-              title={!isReportGenerated ? "Aguardando geração do relatório pelo servidor" : "Visualizar relatório gerado"}
-              color="black"
-              _hover={{ bg: 'gray.50' }}
             >
-              Visualizar Relatório
-            </Button>
+              <Button
+                colorScheme="gray"
+                bg="black"
+                color="white"
+                size="md"
+                w={{ base: "100%", md: "auto" }}
+                onClick={handleGenerateReport}
+                _hover={{ bg: 'gray.800' }}
+              >
+                Gerar Relatório
+              </Button>
+              <Button
+                leftIcon={<FiEye />}
+                colorScheme="blue"
+                variant="outline"
+                size="md"
+                isDisabled={!isReportGenerated}
+                onClick={handleViewReport}
+                w={{ base: "100%", md: "auto" }}
+                title={!isReportGenerated ? "Aguardando geração do relatório pelo servidor" : "Visualizar relatório gerado"}
+                color="black"
+                _hover={{ bg: 'gray.50' }}
+              >
+                Visualizar Relatório
+              </Button>
+            </Flex>
           </Flex>
         </Box>
 
@@ -138,21 +234,43 @@ export default function ReportsPage() {
               borderRadius="md"
               border="1px"
               borderColor="gray.300"
-              h="250px"
-              minH="250px"
-              maxH="250px"
+              h="220px"
+              minH="220px"
+              maxH="220px"
             >
               <Flex 
                 p={2}
                 borderBottom="1px" 
                 borderColor="gray.300"
-                justify="center"
+                justify="space-between"
                 align="center"
                 bg="white"
               >
-                <Heading size="sm" color="gray.700">
+                <Heading size="sm" color="gray.700" textAlign="center" flex={1}>
                   Dados do Excel
                 </Heading>
+                <Box w="200px">
+                  <Select
+                    size="xs"
+                    placeholder="Indique a fonte"
+                    value={excelFonte}
+                    onChange={(e) => handleExcelFonteChange(e.target.value)}
+                    bg="white"
+                    color="black"
+                    borderColor="gray.300"
+                    _hover={{ borderColor: "gray.400" }}
+                    sx={{
+                      option: {
+                        bg: 'white',
+                        color: 'black'
+                      }
+                    }}
+                  >
+                    <option value="">Não Informar</option>
+                    <option value="SGPA - Solinftec">SGPA - Solinftec</option>
+                    <option value="Operations Center - John Deere">Operations Center - John Deere</option>
+                  </Select>
+                </Box>
               </Flex>
               <Box p={2} h="calc(100% - 37px)" overflow="hidden">
                 <ExcelPreview preview={previewData} />
@@ -172,11 +290,11 @@ export default function ReportsPage() {
                 p={2}
                 borderBottom="1px" 
                 borderColor="gray.300"
-                justify="center"
+                justify="space-between"
                 align="center"
                 bg="white"
               >
-                <Heading size="sm" color="gray.700">
+                <Heading size="sm" color="gray.700" textAlign="center" w="100%">
                   {`Imagens do Relatório${reportType ? ` - ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}` : ''}${selectedFrente ? ` - ${selectedFrente.charAt(0).toUpperCase() + selectedFrente.slice(1)}` : ''}`}
                 </Heading>
               </Flex>
@@ -184,6 +302,7 @@ export default function ReportsPage() {
                 <ReportImageInputs 
                   reportType={reportType} 
                   frente={selectedFrente}
+                  fonte={imagemFonte}
                 />
               </Box>
             </Box>

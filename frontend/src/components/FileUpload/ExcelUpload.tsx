@@ -156,18 +156,21 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
   if (!preview) {
     return (
       <Box textAlign="center" py={4}>
-        <Text color="gray.500">
+        <Text color="gray.600">
           Selecione um arquivo Excel ou CSV para visualizar os dados
         </Text>
       </Box>
     );
   }
 
+  // Limitar a 5 linhas
+  const previewRows = preview.rows.slice(0, 5);
+
   return (
     <Box 
       w="100%" 
       h="100%"
-      maxH="200px"
+      maxH="180px"
       position="relative"
     >
       <Box
@@ -204,6 +207,7 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
                     py={2}
                     px={3}
                     fontSize="xs"
+                    color="gray.900"
                     whiteSpace="nowrap"
                     borderBottom="2px"
                     borderColor="gray.200"
@@ -215,7 +219,7 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
               </Tr>
             </Thead>
             <Tbody>
-              {preview.rows.map((row, rowIndex) => (
+              {previewRows.map((row, rowIndex) => (
                 <Tr key={rowIndex}>
                   {row.map((cell, cellIndex) => (
                     <Td 
@@ -223,6 +227,7 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
                       py={1}
                       px={3}
                       fontSize="xs"
+                      color="gray.800"
                       whiteSpace="nowrap"
                       minW="150px"
                     >
