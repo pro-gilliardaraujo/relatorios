@@ -4,10 +4,45 @@ import { Box, VStack, Heading, Image, Flex, Text, Grid, GridItem } from '@chakra
 import A4Layout from '@/components/Layout/A4Layout';
 import { useReportStore } from '@/store/useReportStore';
 import { useEffect, useCallback } from 'react';
+import { TopOffendersChart } from '@/components/Charts/TopOffendersChart';
 
 interface PlantioA4Props {
   data?: any;
 }
+
+// Dados de exemplo para o gráfico
+const sampleData = [
+  {
+    name: 'AGUARD LIBERACAO ATIVIDADE',
+    hours: 17,
+    timeString: '17:00:00',
+    percentage: 31.6
+  },
+  {
+    name: 'AGUARDANDO MUDA',
+    hours: 15.22,
+    timeString: '15:13:20',
+    percentage: 28.3
+  },
+  {
+    name: 'SEM OPERADOR',
+    hours: 9.36,
+    timeString: '9:21:25',
+    percentage: 17.4
+  },
+  {
+    name: 'TROCA DE TURNO',
+    hours: 7.81,
+    timeString: '7:48:26',
+    percentage: 14.5
+  },
+  {
+    name: 'CALIBRACAO DE PLANTADEIRA',
+    hours: 4.46,
+    timeString: '4:27:33',
+    percentage: 8.3
+  }
+];
 
 export default function PlantioA4({ data }: PlantioA4Props) {
   const { images, chartFontes } = useReportStore();
@@ -200,14 +235,21 @@ export default function PlantioA4({ data }: PlantioA4Props) {
         <VStack spacing={4} mb={4}>
           <Box w="100%">
             <Heading as="h2" size="sm" color="black" fontWeight="bold" mb={2} textAlign="center">
-              TOP 5 Ofensores
+              Top 5 Ofensores
             </Heading>
             <Box
               border="1px solid black"
               borderRadius="md"
               h={PAGE_1_HEIGHTS.topOfensores}
               position="relative"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              p={2}
             >
+              <TopOffendersChart 
+                data={sampleData} 
+              />
               <RenderFonte type="excel" fonte={getChartFonte('topOfensores')} />
             </Box>
           </Box>
