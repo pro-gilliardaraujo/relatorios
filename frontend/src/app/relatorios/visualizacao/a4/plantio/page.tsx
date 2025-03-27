@@ -543,21 +543,6 @@ export default function PlantioA4({ data }: PlantioA4Props) {
                       deslocamento: 3.81
                     }
                   ]}
-                  options={{
-                    height: 450,
-                    margin: {
-                      top: 20,
-                      right: 40,
-                      bottom: 20,
-                      left: 60
-                    },
-                    barStyle: {
-                      fillTrabalhando: '#009900',
-                      fillManobra: '#FFA500',
-                      fillDeslocamento: '#FFFF00',
-                      height: 25
-                    }
-                  }}
                 />
                 <RenderFonte type="excel" fonte={getChartFonte('mediaVelocidade')} />
               </Box>
