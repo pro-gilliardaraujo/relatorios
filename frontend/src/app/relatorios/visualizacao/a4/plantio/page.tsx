@@ -11,6 +11,7 @@ import { GraficoMotorOciosoPorOperacao } from '@/components/Charts/GraficoMotorO
 import { GraficoDisponibilidadeMecanica } from '@/components/Charts/GraficoDisponibilidadeMecanica';
 import { GraficoUtilizacaoRTK } from '@/components/Charts/GraficoUtilizacaoRTK';
 import { GraficoMediaVelocidade } from '@/components/Charts/GraficoMediaVelocidade';
+import { GraficoGrupoOperacao } from '@/components/Charts/GraficoGrupoOperacao';
 
 interface PlantioA4Props {
   data?: any;
@@ -111,6 +112,52 @@ const sampleDataMotorOciosoPorOperacao = [
     name: 'OUTROS',
     hours: 0.003,
     timeString: '00:00:31'
+  }
+];
+
+// Dados de exemplo para o gráfico de Grupo de Operação
+const sampleDataGrupoOperacao = [
+  {
+    id: '6126',
+    operations: [
+      { name: 'Automação', value: 1.63, color: '#00CC00' },
+      { name: 'Auxiliar', value: 1.16, color: '#FFFF00' },
+      { name: 'Clima', value: 0.25, color: '#FF8C00' },
+      { name: 'Improdutiva', value: 0.00, color: '#FF0000' },
+      { name: 'Manutenção', value: 2.16, color: '#FF0000' },
+      { name: 'null', value: 0.00, color: '#CCCCCC' },
+      { name: 'Perdida', value: 0.00, color: '#FF0000' },
+      { name: 'Produtiva', value: 0.00, color: '#00CC00' },
+      { name: 'Usina', value: 0.00, color: '#FF8C00' }
+    ]
+  },
+  {
+    id: '6128',
+    operations: [
+      { name: 'Automação', value: 0.23, color: '#00CC00' },
+      { name: 'Auxiliar', value: 0.00, color: '#FFFF00' },
+      { name: 'Clima', value: 9.04, color: '#FF8C00' },
+      { name: 'Improdutiva', value: 0.00, color: '#FF0000' },
+      { name: 'Manutenção', value: 0.43, color: '#FF0000' },
+      { name: 'null', value: 0.00, color: '#CCCCCC' },
+      { name: 'Perdida', value: 0.00, color: '#FF0000' },
+      { name: 'Produtiva', value: 0.00, color: '#00CC00' },
+      { name: 'Usina', value: 0.72, color: '#FF8C00' }
+    ]
+  },
+  {
+    id: '6129',
+    operations: [
+      { name: 'Automação', value: 1.98, color: '#00CC00' },
+      { name: 'Auxiliar', value: 2.12, color: '#FFFF00' },
+      { name: 'Clima', value: 7.75, color: '#FF8C00' },
+      { name: 'Improdutiva', value: 4.37, color: '#FF0000' },
+      { name: 'Manutenção', value: 0.00, color: '#FF0000' },
+      { name: 'null', value: 0.00, color: '#CCCCCC' },
+      { name: 'Perdida', value: 0.00, color: '#FF0000' },
+      { name: 'Produtiva', value: 0.00, color: '#00CC00' },
+      { name: 'Usina', value: 0.67, color: '#FF8C00' }
+    ]
   }
 ];
 
@@ -559,6 +606,9 @@ export default function PlantioA4({ data }: PlantioA4Props) {
               h={PAGE_2_HEIGHTS.grupoOperacao}
               position="relative"
             >
+              <GraficoGrupoOperacao 
+                data={sampleDataGrupoOperacao}
+              />
               <RenderFonte type="excel" fonte={getChartFonte('grupoOperacao')} />
             </Box>
           </Box>
