@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 
 // Tipo para posição dos labels
-type LabelPosition = 'top' | 'bottom' | 'center' | 'inside' | 'outside' | 'insideTop' | 'insideBottom' | 'insideCenter' | undefined;
+type LabelPosition = 'top' | 'bottom' | 'center' | 'inside' | 'outside' | 'insideTop' | 'insideBottom' | 'insideCenter';
 
 /**
  * Estrutura dos dados para o gráfico de motor ocioso
@@ -74,7 +74,10 @@ interface GraficoMotorOciosoProps {
     lineStyle?: {
       stroke?: string;
       strokeWidth?: number;
-      dot?: boolean;
+      dotSize?: number;
+      showDot?: boolean;
+      dotStrokeWidth?: number;
+      dotStrokeColor?: string;
     };
     
     /** 
@@ -227,7 +230,10 @@ const defaultOptions = {
   lineStyle: {
     stroke: '#FF0000',
     strokeWidth: 1.5,
-    dot: false, // Remove os pontos de interseção
+    dotSize: 2.5,
+    showDot: true,
+    dotStrokeWidth: 1,
+    dotStrokeColor: '#000000',
   },
   xAxis: {
     fontSize: 8,
@@ -252,17 +258,17 @@ const defaultOptions = {
   },
   labels: {
     position: 'top',
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: 'bold',
     fill: '#000000',
     offset: 5,
   },
   percentageLabel: {
-    fontSize: 8,
+    fontSize: 9,
     fontWeight: 'normal',
     fill: '#FF0000',
-    stroke: '#FFFFFF',
-    strokeWidth: 1,
+    stroke: '#000000',
+    strokeWidth: 0.2,
     offset: -15,
     zIndex: 999,
     position: 'top' as const,
@@ -396,7 +402,7 @@ export const GraficoMotorOcioso: React.FC<GraficoMotorOciosoProps> = ({
         >
           <LabelList
             dataKey="tempoParadoString"
-            position={opts.labels.position}
+            position={opts.labels.position || 'top'}
             style={{ 
               fontSize: opts.labels.fontSize,
               fontWeight: opts.labels.fontWeight,
@@ -414,7 +420,7 @@ export const GraficoMotorOcioso: React.FC<GraficoMotorOciosoProps> = ({
         >
           <LabelList
             dataKey="tempoLigadoString"
-            position={opts.labels.position}
+            position={opts.labels.position || 'top'}
             style={{ 
               fontSize: opts.labels.fontSize,
               fontWeight: opts.labels.fontWeight,
@@ -430,7 +436,12 @@ export const GraficoMotorOcioso: React.FC<GraficoMotorOciosoProps> = ({
           stroke={opts.lineStyle.stroke}
           strokeWidth={opts.lineStyle.strokeWidth}
           yAxisId="percentage"
-          dot={opts.lineStyle.dot}
+          dot={opts.lineStyle.showDot ? {
+            r: opts.lineStyle.dotSize,
+            fill: opts.lineStyle.stroke,
+            stroke: opts.lineStyle.dotStrokeColor,
+            strokeWidth: opts.lineStyle.dotStrokeWidth
+          } : false}
         >
           <LabelList
             position={opts.percentageLabel.position}
