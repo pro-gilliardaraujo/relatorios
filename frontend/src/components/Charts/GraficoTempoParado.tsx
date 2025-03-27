@@ -6,20 +6,14 @@ import {
   YAxis,
   CartesianGrid,
   LabelList,
-  Text,
   Cell,
 } from 'recharts';
 
 /**
- * Tipos de posicionamento para labels de porcentagem
+ * Estrutura dos dados para o gráfico de tempo parado
  */
-type PercentageLabelPosition = 'start' | 'center' | 'end' | 'insideStart' | 'insideCenter' | 'insideEnd';
-
-/**
- * Estrutura dos dados para o gráfico de horas trabalhadas
- */
-interface HorasTrabalhadasData {
-  /** Nome/ID da plantadeira */
+interface TempoParadoData {
+  /** Nome/ID da máquina */
   name: string;
   /** Quantidade de horas em formato decimal */
   hours: number;
@@ -32,19 +26,16 @@ interface HorasTrabalhadasData {
 }
 
 /**
- * Props do componente GraficoHorasTrabalhadas
+ * Props do componente GraficoTempoParado
  */
-interface GraficoHorasTrabalhadasProps {
-  /** Array com os dados das plantadeiras */
-  data: HorasTrabalhadasData[];
+interface GraficoTempoParadoProps {
+  /** Array com os dados das máquinas */
+  data: TempoParadoData[];
   
   /** Configurações de customização do gráfico */
   options?: {
     /** 
      * Dimensões e posicionamento do gráfico
-     * @width Largura total do gráfico em pixels
-     * @height Altura total do gráfico em pixels
-     * @marginTop Espaço adicional acima do gráfico (em pixels) para ajustar posição vertical
      */
     width?: number;
     height?: number;
@@ -52,7 +43,6 @@ interface GraficoHorasTrabalhadasProps {
     
     /** 
      * Margens internas do gráfico
-     * Controla o espaçamento entre as bordas e o conteúdo do gráfico
      */
     margin?: {
       top?: number;
@@ -71,7 +61,7 @@ interface GraficoHorasTrabalhadasProps {
     };
     
     /** 
-     * Configurações do eixo X (plantadeiras)
+     * Configurações do eixo X (máquinas)
      */
     xAxis?: {
       fontSize?: number;
@@ -103,18 +93,6 @@ interface GraficoHorasTrabalhadasProps {
       fill?: string;
       offset?: number;
     };
-
-    /** 
-     * Configurações dos labels de porcentagem
-     */
-    percentageLabel?: {
-      position?: PercentageLabelPosition;
-      fontSize?: number;
-      fontWeight?: 'normal' | 'bold' | 'lighter';
-      fill?: string;
-      offset?: number;
-      formatter?: (value: number) => string;
-    };
     
     /** 
      * Configurações da grade de fundo
@@ -127,12 +105,12 @@ interface GraficoHorasTrabalhadasProps {
     };
 
     /** 
-     * Configurações da grade de fundo
+     * Configurações do chart
      */
     chart?: {
-      barCategoryGap: number;
-      barGap: number;
-      dx: number;
+      barCategoryGap?: number;
+      barGap?: number;
+      dx?: number;
     };
   };
 }
@@ -165,14 +143,9 @@ const defaultOptions = {
     bottom: 35,
   },
   barStyle: {
-    fill: '#009900', // Verde para indicar trabalho/produtividade
+    fill: '#FF0000', // Vermelho para indicar tempo parado
     radius: [2, 2, 0, 0],
-    maxBarSize: 80,  // Largura máxima de cada barra em pixels - Ajuste para barras mais largas ou mais finas
-  },
-  chart: {
-    barCategoryGap: 8,  // Espaço entre grupos de barras - Valores maiores aproximam as barras do centro, menores afastam
-    barGap: 4,          // Espaço entre barras do mesmo grupo - Relevante quando houver múltiplas barras por categoria
-    dx: -20,           // Deslocamento horizontal das barras - Negativo move para esquerda, positivo para direita
+    maxBarSize: 80,
   },
   xAxis: {
     fontSize: 8,
@@ -202,13 +175,18 @@ const defaultOptions = {
     strokeDasharray: '3 3',
     stroke: '#E5E5E5',
   },
+  chart: {
+    barCategoryGap: 8,
+    barGap: 4,
+    dx: -20,
+  },
 };
 
-export const GraficoHorasTrabalhadas: React.FC<GraficoHorasTrabalhadasProps> = ({ 
+export const GraficoTempoParado: React.FC<GraficoTempoParadoProps> = ({ 
   data, 
   options = {} 
 }) => {
-  // Ordena os dados pelo número da máquina (6126, 6128, 6129)
+  // Ordena os dados pelo número da máquina
   const sortedData = [...data].sort((a, b) => Number(a.name) - Number(b.name));
 
   // Calcula o valor máximo do eixo Y baseado nos dados

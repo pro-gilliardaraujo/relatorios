@@ -7,6 +7,7 @@ import { useEffect, useCallback } from 'react';
 import { TopOffendersChart } from '@/components/Charts/TopOffendersChart';
 import { GraficoTopOfensores } from '@/components/Charts/GraficoTopOfensores';
 import { GraficoHorasTrabalhadas } from '@/components/Charts/GraficoHorasTrabalhadas';
+import { GraficoMotorOcioso } from '@/components/Charts/GraficoMotorOcioso';
 
 interface PlantioA4Props {
   data?: any;
@@ -305,6 +306,34 @@ export default function PlantioA4({ data }: PlantioA4Props) {
               h={PAGE_1_HEIGHTS.motorOcioso}
               position="relative"
             >
+              <GraficoMotorOcioso 
+                data={[
+                  {
+                    name: '6126',
+                    horasParado: 0.5,
+                    tempoParadoString: '00:30:00',
+                    horasLigado: 1.2,
+                    tempoLigadoString: '01:12:00',
+                    porcentagemOcioso: 25.5
+                  },
+                  {
+                    name: '6128',
+                    horasParado: 0.8,
+                    tempoParadoString: '00:48:00',
+                    horasLigado: 1.68,
+                    tempoLigadoString: '01:40:50',
+                    porcentagemOcioso: 85.2
+                  },
+                  {
+                    name: '6129',
+                    horasParado: 0.6,
+                    tempoParadoString: '00:36:00',
+                    horasLigado: 1.44,
+                    tempoLigadoString: '01:26:26',
+                    porcentagemOcioso: 55.8
+                  }
+                ]} 
+              />
               <RenderFonte type="excel" fonte={getChartFonte('motorOcioso')} />
             </Box>
           </Box>
