@@ -4,10 +4,10 @@ import { Box, VStack, Heading, Image, Flex, Text, Grid, GridItem } from '@chakra
 import A4Layout from '@/components/Layout/A4Layout';
 import { useReportStore } from '@/store/useReportStore';
 import { useEffect, useCallback } from 'react';
-import { TopOffendersChart } from '@/components/Charts/TopOffendersChart';
 import { GraficoTopOfensores } from '@/components/Charts/GraficoTopOfensores';
 import { GraficoHorasTrabalhadas } from '@/components/Charts/GraficoHorasTrabalhadas';
 import { GraficoMotorOcioso } from '@/components/Charts/GraficoMotorOcioso';
+import { GraficoMotorOciosoPorOperacao } from '@/components/Charts/GraficoMotorOciosoPorOperacao';
 
 interface PlantioA4Props {
   data?: any;
@@ -44,6 +44,70 @@ const sampleData = [
     hours: 4.46,
     timeString: '4:27:33',
     percentage: 8.3
+  }
+];
+
+// Dados de exemplo para o gráfico de Motor Ocioso Por Operação
+const sampleDataMotorOciosoPorOperacao = [
+  {
+    name: 'ABASTECIMENTO DE CANAL PARA MUDAS',
+    hours: 2.5,
+    timeString: '02:30:00'
+  },
+  {
+    name: 'FALTA DE OPORTUNIDADE',
+    hours: 0.85,
+    timeString: '00:51:00'
+  },
+  {
+    name: 'ABASTECIMENTO DE INSUMOS',
+    hours: 0.47,
+    timeString: '00:47:00'
+  },
+  {
+    name: 'MANUTENÇÃO MECÂNICA',
+    hours: 1,
+    timeString: '01:00:10'
+  },
+  {
+    name: 'TROCA DE TURNO',
+    hours: 0.22,
+    timeString: '00:22:57'
+  },
+  {
+    name: 'EMBUCHAMENTO',
+    hours: 0.13,
+    timeString: '00:13:24'
+  },
+  {
+    name: 'MANUTENÇÃO BASE',
+    hours: 0.10,
+    timeString: '00:10:16'
+  },
+  {
+    name: 'AGUARDANDO MUDA',
+    hours: 0.09,
+    timeString: '00:09:56'
+  },
+  {
+    name: 'DESLOCAMENTO',
+    hours: 0.08,
+    timeString: '00:08:33'
+  },
+  {
+    name: 'FIM DE ATIVIDADE',
+    hours: 0.02,
+    timeString: '00:02:23'
+  },
+  {
+    name: 'NÃO DE REPORTOU',
+    hours: 0.01,
+    timeString: '00:01:00'
+  },
+  {
+    name: 'OUTROS',
+    hours: 0.003,
+    timeString: '00:00:31'
   }
 ];
 
@@ -152,10 +216,10 @@ export default function PlantioA4({ data }: PlantioA4Props) {
 
   // Constantes para as alturas dos containers da página 1
   const PAGE_1_HEIGHTS = {
-    topOfensores: "180px",
-    horasPlantadeira: "180px",
-    motorOcioso: "180px",
-    motorOciosoOperacao: "230px"
+    topOfensores: 180,
+    horasPlantadeira: 180,
+    motorOcioso: 180,
+    motorOciosoOperacao: 230
   };
 
   // Constantes para as alturas dos containers da página 2
@@ -346,9 +410,15 @@ export default function PlantioA4({ data }: PlantioA4Props) {
           <Box
             border="1px solid black"
             borderRadius="md"
-            h={PAGE_1_HEIGHTS.motorOciosoOperacao}
+            h={`${PAGE_1_HEIGHTS.motorOciosoOperacao}px`}
             position="relative"
           >
+            <GraficoMotorOciosoPorOperacao 
+              data={sampleDataMotorOciosoPorOperacao}
+              options={{
+                height: PAGE_1_HEIGHTS.motorOciosoOperacao
+              }}
+            />
             <RenderFonte type="excel" fonte={getChartFonte('motorOciosoOperacao')} />
           </Box>
         </Box>

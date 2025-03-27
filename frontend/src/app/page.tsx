@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Spinner, Center } from '@chakra-ui/react';
-import { TopOffendersChart } from '@/components/Charts/TopOffendersChart';
 import { GraficoTopOfensores } from '@/components/Charts/GraficoTopOfensores';
 
 const sampleData = [
@@ -52,15 +51,6 @@ export default function Home() {
         <Spinner size="xl" />
       </Box>
     </Center>
-  );
-}
-
-export function TopOffendersChartComponent() {
-  return (
-    <main style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1>Top 5 Ofensores</h1>
-      <TopOffendersChart data={sampleData} />
-    </main>
   );
 }
 
