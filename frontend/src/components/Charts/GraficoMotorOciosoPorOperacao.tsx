@@ -181,19 +181,19 @@ const defaultOptions = {
   // Estilo da área do gráfico
   areaStyle: {
     fill: '#FF0000',        // Cor do preenchimento da área
-    stroke: '#FF0000',      // Cor da linha de contorno
+    stroke: '#990000',      // Cor da linha de contorno
     strokeWidth: 2,         // Espessura da linha de contorno
-    fillOpacity: 0.6        // Opacidade do preenchimento (0 = transparente, 1 = sólido)
+    fillOpacity: 0.9        // Opacidade do preenchimento (0 = transparente, 1 = sólido)
   },
 
   // Configurações do eixo X (nomes das operações)
   xAxis: {
-    fontSize: 10,            // Tamanho da fonte dos nomes
+    fontSize: 8,            // Tamanho da fonte dos nomes
     fontWeight: 'bold',     // Peso da fonte: 'normal', 'bold' ou 'lighter'
     angle: -90,            // Rotação para a esquerda
     textAnchor: 'end',     // Alinhamento à esquerda
     height: 90,            // Altura reservada para os nomes
-    fill: '#666666',       // Cor dos textos
+    fill: '#000000',       // Cor dos textos
     verticalOffset: 10,    // Ajuste vertical dos textos
     maxCharsPerLine: 20    // Máximo de caracteres por linha
   },
@@ -203,7 +203,7 @@ const defaultOptions = {
     fontSize: 8,            // Tamanho da fonte dos valores
     fontWeight: 'bold',     // Peso da fonte
     width: 70,              // Largura reservada para os valores
-    fill: '#666666'         // Cor dos valores
+    fill: '#000000'         // Cor dos valores
   },
 
   // Configurações dos labels de tempo sobre a área

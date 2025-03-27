@@ -110,7 +110,7 @@ interface GraficoTopOfensoresProps {
      *   angle: -25,           // Rotação para melhor legibilidade
      *   textAnchor: 'end',    // Alinha pela direita quando rotacionado
      *   height: 10,           // Reserva 10px de altura
-     *   fill: '#666666',      // Cor cinza para o texto
+     *   fill: '#000000',      // Cor cinza para o texto
      *   verticalOffset: 16,   // Distância do texto até a linha base
      * }
      */
@@ -136,7 +136,7 @@ interface GraficoTopOfensoresProps {
      *   fontSize: 8,        // Texto pequeno e legível
      *   fontWeight: 'bold', // Destaque em negrito
      *   width: 55,         // Espaço para o formato HH:MM:SS
-     *   fill: '#666666',   // Cor cinza para o texto
+     *   fill: '#000000',   // Cor cinza para o texto
      * }
      */
     yAxis?: {
@@ -253,14 +253,14 @@ const defaultOptions = {
     angle: 0,
     textAnchor: 'middle',
     height: 10,
-    fill: '#666666',
+    fill: '#000000',
     verticalOffset: 6,
   },
   yAxis: {
     fontSize: 8,
     fontWeight: 'bold',
     width: 55,
-    fill: '#666666',
+    fill: '#000000',
   },
   labels: {
     position: 'top',

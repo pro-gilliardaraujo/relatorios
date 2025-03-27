@@ -7,30 +7,25 @@ import {
   CartesianGrid,
   LabelList,
   Cell,
+  ReferenceLine
 } from 'recharts';
 
 /**
- * Estrutura dos dados para o gráfico de tempo parado
+ * Estrutura dos dados para o gráfico de disponibilidade mecânica
  */
-interface TempoParadoData {
+interface DisponibilidadeMecanicaData {
   /** Nome/ID da máquina */
   name: string;
-  /** Quantidade de horas em formato decimal */
-  hours: number;
-  /** Tempo formatado em HH:MM:SS */
-  timeString: string;
-  /** Nome da operação */
-  operacao: string;
-  /** Grupo da operação */
-  grupo: string;
+  /** Porcentagem de disponibilidade */
+  percentage: number;
 }
 
 /**
- * Props do componente GraficoTempoParado
+ * Props do componente GraficoDisponibilidadeMecanica
  */
-interface GraficoTempoParadoProps {
+interface GraficoDisponibilidadeMecanicaProps {
   /** Array com os dados das máquinas */
-  data: TempoParadoData[];
+  data: DisponibilidadeMecanicaData[];
   
   /** Configurações de customização do gráfico */
   options?: {
@@ -55,7 +50,8 @@ interface GraficoTempoParadoProps {
      * Estilização das barras do gráfico
      */
     barStyle?: {
-      fill?: string;
+      fillAboveTarget?: string;
+      fillBelowTarget?: string;
       radius?: [number, number, number, number];
       maxBarSize?: number;
     };
@@ -74,7 +70,7 @@ interface GraficoTempoParadoProps {
     };
     
     /** 
-     * Configurações do eixo Y (valores de tempo)
+     * Configurações do eixo Y (valores em %)
      */
     yAxis?: {
       fontSize?: number;
@@ -84,7 +80,7 @@ interface GraficoTempoParadoProps {
     };
     
     /** 
-     * Configurações dos labels de tempo
+     * Configurações dos labels de porcentagem
      */
     labels?: {
       position?: 'top' | 'center' | 'bottom';
@@ -98,9 +94,15 @@ interface GraficoTempoParadoProps {
      * Configurações da grade de fundo
      */
     grid?: {
+      /** Se true, mostra as linhas horizontais */
       horizontal?: boolean;
+      /** Se true, mostra as linhas verticais */
       vertical?: boolean;
+      /** Se true, mostra apenas a linha de meta */
+      showOnlyTarget?: boolean;
+      /** Padrão da linha pontilhada */
       strokeDasharray?: string;
+      /** Cor das linhas */
       stroke?: string;
     };
 
@@ -112,29 +114,31 @@ interface GraficoTempoParadoProps {
       barGap?: number;
       dx?: number;
     };
+
+    /**
+     * Configuração da linha de meta
+     */
+    targetLine?: {
+      stroke?: string;
+      strokeWidth?: number;
+      strokeDasharray?: string;
+    };
   };
 }
 
-// Helper function to format time axis ticks
-const formatYAxisTick = (value: number) => {
-  const hours = Math.floor(value);
-  const minutes = Math.floor((value - hours) * 60);
-  const seconds = Math.floor(((value - hours) * 60 - minutes) * 60);
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
+// Constante para a meta de disponibilidade
+const TARGET_PERCENTAGE = 90;
 
-// Helper function to calculate axis ticks based on max value
-const calculateAxisTicks = (maxValue: number) => {
-  // Arredonda para a próxima hora completa
-  const maxHour = Math.ceil(maxValue);
-  // Gera ticks de hora em hora
-  return Array.from({ length: maxHour + 1 }, (_, i) => i);
-};
+// Helper function para formatar os ticks do eixo Y
+const formatYAxisTick = (value: number) => `${value}%`;
+
+// Helper function para formatar os labels das barras
+const formatBarLabel = (value: number) => `${value.toFixed(1)}%`;
 
 // Valores padrão para as opções - ajustados para o container A4
 const defaultOptions = {
   width: 650,
-  height: 190,
+  height: 200,
   marginTop: 0,
   margin: {
     top: 25,
@@ -143,12 +147,18 @@ const defaultOptions = {
     bottom: 35,
   },
   barStyle: {
-    fill: '#FF0000', // Vermelho para indicar tempo parado
+    fillAboveTarget: '#009900', // Verde para valores >= meta
+    fillBelowTarget: '#FF0000', // Vermelho para valores < meta
     radius: [2, 2, 0, 0],
     maxBarSize: 80,
   },
+  chart: {
+    barCategoryGap: 8,
+    barGap: 4,
+    dx: -20,
+  },
   xAxis: {
-    fontSize: 8,
+    fontSize: 10,
     fontWeight: 'bold',
     angle: 0,
     textAnchor: 'middle',
@@ -159,7 +169,7 @@ const defaultOptions = {
   yAxis: {
     fontSize: 8,
     fontWeight: 'bold',
-    width: 55,
+    width: 35,
     fill: '#000000',
   },
   labels: {
@@ -170,28 +180,25 @@ const defaultOptions = {
     offset: 5,
   },
   grid: {
-    horizontal: false,
+    horizontal: true,
     vertical: false,
+    showOnlyTarget: false,
     strokeDasharray: '3 3',
     stroke: '#E5E5E5',
   },
-  chart: {
-    barCategoryGap: 8,
-    barGap: 4,
-    dx: -20,
-  },
+  targetLine: {
+    stroke: '#000000',
+    strokeWidth: 1,
+    strokeDasharray: '5 5',
+  }
 };
 
-export const GraficoTempoParado: React.FC<GraficoTempoParadoProps> = ({ 
+export const GraficoDisponibilidadeMecanica: React.FC<GraficoDisponibilidadeMecanicaProps> = ({ 
   data, 
   options = {} 
 }) => {
   // Ordena os dados pelo número da máquina
   const sortedData = [...data].sort((a, b) => Number(a.name) - Number(b.name));
-
-  // Calcula o valor máximo do eixo Y baseado nos dados
-  const maxHours = Math.max(...sortedData.map(d => d.hours));
-  const yAxisTicks = calculateAxisTicks(maxHours);
 
   const opts = {
     ...defaultOptions,
@@ -203,6 +210,7 @@ export const GraficoTempoParado: React.FC<GraficoTempoParadoProps> = ({
     labels: { ...defaultOptions.labels, ...options.labels },
     grid: { ...defaultOptions.grid, ...options.grid },
     chart: { ...defaultOptions.chart, ...options.chart },
+    targetLine: { ...defaultOptions.targetLine, ...options.targetLine },
   };
 
   return (
@@ -222,12 +230,14 @@ export const GraficoTempoParado: React.FC<GraficoTempoParadoProps> = ({
         barGap={opts.chart.barGap}
         layout="horizontal"
       >
-        <CartesianGrid 
-          strokeDasharray={opts.grid.strokeDasharray}
-          horizontal={opts.grid.horizontal}
-          vertical={opts.grid.vertical}
-          stroke={opts.grid.stroke}
-        />
+        {!opts.grid.showOnlyTarget && (
+          <CartesianGrid 
+            strokeDasharray={opts.grid.strokeDasharray}
+            horizontal={opts.grid.horizontal}
+            vertical={opts.grid.vertical}
+            stroke={opts.grid.stroke}
+          />
+        )}
         <XAxis
           dataKey="name"
           tick={(props) => {
@@ -262,11 +272,17 @@ export const GraficoTempoParado: React.FC<GraficoTempoParadoProps> = ({
             fill: opts.yAxis.fill,
           }}
           width={opts.yAxis.width}
-          ticks={yAxisTicks}
+          domain={[0, 100]}
+          ticks={[0, 20, 40, 60, 80, 100]}
+        />
+        <ReferenceLine
+          y={TARGET_PERCENTAGE}
+          stroke={opts.targetLine.stroke}
+          strokeWidth={opts.targetLine.strokeWidth}
+          strokeDasharray={opts.targetLine.strokeDasharray}
         />
         <Bar
-          dataKey="hours"
-          fill={opts.barStyle.fill}
+          dataKey="percentage"
           radius={opts.barStyle.radius as [number, number, number, number]}
           maxBarSize={opts.barStyle.maxBarSize}
           xAxisId={0}
@@ -274,16 +290,16 @@ export const GraficoTempoParado: React.FC<GraficoTempoParadoProps> = ({
           {sortedData.map((entry, index) => (
             <Cell 
               key={`cell-${index}`}
-              fill={opts.barStyle.fill}
+              fill={entry.percentage >= TARGET_PERCENTAGE ? opts.barStyle.fillAboveTarget : opts.barStyle.fillBelowTarget}
               style={{
                 transform: `translateX(${opts.chart.dx}px)`
               }}
             />
           ))}
-          {/* Time labels */}
           <LabelList
-            dataKey="timeString"
+            dataKey="percentage"
             position={opts.labels.position as any}
+            formatter={formatBarLabel}
             style={{ 
               fontSize: opts.labels.fontSize,
               fontWeight: opts.labels.fontWeight,
@@ -294,34 +310,6 @@ export const GraficoTempoParado: React.FC<GraficoTempoParadoProps> = ({
           />
         </Bar>
       </BarChart>
-      {/* Labels como elementos HTML */}
-      {sortedData.length > 0 && (
-        <div style={{
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          bottom: '15px',
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2px'
-        }}>
-          <div style={{
-            fontSize: opts.xAxis.fontSize,
-            fontWeight: opts.xAxis.fontWeight,
-            color: opts.xAxis.fill,
-          }}>
-            {sortedData[0].operacao}
-          </div>
-          <div style={{
-            fontSize: opts.xAxis.fontSize,
-            fontWeight: opts.xAxis.fontWeight,
-            color: opts.xAxis.fill,
-          }}>
-            {sortedData[0].grupo}
-          </div>
-        </div>
-      )}
     </div>
   );
 }; 

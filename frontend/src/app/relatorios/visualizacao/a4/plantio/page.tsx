@@ -8,6 +8,8 @@ import { GraficoTopOfensores } from '@/components/Charts/GraficoTopOfensores';
 import { GraficoHorasTrabalhadas } from '@/components/Charts/GraficoHorasTrabalhadas';
 import { GraficoMotorOcioso } from '@/components/Charts/GraficoMotorOcioso';
 import { GraficoMotorOciosoPorOperacao } from '@/components/Charts/GraficoMotorOciosoPorOperacao';
+import { GraficoDisponibilidadeMecanica } from '@/components/Charts/GraficoDisponibilidadeMecanica';
+import { GraficoUtilizacaoRTK } from '@/components/Charts/GraficoUtilizacaoRTK';
 
 interface PlantioA4Props {
   data?: any;
@@ -438,11 +440,32 @@ export default function PlantioA4({ data }: PlantioA4Props) {
               h={PAGE_2_HEIGHTS.disponibilidadeMecanica}
               position="relative"
             >
+              <GraficoDisponibilidadeMecanica 
+                data={[
+                  {
+                    name: '6126',
+                    percentage: 95.5
+                  },
+                  {
+                    name: '6128',
+                    percentage: 88.2
+                  },
+                  {
+                    name: '6129',
+                    percentage: 92.8
+                  }
+                ]}
+                options={{
+                  grid: {
+                    showOnlyTarget: true
+                  }
+                }}
+              />
               <RenderFonte type="excel" fonte={getChartFonte('disponibilidadeMecanica')} />
             </Box>
           </Box>
 
-          <Grid templateColumns="repeat(2, 1fr)" gap={6} w="100%">
+          <Grid templateColumns="35% 65%" gap={4} w="100%">
             <GridItem>
               <Heading as="h2" size="sm" color="black" fontWeight="bold" mb={2} textAlign="center">
                 Utilização RTK
@@ -452,12 +475,41 @@ export default function PlantioA4({ data }: PlantioA4Props) {
                 borderRadius="md"
                 h={PAGE_2_HEIGHTS.utilizacaoRTK}
                 position="relative"
+                display="flex"
+                alignItems="center"
+                justifyContent="flex-start"
+                pl={2}
               >
+                <GraficoUtilizacaoRTK 
+                  data={[
+                    {
+                      name: '6126',
+                      percentage: 85
+                    },
+                    {
+                      name: '6128',
+                      percentage: 99
+                    },
+                    {
+                      name: '6129',
+                      percentage: 53
+                    }
+                  ]}
+                  options={{
+                    container: {
+                      width: 180
+                    },
+                    pieStyle: {
+                      innerRadius: 45,
+                      outerRadius: 60
+                    }
+                  }}
+                />
                 <RenderFonte type="excel" fonte={getChartFonte('utilizacaoRTK')} />
               </Box>
             </GridItem>
 
-            <GridItem>
+            <GridItem maxW="100%" overflow="hidden">
               <Heading as="h2" size="sm" color="black" fontWeight="bold" mb={2} textAlign="center">
                 Média de Velocidade
               </Heading>
@@ -466,6 +518,8 @@ export default function PlantioA4({ data }: PlantioA4Props) {
                 borderRadius="md"
                 h={PAGE_2_HEIGHTS.mediaVelocidade}
                 position="relative"
+                overflow="hidden"
+                maxW="96.5%"
               >
                 <RenderFonte type="excel" fonte={getChartFonte('mediaVelocidade')} />
               </Box>

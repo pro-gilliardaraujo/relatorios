@@ -241,14 +241,14 @@ const defaultOptions = {
     angle: 0,
     textAnchor: 'middle',
     height: 10,
-    fill: '#666666',
+    fill: '#000000',
     verticalOffset: 10,
   },
   yAxis: {
     fontSize: 8,
     fontWeight: 'bold',
     width: 55,
-    fill: '#666666',
+    fill: '#000000',
   },
   yAxisSecondary: {
     fontSize: 8,
