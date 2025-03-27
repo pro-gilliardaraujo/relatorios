@@ -10,6 +10,7 @@ import { GraficoMotorOcioso } from '@/components/Charts/GraficoMotorOcioso';
 import { GraficoMotorOciosoPorOperacao } from '@/components/Charts/GraficoMotorOciosoPorOperacao';
 import { GraficoDisponibilidadeMecanica } from '@/components/Charts/GraficoDisponibilidadeMecanica';
 import { GraficoUtilizacaoRTK } from '@/components/Charts/GraficoUtilizacaoRTK';
+import { GraficoMediaVelocidade } from '@/components/Charts/GraficoMediaVelocidade';
 
 interface PlantioA4Props {
   data?: any;
@@ -509,7 +510,7 @@ export default function PlantioA4({ data }: PlantioA4Props) {
               </Box>
             </GridItem>
 
-            <GridItem maxW="100%" overflow="hidden">
+            <GridItem maxW="100%">
               <Heading as="h2" size="sm" color="black" fontWeight="bold" mb={2} textAlign="center">
                 Média de Velocidade
               </Heading>
@@ -521,6 +522,43 @@ export default function PlantioA4({ data }: PlantioA4Props) {
                 overflow="hidden"
                 maxW="96.5%"
               >
+                <GraficoMediaVelocidade 
+                  data={[
+                    {
+                      name: '6126',
+                      trabalhando: 5.29,
+                      manobra: 1.74,
+                      deslocamento: 3.91
+                    },
+                    {
+                      name: '6129',
+                      trabalhando: 3.90,
+                      manobra: 1.91,
+                      deslocamento: 8.44
+                    },
+                    {
+                      name: '6128',
+                      trabalhando: 4.37,
+                      manobra: 1.67,
+                      deslocamento: 3.81
+                    }
+                  ]}
+                  options={{
+                    height: 450,
+                    margin: {
+                      top: 20,
+                      right: 40,
+                      bottom: 20,
+                      left: 60
+                    },
+                    barStyle: {
+                      fillTrabalhando: '#009900',
+                      fillManobra: '#FFA500',
+                      fillDeslocamento: '#FFFF00',
+                      height: 25
+                    }
+                  }}
+                />
                 <RenderFonte type="excel" fonte={getChartFonte('mediaVelocidade')} />
               </Box>
             </GridItem>
