@@ -5,6 +5,8 @@ import A4Layout from '@/components/Layout/A4Layout';
 import { useReportStore } from '@/store/useReportStore';
 import { useEffect, useCallback } from 'react';
 import { TopOffendersChart } from '@/components/Charts/TopOffendersChart';
+import { GraficoTopOfensores } from '@/components/Charts/GraficoTopOfensores';
+import { GraficoHorasTrabalhadas } from '@/components/Charts/GraficoHorasTrabalhadas';
 
 interface PlantioA4Props {
   data?: any;
@@ -247,7 +249,7 @@ export default function PlantioA4({ data }: PlantioA4Props) {
               justifyContent="center"
               p={2}
             >
-              <TopOffendersChart 
+              <GraficoTopOfensores 
                 data={sampleData} 
               />
               <RenderFonte type="excel" fonte={getChartFonte('topOfensores')} />
@@ -264,6 +266,31 @@ export default function PlantioA4({ data }: PlantioA4Props) {
               h={PAGE_1_HEIGHTS.horasPlantadeira}
               position="relative"
             >
+              <GraficoHorasTrabalhadas 
+                data={[
+                  {
+                    name: '6126',
+                    hours: 0.5,
+                    timeString: '00:30:00',
+                    operacao: 'PLANTIO DE MUDA',
+                    grupo: 'TRABALHANDO'
+                  },
+                  {
+                    name: '6128',
+                    hours: 1.68,
+                    timeString: '01:40:50',
+                    operacao: 'PLANTIO DE MUDA',
+                    grupo: 'TRABALHANDO'
+                  },
+                  {
+                    name: '6129',
+                    hours: 1.44,
+                    timeString: '01:26:26',
+                    operacao: 'PLANTIO DE MUDA',
+                    grupo: 'TRABALHANDO'
+                  }
+                ]} 
+              />
               <RenderFonte type="excel" fonte={getChartFonte('horasPlantadeira')} />
             </Box>
           </Box>

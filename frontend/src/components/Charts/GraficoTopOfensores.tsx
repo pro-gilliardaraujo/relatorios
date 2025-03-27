@@ -28,9 +28,9 @@ interface OffenderData {
 }
 
 /**
- * Props do componente TopOffendersChart
+ * Props do componente GraficoTopOfensores
  */
-interface TopOffendersChartProps {
+interface GraficoTopOfensoresProps {
   /** Array com os dados dos ofensores */
   data: OffenderData[];
   
@@ -285,7 +285,7 @@ const defaultOptions = {
   },
 };
 
-export const TopOffendersChart: React.FC<TopOffendersChartProps> = ({ 
+export const GraficoTopOfensores: React.FC<GraficoTopOfensoresProps> = ({ 
   data, 
   options = {} 
 }) => {
