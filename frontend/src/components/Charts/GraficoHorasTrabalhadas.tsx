@@ -272,6 +272,7 @@ export const GraficoHorasTrabalhadas: React.FC<GraficoHorasTrabalhadasProps> = (
             fill: opts.yAxis.fill,
           }}
           width={opts.yAxis.width}
+          ticks={[0, 0.5, 1, 1.5, 2]} // 0h, 0h30, 1h, 1h30, 2h
         />
         <Bar
           dataKey="hours"
