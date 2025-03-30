@@ -120,43 +120,28 @@ const sampleDataGrupoOperacao = [
   {
     id: '6126',
     operations: [
-      { name: 'Automação', value: 1.63, color: '#00CC00' },
-      { name: 'Auxiliar', value: 1.16, color: '#FFFF00' },
-      { name: 'Clima', value: 0.25, color: '#FF8C00' },
-      { name: 'Improdutiva', value: 0.00, color: '#FF0000' },
-      { name: 'Manutenção', value: 2.16, color: '#FF0000' },
-      { name: 'null', value: 0.00, color: '#CCCCCC' },
-      { name: 'Perdida', value: 0.00, color: '#FF0000' },
-      { name: 'Produtiva', value: 0.00, color: '#00CC00' },
-      { name: 'Usina', value: 0.00, color: '#FF8C00' }
+      { name: 'Produtiva', value: 42.3 },
+      { name: 'Improdutiva', value: 31.6 },
+      { name: 'Manutenção', value: 14.8 },
+      { name: 'Perdida', value: 11.3 }
     ]
   },
   {
     id: '6128',
     operations: [
-      { name: 'Automação', value: 0.23, color: '#00CC00' },
-      { name: 'Auxiliar', value: 0.00, color: '#FFFF00' },
-      { name: 'Clima', value: 9.04, color: '#FF8C00' },
-      { name: 'Improdutiva', value: 0.00, color: '#FF0000' },
-      { name: 'Manutenção', value: 0.43, color: '#FF0000' },
-      { name: 'null', value: 0.00, color: '#CCCCCC' },
-      { name: 'Perdida', value: 0.00, color: '#FF0000' },
-      { name: 'Produtiva', value: 0.00, color: '#00CC00' },
-      { name: 'Usina', value: 0.72, color: '#FF8C00' }
+      { name: 'Produtiva', value: 38.9 },
+      { name: 'Improdutiva', value: 28.3 },
+      { name: 'Manutenção', value: 17.4 },
+      { name: 'Perdida', value: 15.4 }
     ]
   },
   {
     id: '6129',
     operations: [
-      { name: 'Automação', value: 1.98, color: '#00CC00' },
-      { name: 'Auxiliar', value: 2.12, color: '#FFFF00' },
-      { name: 'Clima', value: 7.75, color: '#FF8C00' },
-      { name: 'Improdutiva', value: 4.37, color: '#FF0000' },
-      { name: 'Manutenção', value: 0.00, color: '#FF0000' },
-      { name: 'null', value: 0.00, color: '#CCCCCC' },
-      { name: 'Perdida', value: 0.00, color: '#FF0000' },
-      { name: 'Produtiva', value: 0.00, color: '#00CC00' },
-      { name: 'Usina', value: 0.67, color: '#FF8C00' }
+      { name: 'Produtiva', value: 45.2 },
+      { name: 'Improdutiva', value: 25.7 },
+      { name: 'Manutenção', value: 19.8 },
+      { name: 'Perdida', value: 9.3 }
     ]
   }
 ];
@@ -275,9 +260,9 @@ export default function PlantioA4({ data }: PlantioA4Props) {
   // Constantes para as alturas dos containers da página 2
   const PAGE_2_HEIGHTS = {
     disponibilidadeMecanica: "160px",
-    utilizacaoRTK: "450px",
-    mediaVelocidade: "450px",
-    grupoOperacao: "185px"
+    utilizacaoRTK: "350px",
+    mediaVelocidade: "350px",
+    grupoOperacao: "285px"
   };
 
   // Constantes para as alturas dos containers da página 3
@@ -543,15 +528,6 @@ export default function PlantioA4({ data }: PlantioA4Props) {
                       percentage: 53
                     }
                   ]}
-                  options={{
-                    container: {
-                      width: 180
-                    },
-                    pieStyle: {
-                      innerRadius: 45,
-                      outerRadius: 60
-                    }
-                  }}
                 />
                 <RenderFonte type="excel" fonte={getChartFonte('utilizacaoRTK')} />
               </Box>

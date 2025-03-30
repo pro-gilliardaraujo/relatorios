@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell } from 'recharts';
-import { Box, Text, VStack } from '@chakra-ui/react';
+import { Box, Text, VStack, Flex } from '@chakra-ui/react';
 
 /**
  * Estrutura dos dados para o gráfico de utilização RTK
@@ -108,20 +108,19 @@ interface GraficoUtilizacaoRTKProps {
 // Valores padrão para as opções
 const defaultOptions = {
   container: {
-    height: 450,
     width: 180,
+    height: 370,
     padding: {
-      top: 30,
-      right: 0,
-      bottom: 30,
-      left: 0
-    },
-    debug: false
+      top: 0,
+      right: 10,
+      bottom: 10,
+      left: 10
+    }
   },
   item: {
-    height: 120,
-    width: 180,
-    gap: 35,
+    height: 90,
+    width: 160,
+    gap:2,
     margin: {
       top: 0,
       right: 0,
@@ -131,8 +130,8 @@ const defaultOptions = {
     debug: false
   },
   pieStyle: {
-    innerRadius: 45,
-    outerRadius: 60,
+    innerRadius:32,
+    outerRadius:48,
     fillUsage: '#009900',
     fillNonUsage: '#FF0000',
     debug: false
@@ -142,15 +141,15 @@ const defaultOptions = {
       fontSize: 20,
       fontWeight: 'bold',
       color: '#000000',
-      verticalOffset: -2,
+      verticalOffset: 0,
       textAlign: 'center'
     },
     name: {
-      fontSize: 14,
+      fontSize: 12,
       fontWeight: 'bold',
       color: '#000000',
       position: 'right',
-      offset: 50,
+      offset: 95,
       verticalAlign: 'middle'
     }
   }
@@ -197,98 +196,102 @@ export const GraficoUtilizacaoRTK: React.FC<GraficoUtilizacaoRTKProps> = ({
     <Box 
       height={`${opts.container.height}px`}
       width={`${opts.container.width}px`}
-      padding={`${containerPadding.top}px ${opts.container.padding?.right || 0}px ${containerPadding.bottom}px ${opts.container.padding?.left || 0}px`}
       bg={opts.container.debug ? 'rgba(0, 0, 255, 0.1)' : 'transparent'}
-      display="flex"
-      flexDirection="column"
-      justifyContent="space-between"
       position="relative"
     >
-      {sortedData.map((item, index) => (
-        <Box
-          key={index}
-          height={`${itemHeight}px`}
-          width="100%"
-          display="flex"
-          alignItems="center"
-          bg={opts.item.debug ? 'rgba(255, 0, 0, 0.1)' : 'transparent'}
-          position="relative"
-        >
-          <Box 
-            position="relative"
-            width={`${opts.pieStyle.outerRadius * 2 + 20}px`}
-            height={`${opts.pieStyle.outerRadius * 2 + 20}px`}
-            bg={opts.pieStyle.debug ? 'rgba(0, 255, 0, 0.1)' : 'transparent'}
-            marginLeft="0px"
+      <Flex
+        height="100%"
+        flexDirection="column"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        py={0}
+        mt={1}
+      >
+        {sortedData.map((item, index) => (
+          <Box
+            key={index}
+            width="100%"
             display="flex"
             alignItems="center"
-            justifyContent="center"
+            bg={opts.item.debug ? 'rgba(255, 0, 0, 0.1)' : 'transparent'}
+            position="relative"
           >
-            <PieChart 
-              width={opts.pieStyle.outerRadius * 2 + 20} 
-              height={opts.pieStyle.outerRadius * 2 + 20}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0
-              }}
-            >
-              <Pie
-                data={[
-                  { name: 'usage', value: item.percentage },
-                  { name: 'non-usage', value: 100 - item.percentage }
-                ]}
-                cx={(opts.pieStyle.outerRadius + 10)}
-                cy={(opts.pieStyle.outerRadius + 10)}
-                innerRadius={opts.pieStyle.innerRadius}
-                outerRadius={opts.pieStyle.outerRadius}
-                startAngle={90}
-                endAngle={-270}
-                dataKey="value"
-                strokeWidth={1}
-                stroke="#FFFFFF"
-              >
-                <Cell fill={opts.pieStyle.fillUsage} />
-                <Cell fill={opts.pieStyle.fillNonUsage} />
-              </Pie>
-            </PieChart>
-            <Text
-              position="absolute"
-              top="50%"
-              left="50%"
-              transform="translate(-50%, -50%)"
-              fontSize={opts.text.percentage.fontSize}
-              fontWeight={opts.text.percentage.fontWeight}
-              color={opts.text.percentage.color}
-              textAlign="center"
-              lineHeight="1"
-              userSelect="none"
-              zIndex="1"
+            <Box 
+              position="relative"
+              width={`${opts.pieStyle.outerRadius * 2 + 20}px`}
+              height={`${opts.pieStyle.outerRadius * 2 + 20}px`}
+              bg={opts.pieStyle.debug ? 'rgba(0, 255, 0, 0.1)' : 'transparent'}
+              marginLeft="10px"
               display="flex"
               alignItems="center"
               justifyContent="center"
-              width="100%"
-              height="100%"
             >
-              {item.percentage}%
+              <PieChart 
+                width={opts.pieStyle.outerRadius * 2 + 20} 
+                height={opts.pieStyle.outerRadius * 2 + 20}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0
+                }}
+              >
+                <Pie
+                  data={[
+                    { name: 'usage', value: item.percentage },
+                    { name: 'non-usage', value: 100 - item.percentage }
+                  ]}
+                  cx={(opts.pieStyle.outerRadius + 10)}
+                  cy={(opts.pieStyle.outerRadius + 10)}
+                  innerRadius={opts.pieStyle.innerRadius}
+                  outerRadius={opts.pieStyle.outerRadius}
+                  startAngle={90}
+                  endAngle={-270}
+                  dataKey="value"
+                  strokeWidth={1}
+                  stroke="#FFFFFF"
+                >
+                  <Cell fill={opts.pieStyle.fillUsage} />
+                  <Cell fill={opts.pieStyle.fillNonUsage} />
+                </Pie>
+              </PieChart>
+              <Text
+                position="absolute"
+                top="50%"
+                left="50%"
+                transform="translate(-50%, -50%)"
+                fontSize={opts.text.percentage.fontSize}
+                fontWeight={opts.text.percentage.fontWeight}
+                color={opts.text.percentage.color}
+                textAlign="center"
+                lineHeight="1"
+                userSelect="none"
+                zIndex="1"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                width="100%"
+                height="100%"
+              >
+                {item.percentage}%
+              </Text>
+            </Box>
+            <Text
+              position="absolute"
+              left={`${opts.pieStyle.outerRadius * 2 + 25}px`}
+              top={getVerticalAlignment()}
+              transform={`translateY(-${opts.text.name.verticalAlign === 'middle' ? '50' : '0'}%)`}
+              fontSize={opts.text.name.fontSize}
+              fontWeight={opts.text.name.fontWeight}
+              color={opts.text.name.color}
+              whiteSpace="nowrap"
+              userSelect="none"
+              zIndex="1"
+            >
+              {item.name} - TP
             </Text>
           </Box>
-          <Text
-            position="absolute"
-            left={`${opts.pieStyle.outerRadius * 2 + 20}px`}
-            top={getVerticalAlignment()}
-            transform={`translateY(-${opts.text.name.verticalAlign === 'middle' ? '50' : '0'}%)`}
-            fontSize={opts.text.name.fontSize}
-            fontWeight={opts.text.name.fontWeight}
-            color={opts.text.name.color}
-            whiteSpace="nowrap"
-            userSelect="none"
-            zIndex="1"
-          >
-            {item.name} - TP
-          </Text>
-        </Box>
-      ))}
+        ))}
+      </Flex>
     </Box>
   );
 }; 

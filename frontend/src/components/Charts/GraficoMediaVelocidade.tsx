@@ -124,26 +124,26 @@ interface GraficoMediaVelocidadeProps {
 
 // Valores padrão para as opções
 const defaultOptions = {
-  width: 550,
-  height: 450,
+  width: 650,
+  height: 350,
   marginTop: 0,
   margin: {
-    top: 20,
-    right: 130,
-    left: 80,
-    bottom: 10,
+    top: 5,
+    right: 220,
+    left: 40,
+    bottom: 0,
   },
   spacing: {
-    frotaFromLeft: 120,
+    frotaFromLeft: 100,
     operationsFromBars: 100,
-    frotaVerticalOffset: 1.8,
+    frotaVerticalOffset: 0,
     barGroupGap: 0,
   },
   barStyle: {
     fillTrabalhando: '#00CC00',
     fillManobra: '#FF8C00',
     fillDeslocamento: '#FFFF00',
-    height: 32,
+    height: 25,
   },
   xAxis: {
     fontSize: 9,
@@ -162,7 +162,7 @@ const defaultOptions = {
     fontWeight: 'bold',
     fill: '#000000',
     position: 'right',
-    offset: 10,
+    offset: 5,
   },
   grid: {
     horizontal: false,
@@ -220,13 +220,13 @@ export const GraficoMediaVelocidade: React.FC<GraficoMediaVelocidadeProps> = ({
     spacing: { ...defaultOptions.spacing, ...options.spacing },
   };
 
-  // Ordena os dados pelo número da máquina
-  const sortedData = [...data].sort((a, b) => Number(a.name) - Number(b.name));
+  // Ordena os dados pelo número da máquina em ordem decrescente
+  const sortedData = [...data].sort((a, b) => Number(b.name) - Number(a.name));
 
   // Calcular o domínio baseado nos dados
   const [minDomain, maxDomain] = calculateDomain(data);
 
-  // Transformar os dados para agrupar por frota e manter as operações
+  // Transformar os dados para agrupar por frota
   const transformedData = sortedData.flatMap(item => [
     {
       name: 'TRABALHANDO',
@@ -263,8 +263,8 @@ export const GraficoMediaVelocidade: React.FC<GraficoMediaVelocidadeProps> = ({
         data={transformedData}
         margin={opts.margin}
         barSize={opts.barStyle.height}
-        barGap={-10}
-        barCategoryGap={40}
+        barGap={0}
+        barCategoryGap={opts.spacing.barGroupGap}
       >
         {!opts.grid.showOnlyTarget && (
           <CartesianGrid
@@ -287,10 +287,39 @@ export const GraficoMediaVelocidade: React.FC<GraficoMediaVelocidadeProps> = ({
         <YAxis
           type="category"
           dataKey="name"
-          tick={{
-            fontSize: opts.yAxis.fontSize,
-            fontWeight: opts.yAxis.fontWeight,
-            fill: opts.yAxis.fill,
+          tick={(props) => {
+            const { x, y, payload } = props;
+            const entry = transformedData.find(d => d.name === payload.value);
+            if (!entry) return null;
+
+            return (
+              <g transform={`translate(${x},${y})`}>
+                {entry.name === 'TRABALHANDO' && (
+                  <text
+                    x={-opts.spacing.frotaFromLeft}
+                    y={0}
+                    dy={0}
+                    textAnchor="end"
+                    fill={opts.yAxis.fill}
+                    fontSize={opts.yAxis.fontSize}
+                    fontWeight={opts.yAxis.fontWeight}
+                  >
+                    {entry.frota}
+                  </text>
+                )}
+                <text
+                  x={-5}
+                  y={0}
+                  dy={0}
+                  textAnchor="end"
+                  fill={opts.yAxis.fill}
+                  fontSize={opts.yAxis.fontSize}
+                  fontWeight={opts.yAxis.fontWeight}
+                >
+                  {payload.value}
+                </text>
+              </g>
+            );
           }}
           width={opts.spacing.operationsFromBars}
         />
@@ -307,44 +336,13 @@ export const GraficoMediaVelocidade: React.FC<GraficoMediaVelocidadeProps> = ({
           <LabelList
             dataKey="value"
             position="right"
-            content={(props) => {
-              const { x, y, width, height, value, index } = props;
-              if (x === undefined || y === undefined || width === undefined || height === undefined || index === undefined) return null;
-              
-              const entry = transformedData[index];
-              if (!entry) return null;
-              
-              const isFirstInGroup = index % 3 === 0;
-              
-              return (
-                <g>
-                  {isFirstInGroup && (
-                    <text
-                      x={Number(x) - opts.spacing.frotaFromLeft}
-                      y={Number(y) + opts.barStyle.height * opts.spacing.frotaVerticalOffset}
-                      fill="#000000"
-                      fontSize={opts.labels.fontSize}
-                      fontWeight={opts.labels.fontWeight}
-                      textAnchor="end"
-                      dominantBaseline="central"
-                    >
-                      {`${entry.frota} - TP`}
-                    </text>
-                  )}
-                  <text
-                    x={Number(x) + Number(width) + 8}
-                    y={Number(y) + Number(height) / 2}
-                    fill="#000000"
-                    fontSize={opts.labels.fontSize}
-                    fontWeight={opts.labels.fontWeight}
-                    textAnchor="start"
-                    dominantBaseline="central"
-                  >
-                    {formatNumber(value as number)}
-                  </text>
-                </g>
-              );
+            formatter={formatNumber}
+            style={{ 
+              fontSize: opts.labels.fontSize,
+              fontWeight: opts.labels.fontWeight,
+              fill: opts.labels.fill,
             }}
+            offset={opts.labels.offset}
           />
         </Bar>
       </BarChart>

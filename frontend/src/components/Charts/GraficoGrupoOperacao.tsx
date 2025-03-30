@@ -1,6 +1,6 @@
 import React from 'react';
-import { PieChart, Pie, Cell } from 'recharts';
-import { Box, Text, HStack, VStack, Flex, Square } from '@chakra-ui/react';
+import { PieChart, Pie, Cell, Label } from 'recharts';
+import { Box, Text, Flex } from '@chakra-ui/react';
 
 /**
  * Estrutura dos dados para o gráfico de grupo de operação
@@ -14,8 +14,6 @@ interface GrupoOperacaoData {
     name: string;
     /** Valor da operação */
     value: number;
-    /** Cor da operação */
-    color: string;
   }[];
 }
 
@@ -25,360 +23,318 @@ interface GrupoOperacaoData {
 interface GrupoOperacaoProps {
   /** Array com os dados das frotas */
   data: GrupoOperacaoData[];
-  
-  /** Configurações de customização do gráfico */
-  options?: {
-    /** 
-     * Dimensões e posicionamento do container principal
-     */
-    container?: {
-      /** Altura do container em pixels */
-      height?: number;
-      /** Largura do container em pixels */
-      width?: number;
-      /** Padding interno do container */
-      padding?: {
-        top?: number;
-        right?: number;
-        bottom?: number;
-        left?: number;
-      };
-    };
-
-    /** 
-     * Configurações do gráfico de pizza
-     */
-    pieStyle?: {
-      /** Raio interno do gráfico em pixels (0 para pie, > 0 para donut) */
-      innerRadius?: number;
-      /** Raio externo do gráfico em pixels */
-      outerRadius?: number;
-      /** Ângulo inicial do gráfico em graus */
-      startAngle?: number;
-      /** Ângulo final do gráfico em graus */
-      endAngle?: number;
-      /** Espessura da borda das fatias */
-      strokeWidth?: number;
-      /** Cor da borda das fatias */
-      strokeColor?: string;
-    };
-
-    /** 
-     * Configurações do título (ID da frota)
-     */
-    title?: {
-      /** Tamanho da fonte do título */
-      fontSize?: number;
-      /** Peso da fonte do título */
-      fontWeight?: string;
-      /** Cor do título */
-      color?: string;
-      /** Margem inferior do título */
-      marginBottom?: number;
-    };
-
-    /** 
-     * Configurações dos valores dentro das fatias
-     */
-    values?: {
-      /** Se deve mostrar os valores */
-      show?: boolean;
-      /** Tamanho da fonte dos valores */
-      fontSize?: number;
-      /** Peso da fonte dos valores */
-      fontWeight?: string;
-      /** Cor dos valores */
-      color?: string;
-      /** Fator de distância do centro (0 a 1) */
-      distanceFromCenter?: number;
-      /** Número de casas decimais */
-      decimalPlaces?: number;
-    };
-
-    /**
-     * Configurações da legenda
-     */
-    legend?: {
-      /** Tamanho da fonte da legenda */
-      fontSize?: number;
-      /** Peso da fonte da legenda */
-      fontWeight?: string;
-      /** Cor do texto da legenda */
-      color?: string;
-      /** Tamanho do quadrado de cor */
-      squareSize?: number;
-      /** Espaçamento entre itens */
-      gap?: number;
-    };
-  };
+  options?: Partial<typeof defaultOptions>;
 }
 
-// Valores padrão para as opções
+type LabelPosition = 'inside' | 'outside';
+type IconShape = 'square' | 'circle' | 'rect';
+
+// Valores padrão para as opções - ajustados para o container A4
 const defaultOptions = {
   container: {
+    width: 710,
     height: 200,
-    width: 900,
     padding: {
       top: 0,
-      right: 20,
+      right: 0,
       bottom: 0,
-      left: 20
+      left: 0
     }
   },
-  pieStyle: {
+  pieChart: {
+    width: 230,
+    height: 230,
+    spacing: 'space-between' as const, // ou 'space-around', 'space-evenly'
+  },
+  pie: {
     innerRadius: 0,
-    outerRadius: 60,
+    outerRadius: 90,
     startAngle: 90,
     endAngle: -270,
-    strokeWidth: 1,
-    strokeColor: '#FFFFFF'
+    stroke: {
+      color: '#FFFFFF',
+      width: 1
+    },
+    animation: {
+      enabled: false,
+      duration: 800
+    }
   },
-  title: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginBottom: 0
-  },
-  values: {
-    show: true,
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#000000',
-    distanceFromCenter: 0.5,
-    decimalPlaces: 2
+  text: {
+    title: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: '#000000',
+      marginBottom: 2,
+      show: true
+    },
+    value: {
+      show: true,
+      position: 'outside' as LabelPosition,
+      fontSize: 9,
+      fontWeight: 'bold',
+      color: '#000000',
+      format: (value: number) => value.toFixed(1),
+      minAngleToShow: 3,
+      labelDistance: {
+        offset: 1,
+        lineLength: 4,
+        connectorPadding: 3
+      },
+      style: {
+        textAnchor: 'middle' as const,
+        dominantBaseline: 'middle' as const
+      }
+    }
   },
   legend: {
+    show: true,
+    position: 'bottom' as const,
     fontSize: 10,
     fontWeight: 'normal',
     color: '#000000',
-    squareSize: 10,
-    gap: 20
+    iconSize: 2,
+    iconShape: 'square' as IconShape,
+    marginTop: 14,
+    marginLeft: 40,
+    spacing: 3,
+    columns: 'auto' as const,
+    maxWidth: 630,
+    align: 'center' as const
+  },
+  colors: {
+    'Automação': '#8B0000', // Vermelho escuro
+    'Auxiliar': '#FFA500', // Laranja
+    'Clima': '#FFE4B5', // Amarelo claro
+    'Improdutiva': '#FFD700', // Amarelo
+    'Inaptidão': '#87CEEB', // Azul claro
+    'Manutenção': '#FF0000', // Vermelho
+    'Perdida': '#DDA0DD', // Rosa/Roxo
+    'Produtiva': '#228B22', // Verde
+    'Usina': '#808080' // Cinza
   }
 };
 
-// Helper para formatar o valor com número específico de casas decimais
-const formatValue = (value: number, decimalPlaces: number) => 
-  value.toFixed(decimalPlaces);
+type OperationType = 'Automação' | 'Auxiliar' | 'Clima' | 'Improdutiva' | 'Inaptidão' | 'Manutenção' | 'Perdida' | 'Produtiva' | 'Usina';
 
-// Helper para calcular a posição do texto dentro da fatia do pie
-const calculateTextPosition = (
-  value: number,
-  total: number,
-  radius: number,
-  centerX: number,
-  centerY: number,
-  distanceFromCenter: number,
-  startAngle: number,
-  index: number,
-  data: GrupoOperacaoData['operations']
-) => {
-  // Calcula o ângulo inicial da fatia atual somando os ângulos das fatias anteriores
-  let currentStartAngle = startAngle;
-  for (let i = 0; i < index; i++) {
-    currentStartAngle -= (data[i].value / total) * 360;
-  }
+// Definição de todas as operações possíveis e suas cores na ordem correta da imagem
+const ALL_OPERATIONS = [
+  { name: 'Automação', color: '#0000FF' },  // Azul
+  { name: 'Auxiliar', color: '#FFD700' },   // Amarelo
+  { name: 'Clima', color: '#808080' },      // Cinza
+  { name: 'Improdutiva', color: '#FFFF00' }, // Amarelo claro
+  { name: 'Inaptidão', color: '#87CEEB' },  // Azul claro
+  { name: 'Manutenção', color: '#FF0000' }, // Vermelho
+  { name: 'Perdida', color: '#FFA500' },    // Laranja
+  { name: 'Produtiva', color: '#00FF00' },  // Verde
+  { name: 'Usina', color: '#8B4513' }       // Marrom
+];
 
-  // Calcula o ângulo da fatia atual
-  const sliceAngle = (value / total) * 360;
-  
-  // Calcula o ângulo do meio da fatia
-  const midAngle = ((currentStartAngle - (sliceAngle / 2)) * Math.PI) / 180;
-
-  const x = centerX + Math.cos(midAngle) * (radius * distanceFromCenter);
-  const y = centerY + Math.sin(midAngle) * (radius * distanceFromCenter);
-
-  return { x, y };
-};
-
-// Helper para obter todas as operações únicas dos dados
-const getUniqueOperations = (data: GrupoOperacaoData[]) => {
-  const operations = new Map();
-  
-  data.forEach(frota => {
-    frota.operations.forEach(op => {
-      if (op.name !== 'null' && !operations.has(op.name)) {
-        operations.set(op.name, op.color);
-      }
-    });
-  });
-
-  return Array.from(operations.entries()).map(([name, color]) => ({ name, color }));
+// Cores para o gráfico
+const COLORS: Record<OperationType, string> = {
+  'Automação': '#0000FF',
+  'Auxiliar': '#FFD700',
+  'Clima': '#808080',
+  'Improdutiva': '#FFFF00',
+  'Inaptidão': '#87CEEB',
+  'Manutenção': '#FF0000',
+  'Perdida': '#FFA500',
+  'Produtiva': '#00FF00',
+  'Usina': '#8B4513'
 };
 
 const SinglePieChart: React.FC<{
-  data: GrupoOperacaoData['operations'];
-  frotaId: string;
+  data: GrupoOperacaoData;
   options: typeof defaultOptions;
-}> = ({ data, frotaId, options: opts }) => {
-  // Filtra apenas operações com valor > 0 e calcula o total
-  const filteredData = data.filter(op => op.value > 0 && op.name !== 'null');
+}> = ({ data, options: opts }) => {
+  const filteredData = data.operations.filter(op => op.value > 0 && op.name !== 'null');
   const total = filteredData.reduce((sum, op) => sum + op.value, 0);
 
-  // Calcula as dimensões do centro do gráfico
-  const centerX = opts.pieStyle.outerRadius;
-  const centerY = opts.pieStyle.outerRadius;
+  const renderCustomizedLabel = (props: any) => {
+    const { cx, cy, midAngle, innerRadius, outerRadius, percent, value, name } = props;
+    const RADIAN = Math.PI / 180;
+    const { offset, lineLength, connectorPadding } = opts.text.value.labelDistance;
+    
+    const radius = outerRadius + offset;
+    const lineStart = {
+      x: cx + outerRadius * Math.cos(-midAngle * RADIAN),
+      y: cy + outerRadius * Math.sin(-midAngle * RADIAN)
+    };
+    const lineMiddle = {
+      x: cx + (outerRadius + lineLength) * Math.cos(-midAngle * RADIAN),
+      y: cy + (outerRadius + lineLength) * Math.sin(-midAngle * RADIAN)
+    };
+    const labelPoint = {
+      x: cx + radius * Math.cos(-midAngle * RADIAN),
+      y: cy + radius * Math.sin(-midAngle * RADIAN)
+    };
+
+    const angle = (value / total) * 360;
+    if (angle < opts.text.value.minAngleToShow) return null;
+
+    const textAnchor = midAngle < -90 || midAngle >= 90 ? 'end' : 'start';
+    const labelX = labelPoint.x + (textAnchor === 'end' ? -connectorPadding : connectorPadding);
+
+    return (
+      <g>
+        <path
+          d={`
+            M ${lineStart.x},${lineStart.y}
+            L ${lineMiddle.x},${lineMiddle.y}
+            L ${labelPoint.x},${labelPoint.y}
+          `}
+          stroke="#666666"
+          fill="none"
+          strokeWidth={0.5}
+        />
+        <text
+          x={labelX}
+          y={labelPoint.y}
+          fill={opts.text.value.color}
+          fontSize={opts.text.value.fontSize}
+          fontWeight={opts.text.value.fontWeight}
+          textAnchor={textAnchor}
+          dominantBaseline="middle"
+        >
+          {opts.text.value.format(value)}
+        </text>
+      </g>
+    );
+  };
 
   return (
     <Box
+      width={opts.pieChart.width}
+      height={opts.pieChart.height}
       position="relative"
-      width={opts.pieStyle.outerRadius * 2 + 40}
-      height={opts.pieStyle.outerRadius * 2 + 40}
       display="flex"
       flexDirection="column"
       alignItems="center"
     >
-      {/* Título (ID da Frota) */}
-      <Text
-        fontSize={opts.title.fontSize}
-        fontWeight={opts.title.fontWeight}
-        color={opts.title.color}
-        marginBottom={opts.title.marginBottom}
-        textAlign="center"
-      >
-        {frotaId}
-      </Text>
-
-      {/* Container do Gráfico */}
-      <Box 
-        position="relative"
-        width={opts.pieStyle.outerRadius * 2 + 40}
-        height={opts.pieStyle.outerRadius * 2 + 40}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        {/* Gráfico de Pizza */}
-        <PieChart 
-          width={opts.pieStyle.outerRadius * 2 + 40} 
-          height={opts.pieStyle.outerRadius * 2 + 40}
+      {opts.text.title.show && (
+        <Text
+          fontSize={opts.text.title.fontSize}
+          fontWeight={opts.text.title.fontWeight}
+          color={opts.text.title.color}
+          mb={opts.text.title.marginBottom}
         >
-          <Pie
-            data={filteredData}
-            dataKey="value"
-            nameKey="name"
-            cx={centerX + 20}
-            cy={centerY + 20}
-            innerRadius={opts.pieStyle.innerRadius}
-            outerRadius={opts.pieStyle.outerRadius}
-            startAngle={opts.pieStyle.startAngle}
-            endAngle={opts.pieStyle.endAngle}
-          >
-            {filteredData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.color}
-                stroke={opts.pieStyle.strokeColor}
-                strokeWidth={opts.pieStyle.strokeWidth}
-              />
-            ))}
-          </Pie>
-        </PieChart>
-
-        {/* Valores */}
-        {opts.values.show && (
-          <svg
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
-              overflow: 'visible'
-            }}
-          >
-            {filteredData.map((op, index) => {
-              const pos = calculateTextPosition(
-                op.value,
-                total,
-                opts.pieStyle.outerRadius,
-                centerX + 20,
-                centerY + 20,
-                opts.values.distanceFromCenter,
-                opts.pieStyle.startAngle,
-                index,
-                filteredData
-              );
-
-              return (
-                <text
-                  key={index}
-                  x={pos.x}
-                  y={pos.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill={opts.values.color}
-                  fontSize={opts.values.fontSize}
-                  fontWeight={opts.values.fontWeight}
-                >
-                  {formatValue(op.value, opts.values.decimalPlaces)}
-                </text>
-              );
-            })}
-          </svg>
-        )}
-      </Box>
+          {data.id}
+        </Text>
+      )}
+      <PieChart 
+        width={opts.pieChart.width} 
+        height={opts.pieChart.height - (opts.text.title.show ? 20 : 0)}
+      >
+        <Pie
+          data={filteredData}
+          cx={opts.pieChart.width / 2}
+          cy={(opts.pieChart.height - (opts.text.title.show ? 20 : 0)) / 2}
+          innerRadius={opts.pie.innerRadius}
+          outerRadius={opts.pie.outerRadius}
+          startAngle={opts.pie.startAngle}
+          endAngle={opts.pie.endAngle}
+          dataKey="value"
+          stroke={opts.pie.stroke.color}
+          strokeWidth={opts.pie.stroke.width}
+          isAnimationActive={opts.pie.animation.enabled}
+          animationDuration={opts.pie.animation.duration}
+          label={opts.text.value.show ? renderCustomizedLabel : false}
+          labelLine={false}
+        >
+          {filteredData.map((entry, index) => (
+            <Cell 
+              key={`cell-${index}`}
+              fill={opts.colors[entry.name as keyof typeof opts.colors] || '#000000'}
+            />
+          ))}
+        </Pie>
+      </PieChart>
     </Box>
   );
 };
 
-export const GraficoGrupoOperacao: React.FC<GrupoOperacaoProps> = ({
-  data,
-  options = {}
-}) => {
-  // Mescla as opções com os valores padrão
+// Helper para obter todas as operações únicas dos dados
+const getUniqueOperations = (data: GrupoOperacaoData[]) => {
+  const operations = new Set<string>();
+  data.forEach(frota => {
+    frota.operations.forEach(op => {
+      if (op.name !== 'null') {
+        operations.add(op.name);
+      }
+    });
+  });
+  return Array.from(operations);
+};
+
+export const GraficoGrupoOperacao: React.FC<GrupoOperacaoProps> = ({ data, options = {} }) => {
+  // Mescla as opções padrão com as opções fornecidas
   const opts = {
-    container: { ...defaultOptions.container, ...(options.container || {}) },
-    pieStyle: { ...defaultOptions.pieStyle, ...(options.pieStyle || {}) },
-    title: { ...defaultOptions.title, ...(options.title || {}) },
-    values: { ...defaultOptions.values, ...(options.values || {}) },
-    legend: { ...defaultOptions.legend, ...(options.legend || {}) }
+    ...defaultOptions,
+    ...options,
+    container: { ...defaultOptions.container, ...options.container },
+    pieChart: { ...defaultOptions.pieChart, ...options.pieChart },
+    pie: { ...defaultOptions.pie, ...options.pie },
+    text: {
+      title: { ...defaultOptions.text.title, ...options.text?.title },
+      value: { ...defaultOptions.text.value, ...options.text?.value }
+    },
+    legend: { ...defaultOptions.legend, ...options.legend },
+    colors: COLORS
   };
 
-  // Obtém todas as operações únicas para a legenda
   const uniqueOperations = getUniqueOperations(data);
 
   return (
-    <VStack 
-      spacing={4} 
+    <Box 
       width={opts.container.width}
       height={opts.container.height}
       padding={`${opts.container.padding.top}px ${opts.container.padding.right}px ${opts.container.padding.bottom}px ${opts.container.padding.left}px`}
     >
-      {/* Container dos Gráficos */}
-      <HStack spacing={16} width="100%" justifyContent="center" mb={2}>
+      <Flex 
+        justifyContent={opts.pieChart.spacing}
+        alignItems="flex-start"
+        width="100%"
+        height="100%"
+      >
         {data.map((frota, index) => (
           <SinglePieChart
             key={index}
-            data={frota.operations}
-            frotaId={frota.id}
+            data={frota}
             options={opts}
           />
         ))}
-      </HStack>
-
-      {/* Legenda */}
-      <Flex 
-        wrap="nowrap" 
-        gap={opts.legend.gap} 
-        justifyContent="center"
-        width="100%"
-        paddingX={4}
-      >
-        {uniqueOperations.map((op, index) => (
-          <Flex key={index} alignItems="center" gap={2} minWidth="auto">
-            <Square size={opts.legend.squareSize} bg={op.color} />
-            <Text
-              fontSize={opts.legend.fontSize}
-              fontWeight={opts.legend.fontWeight}
-              color={opts.legend.color}
-              whiteSpace="nowrap"
-            >
-              {op.name}
-            </Text>
-          </Flex>
-        ))}
       </Flex>
-    </VStack>
+
+      {opts.legend.show && (
+        <Flex 
+          justifyContent={opts.legend.align}
+          gap={opts.legend.spacing}
+          mt={opts.legend.marginTop}
+          flexWrap="wrap"
+          maxWidth={opts.legend.maxWidth}
+          mx="auto"
+        >
+          {ALL_OPERATIONS
+            .filter(op => op.name !== 'null')
+            .map((operation, index) => (
+              <Flex key={index} alignItems="center" gap={2}>
+                <Box 
+                  width={opts.legend.iconSize} 
+                  height={opts.legend.iconSize} 
+                  backgroundColor={operation.color}
+                  borderRadius={opts.legend.iconShape === 'circle' ? '50%' : undefined}
+                />
+                <Text
+                  fontSize={opts.legend.fontSize}
+                  fontWeight={opts.legend.fontWeight}
+                  color={opts.legend.color}
+                >
+                  {operation.name}
+                </Text>
+              </Flex>
+            ))}
+        </Flex>
+      )}
+    </Box>
   );
 }; 
