@@ -12,6 +12,7 @@ import { GraficoDisponibilidadeMecanica } from '@/components/Charts/GraficoDispo
 import { GraficoUtilizacaoRTK } from '@/components/Charts/GraficoUtilizacaoRTK';
 import { GraficoMediaVelocidade } from '@/components/Charts/GraficoMediaVelocidade';
 import { GraficoGrupoOperacao } from '@/components/Charts/GraficoGrupoOperacao';
+import { GraficoUtilizacaoMotor } from '@/components/Charts/GraficoUtilizacaoMotor';
 
 interface PlantioA4Props {
   data?: any;
@@ -143,6 +144,49 @@ const sampleDataGrupoOperacao = [
       { name: 'Manutenção', value: 19.8 },
       { name: 'Perdida', value: 9.3 }
     ]
+  }
+];
+
+// Dados de exemplo para o gráfico de utilização do motor
+const sampleDataUtilizacaoMotor = [
+  {
+    name: '6126',
+    deslocParaDesc: 0.32,
+    manobra: 0.38,
+    deslocamento: 0.40,
+    parada: 1.06,
+    trabalhando: 1.40,
+    tempoDeslocParaDesc: '00:19:45',
+    tempoManobra: '00:38:45',
+    tempoDeslocamento: '00:40:35',
+    tempoParada: '01:06:29',
+    tempoTrabalhando: '01:40:50',
+  },
+  {
+    name: '6128',
+    deslocParaDesc: 0.08,
+    manobra: 0.30,
+    deslocamento: 1.04,
+    parada: 0.39,
+    trabalhando: 1.26,
+    tempoDeslocParaDesc: '00:05:18',
+    tempoManobra: '00:30:25',
+    tempoDeslocamento: '01:04:00',
+    tempoParada: '00:39:57',
+    tempoTrabalhando: '01:26:26',
+  },
+  {
+    name: '6129',
+    deslocParaDesc: 0.05,
+    manobra: 0.38,
+    deslocamento: 0.40,
+    parada: 0.06,
+    trabalhando: 1.40,
+    tempoDeslocParaDesc: '00:05:18',
+    tempoManobra: '00:38:45',
+    tempoDeslocamento: '00:40:35',
+    tempoParada: '00:06:33',
+    tempoTrabalhando: '01:40:50',
   }
 ];
 
@@ -605,6 +649,7 @@ export default function PlantioA4({ data }: PlantioA4Props) {
               h={PAGE_3_HEIGHTS.utilizacaoMotor}
               position="relative"
             >
+              <GraficoUtilizacaoMotor data={sampleDataUtilizacaoMotor} />
               <RenderFonte type="excel" fonte={getChartFonte('utilizacaoMotor')} />
             </Box>
           </Box>

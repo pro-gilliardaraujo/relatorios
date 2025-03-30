@@ -61,23 +61,34 @@ class ExcelProcessor:
         metrics = {}
         
         # Tempo total por estado
-        state_times = df.groupby('Estado')['Data/Hora'].agg(
-            lambda x: (x.max() - x.min()).total_seconds() / 3600
-        ).round(2)
+        df['Data/Hora'] = pd.to_datetime(df['Data/Hora'])
+        state_times = df.groupby('Estado').agg({
+            'Data/Hora': lambda x: (x.max() - x.min()).total_seconds() / 3600
+        }).round(2)
         
         # Média de velocidade por operação
-        speed_by_op = df.groupby('Operacao')['Velocidade'].mean().round(2)
+        speed_by_op = df.groupby('Grupo Operacao')['Velocidade'].agg({
+            'media': 'mean',
+            'max': 'max',
+            'min': 'min'
+        }).round(2)
         
         # Tempo de motor ocioso (RPM baixo com motor ligado)
-        idle_condition = (df['Motor Ligado'] == 'Sim') & (df['RPM Motor'] < 1000)
-        idle_time = df[idle_condition]['Data/Hora'].agg(
-            lambda x: (x.max() - x.min()).total_seconds() / 3600
-        ).round(2)
+        idle_condition = (df['Motor Ligado'] == True) & (df['RPM Motor'] < 1000)
+        idle_time = df[idle_condition].groupby('Equipamento').agg({
+            'Data/Hora': lambda x: (x.max() - x.min()).total_seconds() / 3600
+        }).round(2)
+        
+        # Tempo total por grupo de operação
+        operation_times = df.groupby('Grupo Operacao').agg({
+            'Data/Hora': lambda x: (x.max() - x.min()).total_seconds() / 3600
+        }).round(2)
         
         metrics.update({
-            'state_times': state_times.to_dict(),
+            'state_times': state_times['Data/Hora'].to_dict(),
             'speed_by_operation': speed_by_op.to_dict(),
-            'idle_time': idle_time
+            'idle_time': idle_time['Data/Hora'].to_dict(),
+            'operation_times': operation_times['Data/Hora'].to_dict()
         })
         
         return metrics
@@ -86,22 +97,36 @@ class ExcelProcessor:
         """Calcula indicadores de performance"""
         performance = {}
         
-        # Disponibilidade mecânica
-        total_time = (df['Data/Hora'].max() - df['Data/Hora'].min()).total_seconds() / 3600
-        maintenance_time = df[df['Grupo Operacao'] == 'Manutenção']['Data/Hora'].agg(
-            lambda x: (x.max() - x.min()).total_seconds() / 3600
-        ).sum()
+        # Disponibilidade mecânica por equipamento
+        equipment_availability = {}
+        for equipment in df['Equipamento'].unique():
+            equip_data = df[df['Equipamento'] == equipment]
+            total_time = (equip_data['Data/Hora'].max() - equip_data['Data/Hora'].min()).total_seconds() / 3600
+            maintenance_time = equip_data[equip_data['Grupo Operacao'] == 'Manutenção']['Data/Hora'].agg(
+                lambda x: (x.max() - x.min()).total_seconds() / 3600
+            ).sum()
+            
+            availability = ((total_time - maintenance_time) / total_time * 100).round(2) if total_time > 0 else 0
+            equipment_availability[equipment] = {
+                'availability': availability,
+                'total_hours': round(total_time, 2),
+                'maintenance_hours': round(maintenance_time, 2)
+            }
         
-        mechanical_availability = ((total_time - maintenance_time) / total_time * 100).round(2)
+        # Utilização do RTK por equipamento
+        rtk_usage = df.groupby('Equipamento').agg({
+            'RTK': lambda x: (x == True).mean() * 100
+        }).round(2)
         
-        # Utilização do RTK
-        rtk_usage = (df['RTK'] == 'Sim').mean() * 100
+        # Motor ligado vs desligado por equipamento
+        motor_usage = df.groupby('Equipamento').agg({
+            'Motor Ligado': lambda x: (x == True).mean() * 100
+        }).round(2)
         
         performance.update({
-            'mechanical_availability': mechanical_availability,
-            'rtk_usage': rtk_usage,
-            'total_hours': total_time,
-            'maintenance_hours': maintenance_time
+            'mechanical_availability': equipment_availability,
+            'rtk_usage': rtk_usage['RTK'].to_dict(),
+            'motor_usage': motor_usage['Motor Ligado'].to_dict()
         })
         
         return performance
@@ -110,19 +135,32 @@ class ExcelProcessor:
         """Analisa distribuição de tempo"""
         time_analysis = {}
         
-        # Distribuição por grupo de operação
-        group_distribution = df.groupby('Grupo Operacao')['Data/Hora'].agg(
-            lambda x: (x.max() - x.min()).total_seconds() / 3600
-        ).round(2)
+        # Distribuição por grupo de operação e equipamento
+        group_distribution = df.groupby(['Equipamento', 'Grupo Operacao']).agg({
+            'Data/Hora': lambda x: (x.max() - x.min()).total_seconds() / 3600
+        }).round(2)
         
-        # Top 5 ofensores (maiores tempos perdidos)
-        lost_time = df[df['Grupo Operacao'] == 'Perdida'].groupby('Operacao')['Data/Hora'].agg(
-            lambda x: (x.max() - x.min()).total_seconds() / 3600
-        ).sort_values(ascending=False).head(5)
+        # Top 5 ofensores por equipamento
+        lost_time = {}
+        for equipment in df['Equipamento'].unique():
+            equip_data = df[
+                (df['Equipamento'] == equipment) & 
+                (df['Grupo Operacao'] == 'Perdida')
+            ]
+            if not equip_data.empty:
+                lost_time[equipment] = equip_data.groupby('Estado').agg({
+                    'Data/Hora': lambda x: (x.max() - x.min()).total_seconds() / 3600
+                }).round(2).nlargest(5, 'Data/Hora')['Data/Hora'].to_dict()
+        
+        # Análise de velocidade média por hora do dia
+        hourly_speed = df.assign(
+            hour=df['Data/Hora'].dt.hour
+        ).groupby(['Equipamento', 'hour'])['Velocidade'].mean().round(2)
         
         time_analysis.update({
             'group_distribution': group_distribution.to_dict(),
-            'top_offenders': lost_time.to_dict()
+            'top_offenders': lost_time,
+            'hourly_speed': hourly_speed.to_dict()
         })
         
         return time_analysis
@@ -131,13 +169,14 @@ class ExcelProcessor:
         """Processa dados geográficos"""
         geo_data = {}
         
-        # Filtrar pontos válidos
+        # Filtrar pontos válidos e criar features para o mapa
         valid_coords = df[
             (df['Latitude'].notna()) & 
-            (df['Longitude'].notna())
+            (df['Longitude'].notna()) &
+            (df['Latitude'] != 0) & 
+            (df['Longitude'] != 0)
         ]
         
-        # Criar features para o mapa
         features = []
         for _, row in valid_coords.iterrows():
             feature = {
@@ -147,17 +186,28 @@ class ExcelProcessor:
                     'coordinates': [row['Longitude'], row['Latitude']]
                 },
                 'properties': {
+                    'equipamento': row['Equipamento'],
                     'estado': row['Estado'],
-                    'velocidade': row['Velocidade'],
-                    'rpm': row['RPM Motor'],
+                    'grupo_operacao': row['Grupo Operacao'],
+                    'velocidade': float(row['Velocidade']),
+                    'rpm': float(row['RPM Motor']),
+                    'rtk': bool(row['RTK']),
+                    'motor_ligado': bool(row['Motor Ligado']),
                     'timestamp': row['Data/Hora'].isoformat()
                 }
             }
             features.append(feature)
         
+        # Adicionar estatísticas por área
+        area_stats = valid_coords.groupby(['Equipamento', 'Grupo Operacao']).agg({
+            'Velocidade': ['mean', 'max', 'min'],
+            'RPM Motor': ['mean', 'max', 'min']
+        }).round(2)
+        
         geo_data.update({
             'type': 'FeatureCollection',
-            'features': features
+            'features': features,
+            'area_stats': area_stats.to_dict()
         })
         
         return geo_data 
