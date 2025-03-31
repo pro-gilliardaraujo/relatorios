@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, VStack, Heading, Image, Flex, Text, Grid, GridItem } from '@chakra-ui/react';
-import A4Layout from '@/components/Layout/A4Layout';
+import A4_Plantio from '@/components/Layout/A4_Plantio';
 import { useReportStore } from '@/store/useReportStore';
 import { useEffect, useCallback } from 'react';
 import { GraficoTopOfensores } from '@/components/Charts/GraficoTopOfensores';
@@ -376,7 +376,7 @@ export default function PlantioA4({ data }: PlantioA4Props) {
   return (
     <>
       {/* Página 1 - Visão Geral */}
-      <A4Layout>
+      <A4_Plantio>
         <PageHeader />
         <VStack spacing={4} mb={4}>
           <Box w="100%">
@@ -501,10 +501,10 @@ export default function PlantioA4({ data }: PlantioA4Props) {
             <RenderFonte type="excel" fonte={getChartFonte('motorOciosoOperacao')} />
           </Box>
         </Box>
-      </A4Layout>
+      </A4_Plantio>
 
       {/* Página 2 - Métricas Operacionais */}
-      <A4Layout>
+      <A4_Plantio>
         <PageHeader />
         <VStack spacing={6}>
           <Box w="100%">
@@ -633,10 +633,10 @@ export default function PlantioA4({ data }: PlantioA4Props) {
             </Box>
           </Box>
         </VStack>
-      </A4Layout>
+      </A4_Plantio>
 
       {/* Página 3 - Análise de Operação */}
-      <A4Layout>
+      <A4_Plantio>
         <PageHeader />
         <VStack spacing={6}>
           <Box w="100%">
@@ -702,10 +702,10 @@ export default function PlantioA4({ data }: PlantioA4Props) {
             </Box>
           </Box>
         </VStack>
-      </A4Layout>
+      </A4_Plantio>
 
       {/* Página 4 - Análise de Consumo e Área */}
-      <A4Layout>
+      <A4_Plantio>
         <PageHeader />
         <VStack spacing={6}>
           <Box w="100%">
@@ -756,7 +756,7 @@ export default function PlantioA4({ data }: PlantioA4Props) {
             </Box>
           </Box>
         </VStack>
-      </A4Layout>
+      </A4_Plantio>
     </>
   );
 } 
