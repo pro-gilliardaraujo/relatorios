@@ -117,7 +117,7 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
                   />
                 </Box>
                 <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color="black">
-                  {item.eficiencia}%
+                  {item.eficiencia !== undefined ? item.eficiencia : "0"}%
                 </Text>
               </Flex>
             </Box>

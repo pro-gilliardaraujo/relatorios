@@ -10,6 +10,7 @@ interface MotorOciosoData {
 interface MotorOciosoProps {
   data?: MotorOciosoData[];
   meta?: number;
+  inverterMeta?: boolean;
   exibirCards?: boolean;
 }
 
@@ -30,6 +31,7 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
   data = defaultData,
   // CONFIGURAÇÃO DE META: Percentual alvo de motor ocioso (valores mais baixos são melhores)
   meta = 10,
+  inverterMeta = false,
   exibirCards = false
 }) => {
   // Calcula a média de percentual ocioso
@@ -117,7 +119,7 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
                   />
                 </Box>
                 <Text fontSize="10px" fontWeight="bold" w="40px" textAlign="right" color="black">
-                  {item.percentual.toFixed(1)}%
+                  {item.percentual !== undefined ? item.percentual.toFixed(1) : "0.0"}%
                 </Text>
               </Flex>
             </Box>

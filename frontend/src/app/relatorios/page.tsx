@@ -1,16 +1,18 @@
 'use client';
 
-import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure } from '@chakra-ui/react';
 import { FiEye } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useReportStore } from '@/store/useReportStore';
 import { useRouter } from 'next/navigation';
 
 interface PreviewData {
   headers: string[];
   rows: string[][];
+  processedData: { [key: string]: any[] };
+  previewRows: number;
 }
 
 export default function ReportsPage() {
@@ -25,17 +27,21 @@ export default function ReportsPage() {
   } = useReportStore();
   const [excelFonte, setExcelFonte] = useState<string>('');
   const [imagemFonte, setImagemFonte] = useState<string>('');
+  const [previewData, setPreviewData] = useState<PreviewData | null>(null);
+  const [reportType, setReportType] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedFrente, setSelectedFrente] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   // Configurando a data de ontem como padrão
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const defaultDate = yesterday.toISOString().split('T')[0];
 
-  const [selectedDate, setSelectedDate] = useState(defaultDate);
-  const [reportType, setReportType] = useState<string>('');
-  const [selectedFrente, setSelectedFrente] = useState<string>('');
   const [isReportReady, setIsReportReady] = useState(false);
-  const [previewData, setPreviewData] = useState<PreviewData | null>(null);
 
   const isUploadEnabled = Boolean(reportType && selectedDate && selectedFrente);
 
@@ -55,18 +61,137 @@ export default function ReportsPage() {
     ));
   }, [previewData, reportType, selectedDate, selectedFrente, excelFonte, imagemFonte]);
 
-  const handleGenerateReport = () => {
-    console.log('=== Iniciando geração do relatório ===');
-    console.log('Tipo de relatório:', reportType);
-    console.log('Data selecionada:', selectedDate);
-    console.log('Frente:', selectedFrente);
-    console.log('Fonte Excel:', excelFonte);
-    console.log('Fonte Imagens:', imagemFonte);
-    console.log('Total de imagens:', images.length);
-    console.log('Containers com fonte:', chartFontes.length);
-    
-    setReportGenerated(true);
-    console.log('Relatório marcado como gerado');
+  const handleGenerateReport = async () => {
+    // Verificar se os campos obrigatórios estão preenchidos
+    if (!reportType || !selectedDate) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Selecione o tipo de relatório e a data",
+        status: "warning",
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (reportType.includes('colheita') && !selectedFrente) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Selecione a frente para relatório de colheita",
+        status: "warning",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Verificar se há dados suficientes para o tipo de relatório selecionado
+    if (reportType.includes('colheita') && (!previewData || !previewData.processedData)) {
+      toast({
+        title: "Dados insuficientes",
+        description: "Faça o upload da planilha com os dados de colheita",
+        status: "warning",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // Mostrar toast de processamento
+    toast({
+      title: "Processando",
+      description: "Salvando dados do relatório...",
+      status: "info",
+      duration: 3000,
+    });
+
+    setIsLoading(true);
+    console.log("Iniciando salvamento de dados de relatório...");
+
+    try {
+      // Estruturar os dados processados de acordo com o tipo de relatório
+      let processedData = {};
+
+      if (reportType.includes('colheita')) {
+        // Estruturar dados para relatório de colheita
+        processedData = {
+          disponibilidade_mecanica: previewData?.processedData['1_Disponibilidade Mecânica'] || [],
+          eficiencia_energetica: previewData?.processedData['2_Eficiência Energética'] || [],
+          hora_elevador: previewData?.processedData['3_Hora Elevador'] || [],
+          motor_ocioso: previewData?.processedData['4_Motor Ocioso'] || [],
+          uso_gps: previewData?.processedData['5_Uso GPS'] || []
+        };
+      } else if (reportType.includes('plantio')) {
+        // Estruturar dados para relatório de plantio
+        processedData = {
+          // Adicionar estrutura específica para plantio quando necessário
+        };
+      } else if (reportType.includes('cav')) {
+        // Estruturar dados para relatório de CAV
+        processedData = {
+          // Adicionar estrutura específica para CAV quando necessário
+        };
+      }
+
+      // Enviar dados para a API
+      const response = await fetch('/api/reports/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tipo: reportType,
+          data: selectedDate,
+          frente: selectedFrente,
+          dados: processedData,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        console.log("✅ Dados salvos com sucesso no Supabase:", result);
+        setReportGenerated(true);
+
+        // Mostrar toast de sucesso
+        toast({
+          title: "Sucesso!",
+          description: "O relatório está sendo aberto em nova guia",
+          status: "success",
+          duration: 5000,
+        });
+
+        // Construir o caminho do relatório
+        let reportPath = '';
+        if (reportType.includes('plantio')) {
+          reportPath = `/relatorios/visualizacao/a4/plantio?id=${result.id}`;
+        } else if (reportType.includes('colheita')) {
+          reportPath = `/relatorios/visualizacao/a4/colheita?id=${result.id}`;
+        } else if (reportType.includes('cav')) {
+          reportPath = `/relatorios/visualizacao/a4/cav?id=${result.id}`;
+        }
+
+        // Abrir o relatório em uma nova guia
+        if (reportPath) {
+          window.open(reportPath, '_blank');
+        }
+      } else {
+        console.error("❌ Erro ao salvar dados:", result);
+        toast({
+          title: "Erro",
+          description: result.error || "Erro ao processar relatório",
+          status: "error",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("❌ Erro ao processar relatório:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao processar o relatório",
+        status: "error",
+        duration: 5000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleViewReport = () => {
@@ -212,11 +337,12 @@ export default function ReportsPage() {
                 colorScheme="blue"
                 variant="outline"
                 size="md"
-                isDisabled={!isReportGenerated}
+                isDisabled={!reportType}
                 onClick={handleViewReport}
                 w={{ base: "100%", md: "auto" }}
-                title={!isReportGenerated ? "Aguardando geração do relatório pelo servidor" : "Visualizar relatório gerado"}
+                title={!reportType ? "Selecione um tipo de relatório" : "Visualizar relatório"}
                 color="black"
+                borderColor="black"
                 _hover={{ bg: 'gray.50' }}
               >
                 Visualizar Relatório

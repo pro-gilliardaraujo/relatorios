@@ -24,11 +24,18 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
   meta = 90,
   exibirCards = false
 }) => {
+  // Verificar se há dados válidos
+  const dadosValidos = Array.isArray(data) && data.length > 0 && 
+    data.some(item => item && typeof item.disponibilidade === 'number' && item.disponibilidade > 0);
+  
+  // Usar dados padrão se não houver dados válidos
+  const dadosFinais = dadosValidos ? data : defaultData;
+  
   // Calcula a média de disponibilidade
-  const mediaDisponibilidade = data.reduce((acc, item) => acc + item.disponibilidade, 0) / data.length;
+  const mediaDisponibilidade = dadosFinais.reduce((acc, item) => acc + (item?.disponibilidade || 0), 0) / dadosFinais.length;
 
   // Ordena os dados de disponibilidade (do maior para o menor)
-  const sortedData = [...data].sort((a, b) => b.disponibilidade - a.disponibilidade);
+  const sortedData = [...dadosFinais].sort((a, b) => (b?.disponibilidade || 0) - (a?.disponibilidade || 0));
   
   // Define as cores com base no valor da disponibilidade
   const getBarColor = (value: number) => {
@@ -61,6 +68,9 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
 
   // Formata o valor de porcentagem com vírgula em vez de ponto (pt-BR)
   const formatarPorcentagem = (valor: number) => {
+    if (valor === undefined || valor === null) {
+      return '0,00%';
+    }
     return valor.toFixed(2).replace('.', ',') + '%';
   };
 
@@ -73,9 +83,9 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
         {sortedData.map((item, index) => (
           <Box key={index} w="100%">
             <Flex justify="space-between" mb={1}>
-              <Text fontSize="11px" fontWeight="bold" color="black">Frota {item.frota}</Text>
-              <Text fontSize="11px" fontWeight="bold" color={getBarColor(item.disponibilidade)}>
-                {formatarPorcentagem(item.disponibilidade)}
+              <Text fontSize="11px" fontWeight="bold" color="black">Frota {item?.frota || `-`}</Text>
+              <Text fontSize="11px" fontWeight="bold" color={getBarColor(item?.disponibilidade || 0)}>
+                {formatarPorcentagem(item?.disponibilidade || 0)}
               </Text>
             </Flex>
             <Box position="relative" w="100%">
@@ -83,8 +93,8 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
               <Flex w="100%" h="20px" bg="gray.100" borderRadius="md" overflow="hidden">
                 <Box 
                   h="100%" 
-                  w={`${item.disponibilidade}%`} 
-                  bg={getBarColor(item.disponibilidade)}
+                  w={`${item?.disponibilidade || 0}%`} 
+                  bg={getBarColor(item?.disponibilidade || 0)}
                   borderRadius="md 0 0 md"
                 />
               </Flex>

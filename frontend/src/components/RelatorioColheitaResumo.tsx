@@ -124,6 +124,9 @@ const defaultData: ResumoData = {
 
 // Função para formatar o valor de horas (Xh Ym)
 const formatHoras = (horas: number) => {
+  if (horas === undefined || horas === null) {
+    return '0h';
+  }
   const horasInteiras = Math.floor(horas);
   const minutos = Math.round((horas - horasInteiras) * 60);
   return `${horasInteiras}h${minutos > 0 ? ` ${minutos}m` : ''}`;
@@ -131,6 +134,9 @@ const formatHoras = (horas: number) => {
 
 // Função para formatar percentuais com vírgula
 const formatarPorcentagem = (valor: number, casasDecimais: number = 1) => {
+  if (valor === undefined || valor === null) {
+    return `0,${'0'.repeat(casasDecimais)}%`;
+  }
   return valor.toFixed(casasDecimais).replace('.', ',') + '%';
 };
 
@@ -163,10 +169,29 @@ const getPercentualColor = (percentual: number) => {
 export const RelatorioColheitaResumo: React.FC<RelatorioColheitaResumoProps> = ({ 
   data = defaultData 
 }) => {
-  // Ordenar operadores por nome (ordem crescente)
+  // Filtrar e ordenar operadores (remover vazios e ordenar por nome)
   const operadoresOrdenados = React.useMemo(() => {
     if (!data.operadores) return [];
-    return [...data.operadores].sort((a, b) => a.nome.localeCompare(b.nome));
+    
+    // Filtrar apenas operadores com dados válidos
+    const operadoresFiltrados = [...data.operadores].filter(op => {
+      // Verificar se o operador existe e tem dados válidos
+      if (!op) return false;
+      
+      // Verificar se tem nome válido (não vazio)
+      if (!op.nome || op.nome.trim() === '') return false;
+      
+      // Manter todos operadores com nome, independente dos valores
+      return true;
+    });
+    
+    // Ordenar os operadores filtrados por nome
+    return operadoresFiltrados.sort((a, b) => {
+      if (!a || !b) return 0;
+      if (!a.nome) return 1;  // Coloca itens sem nome no final
+      if (!b.nome) return -1; // Coloca itens sem nome no final
+      return a.nome.localeCompare(b.nome);
+    });
   }, [data.operadores]);
 
   return (
@@ -397,46 +422,46 @@ export const RelatorioColheitaResumo: React.FC<RelatorioColheitaResumoProps> = (
             {operadoresOrdenados.map((operador, index) => (
               <Tr key={index} bg={index % 2 === 0 ? "white" : "gray.50"}>
                 <Td fontWeight="medium" color="black" fontSize="10px" py={0.5}>
-                  {operador.id}
+                  {operador?.id || ""}
                 </Td>
                 <Td fontWeight="medium" color="black" fontSize="10px" py={0.5}>
-                  {operador.nome}
+                  {operador?.nome || ""}
                 </Td>
                 <Td 
                   fontWeight="bold" 
-                  color={getStatusColor(operador.eficiencia, data.eficienciaEnergetica.meta)}
+                  color={getStatusColor(operador?.eficiencia || 0, data.eficienciaEnergetica.meta)}
                   fontSize="10px"
                   py={0.5}
                   textAlign="center"
                 >
-                  {formatarPorcentagem(operador.eficiencia, 0)}
+                  {formatarPorcentagem(operador?.eficiencia || 0, 0)}
                 </Td>
                 <Td 
                   fontWeight="bold" 
-                  color={getStatusColor(operador.motorOcioso, data.motorOcioso.meta, true)}
+                  color={getStatusColor(operador?.motorOcioso || 0, data.motorOcioso.meta, true)}
                   fontSize="10px"
                   py={0.5}
                   textAlign="center"
                 >
-                  {formatarPorcentagem(operador.motorOcioso, 1)}
+                  {formatarPorcentagem(operador?.motorOcioso || 0, 1)}
                 </Td>
                 <Td 
                   fontWeight="bold" 
-                  color={getStatusColor(operador.horasElevador, data.horasElevador.meta || 5)}
+                  color={getStatusColor(operador?.horasElevador || 0, data.horasElevador.meta || 5)}
                   fontSize="10px"
                   py={0.5}
                   textAlign="center"
                 >
-                  {formatHoras(operador.horasElevador)}
+                  {formatHoras(operador?.horasElevador || 0)}
                 </Td>
                 <Td 
                   fontWeight="bold" 
-                  color={getStatusColor(operador.usoGPS, data.usoGPS.meta)}
+                  color={getStatusColor(operador?.usoGPS || 0, data.usoGPS.meta)}
                   fontSize="10px"
                   py={0.5}
                   textAlign="center"
                 >
-                  {formatarPorcentagem(operador.usoGPS, 1)}
+                  {formatarPorcentagem(operador?.usoGPS || 0, 1)}
                 </Td>
               </Tr>
             ))}

@@ -10,6 +10,7 @@ interface HorasElevadorData {
 interface HorasElevadorProps {
   data?: HorasElevadorData[];
   exibirCards?: boolean;
+  meta?: number;
 }
 
 // Dados de exemplo para o caso de não serem fornecidos
@@ -78,6 +79,9 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
 
   // Formata o valor de horas para exibição (horas e minutos)
   const formatHoras = (horas: number) => {
+    if (horas === undefined || horas === null) {
+      return '0h';
+    }
     const horasInteiras = Math.floor(horas);
     const minutos = Math.round((horas - horasInteiras) * 60);
     return `${horasInteiras}h${minutos > 0 ? ` ${minutos}m` : ''}`;

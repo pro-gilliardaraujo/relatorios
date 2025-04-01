@@ -87,7 +87,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
                   />
                 </Box>
                 <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color="black">
-                  {item.porcentagem.toFixed(1)}%
+                  {item.porcentagem !== undefined ? item.porcentagem.toFixed(1) : "0.0"}%
                 </Text>
               </Flex>
             </Box>
