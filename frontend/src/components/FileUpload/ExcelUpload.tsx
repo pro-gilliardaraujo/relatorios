@@ -211,7 +211,7 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
   if (!preview) {
     return (
       <Box textAlign="center" py={4}>
-        <Text color="gray.600">
+        <Text color="black">
           Selecione um arquivo Excel ou CSV para visualizar os dados
         </Text>
       </Box>
@@ -251,6 +251,8 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
                 fontSize="xs"
                 py={1}
                 px={2}
+                color="black"
+                _selected={{ color: 'black', borderColor: 'black' }}
               >
                 {sheet.replace(/^\d+_/, '')}
               </Tab>
@@ -286,7 +288,7 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
                       <Tr>
                         {processedData[sheet] && processedData[sheet].length > 0 
                           ? Object.keys(processedData[sheet][0]).map((key, i) => (
-                              <Th key={i} fontSize="xs" p={1}>{key}</Th>
+                              <Th key={i} fontSize="xs" p={1} color="black">{key}</Th>
                             ))
                           : null
                         }
@@ -296,7 +298,7 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
                       {processedData[sheet]?.slice(0, 5).map((row: any, rowIdx: number) => (
                         <Tr key={rowIdx}>
                           {Object.values(row).map((cell: any, cellIdx: number) => (
-                            <Td key={cellIdx} fontSize="xs" p={1}>{formatValue(cell)}</Td>
+                            <Td key={cellIdx} fontSize="xs" p={1} color="black">{formatValue(cell)}</Td>
                           ))}
                         </Tr>
                       ))}

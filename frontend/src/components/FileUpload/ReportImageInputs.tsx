@@ -15,6 +15,7 @@ import {
   Select,
 } from '@chakra-ui/react';
 import { useReportStore } from '@/store/useReportStore';
+import { configManager } from '@/utils/config';
 
 interface ImageSection {
   id: string;
@@ -32,31 +33,32 @@ interface ReportImageInputsProps {
 // Definindo as seções de imagens para cada tipo de relatório
 const reportSections: Record<string, ImageSection[]> = {
   plantio: [
-    { id: 'areaPlantio', label: 'Área de Plantio', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaRPM', label: 'Mapa de RPM', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaAreaTotal', label: 'Mapa por Área Total', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'areaPlantio', label: 'Área de Plantio', image: null, fonte: '' },
+    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null, fonte: '' },
+    { id: 'mapaRPM', label: 'Mapa de RPM', image: null, fonte: '' },
+    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: '' },
+    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null, fonte: '' },
+    { id: 'mapaAreaTotal', label: 'Mapa por Área Total', image: null, fonte: '' },
   ],
   colheita: [
-    { id: 'areaColheita', label: 'Área de Colheita', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaProdutividade', label: 'Mapa de Produtividade', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaUmidade', label: 'Mapa de Umidade', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'areaColheita', label: 'Área de Colheita', image: null, fonte: '' },
+    { id: 'mapaProdutividade', label: 'Mapa de Produtividade', image: null, fonte: '' },
+    { id: 'mapaUmidade', label: 'Mapa de Umidade', image: null, fonte: '' },
+    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: '' },
+    { id: 'mapaTemperaturaMotor', label: 'Mapa por Temperatura Motor', image: null, fonte: '' },
   ],
   cav: [
-    { id: 'areaCobertura', label: 'Área de Cobertura', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaAplicacao', label: 'Mapa de Aplicação', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null, fonte: 'SGPA - Solinftec' },
-    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: 'SGPA - Solinftec' },
+    { id: 'areaCobertura', label: 'Área de Cobertura', image: null, fonte: '' },
+    { id: 'mapaAplicacao', label: 'Mapa de Aplicação', image: null, fonte: '' },
+    { id: 'mapaVelocidade', label: 'Mapa de Velocidade', image: null, fonte: '' },
+    { id: 'consumoCombustivel', label: 'Consumo de Combustível', image: null, fonte: '' },
   ],
 };
 
 export default function ReportImageInputs({ reportType, frente, fonte }: ReportImageInputsProps) {
   const [sections, setSections] = useState<ImageSection[]>([]);
   const { addImage, removeImage, images, updateImageFonte } = useReportStore();
+  const fontesImagens = configManager.getFontesImagens();
 
   useEffect(() => {
     if (reportType) {
@@ -102,7 +104,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
             addImage({
               data: dataUrl,
               containerId: sectionId,
-              fonte: fonte || 'SGPA - Solinftec'
+              fonte: fonte || ''
             });
           };
           reader.readAsDataURL(file);
@@ -129,7 +131,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
         addImage({
           data: dataUrl,
           containerId: sectionId,
-          fonte: fonte || 'SGPA - Solinftec'
+          fonte: fonte || ''
         });
       };
       reader.readAsDataURL(imageFile);
@@ -170,7 +172,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
   if (!reportType) {
     return (
       <Box textAlign="center" py={8}>
-        <Text color="gray.500">
+        <Text color="black">
           Selecione um tipo de relatório para visualizar as seções de imagens
         </Text>
       </Box>
@@ -180,7 +182,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
   if (!frente) {
     return (
       <Box textAlign="center" py={8}>
-        <Text color="gray.500">
+        <Text color="black">
           Selecione uma frente de serviço para continuar
         </Text>
       </Box>
@@ -203,14 +205,13 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
               <FormLabel
                 m={0}
                 fontSize={{ base: "xs", md: "sm" }}
-                color="gray.700"
+                color="black"
                 fontWeight="medium"
                 textAlign="center"
                 w="100%"
               >
                 {section.label}
               </FormLabel>
-              
               <Box 
                 position="relative" 
                 h={{ base: "145px", md: "165px", lg: "180px" }}
@@ -266,7 +267,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                         borderRadius="sm"
                         boxShadow="sm"
                       >
-                        <Text fontSize="xs" color="gray.600">
+                        <Text fontSize="xs" color="black">
                           Fonte:
                         </Text>
                         <Select
@@ -287,8 +288,11 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                           }}
                         >
                           <option value="">Não Informar</option>
-                          <option value="SGPA - Solinftec">SGPA - Solinftec</option>
-                          <option value="Operations Center - John Deere">Operations Center - John Deere</option>
+                          {fontesImagens.map(fonte => (
+                            <option key={fonte.id} value={fonte.id}>
+                              {fonte.nome}
+                            </option>
+                          ))}
                         </Select>
                       </Box>
                     </Box>
@@ -323,7 +327,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                       justify="center"
                       gap={2}
                     >
-                      <Text fontSize={{ base: "xs", md: "sm" }} color="gray.400">
+                      <Text fontSize={{ base: "xs", md: "sm" }} color="black">
                         Arraste uma imagem ou use Ctrl+V
                       </Text>
                       <Box
@@ -335,7 +339,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                         borderStyle="dashed"
                         borderColor="gray.300"
                       >
-                        <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
+                        <Text fontSize={{ base: "xs", md: "sm" }} color="black">
                           Ctrl+V ou Arraste
                         </Text>
                       </Box>

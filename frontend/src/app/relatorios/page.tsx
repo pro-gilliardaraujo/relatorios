@@ -7,6 +7,7 @@ import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
 import { useState, useEffect, useCallback } from 'react';
 import { useReportStore } from '@/store/useReportStore';
 import { useRouter } from 'next/navigation';
+import { configManager } from '@/utils/config';
 
 interface PreviewData {
   headers: string[];
@@ -35,6 +36,12 @@ export default function ReportsPage() {
   const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Obter configurações
+  const tiposRelatorio = configManager.getTiposRelatorio();
+  const frentesDisponiveis = reportType ? configManager.getFrentes(reportType) : [];
+  const fontesExcel = configManager.getFontesExcel();
+  const fontesImagens = configManager.getFontesImagens();
 
   // Configurando a data de ontem como padrão
   const yesterday = new Date();
@@ -195,8 +202,7 @@ export default function ReportsPage() {
   };
 
   const handleViewReport = () => {
-    // Navegar para a página de visualização quando implementada
-    router.push('/relatorios/visualizacao/a4/plantio');
+    router.push('/relatorios/lista');
   };
 
   const handleExcelFonteChange = (newFonte: string) => {
@@ -260,7 +266,10 @@ export default function ReportsPage() {
                   bg="white"
                   color="black"
                   value={reportType}
-                  onChange={(e) => setReportType(e.target.value)}
+                  onChange={(e) => {
+                    setReportType(e.target.value);
+                    setSelectedFrente(''); // Resetar frente ao mudar tipo
+                  }}
                   borderColor="gray.300"
                   _hover={{ borderColor: "gray.400" }}
                   sx={{
@@ -270,9 +279,14 @@ export default function ReportsPage() {
                     }
                   }}
                 >
-                  <option value="plantio">Plantio</option>
-                  <option value="colheita">Colheita</option>
-                  <option value="cav">CAV</option>
+                  {tiposRelatorio.map(tipo => {
+                    const config = configManager.getTipoRelatorio(tipo);
+                    return (
+                      <option key={tipo} value={tipo}>
+                        {config?.nome || tipo}
+                      </option>
+                    );
+                  })}
                 </Select>
               </Box>
               <Box w={{ base: "100%", sm: "200px" }}>
@@ -297,6 +311,7 @@ export default function ReportsPage() {
                   onChange={(e) => setSelectedFrente(e.target.value)}
                   borderColor="gray.300"
                   _hover={{ borderColor: "gray.400" }}
+                  isDisabled={!reportType}
                   sx={{
                     option: {
                       bg: 'white',
@@ -304,9 +319,11 @@ export default function ReportsPage() {
                     }
                   }}
                 >
-                  <option value="frente1">Frente 1</option>
-                  <option value="frente2">Frente 2</option>
-                  <option value="frente3">Frente 3</option>
+                  {frentesDisponiveis.map(frente => (
+                    <option key={frente.id} value={frente.id}>
+                      {frente.nome}
+                    </option>
+                  ))}
                 </Select>
               </Box>
               <Box w={{ base: "100%", sm: "auto" }}>
@@ -337,10 +354,8 @@ export default function ReportsPage() {
                 colorScheme="blue"
                 variant="outline"
                 size="md"
-                isDisabled={!reportType}
                 onClick={handleViewReport}
                 w={{ base: "100%", md: "auto" }}
-                title={!reportType ? "Selecione um tipo de relatório" : "Visualizar relatório"}
                 color="black"
                 borderColor="black"
                 _hover={{ bg: 'gray.50' }}
@@ -372,7 +387,7 @@ export default function ReportsPage() {
                 align="center"
                 bg="white"
               >
-                <Heading size="sm" color="gray.700" textAlign="center" flex={1}>
+                <Heading size="sm" color="black" textAlign="center" flex={1}>
                   Dados do Excel
                 </Heading>
                 <Box w="200px">
@@ -393,8 +408,11 @@ export default function ReportsPage() {
                     }}
                   >
                     <option value="">Não Informar</option>
-                    <option value="SGPA - Solinftec">SGPA - Solinftec</option>
-                    <option value="Operations Center - John Deere">Operations Center - John Deere</option>
+                    {fontesExcel.map(fonte => (
+                      <option key={fonte.id} value={fonte.id}>
+                        {fonte.nome}
+                      </option>
+                    ))}
                   </Select>
                 </Box>
               </Flex>
@@ -420,8 +438,8 @@ export default function ReportsPage() {
                 align="center"
                 bg="white"
               >
-                <Heading size="sm" color="gray.700" textAlign="center" w="100%">
-                  {`Imagens do Relatório${reportType ? ` - ${reportType.charAt(0).toUpperCase() + reportType.slice(1)}` : ''}${selectedFrente ? ` - ${selectedFrente.charAt(0).toUpperCase() + selectedFrente.slice(1)}` : ''}`}
+                <Heading size="sm" color="black" textAlign="center" w="100%">
+                  {`${reportType ? `Relatório de ${configManager.getTipoRelatorio(reportType)?.nome} Diário` : 'Relatório'}${selectedFrente ? ` - ${frentesDisponiveis.find(f => f.id === selectedFrente)?.nome}` : ''}`}
                 </Heading>
               </Flex>
               <Box p={2}>
