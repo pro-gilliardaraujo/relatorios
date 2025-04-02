@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.routes import reports, analytics
+from app.api import reports
 
 app = FastAPI(
     title="Boletim Plantadeiras API",
@@ -18,8 +18,7 @@ app.add_middleware(
 )
 
 # Incluindo as rotas
-app.include_router(reports.router, prefix="/api/v1/relatorios", tags=["relatorios"])
-app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
+app.include_router(reports.router, prefix="/api/reports", tags=["reports"])
 
 if __name__ == "__main__":
     import uvicorn

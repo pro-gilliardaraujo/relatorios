@@ -5,6 +5,9 @@ import uuid
 from datetime import datetime
 from ..utils.logger import logger
 from ..database.supabase_client import supabase_client, create_admin_client, supabase_url
+from pyppeteer import launch
+from fastapi import HTTPException
+from typing import Optional
 
 class PDFService:
     def __init__(self):
@@ -74,25 +77,37 @@ class PDFService:
         """Gera um PDF a partir de uma URL usando o pyppeteer"""
         try:
             logger.processing("Inicializando navegador headless")
-            browser = await pyppeteer.launch(headless=True, args=['--no-sandbox'])
+            browser = await launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox']
+            )
             page = await browser.newPage()
             
             # Configurar viewport para tamanho A4
-            await page.setViewport({'width': 794, 'height': 1123, 'deviceScaleFactor': 2})
+            await page.setViewport({
+                'width': 794,  # A4 width in pixels at 96 DPI
+                'height': 1123,  # A4 height in pixels at 96 DPI
+                'deviceScaleFactor': 2,
+            })
             
             logger.processing(f"Navegando para URL: {url}")
-            await page.goto(url, {'waitUntil': 'networkidle0', 'timeout': 60000})
+            await page.goto(url, {'waitUntil': 'networkidle0'})
             
             # Aguardar pelo elemento #report-content que indica que o relatório carregou
             logger.processing("Aguardando carregamento do relatório")
-            await page.waitForSelector('#report-content', {'timeout': 30000})
+            await page.waitForSelector('.chakra-container', {'timeout': 5000})
             
             # Gerar PDF
             logger.processing("Gerando PDF")
             pdf_buffer = await page.pdf({
                 'format': 'A4',
                 'printBackground': True,
-                'margin': {'top': '1cm', 'right': '1cm', 'bottom': '1cm', 'left': '1cm'}
+                'margin': {
+                    'top': '20px',
+                    'right': '20px',
+                    'bottom': '20px',
+                    'left': '20px'
+                }
             })
             
             await browser.close()
@@ -195,4 +210,99 @@ class PDFService:
             
         except Exception as e:
             logger.error(f"Erro ao atualizar registro do relatório: {str(e)}")
-            return False 
+            return False
+
+    @staticmethod
+    async def generate_pdf(report_id: str, report_type: str) -> bytes:
+        """
+        Generate a PDF from a report page using Puppeteer
+        """
+        try:
+            print("Initializing browser...")
+            browser = await launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+                handleSIGINT=False,
+                handleSIGTERM=False,
+                handleSIGHUP=False
+            )
+            
+            try:
+                # Create new page
+                print("Creating new page...")
+                page = await browser.newPage()
+                
+                # Set viewport to A4 size
+                await page.setViewport({
+                    'width': 794,  # A4 width in pixels at 96 DPI
+                    'height': 1123,  # A4 height in pixels at 96 DPI
+                    'deviceScaleFactor': 2,
+                })
+                
+                # Navigate to the report page with correct URL format
+                url = f"http://localhost:3000/relatorios/visualizacao/a4/{report_type}?id={report_id}"
+                print(f"Navigating to URL: {url}")
+                
+                # Navigate with extended timeout
+                try:
+                    response = await page.goto(
+                        url, 
+                        {
+                            'waitUntil': ['networkidle0', 'load', 'domcontentloaded'],
+                            'timeout': 60000
+                        }
+                    )
+                    
+                    if not response.ok:
+                        print(f"Page response not OK: {response.status}")
+                        raise Exception(f"Failed to load page: {response.status}")
+                        
+                except Exception as e:
+                    print(f"Navigation error: {str(e)}")
+                    raise
+                
+                print("Page loaded, waiting for content...")
+                
+                # Wait for specific content to load
+                try:
+                    # Wait for report content
+                    await page.waitForSelector('.report-content', {'timeout': 60000})
+                    print("Found .report-content")
+                    
+                    # Wait a bit more to ensure all content is rendered
+                    await page.waitFor(2000)
+                    
+                except Exception as e:
+                    print(f"Error waiting for content: {str(e)}")
+                    # Take screenshot for debugging
+                    await page.screenshot({'path': 'error_screenshot.png'})
+                    raise
+                    
+                print("Content loaded, generating PDF...")
+                
+                # Generate PDF
+                pdf_buffer = await page.pdf({
+                    'format': 'A4',
+                    'printBackground': True,
+                    'margin': {
+                        'top': '20px',
+                        'right': '20px',
+                        'bottom': '20px',
+                        'left': '20px'
+                    }
+                })
+                
+                print("PDF generated successfully")
+                return pdf_buffer
+                
+            finally:
+                # Always close the browser
+                await browser.close()
+                print("Browser closed")
+            
+        except Exception as e:
+            print(f"Error in generate_pdf: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error generating PDF: {str(e)}"
+            ) 
