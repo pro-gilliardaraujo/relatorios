@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text, Flex, Grid, GridItem, Table, Thead, Tbody, Tr, Th, Td, SimpleGrid, Card, CardBody, Heading, TableContainer } from '@chakra-ui/react';
+import { Box, Text, Flex, Grid, GridItem, Table, Thead, Tbody, Tr, Th, Td, SimpleGrid, Card, CardBody, Heading, TableContainer, VStack } from '@chakra-ui/react';
 
 interface DataItem {
   frota?: string;
@@ -24,66 +24,70 @@ interface DataComMeta {
   acimaMeta?: AcimaMeta;
 }
 
-interface ResumoData {
-  tdh?: {
-    data: DataItem[];
-    meta: number;
+export interface MetricData {
+  data: any[];
+  meta: number;
+  media: number;
+  acimaMeta?: {
+    quantidade: number;
+    total: number;
+    percentual: number;
   };
-  diesel?: {
-    data: DataItem[];
-    meta: number;
-  };
-  impurezaVegetal?: {
-    data: DataItem[];
-    meta: number;
-  };
-  disponibilidadeMecanica: {
-    data: DataItem[];
-    meta: number;
-    media: number;
-    acimaMeta?: AcimaMeta;
-  };
-  eficienciaEnergetica: {
-    data: DataItem[];
-    meta: number;
-    media: number;
-    acimaMeta?: AcimaMeta;
-  };
-  motorOcioso: {
-    data: DataItem[];
-    meta: number;
-    media: number;
-    acimaMeta?: AcimaMeta;
-  };
-  horaElevador: {
-    data: DataItem[];
-    meta: number;
-    media: number;
-    acimaMeta?: AcimaMeta;
-  };
-  usoGPS: {
-    data: DataItem[];
-    meta: number;
-    media: number;
-    acimaMeta?: AcimaMeta;
-  };
-  operadores?: Array<{
-    id: string;
-    nome: string;
-    eficiencia?: number;
-    motorOcioso?: number;
-    horaElevador?: number;
-    usoGPS?: number;
-  }>;
+}
+
+export interface FrotaData {
+  id: string;
+  tdh: number;
+  diesel: number;
+  disponibilidade: number;
+  impureza: number;
+}
+
+export interface OperadorData {
+  id: string;
+  eficiencia: number;
+  horasElevador: number;
+  motorOcioso: number;
+  usoGPS: number;
+}
+
+export interface ResumoData {
+  tdh: MetricData;
+  diesel: MetricData;
+  impurezaVegetal: MetricData;
+  disponibilidadeMecanica: MetricData;
+  eficienciaEnergetica: MetricData;
+  horaElevador: MetricData;
+  motorOcioso: MetricData;
+  usoGPS: MetricData;
+  frotas: FrotaData[];
+  operadores: OperadorData[];
 }
 
 interface RelatorioColheitaResumoProps {
-  resumoData: ResumoData;
-  isPdfMode?: boolean;
+  data: ResumoData;
+  showFrotasOnly?: boolean;
+  showOperadoresOnly?: boolean;
 }
 
 const defaultData: ResumoData = {
+  tdh: {
+    data: [],
+    meta: 0.01,
+    media: 0,
+  },
+  diesel: {
+    data: [],
+    meta: 0.08,
+    media: 0,
+  },
+  impurezaVegetal: {
+    data: [],
+    meta: 65,
+    media: 0,
+  },
   disponibilidadeMecanica: {
+    data: [],
     meta: 90,
     media: 85.3,
     acimaMeta: {
@@ -93,6 +97,7 @@ const defaultData: ResumoData = {
     }
   },
   eficienciaEnergetica: {
+    data: [],
     meta: 45,
     media: 51,
     acimaMeta: {
@@ -102,6 +107,7 @@ const defaultData: ResumoData = {
     }
   },
   motorOcioso: {
+    data: [],
     meta: 25,
     media: 29.4,
     acimaMeta: {
@@ -111,9 +117,9 @@ const defaultData: ResumoData = {
     }
   },
   horaElevador: {
-    total: 44.7,
-    media: 4.97,
+    data: [],
     meta: 5,
+    media: 4.97,
     acimaMeta: {
       quantidade: 4,
       total: 9,
@@ -121,6 +127,7 @@ const defaultData: ResumoData = {
     }
   },
   usoGPS: {
+    data: [],
     meta: 90,
     media: 62.9,
     acimaMeta: {
@@ -129,17 +136,8 @@ const defaultData: ResumoData = {
       percentual: 33
     }
   },
-  operadores: [
-    { id: '1', nome: 'SEM OPERADOR', eficiencia: 39, motorOcioso: 28.1, horasElevador: 2.42, usoGPS: 0.0 },
-    { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', eficiencia: 59, motorOcioso: 25.1, horasElevador: 7.42, usoGPS: 0.0 },
-    { id: '9999', nome: 'TROCA DE TURNO', eficiencia: 53, motorOcioso: 29.9, horasElevador: 7.59, usoGPS: 0.0 },
-    { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', eficiencia: 60, motorOcioso: 22.0, horasElevador: 6.33, usoGPS: 0.0 },
-    { id: '11', nome: 'NAO CADASTRADO', eficiencia: 62, motorOcioso: 19.4, horasElevador: 6.26, usoGPS: 0.0 },
-    { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', eficiencia: 38, motorOcioso: 40.1, horasElevador: 4.54, usoGPS: 2.3 },
-    { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', eficiencia: 38, motorOcioso: 31.5, horasElevador: 4.62, usoGPS: 1.7 },
-    { id: '357887', nome: 'EVERTON TIAGO MARQUES', eficiencia: 55, motorOcioso: 32.0, horasElevador: 5.10, usoGPS: 0.0 },
-    { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', eficiencia: 31, motorOcioso: 36.8, horasElevador: 0.42, usoGPS: 0.0 }
-  ]
+  frotas: [],
+  operadores: []
 };
 
 // Função para formatar o valor de horas (Xh Ym)
@@ -219,399 +217,280 @@ const getValorFrota = (data: DataItem[], frota: string) => {
   return item ? (item.valor || item.disponibilidade || item.eficiencia || item.percentual || item.horas || item.porcentagem || 0) : 0;
 };
 
+const TabelaFrotas = ({ data }: { data: ResumoData }) => {
+  // Validação para garantir que data.frotas existe
+  if (!data?.frotas || data.frotas.length === 0) {
+    return (
+      <Table variant="simple" size="sm">
+        <Thead>
+          <Tr>
+            <Th color="black">FROTA</Th>
+            <Th color="black" isNumeric>TDH (LT/TN)</Th>
+            <Th color="black" isNumeric>DIESEL (LT/TN)</Th>
+            <Th color="black" isNumeric>DISPONIBILIDADE (%)</Th>
+            <Th color="black" isNumeric>IMPUREZA (KG/TN)</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          <Tr>
+            <Td colSpan={5} textAlign="center" color="gray.500">Nenhum dado disponível</Td>
+          </Tr>
+        </Tbody>
+      </Table>
+    );
+  }
+
+  return (
+    <Table variant="simple" size="sm">
+      <Thead>
+        <Tr>
+          <Th color="black">FROTA</Th>
+          <Th color="black" isNumeric>TDH (LT/TN)</Th>
+          <Th color="black" isNumeric>DIESEL (LT/TN)</Th>
+          <Th color="black" isNumeric>DISPONIBILIDADE (%)</Th>
+          <Th color="black" isNumeric>IMPUREZA (KG/TN)</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {data.frotas.map((frota: FrotaData) => (
+          <Tr key={frota.id}>
+            <Td color="black">{frota.id}</Td>
+            <Td color="black" isNumeric>{frota.tdh.toFixed(4)}</Td>
+            <Td color="black" isNumeric>{frota.diesel.toFixed(4)}</Td>
+            <Td color="black" isNumeric>{frota.disponibilidade.toFixed(2)}</Td>
+            <Td color="black" isNumeric>{frota.impureza.toFixed(2)}</Td>
+          </Tr>
+        ))}
+      </Tbody>
+    </Table>
+  );
+};
+
+const TabelaOperadores = ({ data }: { data: ResumoData }) => {
+  // Validação para garantir que data.operadores existe
+  if (!data?.operadores || data.operadores.length === 0) {
+    return null;
+  }
+
+  const getColorByMeta = (valor: number, meta: number, isMotorOcioso: boolean = false) => {
+    // Para motor ocioso, menor é melhor (abaixo da meta é bom)
+    if (isMotorOcioso) {
+      return valor <= meta ? "green.500" : "red.500"; 
+    }
+    // Para os outros, maior é melhor (acima da meta é bom)
+    return valor >= meta ? "green.500" : "red.500";
+  };
+
+  // Função especial para as horas do elevador
+  const getHorasElevadorColor = (horas: number, meta: number) => {
+    if (horas >= meta) return "green.500"; // Atingiu ou superou a meta
+    
+    // Calcula a diferença em minutos
+    const horasInteiras = Math.floor(horas);
+    const minutos = Math.round((horas - horasInteiras) * 60);
+    const metaHorasInteiras = Math.floor(meta);
+    const metaMinutos = Math.round((meta - metaHorasInteiras) * 60);
+    
+    const totalMinutosValor = horasInteiras * 60 + minutos;
+    const totalMinutosMeta = metaHorasInteiras * 60 + metaMinutos;
+    
+    // Se estiver a menos de 30 minutos da meta
+    if (totalMinutosMeta - totalMinutosValor <= 30) return "yellow.500";
+    
+    return "red.500"; // Mais de 30 minutos abaixo da meta
+  };
+
+  return (
+    <Box borderWidth="1px" borderColor="black">
+      <Table variant="unstyled" size="xs">
+        <Thead bg="gray.50">
+          <Tr borderBottomWidth="1px" borderColor="black">
+            <Th p={1} fontSize="10px" color="black" borderRightWidth="1px" borderColor="black">OPERADOR</Th>
+            <Th p={1} fontSize="10px" color="black" textAlign="center" borderRightWidth="1px" borderColor="black">EFICIÊNCIA</Th>
+            <Th p={1} fontSize="10px" color="black" textAlign="center" borderRightWidth="1px" borderColor="black">MOTOR OCIOSO</Th>
+            <Th p={1} fontSize="10px" color="black" textAlign="center" borderRightWidth="1px" borderColor="black">HORAS ELEVADOR</Th>
+            <Th p={1} fontSize="10px" color="black" textAlign="center">USO GPS</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {data.operadores.map((operador, index) => {
+            return (
+              <Tr 
+                key={operador.id} 
+                borderBottomWidth="1px" 
+                borderColor="black"
+                bg={index % 2 === 0 ? "white" : "gray.50"}
+              >
+                <Td p={1} fontSize="10px" color="black" borderRightWidth="1px" borderColor="black">{operador.id}</Td>
+                <Td p={1} fontSize="10px" color={getColorByMeta(operador.eficiencia, data.eficienciaEnergetica.meta)} textAlign="center" borderRightWidth="1px" borderColor="black">
+                  {operador.eficiencia.toFixed(0)}%
+                </Td>
+                <Td p={1} fontSize="10px" color={getColorByMeta(operador.motorOcioso, data.motorOcioso.meta, true)} textAlign="center" borderRightWidth="1px" borderColor="black">
+                  {operador.motorOcioso.toFixed(1)}%
+                </Td>
+                <Td p={1} fontSize="10px" color={getHorasElevadorColor(operador.horasElevador, data.horaElevador.meta)} textAlign="center" borderRightWidth="1px" borderColor="black">
+                  {formatHoras(operador.horasElevador)}
+                </Td>
+                <Td p={1} fontSize="10px" color={getColorByMeta(operador.usoGPS, data.usoGPS.meta)} textAlign="center">
+                  {operador.usoGPS.toFixed(1)}%
+                </Td>
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </Table>
+    </Box>
+  );
+};
+
 export const RelatorioColheitaResumo: React.FC<RelatorioColheitaResumoProps> = ({ 
-  resumoData 
+  data = defaultData,
+  showFrotasOnly = false,
+  showOperadoresOnly = false
 }) => {
-  // Filtrar e ordenar operadores (remover vazios e ordenar por nome)
-  const operadoresOrdenados = React.useMemo(() => {
-    if (!resumoData.operadores) return [];
+  // Validação adicional para garantir que data existe
+  if (!data) {
+    return <Box p={4}>Nenhum dado disponível para exibição</Box>;
+  }
+
+  const MetricCard = ({ title, meta, media, acimaMeta }: { 
+    title: string;
+    meta: number;
+    media: number;
+    acimaMeta?: { quantidade: number; total: number; percentual: number };
+  }) => {
+    // Determina se o valor está dentro da meta 
+    const isWithinMeta = title === "Motor Ocioso" ? media <= meta : media >= meta;
+    const mediaColor = isWithinMeta ? "green.500" : "red.500";
     
-    // Filtrar apenas operadores com dados válidos
-    const operadoresFiltrados = [...resumoData.operadores].filter(op => {
-      // Verificar se o operador existe e tem dados válidos
-      if (!op) return false;
+    return (
+      <Card variant="outline" borderWidth="1px" borderColor="black" bg="white">
+        <CardBody p={3}>
+          <VStack spacing={1} align="stretch">
+            <Heading size="xs" color="black" mb={1}>{title}</Heading>
+            <Flex justify="space-between" mb={1}>
+              <Box>
+                <Text fontSize="xs" color="black">Meta</Text>
+                <Text fontSize="md" color="green.500" fontWeight="bold">{meta}%</Text>
+              </Box>
+              <Box textAlign="right">
+                <Text fontSize="xs" color="black">Média</Text>
+                <Text fontSize="md" color={mediaColor} fontWeight="bold">
+                  {media.toFixed(1)}%
+                </Text>
+              </Box>
+            </Flex>
+            {acimaMeta && (
+              <Text fontSize="xs" color={acimaMeta.percentual > 0 ? "green.500" : "red.500"} textAlign="center" noOfLines={1}>
+                {acimaMeta.quantidade} de {acimaMeta.total} atingiram a meta ({acimaMeta.percentual.toFixed(0)}%)
+              </Text>
+            )}
+          </VStack>
+        </CardBody>
+      </Card>
+    );
+  };
+
+  const HorasElevadorCard = ({ title, meta, media, acimaMeta }: {
+    title: string;
+    meta: number;
+    media: number;
+    acimaMeta?: { quantidade: number; total: number; percentual: number };
+  }) => {
+    // Determina a cor baseada na diferença de tempo
+    let mediaColor = "red.500";
+    if (media >= meta) {
+      mediaColor = "green.500";  // Atingiu ou superou a meta
+    } else {
+      // Calcula a diferença em minutos
+      const horasInteiras = Math.floor(media);
+      const minutos = Math.round((media - horasInteiras) * 60);
+      const metaHorasInteiras = Math.floor(meta);
+      const metaMinutos = Math.round((meta - metaHorasInteiras) * 60);
       
-      // Verificar se tem nome válido (não vazio)
-      if (!op.nome || op.nome.trim() === '') return false;
+      const totalMinutosValor = horasInteiras * 60 + minutos;
+      const totalMinutosMeta = metaHorasInteiras * 60 + metaMinutos;
       
-      // Manter todos operadores com nome, independente dos valores
-      return true;
-    });
+      // Se estiver a menos de 30 minutos da meta
+      if (totalMinutosMeta - totalMinutosValor <= 30) {
+        mediaColor = "yellow.500";
+      }
+    }
     
-    // Ordenar os operadores filtrados por nome
-    return operadoresFiltrados.sort((a, b) => {
-      if (!a || !b) return 0;
-      if (!a.nome) return 1;  // Coloca itens sem nome no final
-      if (!b.nome) return -1; // Coloca itens sem nome no final
-      return a.nome.localeCompare(b.nome);
-    });
-  }, [resumoData.operadores]);
+    return (
+      <Card variant="outline" borderWidth="1px" borderColor="black" bg="white">
+        <CardBody p={3}>
+          <VStack spacing={1} align="stretch">
+            <Heading size="xs" color="black" mb={1}>{title}</Heading>
+            <Flex justify="space-between" mb={1}>
+              <Box>
+                <Text fontSize="xs" color="black">Meta</Text>
+                <Text fontSize="md" color="green.500" fontWeight="bold">{meta}h</Text>
+              </Box>
+              <Box textAlign="right">
+                <Text fontSize="xs" color="black">Média</Text>
+                <Text fontSize="md" color={mediaColor} fontWeight="bold">
+                  {formatHoras(media)}
+                </Text>
+              </Box>
+            </Flex>
+            {acimaMeta && (
+              <Text fontSize="xs" color={acimaMeta.percentual > 0 ? "green.500" : "red.500"} textAlign="center" noOfLines={1}>
+                {acimaMeta.quantidade} de {acimaMeta.total} atingiram a meta ({acimaMeta.percentual.toFixed(0)}%)
+              </Text>
+            )}
+          </VStack>
+        </CardBody>
+      </Card>
+    );
+  };
 
   return (
     <Box>
-      <Text fontSize="xl" fontWeight="bold" textAlign="center" mb={4}>
-        Resumo do Relatório de Colheita
-      </Text>
-      
-      {/* Cards de Colhedoras */}
-      <SimpleGrid columns={4} spacing={4} mb={4}>
-        {resumoData.tdh && (
-          <Card>
-            <CardBody>
-              <Text fontSize="sm" fontWeight="bold">TDH</Text>
-              <Text fontSize="lg">{calcularMediaFrota(resumoData.tdh.data).toFixed(2)} t/h</Text>
-              <Text fontSize="xs" color={calcularMediaFrota(resumoData.tdh.data) >= resumoData.tdh.meta ? "green.500" : "red.500"}>
-                Meta: {resumoData.tdh.meta} t/h
-              </Text>
-            </CardBody>
-          </Card>
-        )}
-        {resumoData.diesel && (
-          <Card>
-            <CardBody>
-              <Text fontSize="sm" fontWeight="bold">Consumo de Diesel</Text>
-              <Text fontSize="lg">{calcularMediaFrota(resumoData.diesel.data).toFixed(2)} L/h</Text>
-              <Text fontSize="xs" color={calcularMediaFrota(resumoData.diesel.data) >= resumoData.diesel.meta ? "green.500" : "red.500"}>
-                Meta: {resumoData.diesel.meta} L/h
-              </Text>
-            </CardBody>
-          </Card>
-        )}
-        {resumoData.disponibilidadeMecanica && (
-          <Card>
-            <CardBody>
-              <Text fontSize="sm" fontWeight="bold">Disponibilidade Mecânica</Text>
-              <Text fontSize="lg">{calcularMediaFrota(resumoData.disponibilidadeMecanica.data).toFixed(2)}%</Text>
-              <Text fontSize="xs" color={calcularMediaFrota(resumoData.disponibilidadeMecanica.data) >= resumoData.disponibilidadeMecanica.meta ? "green.500" : "red.500"}>
-                Meta: {resumoData.disponibilidadeMecanica.meta}%
-              </Text>
-            </CardBody>
-          </Card>
-        )}
-        {resumoData.impurezaVegetal && (
-          <Card>
-            <CardBody>
-              <Text fontSize="sm" fontWeight="bold">Impureza Vegetal</Text>
-              <Text fontSize="lg">{calcularMediaFrota(resumoData.impurezaVegetal.data).toFixed(2)}%</Text>
-              <Text fontSize="xs" color={calcularMediaFrota(resumoData.impurezaVegetal.data) >= resumoData.impurezaVegetal.meta ? "green.500" : "red.500"}>
-                Meta: {resumoData.impurezaVegetal.meta}%
-              </Text>
-            </CardBody>
-          </Card>
-        )}
-      </SimpleGrid>
-      
-      {/* Cards de Operadores */}
-      <SimpleGrid columns={4} spacing={4} mb={4}>
-        {/* Disponibilidade Mecânica */}
-        <GridItem>
-          <Box 
-            bg="white" 
-            p={3}
-            border="1px solid black"
-            borderRadius="md"
-          >
-            <Text fontSize="sm" fontWeight="bold" mb={2} color="black">Disponibilidade Mecânica</Text>
-            <Flex direction="column" gap={1}>
-              <Flex justify="space-between" align="center">
-                <Box>
-                  <Text color="black" fontSize="sm">Meta</Text>
-                  <Text fontWeight="bold" color="green.500">{formatarPorcentagem(resumoData.disponibilidadeMecanica.meta, 0)}</Text>
-                </Box>
-                <Box>
-                  <Text color="black" fontSize="sm">Média</Text>
-                  <Text 
-                    fontWeight="bold" 
-                    color={getStatusColor(resumoData.disponibilidadeMecanica.media, resumoData.disponibilidadeMecanica.meta)}
-                  >
-                    {formatarPorcentagem(resumoData.disponibilidadeMecanica.media, 1)}
-                  </Text>
-                </Box>
-              </Flex>
-              {resumoData.disponibilidadeMecanica.acimaMeta && (
-                <Text 
-                  fontSize="xs" 
-                  textAlign="center" 
-                  color={getPercentualColor(resumoData.disponibilidadeMecanica.acimaMeta.percentual)}
-                >
-                  {resumoData.disponibilidadeMecanica.acimaMeta.quantidade} de {resumoData.disponibilidadeMecanica.acimaMeta.total} 
-                  {" "}atingiram a meta ({formatarPorcentagem(resumoData.disponibilidadeMecanica.acimaMeta.percentual, 0)})
-                </Text>
-              )}
-            </Flex>
-          </Box>
-        </GridItem>
-        
-        {/* Eficiência Energética */}
-        <GridItem>
-          <Box 
-            bg="white" 
-            p={3}
-            border="1px solid black"
-            borderRadius="md"
-          >
-            <Text fontSize="sm" fontWeight="bold" mb={2} color="black">Eficiência Energética</Text>
-            <Flex direction="column" gap={1}>
-              <Flex justify="space-between" align="center">
-                <Box>
-                  <Text color="black" fontSize="sm">Meta</Text>
-                  <Text fontWeight="bold" color="green.500">{formatarPorcentagem(resumoData.eficienciaEnergetica.meta, 0)}</Text>
-                </Box>
-                <Box>
-                  <Text color="black" fontSize="sm">Média</Text>
-                  <Text 
-                    fontWeight="bold" 
-                    color={getStatusColor(resumoData.eficienciaEnergetica.media, resumoData.eficienciaEnergetica.meta)}
-                  >
-                    {formatarPorcentagem(resumoData.eficienciaEnergetica.media, 0)}
-                  </Text>
-                </Box>
-              </Flex>
-              {resumoData.eficienciaEnergetica.acimaMeta && (
-                <Text 
-                  fontSize="xs" 
-                  textAlign="center" 
-                  color={getPercentualColor(resumoData.eficienciaEnergetica.acimaMeta.percentual)}
-                >
-                  {resumoData.eficienciaEnergetica.acimaMeta.quantidade} de {resumoData.eficienciaEnergetica.acimaMeta.total} 
-                  {" "}atingiram a meta ({formatarPorcentagem(resumoData.eficienciaEnergetica.acimaMeta.percentual, 0)})
-                </Text>
-              )}
-            </Flex>
-          </Box>
-        </GridItem>
-        
-        {/* Motor Ocioso */}
-        <GridItem>
-          <Box 
-            bg="white" 
-            p={3}
-            border="1px solid black"
-            borderRadius="md"
-          >
-            <Text fontSize="sm" fontWeight="bold" mb={2} color="black">Motor Ocioso</Text>
-            <Flex direction="column" gap={1}>
-              <Flex justify="space-between" align="center">
-                <Box>
-                  <Text color="black" fontSize="sm">Meta</Text>
-                  <Text fontWeight="bold" color="green.500">{formatarPorcentagem(resumoData.motorOcioso.meta, 0)}</Text>
-                </Box>
-                <Box>
-                  <Text color="black" fontSize="sm">Média</Text>
-                  <Text 
-                    fontWeight="bold" 
-                    color={getStatusColor(resumoData.motorOcioso.media, resumoData.motorOcioso.meta, true)}
-                  >
-                    {formatarPorcentagem(resumoData.motorOcioso.media, 1)}
-                  </Text>
-                </Box>
-              </Flex>
-              {resumoData.motorOcioso.acimaMeta && (
-                <Text 
-                  fontSize="xs" 
-                  textAlign="center" 
-                  color={getPercentualColor(resumoData.motorOcioso.acimaMeta.percentual)}
-                >
-                  {resumoData.motorOcioso.acimaMeta.quantidade} de {resumoData.motorOcioso.acimaMeta.total} 
-                  {" "}atingiram a meta ({formatarPorcentagem(resumoData.motorOcioso.acimaMeta.percentual, 0)})
-                </Text>
-              )}
-            </Flex>
-          </Box>
-        </GridItem>
-        
-        {/* Horas Elevador */}
-        <GridItem>
-          <Box 
-            bg="white" 
-            p={3}
-            border="1px solid black"
-            borderRadius="md"
-          >
-            <Text fontSize="sm" fontWeight="bold" mb={2} color="black">Horas Elevador</Text>
-            <Flex direction="column" gap={1}>
-              <Flex justify="space-between" align="center">
-                <Box>
-                  <Text color="black" fontSize="sm">Meta</Text>
-                  <Text fontWeight="bold" color="green.500">{formatHoras(resumoData.horaElevador.meta || 5)}</Text>
-                </Box>
-                <Box>
-                  <Text color="black" fontSize="sm">Média</Text>
-                  <Text 
-                    fontWeight="bold" 
-                    color={getStatusColor(resumoData.horaElevador.media, resumoData.horaElevador.meta || 5)}
-                  >
-                    {formatHoras(resumoData.horaElevador.media)}
-                  </Text>
-                </Box>
-              </Flex>
-              {resumoData.horaElevador.acimaMeta && (
-                <Text 
-                  fontSize="xs" 
-                  textAlign="center" 
-                  color={getPercentualColor(resumoData.horaElevador.acimaMeta.percentual)}
-                >
-                  {resumoData.horaElevador.acimaMeta.quantidade} de {resumoData.horaElevador.acimaMeta.total} 
-                  {" "}atingiram a meta ({formatarPorcentagem(resumoData.horaElevador.acimaMeta.percentual, 0)})
-                </Text>
-              )}
-            </Flex>
-          </Box>
-        </GridItem>
-        
-        {/* Uso GPS */}
-        <GridItem>
-          <Box 
-            bg="white" 
-            p={3}
-            border="1px solid black"
-            borderRadius="md"
-          >
-            <Text fontSize="sm" fontWeight="bold" mb={2} color="black">Uso GPS</Text>
-            <Flex direction="column" gap={1}>
-              <Flex justify="space-between" align="center">
-                <Box>
-                  <Text color="black" fontSize="sm">Meta</Text>
-                  <Text fontWeight="bold" color="green.500">{formatarPorcentagem(resumoData.usoGPS.meta, 0)}</Text>
-                </Box>
-                <Box>
-                  <Text color="black" fontSize="sm">Média</Text>
-                  <Text 
-                    fontWeight="bold" 
-                    color={getStatusColor(resumoData.usoGPS.media, resumoData.usoGPS.meta)}
-                  >
-                    {formatarPorcentagem(resumoData.usoGPS.media, 1)}
-                  </Text>
-                </Box>
-              </Flex>
-              <Text 
-                fontSize="xs" 
-                textAlign="center" 
-                color={getPercentualColor(resumoData.usoGPS.acimaMeta.percentual)}
-              >
-                {resumoData.usoGPS.acimaMeta.quantidade} de {resumoData.usoGPS.acimaMeta.total} 
-                {" "}atingiram a meta ({formatarPorcentagem(resumoData.usoGPS.acimaMeta.percentual, 0)})
-              </Text>
-            </Flex>
-          </Box>
-        </GridItem>
-      </SimpleGrid>
-      
-      {/* Tabela de Colhedoras */}
-      {(resumoData.tdh || resumoData.diesel || resumoData.disponibilidadeMecanica || resumoData.impurezaVegetal) && (
-        <Box mb={4}>
-          <Heading size="sm" mb={2}>Resumo por Colhedora</Heading>
-          <TableContainer>
-            <Table variant="simple" size="sm">
-              <Thead>
-                <Tr>
-                  <Th>Frota</Th>
-                  {resumoData.tdh && <Th>TDH (t/h)</Th>}
-                  {resumoData.diesel && <Th>Diesel (L/h)</Th>}
-                  {resumoData.disponibilidadeMecanica && <Th>Disp. Mec. (%)</Th>}
-                  {resumoData.impurezaVegetal && <Th>Impureza (%)</Th>}
-                </Tr>
-              </Thead>
-              <Tbody>
-                {obterFrotas(resumoData).map((frota) => (
-                  <Tr key={frota}>
-                    <Td>{frota}</Td>
-                    {resumoData.tdh && (
-                      <Td color={getValorFrota(resumoData.tdh.data, frota) >= resumoData.tdh.meta ? "green.500" : "red.500"}>
-                        {getValorFrota(resumoData.tdh.data, frota).toFixed(2)}
-                      </Td>
-                    )}
-                    {resumoData.diesel && (
-                      <Td color={getValorFrota(resumoData.diesel.data, frota) >= resumoData.diesel.meta ? "green.500" : "red.500"}>
-                        {getValorFrota(resumoData.diesel.data, frota).toFixed(2)}
-                      </Td>
-                    )}
-                    {resumoData.disponibilidadeMecanica && (
-                      <Td color={getValorFrota(resumoData.disponibilidadeMecanica.data, frota) >= resumoData.disponibilidadeMecanica.meta ? "green.500" : "red.500"}>
-                        {getValorFrota(resumoData.disponibilidadeMecanica.data, frota).toFixed(2)}
-                      </Td>
-                    )}
-                    {resumoData.impurezaVegetal && (
-                      <Td color={getValorFrota(resumoData.impurezaVegetal.data, frota) >= resumoData.impurezaVegetal.meta ? "green.500" : "red.500"}>
-                        {getValorFrota(resumoData.impurezaVegetal.data, frota).toFixed(2)}
-                      </Td>
-                    )}
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableContainer>
-        </Box>
-      )}
+      <VStack spacing={3} align="stretch">
+        <Heading size="md" textAlign="center" color="black" mb={2}>
+          Resumo do Relatório de Colheita
+        </Heading>
 
-      {/* Tabela de Operadores */}
-      <Box 
-        border="1px solid black"
-        borderRadius="md"
-        mb={4}
-        overflowX="auto"
-      >
-        <Table size="xs" variant="simple">
-          <Thead>
-            <Tr bg="gray.50">
-              <Th width="70px" color="black" fontSize="11px" py={1} textAlign="center">ID</Th>
-              <Th color="black" fontSize="11px" py={1} textAlign="center">OPERADOR</Th>
-              <Th color="black" fontSize="11px" py={1} textAlign="center">EFICIÊNCIA</Th>
-              <Th color="black" fontSize="11px" py={1} textAlign="center">MOTOR OCIOSO</Th>
-              <Th color="black" fontSize="11px" py={1} textAlign="center">HORAS ELEVADOR</Th>
-              <Th color="black" fontSize="11px" py={1} textAlign="center">USO GPS</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {operadoresOrdenados.map((operador, index) => (
-              <Tr key={index} bg={index % 2 === 0 ? "white" : "gray.50"}>
-                <Td fontWeight="medium" color="black" fontSize="10px" py={0.5}>
-                  {operador?.id || ""}
-                </Td>
-                <Td fontWeight="medium" color="black" fontSize="10px" py={0.5}>
-                  {operador?.nome || ""}
-                </Td>
-                <Td 
-                  fontWeight="bold" 
-                  color={getStatusColor(operador?.eficiencia || 0, resumoData.eficienciaEnergetica.meta)}
-                  fontSize="10px"
-                  py={0.5}
-                  textAlign="center"
-                >
-                  {formatarPorcentagem(operador?.eficiencia || 0, 0)}
-                </Td>
-                <Td 
-                  fontWeight="bold" 
-                  color={getStatusColor(operador?.motorOcioso || 0, resumoData.motorOcioso.meta, true)}
-                  fontSize="10px"
-                  py={0.5}
-                  textAlign="center"
-                >
-                  {formatarPorcentagem(operador?.motorOcioso || 0, 1)}
-                </Td>
-                <Td 
-                  fontWeight="bold" 
-                  color={getStatusColor(operador?.horaElevador || 0, resumoData.horaElevador.meta || 5)}
-                  fontSize="10px"
-                  py={0.5}
-                  textAlign="center"
-                >
-                  {formatHoras(operador?.horaElevador || 0)}
-                </Td>
-                <Td 
-                  fontWeight="bold" 
-                  color={getStatusColor(operador?.usoGPS || 0, resumoData.usoGPS.meta)}
-                  fontSize="10px"
-                  py={0.5}
-                  textAlign="center"
-                >
-                  {formatarPorcentagem(operador?.usoGPS || 0, 1)}
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+        {/* Cards de Métricas */}
+        <SimpleGrid columns={[1, 2, 3]} spacing={3} mb={3}>
+          <MetricCard
+            title="Disponibilidade Mecânica"
+            meta={data.disponibilidadeMecanica.meta}
+            media={data.disponibilidadeMecanica.media}
+            acimaMeta={data.disponibilidadeMecanica.acimaMeta}
+          />
+          <MetricCard
+            title="Eficiência Energética"
+            meta={data.eficienciaEnergetica.meta}
+            media={data.eficienciaEnergetica.media}
+            acimaMeta={data.eficienciaEnergetica.acimaMeta}
+          />
+          <MetricCard
+            title="Motor Ocioso"
+            meta={data.motorOcioso.meta}
+            media={data.motorOcioso.media}
+            acimaMeta={data.motorOcioso.acimaMeta}
+          />
+          <HorasElevadorCard
+            title="Horas Elevador"
+            meta={data.horaElevador.meta}
+            media={data.horaElevador.media}
+            acimaMeta={data.horaElevador.acimaMeta}
+          />
+          <MetricCard
+            title="Uso GPS"
+            meta={data.usoGPS.meta}
+            media={data.usoGPS.media}
+            acimaMeta={data.usoGPS.acimaMeta}
+          />
+        </SimpleGrid>
+
+        {/* Tabela de Operadores */}
+        <TableContainer>
+          <TabelaOperadores data={data} />
+        </TableContainer>
+      </VStack>
     </Box>
   );
 }; 

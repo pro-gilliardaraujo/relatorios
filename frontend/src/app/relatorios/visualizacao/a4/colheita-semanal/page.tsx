@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel } from '@chakra-ui/react';
+import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel, Grid, GridItem, Card, CardBody } from '@chakra-ui/react';
 import A4Colheita from '@/components/Layout/A4Colheita';
 import { useReportStore } from '@/store/useReportStore';
 import { GraficoDisponibilidadeMecanicaColheita } from '@/components/Charts/Colheita/Diario/GraficoDisponibilidadeMecanicaColheita';
@@ -9,7 +9,7 @@ import { GraficoEficienciaEnergetica } from '@/components/Charts/Colheita/Diario
 import { GraficoHorasElevador } from '@/components/Charts/Colheita/Diario/GraficoHorasElevador';
 import { GraficoMotorOciosoColheita } from '@/components/Charts/Colheita/Diario/GraficoMotorOciosoColheita';
 import { GraficoUsoGPS } from '@/components/Charts/Colheita/Diario/GraficoUsoGPS';
-import { RelatorioColheitaResumo } from '@/components/RelatorioColheitaResumo';
+import { RelatorioColheitaResumo, ResumoData, MetricData, FrotaData, OperadorData } from '@/components/RelatorioColheitaResumo';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { FaPrint } from 'react-icons/fa';
@@ -17,9 +17,23 @@ import { configManager } from '@/utils/config';
 import { GraficoTDH } from '@/components/Charts/Colheita/Semanal/GraficoTDH';
 import { GraficoDiesel } from '@/components/Charts/Colheita/Semanal/GraficoDiesel';
 import { GraficoImpurezaVegetal } from '@/components/Charts/Colheita/Semanal/GraficoImpurezaVegetal';
+import { DateRangeDisplay } from '@/components/DateRangeDisplay';
+import { useReportData } from '@/hooks/useReportData';
 
 // Dados de exemplo para visualização offline
 const dadosExemplo = {
+  tdh: [
+    { frota: '7041', valor: 45.2 },
+    { frota: '7042', valor: 42.8 }
+  ],
+  diesel: [
+    { frota: '7041', valor: 28.5 },
+    { frota: '7042', valor: 30.2 }
+  ],
+  impureza_vegetal: [
+    { frota: '7041', valor: 3.2 },
+    { frota: '7042', valor: 3.8 }
+  ],
   disponibilidade_mecanica: [
     { frota: '7041', disponibilidade: 94.49 },
     { frota: '7042', disponibilidade: 92.82 }
@@ -102,6 +116,53 @@ const verificarFormatoDados = (dados: any) => {
   return temDisponibilidade || temEficiencia || temHorasElevador || temMotorOcioso || temUsoGPS;
 };
 
+// Componente para título de seção
+const SectionTitle = ({ title, centered = true }: { title: string; centered?: boolean }) => (
+  <Heading 
+    as="h2" 
+    size="sm" 
+    textAlign={centered ? "center" : "left"} 
+    mb={2} 
+    fontSize="15px"
+    color="black"
+  >
+    {title}
+  </Heading>
+);
+
+// Componente para card de indicador
+const IndicatorCard = ({ title, value, meta, isInverted = false }: { title: string; value: number; meta: number; isInverted?: boolean }) => {
+  const isAboveTarget = isInverted ? value <= meta : value >= meta;
+  
+  return (
+    <Card bg="white" boxShadow="sm" borderWidth="1px" borderColor="gray.200">
+      <CardBody>
+        <Text fontSize="sm" fontWeight="bold" color="black">{title}</Text>
+        <Text fontSize="lg" color="black">{value.toFixed(2)}</Text>
+        <Text fontSize="xs" color={isAboveTarget ? "green.500" : "red.500"}>
+          Meta: {meta}
+        </Text>
+      </CardBody>
+    </Card>
+  );
+};
+
+interface DataItem {
+  frota?: string;
+  valor?: number;
+  disponibilidade?: number;
+  operador?: string;
+  horas?: number;
+  percentual?: number;
+  porcentagem?: number;
+}
+
+interface AcimaMeta {
+  quantidade: number;
+  total: number;
+  percentual: number;
+}
+
 export default function ColheitaA4({ data }: ColheitaA4Props) {
   // Hooks e estados
   const { images } = useReportStore();
@@ -114,9 +175,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const [error, setError] = useState<string | null>(null);
   const [useExampleData, setUseExampleData] = useState<boolean>(false);
   const [nomeFrente, setNomeFrente] = useState<string>('');
-  const [finalDataTDH, setFinalDataTDH] = useState<any[]>([]);
-  const [finalDataDiesel, setFinalDataDiesel] = useState<any[]>([]);
-  const [finalDataImpureza, setFinalDataImpureza] = useState<any[]>([]);
   
   // Função para formatar a data no padrão brasileiro
   const formatarData = (data: string) => {
@@ -252,30 +310,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     loadData();
   }, [searchParams?.get('id')]);
 
-  // Atualizar o useEffect que processa os dados
-  useEffect(() => {
-    if (reportData?.dados || (useExampleData && dadosExemplo)) {
-      const dados = useExampleData ? dadosExemplo : reportData.dados;
-
-      // Processar dados de TDH
-      if (dados.tdh) {
-        setFinalDataTDH(dados.tdh);
-      }
-
-      // Processar dados de Diesel
-      if (dados.diesel) {
-        setFinalDataDiesel(dados.diesel);
-      }
-
-      // Processar dados de Impureza Vegetal
-      if (dados.impureza_vegetal) {
-        setFinalDataImpureza(dados.impureza_vegetal);
-      }
-
-      // ... existing code ...
-    }
-  }, [reportData, useExampleData]);
-
   // PREPARAÇÃO DE DADOS
   const finalData = useMemo(() => {
     if (!useExampleData && reportData?.dados) {
@@ -303,6 +337,30 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
       // Garantir que os dados estejam no formato correto
       const dadosProcessados = {
+        tdh: Array.isArray(reportData.dados.tdh) 
+          ? reportData.dados.tdh
+              .filter((item: any) => item && item.Frota && item.TDH !== undefined)
+              .map((item: any) => ({
+                frota: String(item.Frota),
+                valor: converterNumero(item.TDH)
+              }))
+          : [],
+        diesel: Array.isArray(reportData.dados.diesel) 
+          ? reportData.dados.diesel
+              .filter((item: any) => item && item.Frota && item.Consumo !== undefined)
+              .map((item: any) => ({
+                frota: String(item.Frota),
+                valor: converterNumero(item.Consumo)
+              }))
+          : [],
+        impureza_vegetal: Array.isArray(reportData.dados.impureza_vegetal) 
+          ? reportData.dados.impureza_vegetal
+              .filter((item: any) => item && item.Frota && item.Impureza !== undefined)
+              .map((item: any) => ({
+                frota: String(item.Frota),
+                valor: converterNumero(item.Impureza)
+              }))
+          : [],
         disponibilidade_mecanica: Array.isArray(reportData.dados.disponibilidade_mecanica) 
           ? reportData.dados.disponibilidade_mecanica
               .filter((item: any) => item && item.Frota && item.Disponibilidade !== undefined)
@@ -372,6 +430,18 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
       // Log detalhado após processamento
       console.log('📊 DADOS APÓS PROCESSAMENTO:', {
+        tdh: dadosProcessados.tdh.map((d: { frota: string; valor: number }) => ({ 
+          frota: d.frota, 
+          valor: d.valor 
+        })),
+        diesel: dadosProcessados.diesel.map((d: { frota: string; valor: number }) => ({ 
+          frota: d.frota, 
+          valor: d.valor 
+        })),
+        impurezaVegetal: dadosProcessados.impureza_vegetal.map((d: { frota: string; valor: number }) => ({ 
+          frota: d.frota, 
+          valor: d.valor 
+        })),
         disponibilidade: dadosProcessados.disponibilidade_mecanica.map((d: { frota: string; disponibilidade: number }) => ({ 
           frota: d.frota, 
           valor: d.disponibilidade 
@@ -543,144 +613,174 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
   // COMPONENTES
   // Componente para o cabeçalho da página
-  const PageHeader = () => {
-    // Encontrar o nome completo da frente no config
-    const frenteConfig = configManager.getFrentes('colheita_diario').find((f: { id: string }) => f.id === reportData?.frente);
-    const nomeFrente = frenteConfig?.nome || reportData?.frente || 'Exemplo';
+  const PageHeader = ({ showDate = false }: { showDate?: boolean }) => {
+    const { reportData } = useReportData();
+    const startDate = reportData?.startDate ? new Date(reportData.startDate) : new Date();
+    const endDate = reportData?.endDate ? new Date(reportData.endDate) : new Date();
+    const frontName = reportData?.frontName || 'Frente 01';
 
     return (
-      <Flex justify="space-between" align="center" mb={4}>
-        <Image
-          src={LOGO_URL}
-          alt="Logo IB"
-          h={LOGO_HEIGHT}
-          objectFit="contain"
-        />
-        <VStack spacing={1}>
-          <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-            {`Relatório de Colheita Diário - ${nomeFrente}`}
-          </Heading>
-          <Text color="black" fontSize="sm">
-            {reportData?.data ? formatarData(reportData.data) : currentDate}
-          </Text>
-        </VStack>
-        <Image 
-          src={LOGO_URL} 
-          alt="Logo IB"
-          h={LOGO_HEIGHT}
-          objectFit="contain"
-        />
-      </Flex>
+      <Box w="100%" bg="white" py={4}>
+        <Center>
+          <VStack spacing={2}>
+            <Image src={LOGO_URL} alt="Logo" h={LOGO_HEIGHT} />
+            <Heading size="md" textAlign="center" color="black">
+              Relatório Semanal de Colheita - {frontName}
+            </Heading>
+            {showDate && <DateRangeDisplay startDate={startDate} endDate={endDate} />}
+          </VStack>
+        </Center>
+      </Box>
     );
   };
 
-  // Componente para título de seção
-  const SectionTitle = ({ title, centered = true }: { title: string; centered?: boolean }) => (
-    <Heading 
-      as="h2" 
-      size="sm" 
-      textAlign={centered ? "center" : "left"} 
-      mb={2} 
-      fontSize="15px"
-      color="black"
-    >
-      {title}
-      </Heading>
-  );
+  // Preparar dados para TDH
+  const finalDataTDH = useMemo(() => {
+    if (!reportData?.tdh) return [];
+    return reportData.tdh
+      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
+      .map((item: any) => ({
+        frota: item.frota,
+        valor: item.valor
+      }));
+  }, [reportData]);
 
-  // Calcular os dados para o resumo geral
+  // Preparar dados para Diesel
+  const finalDataDiesel = useMemo(() => {
+    if (!reportData?.diesel) return [];
+    return reportData.diesel
+      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
+      .map((item: any) => ({
+        frota: item.frota,
+        valor: item.valor
+      }));
+  }, [reportData]);
+
+  // Preparar dados para Impureza Vegetal
+  const finalDataImpureza = useMemo(() => {
+    if (!reportData?.impureza_vegetal) return [];
+    return reportData.impureza_vegetal
+      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
+      .map((item: any) => ({
+        frota: item.frota,
+        valor: item.valor
+      }));
+  }, [reportData]);
+
+  // Preparar dados do resumo
   const resumoData = useMemo(() => {
-    const metas = configManager.getMetas('colheita_semanal');
-    return {
-      tdh: {
-        data: finalDataTDH,
-        meta: metas.tdh
-      },
-      diesel: {
-        data: finalDataDiesel,
-        meta: metas.diesel
-      },
-      impurezaVegetal: {
-        data: finalDataImpureza,
-        meta: metas.impureza_vegetal
-      },
-      disponibilidadeMecanica: {
-        meta: metas.disponibilidadeMecanica,
-        media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', metas.disponibilidadeMecanica),
-          total: finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataDisponibilidade, 'disponibilidade', metas.disponibilidadeMecanica) / (finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 1)) * 100)
-        }
-      },
-      eficienciaEnergetica: {
-        meta: metas.eficienciaEnergetica,
-        media: calcularMedia(finalDataEficiencia, 'eficiencia'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', metas.eficienciaEnergetica),
-          total: finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataEficiencia, 'eficiencia', metas.eficienciaEnergetica) / (finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      motorOcioso: {
-        meta: metas.motorOcioso,
-        media: calcularMedia(finalDataMotorOcioso, 'percentual'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', metas.motorOcioso, false),
-          total: finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataMotorOcioso, 'percentual', metas.motorOcioso, false) / (finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      horasElevador: {
-        meta: metas.horaElevador,
-        total: calcularTotal(finalDataHorasElevador, 'horas'),
-        media: calcularMedia(finalDataHorasElevador, 'horas'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataHorasElevador, 'horas', metas.horaElevador),
-          total: finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataHorasElevador, 'horas', metas.horaElevador) / (finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      usoGPS: {
-        meta: metas.usoGPS,
-        media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', metas.usoGPS),
-          total: finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataUsoGPS, 'porcentagem', metas.usoGPS) / (finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      // Adicionar os dados dos operadores para a tabela da última página
-      operadores: finalDataEficiencia
-        .filter((item: any) => {
-          // Filtrar apenas operadores com nome preenchido
-          if (!item || !item.nome || item.nome.trim() === '') return false;
-          return true; // Manter todos os operadores com nome, independente dos valores
-        })
-        .map((item: any) => {
-          const motorOciosoItem = finalDataMotorOcioso.find((motor: any) => motor.id === item.id);
-          const horasElevadorItem = finalDataHorasElevador.find((horas: any) => horas.id === item.id);
-          const usoGPSItem = finalDataUsoGPS.find((gps: any) => gps.id === item.id);
-          
-          return {
-            id: item.id,
-            nome: item.nome,
-            eficiencia: item.eficiencia || 0,
-            motorOcioso: motorOciosoItem?.percentual || 0,
-            horasElevador: horasElevadorItem?.horas || 0,
-            usoGPS: usoGPSItem?.porcentagem || 0
-          };
-        })
+    const tdh: MetricData = {
+      data: finalDataTDH,
+      meta: configManager.getMetas('colheita_semanal').tdh,
+      media: calcularMedia(finalDataTDH, 'valor')
     };
+
+    const diesel: MetricData = {
+      data: finalDataDiesel,
+      meta: configManager.getMetas('colheita_semanal').diesel,
+      media: calcularMedia(finalDataDiesel, 'valor')
+    };
+
+    const impurezaVegetal: MetricData = {
+      data: finalDataImpureza,
+      meta: configManager.getMetas('colheita_semanal').impureza_vegetal,
+      media: calcularMedia(finalDataImpureza, 'valor')
+    };
+
+    const disponibilidadeMecanica: MetricData = {
+      data: finalDataDisponibilidade,
+      meta: configManager.getMetas('colheita_semanal').disponibilidadeMecanica,
+      media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', configManager.getMetas('colheita_semanal').disponibilidadeMecanica),
+        total: finalDataDisponibilidade.length,
+        percentual: (contarItensMeta(finalDataDisponibilidade, 'disponibilidade', configManager.getMetas('colheita_semanal').disponibilidadeMecanica) / finalDataDisponibilidade.length) * 100
+      }
+    };
+
+    const eficienciaEnergetica: MetricData = {
+      data: finalDataEficiencia,
+      meta: configManager.getMetas('colheita_semanal').eficienciaEnergetica,
+      media: calcularMedia(finalDataEficiencia, 'eficiencia'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', configManager.getMetas('colheita_semanal').eficienciaEnergetica),
+        total: finalDataEficiencia.length,
+        percentual: (contarItensMeta(finalDataEficiencia, 'eficiencia', configManager.getMetas('colheita_semanal').eficienciaEnergetica) / finalDataEficiencia.length) * 100
+      }
+    };
+
+    const horaElevador: MetricData = {
+      data: finalDataHorasElevador,
+      meta: configManager.getMetas('colheita_semanal').horaElevador,
+      media: calcularMedia(finalDataHorasElevador, 'horas'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataHorasElevador, 'horas', configManager.getMetas('colheita_semanal').horaElevador),
+        total: finalDataHorasElevador.length,
+        percentual: (contarItensMeta(finalDataHorasElevador, 'horas', configManager.getMetas('colheita_semanal').horaElevador) / finalDataHorasElevador.length) * 100
+      }
+    };
+
+    const motorOcioso: MetricData = {
+      data: finalDataMotorOcioso,
+      meta: configManager.getMetas('colheita_semanal').motorOcioso,
+      media: calcularMedia(finalDataMotorOcioso, 'percentual'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', configManager.getMetas('colheita_semanal').motorOcioso, false),
+        total: finalDataMotorOcioso.length,
+        percentual: (contarItensMeta(finalDataMotorOcioso, 'percentual', configManager.getMetas('colheita_semanal').motorOcioso, false) / finalDataMotorOcioso.length) * 100
+      }
+    };
+
+    const usoGPS: MetricData = {
+      data: finalDataUsoGPS,
+      meta: configManager.getMetas('colheita_semanal').usoGPS,
+      media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', configManager.getMetas('colheita_semanal').usoGPS),
+        total: finalDataUsoGPS.length,
+        percentual: (contarItensMeta(finalDataUsoGPS, 'porcentagem', configManager.getMetas('colheita_semanal').usoGPS) / finalDataUsoGPS.length) * 100
+      }
+    };
+
+    const frotas: FrotaData[] = finalDataTDH.map((item: DataItem) => ({
+      id: item.frota || '',
+      tdh: item.valor || 0,
+      diesel: finalDataDiesel.find((d: DataItem) => d.frota === item.frota)?.valor || 0,
+      disponibilidade: finalDataDisponibilidade.find((d: DataItem) => d.frota === item.frota)?.disponibilidade || 0,
+      impureza: finalDataImpureza.find((d: DataItem) => d.frota === item.frota)?.valor || 0
+    }));
+
+    const operadores: OperadorData[] = finalDataEficiencia.map((item: DataItem) => ({
+      id: item.operador || '',
+      eficiencia: item.valor || 0,
+      horasElevador: finalDataHorasElevador.find((d: DataItem) => d.operador === item.operador)?.horas || 0,
+      motorOcioso: finalDataMotorOcioso.find((d: DataItem) => d.operador === item.operador)?.percentual || 0,
+      usoGPS: finalDataUsoGPS.find((d: DataItem) => d.operador === item.operador)?.porcentagem || 0
+    }));
+
+    const data: ResumoData = {
+      tdh,
+      diesel,
+      impurezaVegetal,
+      disponibilidadeMecanica,
+      eficienciaEnergetica,
+      horaElevador,
+      motorOcioso,
+      usoGPS,
+      frotas,
+      operadores
+    };
+
+    return data;
   }, [
-    finalDataDisponibilidade, 
-    finalDataEficiencia, 
-    finalDataHorasElevador, 
-    finalDataMotorOcioso, 
-    finalDataUsoGPS,
     finalDataTDH,
     finalDataDiesel,
-    finalDataImpureza
+    finalDataImpureza,
+    finalDataDisponibilidade,
+    finalDataEficiencia,
+    finalDataHorasElevador,
+    finalDataMotorOcioso,
+    finalDataUsoGPS
   ]);
 
   // RENDERIZAÇÃO CONDICIONAL
@@ -759,12 +859,46 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
       {/* Conteúdo do relatório */}
       <Box className="report-content">
-        {/* Página 1 - Disponibilidade, Eficiência e Motor Ocioso */}
+        {/* Página 1 - TDH, Diesel, Disponibilidade e Impureza */}
         <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader showDate={true} />
             
             <Flex flex="1" direction="column" justify="space-between">
+              {/* TDH */}
+              <Box flex="1" mb={3}>
+                <SectionTitle title="TDH" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoTDH 
+                    data={finalDataTDH} 
+                    meta={configManager.getMetas('colheita_semanal').tdh} 
+                  />
+                </Box>
+              </Box>
+              
+              {/* Diesel */}
+              <Box flex="1" mb={3}>
+                <SectionTitle title="Consumo de Diesel" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoDiesel 
+                    data={finalDataDiesel} 
+                    meta={configManager.getMetas('colheita_semanal').diesel} 
+                  />
+                </Box>
+              </Box>
+              
               {/* Disponibilidade Mecânica */}
               <Box flex="1" mb={3}>
                 <SectionTitle title="Disponibilidade Mecânica" centered={true} />
@@ -777,11 +911,37 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoDisponibilidadeMecanicaColheita 
                     data={finalDataDisponibilidade} 
-                    meta={configManager.getMetas('colheita_diario').disponibilidadeMecanica} 
+                    meta={configManager.getMetas('colheita_semanal').disponibilidadeMecanica} 
                   />
                 </Box>
               </Box>
               
+              {/* Impureza Vegetal */}
+              <Box flex="1">
+                <SectionTitle title="Impureza Vegetal" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoImpurezaVegetal 
+                    data={finalDataImpureza} 
+                    meta={configManager.getMetas('colheita_semanal').impureza_vegetal} 
+                  />
+                </Box>
+              </Box>
+            </Flex>
+          </Box>
+        </A4Colheita>
+        
+        {/* Página 2 - Eficiência Energética e Horas Elevador */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader showDate={false} />
+            
+            <Flex flex="1" direction="column" justify="space-between">
               {/* Eficiência Energética */}
               <Box flex="1" mb={3}>
                 <SectionTitle title="Eficiência Energética" centered={true} />
@@ -789,18 +949,44 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   border="1px solid"
                   borderColor="black"
                   borderRadius="md"
-                  p={2}
+                  p={3}
                   h="calc(100% - 25px)"
                 >
                   <GraficoEficienciaEnergetica 
                     data={finalDataEficiencia} 
-                    meta={configManager.getMetas('colheita_diario').eficienciaEnergetica} 
+                    meta={configManager.getMetas('colheita_semanal').eficienciaEnergetica} 
                   />
                 </Box>
               </Box>
               
-              {/* Motor Ocioso */}
+              {/* Horas Elevador */}
               <Box flex="1">
+                <SectionTitle title="Horas Elevador" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoHorasElevador 
+                    data={finalDataHorasElevador} 
+                    meta={configManager.getMetas('colheita_semanal').horaElevador} 
+                  />
+                </Box>
+              </Box>
+            </Flex>
+          </Box>
+        </A4Colheita>
+        
+        {/* Página 3 - Motor Ocioso e Uso GPS */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader showDate={false} />
+            
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Motor Ocioso */}
+              <Box flex="1" mb={3}>
                 <SectionTitle title="Motor Ocioso" centered={true} />
                 <Box 
                   border="1px solid"
@@ -811,34 +997,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoMotorOciosoColheita 
                     data={finalDataMotorOcioso} 
-                    meta={configManager.getMetas('colheita_diario').motorOcioso} 
-                    inverterMeta 
-                  />
-                </Box>
-              </Box>
-            </Flex>
-          </Box>
-        </A4Colheita>
-        
-        {/* Página 2 - Horas Elevador e Uso GPS */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column">
-          <PageHeader />
-            
-            <Flex flex="1" direction="column" justify="space-between">
-              {/* Horas Elevador */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Horas Elevador" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoHorasElevador 
-                    data={finalDataHorasElevador} 
-                    meta={configManager.getMetas('colheita_diario').horaElevador} 
+                    meta={configManager.getMetas('colheita_semanal').motorOcioso} 
                   />
                 </Box>
               </Box>
@@ -850,12 +1009,12 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   border="1px solid"
                   borderColor="black"
                   borderRadius="md"
-                  p={2}
+                  p={3}
                   h="calc(100% - 25px)"
                 >
                   <GraficoUsoGPS 
                     data={finalDataUsoGPS} 
-                    meta={configManager.getMetas('colheita_diario').usoGPS} 
+                    meta={configManager.getMetas('colheita_semanal').usoGPS} 
                   />
                 </Box>
               </Box>
@@ -863,13 +1022,93 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
           </Box>
         </A4Colheita>
         
-        {/* Página 3 - Resumo Geral */}
+        {/* Página 4 - Resumo Frotas e Operadores */}
         <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader showDate={false} />
             
-            <Box flex="1" p={2}>
-              <RelatorioColheitaResumo data={resumoData} />
+            <Box flex="1" p={4}>
+              {/* Seção Frotas */}
+              <Box mb={6}>
+                <SectionTitle title="Frotas" centered={false} />
+                
+                {/* Cards de indicadores de frotas */}
+                <SimpleGrid columns={4} spacing={4} mb={4}>
+                  <IndicatorCard 
+                    title="TDH"
+                    value={resumoData.tdh.media}
+                    meta={resumoData.tdh.meta}
+                    isInverted={true}
+                  />
+                  <IndicatorCard 
+                    title="Diesel"
+                    value={resumoData.diesel.media}
+                    meta={resumoData.diesel.meta}
+                    isInverted={true}
+                  />
+                  <IndicatorCard 
+                    title="Disponibilidade"
+                    value={resumoData.disponibilidadeMecanica.media}
+                    meta={resumoData.disponibilidadeMecanica.meta}
+                  />
+                  <IndicatorCard 
+                    title="Impureza"
+                    value={resumoData.impurezaVegetal.media}
+                    meta={resumoData.impurezaVegetal.meta}
+                    isInverted={true}
+                  />
+                </SimpleGrid>
+
+                {/* Tabela de frotas */}
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  overflow="hidden"
+                >
+                  <RelatorioColheitaResumo data={resumoData} showFrotasOnly={true} />
+                </Box>
+              </Box>
+
+              {/* Seção Operadores */}
+              <Box>
+                <SectionTitle title="Operadores" centered={false} />
+                
+                {/* Cards de indicadores de operadores */}
+                <SimpleGrid columns={4} spacing={4} mb={4}>
+                  <IndicatorCard 
+                    title="Eficiência"
+                    value={resumoData.eficienciaEnergetica.media}
+                    meta={resumoData.eficienciaEnergetica.meta}
+                  />
+                  <IndicatorCard 
+                    title="Horas Elevador"
+                    value={resumoData.horaElevador.media}
+                    meta={resumoData.horaElevador.meta}
+                  />
+                  <IndicatorCard 
+                    title="Motor Ocioso"
+                    value={resumoData.motorOcioso.media}
+                    meta={resumoData.motorOcioso.meta}
+                    isInverted={true}
+                  />
+                  <IndicatorCard 
+                    title="Uso GPS"
+                    value={resumoData.usoGPS.media}
+                    meta={resumoData.usoGPS.meta}
+                  />
+                </SimpleGrid>
+
+                {/* Tabela de operadores */}
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  overflow="hidden"
+                >
+                  <RelatorioColheitaResumo data={resumoData} showOperadoresOnly={true} />
+                </Box>
+              </Box>
             </Box>
           </Box>
         </A4Colheita>

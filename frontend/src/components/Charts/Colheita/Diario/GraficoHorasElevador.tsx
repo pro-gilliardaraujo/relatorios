@@ -54,9 +54,21 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
   
   // Define as cores com base no valor das horas
   const getBarColor = (value: number) => {
-    if (value >= 6) return '#48BB78'; // verde para bom
-    if (value >= 4) return '#4299E1'; // azul para médio
-    return '#E53E3E'; // vermelho para ruim
+    if (value >= metaHoras) return '#48BB78'; // verde para valores que atingiram a meta
+    
+    // Calcula a diferença em minutos para a meta
+    const valorHorasInteiras = Math.floor(value);
+    const valorMinutos = Math.round((value - valorHorasInteiras) * 60);
+    const metaHorasInteiras = Math.floor(metaHoras);
+    const metaMinutos = Math.round((metaHoras - metaHorasInteiras) * 60);
+    
+    const totalMinutosValor = valorHorasInteiras * 60 + valorMinutos;
+    const totalMinutosMeta = metaHorasInteiras * 60 + metaMinutos;
+    
+    // Se estiver a menos de 30 minutos da meta, usa amarelo
+    if (totalMinutosMeta - totalMinutosValor <= 30) return '#ECC94B'; // amarelo para valores próximos da meta
+    
+    return '#E53E3E'; // vermelho para valores muito abaixo da meta
   };
 
   // Define cores dos cards com transparência (0.3 para 30% de opacidade)
@@ -74,7 +86,7 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
     return color;
   };
 
-  const totalCardColor = getCardBgColor('#4299E1'); // Azul com transparência
+  const totalCardColor = getCardBgColor('#48BB78'); // Verde com transparência
   const mediaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
 
   // Formata o valor de horas para exibição (horas e minutos)

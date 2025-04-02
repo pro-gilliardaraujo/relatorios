@@ -16,7 +16,19 @@ import { FaPrint } from 'react-icons/fa';
 import { configManager } from '@/utils/config';
 
 // Dados de exemplo para visualização offline
-const dadosExemplo = {
+const dadosExemplo: DadosProcessados = {
+  tdh: [
+    { frota: '7041', valor: 0.0100 },
+    { frota: '7042', valor: 0.0098 }
+  ],
+  diesel: [
+    { frota: '7041', valor: 0.0800 },
+    { frota: '7042', valor: 0.0780 }
+  ],
+  impureza_vegetal: [
+    { frota: '7041', valor: 65.00 },
+    { frota: '7042', valor: 63.50 }
+  ],
   disponibilidade_mecanica: [
     { frota: '7041', disponibilidade: 94.49 },
     { frota: '7042', disponibilidade: 92.82 }
@@ -69,6 +81,45 @@ const dadosExemplo = {
 
 interface ColheitaA4Props {
   data?: any;
+}
+
+interface DadosProcessados {
+  tdh: Array<{
+    frota: string;
+    valor: number;
+  }>;
+  diesel: Array<{
+    frota: string;
+    valor: number;
+  }>;
+  impureza_vegetal: Array<{
+    frota: string;
+    valor: number;
+  }>;
+  disponibilidade_mecanica: Array<{
+    frota: string;
+    disponibilidade: number;
+  }>;
+  eficiencia_energetica: Array<{
+    id: string;
+    nome: string;
+    eficiencia: number;
+  }>;
+  hora_elevador: Array<{
+    id: string;
+    nome: string;
+    horas: number;
+  }>;
+  motor_ocioso: Array<{
+    id: string;
+    nome: string;
+    percentual: number;
+  }>;
+  uso_gps: Array<{
+    id: string;
+    nome: string;
+    porcentagem: number;
+  }>;
 }
 
 // Função utilitária para verificar formato de dados
@@ -247,7 +298,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   }, [searchParams?.get('id')]);
 
   // PREPARAÇÃO DE DADOS
-  const finalData = useMemo(() => {
+  const finalData: DadosProcessados = useMemo(() => {
     if (!useExampleData && reportData?.dados) {
       console.log('📊 DADOS BRUTOS DO RELATÓRIO:', reportData);
       
@@ -272,7 +323,31 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       };
 
       // Garantir que os dados estejam no formato correto
-      const dadosProcessados = {
+      const dadosProcessados: DadosProcessados = {
+        tdh: Array.isArray(reportData.dados.tdh) 
+          ? reportData.dados.tdh
+              .filter((item: any) => item && item.Frota && item.TDH !== undefined)
+              .map((item: any) => ({
+                frota: String(item.Frota),
+                valor: converterNumero(item.TDH)
+              }))
+          : [],
+        diesel: Array.isArray(reportData.dados.diesel) 
+          ? reportData.dados.diesel
+              .filter((item: any) => item && item.Frota && item.Consumo !== undefined)
+              .map((item: any) => ({
+                frota: String(item.Frota),
+                valor: converterNumero(item.Consumo)
+              }))
+          : [],
+        impureza_vegetal: Array.isArray(reportData.dados.impureza_vegetal) 
+          ? reportData.dados.impureza_vegetal
+              .filter((item: any) => item && item.Frota && item.Impureza !== undefined)
+              .map((item: any) => ({
+                frota: String(item.Frota),
+                valor: converterNumero(item.Impureza)
+              }))
+          : [],
         disponibilidade_mecanica: Array.isArray(reportData.dados.disponibilidade_mecanica) 
           ? reportData.dados.disponibilidade_mecanica
               .filter((item: any) => item && item.Frota && item.Disponibilidade !== undefined)
@@ -342,23 +417,35 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
       // Log detalhado após processamento
       console.log('📊 DADOS APÓS PROCESSAMENTO:', {
-        disponibilidade: dadosProcessados.disponibilidade_mecanica.map((d: { frota: string; disponibilidade: number }) => ({ 
+        tdh: dadosProcessados.tdh.map((d) => ({ 
+          frota: d.frota, 
+          valor: d.valor 
+        })),
+        diesel: dadosProcessados.diesel.map((d) => ({ 
+          frota: d.frota, 
+          valor: d.valor 
+        })),
+        impurezaVegetal: dadosProcessados.impureza_vegetal.map((d) => ({ 
+          frota: d.frota, 
+          valor: d.valor 
+        })),
+        disponibilidade: dadosProcessados.disponibilidade_mecanica.map((d) => ({ 
           frota: d.frota, 
           valor: d.disponibilidade 
         })),
-        eficiencia: dadosProcessados.eficiencia_energetica.map((e: { nome: string; eficiencia: number }) => ({ 
+        eficiencia: dadosProcessados.eficiencia_energetica.map((e) => ({ 
           nome: e.nome, 
           valor: e.eficiencia 
         })),
-        motorOcioso: dadosProcessados.motor_ocioso.map((m: { nome: string; percentual: number }) => ({ 
+        motorOcioso: dadosProcessados.motor_ocioso.map((m) => ({ 
           nome: m.nome, 
           valor: m.percentual 
         })),
-        horasElevador: dadosProcessados.hora_elevador.map((h: { nome: string; horas: number }) => ({ 
+        horasElevador: dadosProcessados.hora_elevador.map((h) => ({ 
           nome: h.nome, 
           valor: h.horas 
         })),
-        usoGPS: dadosProcessados.uso_gps.map((g: { nome: string; porcentagem: number }) => ({ 
+        usoGPS: dadosProcessados.uso_gps.map((g) => ({ 
           nome: g.nome, 
           valor: g.porcentagem 
         }))
@@ -558,84 +645,119 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       </Heading>
   );
 
-  // Calcular os dados para o resumo geral
+  // Preparar dados do resumo
   const resumoData = useMemo(() => {
-    const metas = configManager.getMetas('colheita_diario');
+    const tdh = {
+      data: finalData.tdh || [],
+      meta: configManager.getMetas('colheita_diario').tdh,
+      media: calcularMedia(finalData.tdh, 'valor')
+    };
+
+    const diesel = {
+      data: finalData.diesel || [],
+      meta: configManager.getMetas('colheita_diario').diesel,
+      media: calcularMedia(finalData.diesel, 'valor')
+    };
+
+    const impurezaVegetal = {
+      data: finalData.impureza_vegetal || [],
+      meta: configManager.getMetas('colheita_diario').impureza_vegetal,
+      media: calcularMedia(finalData.impureza_vegetal, 'valor')
+    };
+
+    const disponibilidadeMecanica = {
+      data: finalDataDisponibilidade,
+      meta: configManager.getMetas('colheita_diario').disponibilidadeMecanica,
+      media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', configManager.getMetas('colheita_diario').disponibilidadeMecanica),
+        total: finalDataDisponibilidade.length,
+        percentual: (contarItensMeta(finalDataDisponibilidade, 'disponibilidade', configManager.getMetas('colheita_diario').disponibilidadeMecanica) / finalDataDisponibilidade.length) * 100
+      }
+    };
+
+    const eficienciaEnergetica = {
+      data: finalDataEficiencia,
+      meta: configManager.getMetas('colheita_diario').eficienciaEnergetica,
+      media: calcularMedia(finalDataEficiencia, 'eficiencia'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', configManager.getMetas('colheita_diario').eficienciaEnergetica),
+        total: finalDataEficiencia.length,
+        percentual: (contarItensMeta(finalDataEficiencia, 'eficiencia', configManager.getMetas('colheita_diario').eficienciaEnergetica) / finalDataEficiencia.length) * 100
+      }
+    };
+
+    const horaElevador = {
+      data: finalDataHorasElevador,
+      meta: configManager.getMetas('colheita_diario').horaElevador,
+      media: calcularMedia(finalDataHorasElevador, 'horas'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataHorasElevador, 'horas', configManager.getMetas('colheita_diario').horaElevador),
+        total: finalDataHorasElevador.length,
+        percentual: (contarItensMeta(finalDataHorasElevador, 'horas', configManager.getMetas('colheita_diario').horaElevador) / finalDataHorasElevador.length) * 100
+      }
+    };
+
+    const motorOcioso = {
+      data: finalDataMotorOcioso,
+      meta: configManager.getMetas('colheita_diario').motorOcioso,
+      media: calcularMedia(finalDataMotorOcioso, 'percentual'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', configManager.getMetas('colheita_diario').motorOcioso, false),
+        total: finalDataMotorOcioso.length,
+        percentual: (contarItensMeta(finalDataMotorOcioso, 'percentual', configManager.getMetas('colheita_diario').motorOcioso, false) / finalDataMotorOcioso.length) * 100
+      }
+    };
+
+    const usoGPS = {
+      data: finalDataUsoGPS,
+      meta: configManager.getMetas('colheita_diario').usoGPS,
+      media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
+      acimaMeta: {
+        quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', configManager.getMetas('colheita_diario').usoGPS),
+        total: finalDataUsoGPS.length,
+        percentual: (contarItensMeta(finalDataUsoGPS, 'porcentagem', configManager.getMetas('colheita_diario').usoGPS) / finalDataUsoGPS.length) * 100
+      }
+    };
+
+    // Preparar dados das frotas
+    const frotas = (finalData.tdh || []).map((item: any) => ({
+      id: item.frota || '',
+      tdh: item.valor || 0,
+      diesel: (finalData.diesel || []).find((d: any) => d.frota === item.frota)?.valor || 0,
+      disponibilidade: finalDataDisponibilidade.find((d: any) => d.frota === item.frota)?.disponibilidade || 0,
+      impureza: (finalData.impureza_vegetal || []).find((d: any) => d.frota === item.frota)?.valor || 0
+    }));
+
+    // Preparar dados dos operadores
+    const operadores = finalDataEficiencia.map((item: any) => ({
+      id: item.nome || '',
+      eficiencia: item.eficiencia || 0,
+      horasElevador: finalDataHorasElevador.find((h: any) => h.nome === item.nome)?.horas || 0,
+      motorOcioso: finalDataMotorOcioso.find((m: any) => m.nome === item.nome)?.percentual || 0,
+      usoGPS: finalDataUsoGPS.find((g: any) => g.nome === item.nome)?.porcentagem || 0
+    }));
+
     return {
-      disponibilidadeMecanica: {
-        meta: metas.disponibilidadeMecanica,
-        media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', metas.disponibilidadeMecanica),
-          total: finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataDisponibilidade, 'disponibilidade', metas.disponibilidadeMecanica) / (finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 1)) * 100)
-        }
-      },
-      eficienciaEnergetica: {
-        meta: metas.eficienciaEnergetica,
-        media: calcularMedia(finalDataEficiencia, 'eficiencia'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', metas.eficienciaEnergetica),
-          total: finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataEficiencia, 'eficiencia', metas.eficienciaEnergetica) / (finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      motorOcioso: {
-        meta: metas.motorOcioso,
-        media: calcularMedia(finalDataMotorOcioso, 'percentual'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', metas.motorOcioso, false),
-          total: finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataMotorOcioso, 'percentual', metas.motorOcioso, false) / (finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      horasElevador: {
-        meta: metas.horaElevador,
-        total: calcularTotal(finalDataHorasElevador, 'horas'),
-        media: calcularMedia(finalDataHorasElevador, 'horas'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataHorasElevador, 'horas', metas.horaElevador),
-          total: finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataHorasElevador, 'horas', metas.horaElevador) / (finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      usoGPS: {
-        meta: metas.usoGPS,
-        media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
-        acimaMeta: {
-          quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', metas.usoGPS),
-          total: finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-          percentual: Math.round((contarItensMeta(finalDataUsoGPS, 'porcentagem', metas.usoGPS) / (finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-        }
-      },
-      // Adicionar os dados dos operadores para a tabela da última página
-      operadores: finalDataEficiencia
-        .filter((item: any) => {
-          // Filtrar apenas operadores com nome preenchido
-          if (!item || !item.nome || item.nome.trim() === '') return false;
-          return true; // Manter todos os operadores com nome, independente dos valores
-        })
-        .map((item: any) => {
-          const motorOciosoItem = finalDataMotorOcioso.find((motor: any) => motor.id === item.id);
-          const horasElevadorItem = finalDataHorasElevador.find((horas: any) => horas.id === item.id);
-          const usoGPSItem = finalDataUsoGPS.find((gps: any) => gps.id === item.id);
-          
-          return {
-            id: item.id,
-            nome: item.nome,
-            eficiencia: item.eficiencia || 0,
-            motorOcioso: motorOciosoItem?.percentual || 0,
-            horasElevador: horasElevadorItem?.horas || 0,
-            usoGPS: usoGPSItem?.porcentagem || 0
-          };
-        })
+      tdh,
+      diesel,
+      impurezaVegetal,
+      disponibilidadeMecanica,
+      eficienciaEnergetica,
+      horaElevador,
+      motorOcioso,
+      usoGPS,
+      frotas,
+      operadores
     };
   }, [
-    finalDataDisponibilidade, 
-    finalDataEficiencia, 
-    finalDataHorasElevador, 
-    finalDataMotorOcioso, 
-    finalDataUsoGPS
+    finalData,
+    finalDataDisponibilidade,
+    finalDataEficiencia,
+    finalDataHorasElevador,
+    finalDataMotorOcioso,
+    finalDataUsoGPS,
+    configManager
   ]);
 
   // RENDERIZAÇÃO CONDICIONAL
