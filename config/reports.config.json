@@ -28,10 +28,10 @@
         { "id": "frente4", "nome": "Frente 4 - Zirleno" }
       ],
       "metas": {
-        "disponibilidadeMecanica": 85,
+        "disponibilidadeMecanica": 90,
         "eficienciaEnergetica": 70,
-        "motorOcioso": 15,
-        "horaElevador": 80,
+        "motorOcioso": 6,
+        "horaElevador": 5,
         "usoGPS": 90
       },
       "componentes": {

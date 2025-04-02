@@ -116,11 +116,9 @@ export default function ListaRelatorios() {
 
   const gerarPDF = async (id: string, tipo: string) => {
     try {
-      // Abrir modal de progresso
       onOpen();
       setProgress(10);
 
-      // 1. Abrir a página em uma nova janela maximizada
       let path = '/relatorios/visualizacao/a4/';
       switch (tipo) {
         case 'plantio':
@@ -145,78 +143,94 @@ export default function ListaRelatorios() {
         throw new Error('Por favor, permita popups para gerar o PDF');
       }
 
-      // Maximizar a janela
-      reportWindow.focus();
-
       setProgress(20);
 
-      // 2. Esperar a página carregar completamente
       await new Promise<void>((resolve, reject) => {
         const checkLoaded = setInterval(() => {
           try {
             if (reportWindow.document.readyState === 'complete') {
               const content = reportWindow.document.querySelector('.report-content');
               if (content) {
-                // Garantir que os estilos estejam aplicados
                 const style = reportWindow.document.createElement('style');
                 style.textContent = `
+                  @page { 
+                    margin: 0;
+                    size: A4 portrait;
+                  }
                   * { 
                     -webkit-print-color-adjust: exact !important;
                     print-color-adjust: exact !important;
+                    box-sizing: border-box !important;
                   }
                   html, body { 
                     margin: 0 !important; 
                     padding: 0 !important;
-                    overflow: hidden !important;
+                    width: 210mm !important;
+                    height: 297mm !important;
                     background: white !important;
-                    width: 100% !important;
-                    height: 100% !important;
                   }
                   .report-content { 
-                    margin: 0 auto !important;
+                    width: 210mm !important;
+                    min-height: 297mm !important;
+                    margin: 0 !important;
                     padding: 0 !important;
                     background: white !important;
-                    width: 100% !important;
-                    max-width: 1200px !important;
+                    display: flex !important;
+                    flex-direction: column !important;
                   }
                   .report-content > * { 
-                    margin: 0 auto !important;
-                    padding: 40px !important;
-                    box-sizing: border-box !important;
+                    width: 210mm !important;
+                    min-height: 297mm !important;
+                    padding: 15mm 20mm !important;
+                    margin: 0 !important;
                     background: white !important;
-                    position: relative !important;
                     page-break-after: always !important;
-                    overflow: hidden !important;
-                    width: 100% !important;
-                    max-width: 1200px !important;
+                    position: relative !important;
                   }
-                  .chakra-container { 
-                    margin: 0 auto !important; 
-                    padding: 0 !important;
-                    max-width: 1200px !important;
-                    width: 100% !important;
+                  .chakra-progress {
+                    height: 24px !important;
+                    margin: 8px 0 !important;
                   }
-                  svg { 
-                    display: block !important;
-                    margin: 0 auto !important;
-                    max-width: 100% !important;
-                    height: auto !important;
+                  .chakra-progress__track {
+                    height: 24px !important;
+                    background-color: #E2E8F0 !important;
                   }
-                  svg text { 
-                    dominant-baseline: middle !important;
+                  .chakra-progress__filled-track {
+                    height: 24px !important;
+                    transition: none !important;
                   }
                   table { 
                     width: 100% !important;
+                    border-collapse: collapse !important;
+                    page-break-inside: avoid !important;
+                  }
+                  td, th {
+                    padding: 8px !important;
+                    border: 1px solid #E2E8F0 !important;
+                  }
+                  img, svg { 
+                    max-width: 170mm !important;
+                    height: auto !important;
+                    display: block !important;
                     margin: 0 auto !important;
+                  }
+                  h1, h2, h3 {
+                    margin: 16px 0 !important;
+                    page-break-after: avoid !important;
+                  }
+                  .chakra-text {
+                    margin: 4px 0 !important;
                   }
                 `;
                 reportWindow.document.head.appendChild(style);
                 
-                // Dar tempo para os estilos serem aplicados
+                // Forçar recálculo do layout
+                reportWindow.document.body.style.zoom = '1';
+                
                 setTimeout(() => {
                   clearInterval(checkLoaded);
                   resolve();
-                }, 1000);
+                }, 3000);
               }
             }
           } catch (e) {
@@ -225,103 +239,87 @@ export default function ListaRelatorios() {
           }
         }, 500);
 
-        // Timeout após 30 segundos
         setTimeout(() => {
           clearInterval(checkLoaded);
           reject(new Error('Tempo limite excedido ao carregar relatório'));
         }, 30000);
       });
 
-      setProgress(30);
+      setProgress(40);
 
-      // 3. Capturar cada página A4
       const pages = Array.from(reportWindow.document.querySelectorAll('.report-content > *'));
       if (pages.length === 0) {
         throw new Error('Nenhum conteúdo encontrado para gerar o PDF');
       }
 
-      const pdf = new jsPDF('p', 'pt', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      // Ajustar dimensões para melhor qualidade
-      const scale = 2;
-      const scaledWidth = pageWidth * scale;
-      const scaledHeight = pageHeight * scale;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+        hotfixes: ['px_scaling']
+      });
 
       for (let i = 0; i < pages.length; i++) {
-        const page = pages[i] as HTMLElement;
+        const page = pages[i];
         
-        // Atualizar progresso
-        setProgress(30 + Math.floor((i / pages.length) * 60));
+        setProgress(40 + Math.floor((i / pages.length) * 50));
 
-        // Capturar a página como imagem
-        const canvas = await html2canvas(page, {
+        const canvas = await html2canvas(page as HTMLElement, {
+          scale: 3, // Aumentado para melhor qualidade
           useCORS: true,
           logging: false,
           allowTaint: true,
           backgroundColor: '#ffffff',
-          width: scaledWidth,
-          height: scaledHeight,
-          scale: scale,
+          width: 793, // 210mm em pixels @ 96dpi
+          height: 1122, // 297mm em pixels @ 96dpi
+          windowWidth: 793,
+          windowHeight: 1122,
           onclone: (clonedDoc) => {
-            const content = clonedDoc.querySelector('.report-content');
-            if (content instanceof HTMLElement) {
-              content.style.margin = '0 auto';
-              content.style.maxWidth = '1200px';
-              content.style.width = '100%';
-            }
-            if (clonedDoc.body) {
-              clonedDoc.body.style.margin = '0';
-              clonedDoc.body.style.padding = '0';
-              clonedDoc.body.style.width = '100%';
-              clonedDoc.body.style.background = 'white';
-            }
+            Array.from(clonedDoc.getElementsByClassName('chakra-progress')).forEach((progress: any) => {
+              if (progress.style) {
+                progress.style.transform = 'none';
+                progress.style.height = '24px';
+              }
+            });
           }
         });
 
-        // Adicionar ao PDF
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        
         if (i > 0) {
           pdf.addPage();
         }
-        
-        pdf.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight, '', 'FAST');
+
+        // Calcular as dimensões corretas mantendo a proporção
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
       }
 
-      setProgress(95);
+      setProgress(90);
 
-      // 4. Salvar o PDF
-      pdf.save(`relatorio_${id}.pdf`);
+      const fileName = `relatorio_${tipo}_${id}.pdf`;
+      pdf.save(fileName);
 
-      // 5. Fechar a janela do relatório
       reportWindow.close();
-      
       setProgress(100);
-      
-      setTimeout(() => {
-        onClose();
-        setProgress(0);
-      }, 500);
+      onClose();
 
       toast({
-        title: 'PDF gerado com sucesso',
+        title: 'Sucesso',
+        description: 'PDF gerado com sucesso',
         status: 'success',
         duration: 3000,
         isClosable: true,
       });
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
-      onClose();
-      setProgress(0);
       toast({
-        title: 'Erro ao gerar PDF',
-        description: error instanceof Error ? error.message : 'Não foi possível gerar o PDF do relatório',
+        title: 'Erro',
+        description: 'Não foi possível gerar o PDF',
         status: 'error',
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
+      onClose();
     }
   };
 

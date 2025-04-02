@@ -49,6 +49,25 @@ class ConfigManager {
 
   private constructor() {
     this.config = configData;
+    this.loadConfig();
+  }
+
+  private loadConfig() {
+    try {
+      // Em ambiente de desenvolvimento, tenta recarregar o arquivo
+      if (process.env.NODE_ENV === 'development') {
+        const response = fetch('/config/reports.config.json')
+          .then(res => res.json())
+          .then(newConfig => {
+            this.config = newConfig;
+          })
+          .catch(error => {
+            console.error('Erro ao recarregar configurações:', error);
+          });
+      }
+    } catch (error) {
+      console.error('Erro ao recarregar configurações:', error);
+    }
   }
 
   public static getInstance(): ConfigManager {
@@ -56,6 +75,10 @@ class ConfigManager {
       ConfigManager.instance = new ConfigManager();
     }
     return ConfigManager.instance;
+  }
+
+  public async reloadConfig(): Promise<void> {
+    await this.loadConfig();
   }
 
   public getTiposRelatorio(): string[] {

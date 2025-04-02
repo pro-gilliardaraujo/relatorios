@@ -110,114 +110,132 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [useExampleData, setUseExampleData] = useState<boolean>(false);
-  const currentDate = new Date().toLocaleDateString('pt-BR');
+  
+  // Função para formatar a data no padrão brasileiro
+  const formatarData = (data: string) => {
+    if (!data) return '';
+    const [ano, mes, dia] = data.split('-');
+    return `${dia}/${mes}/${ano}`;
+  };
+
+  const currentDate = formatarData(new Date().toISOString().split('T')[0]);
   const LOGO_HEIGHT = "50px";
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
-  
-  // Carregar os dados do relatório do Supabase e configurar realtime
+
   useEffect(() => {
-    let subscription: any = null;
-
-    const fetchReportData = async () => {
-      // Se não tiver ID, apenas mostrar o layout com dados de exemplo
-      if (!reportId) {
-        console.log('📋 Modo de visualização offline - usando dados de exemplo');
-        setLoading(false);
-        setUseExampleData(true);
-        return;
-      }
-
+    const loadData = async () => {
       try {
-        console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
-        const { data: report, error } = await supabase
-          .from('relatorios_diarios')
-          .select('*')
-          .eq('id', reportId)
-          .single();
+        // Recarrega as configurações antes de carregar os dados
+        await configManager.reloadConfig();
+        
+        let subscription: any = null;
 
-        if (error) {
-          console.error('❌ Erro ao buscar dados:', error);
-          setError(`Erro ao buscar dados: ${error.message}`);
-          setLoading(false);
-          setUseExampleData(true);
-          return;
-        }
+        const fetchReportData = async () => {
+          // Se não tiver ID, apenas mostrar o layout com dados de exemplo
+          if (!reportId) {
+            console.log('📋 Modo de visualização offline - usando dados de exemplo');
+            setLoading(false);
+            setUseExampleData(true);
+            return;
+          }
 
-        if (!report) {
-          console.error('❌ Relatório não encontrado');
-          setError('Relatório não encontrado');
-          setLoading(false);
-          setUseExampleData(true);
-          return;
-        }
+          try {
+            console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
+            const { data: report, error } = await supabase
+              .from('relatorios_diarios')
+              .select('*')
+              .eq('id', reportId)
+              .single();
 
-        console.log('✅ Dados carregados com sucesso:', {
-          tipo: report.tipo,
-          frente: report.frente,
-          status: report.status,
-          dados: report.dados ? 'Presentes' : 'Ausentes'
-        });
-
-        // Log detalhado dos dados
-        if (report.dados) {
-          console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
-        }
-
-        setReportData(report);
-        setLoading(false);
-        setUseExampleData(false);
-
-        // Configurar subscription para atualizações em tempo real
-        subscription = supabase
-          .channel('relatorios_changes')
-          .on(
-            'postgres_changes',
-            {
-              event: '*', // Escutar todos os eventos (INSERT, UPDATE, DELETE)
-              schema: 'public',
-              table: 'relatorios_diarios',
-              filter: `id=eq.${reportId}`
-            },
-            async (payload) => {
-              console.log('🔄 Atualização detectada:', payload);
-              
-              // Buscar dados atualizados
-              const { data: updatedReport, error: refreshError } = await supabase
-                .from('relatorios_diarios')
-                .select('*')
-                .eq('id', reportId)
-                .single();
-
-              if (refreshError) {
-                console.error('❌ Erro ao atualizar dados:', refreshError);
-                return;
-              }
-
-              if (updatedReport) {
-                console.log('✅ Dados atualizados com sucesso');
-                setReportData(updatedReport);
-              }
+            if (error) {
+              console.error('❌ Erro ao buscar dados:', error);
+              setError(`Erro ao buscar dados: ${error.message}`);
+              setLoading(false);
+              setUseExampleData(true);
+              return;
             }
-          )
-          .subscribe();
 
+            if (!report) {
+              console.error('❌ Relatório não encontrado');
+              setError('Relatório não encontrado');
+              setLoading(false);
+              setUseExampleData(true);
+              return;
+            }
+
+            console.log('✅ Dados carregados com sucesso:', {
+              tipo: report.tipo,
+              frente: report.frente,
+              status: report.status,
+              dados: report.dados ? 'Presentes' : 'Ausentes'
+            });
+
+            // Log detalhado dos dados
+            if (report.dados) {
+              console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
+            }
+
+            setReportData(report);
+            setLoading(false);
+            setUseExampleData(false);
+
+            // Configurar subscription para atualizações em tempo real
+            subscription = supabase
+              .channel('relatorios_changes')
+              .on(
+                'postgres_changes',
+                {
+                  event: '*', // Escutar todos os eventos (INSERT, UPDATE, DELETE)
+                  schema: 'public',
+                  table: 'relatorios_diarios',
+                  filter: `id=eq.${reportId}`
+                },
+                async (payload) => {
+                  console.log('🔄 Atualização detectada:', payload);
+                  
+                  // Buscar dados atualizados
+                  const { data: updatedReport, error: refreshError } = await supabase
+                    .from('relatorios_diarios')
+                    .select('*')
+                    .eq('id', reportId)
+                    .single();
+
+                  if (refreshError) {
+                    console.error('❌ Erro ao atualizar dados:', refreshError);
+                    return;
+                  }
+
+                  if (updatedReport) {
+                    console.log('✅ Dados atualizados com sucesso');
+                    setReportData(updatedReport);
+                  }
+                }
+              )
+              .subscribe();
+
+          } catch (error) {
+            console.error('❌ Erro ao buscar dados do relatório:', error);
+            setError(`Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+            setLoading(false);
+            setUseExampleData(true);
+          }
+        };
+
+        fetchReportData();
+
+        // Cleanup: remover subscription quando o componente for desmontado
+        return () => {
+          if (subscription) {
+            supabase.removeChannel(subscription);
+          }
+        };
       } catch (error) {
-        console.error('❌ Erro ao buscar dados do relatório:', error);
-        setError(`Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-        setLoading(false);
-        setUseExampleData(true);
+        console.error('Erro ao carregar dados:', error);
       }
     };
 
-    fetchReportData();
-
-    // Cleanup: remover subscription quando o componente for desmontado
-    return () => {
-      if (subscription) {
-        supabase.removeChannel(subscription);
-      }
-    };
-  }, [reportId]);
+    loadData();
+  }, [searchParams?.get('id')]);
 
   // PREPARAÇÃO DE DADOS
   const finalData = useMemo(() => {
@@ -487,7 +505,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {`Relatório de Colheita Diário - ${nomeFrente}`}
           </Heading>
           <Text color="black" fontSize="sm">
-            {reportData?.data ? new Date(reportData.data).toLocaleDateString('pt-BR') : currentDate}
+            {reportData?.data ? formatarData(reportData.data) : currentDate}
           </Text>
         </VStack>
         <Image 
@@ -511,79 +529,82 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       color="black"
     >
       {title}
-    </Heading>
+      </Heading>
   );
 
   // Calcular os dados para o resumo geral
-  const resumoData = useMemo(() => ({
-    disponibilidadeMecanica: {
-      meta: 90,
-      media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
-      acimaMeta: {
-        quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', 90),
-        total: finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 0,
-        percentual: Math.round((contarItensMeta(finalDataDisponibilidade, 'disponibilidade', 90) / (finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 1)) * 100)
-      }
-    },
-    eficienciaEnergetica: {
-      meta: 70,
-      media: calcularMedia(finalDataEficiencia, 'eficiencia'),
-      acimaMeta: {
-        quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', 70),
-        total: finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-        percentual: Math.round((contarItensMeta(finalDataEficiencia, 'eficiencia', 70) / (finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-      }
-    },
-    motorOcioso: {
-      meta: 10,
-      media: calcularMedia(finalDataMotorOcioso, 'percentual'),
-      acimaMeta: {
-        quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', 10, false),
-        total: finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-        percentual: Math.round((contarItensMeta(finalDataMotorOcioso, 'percentual', 10, false) / (finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-      }
-    },
-    horasElevador: {
-      meta: 5,
-      total: calcularTotal(finalDataHorasElevador, 'horas'),
-      media: calcularMedia(finalDataHorasElevador, 'horas'),
-      acimaMeta: {
-        quantidade: contarItensMeta(finalDataHorasElevador, 'horas', 5),
-        total: finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-        percentual: Math.round((contarItensMeta(finalDataHorasElevador, 'horas', 5) / (finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-      }
-    },
-    usoGPS: {
-      meta: 90,
-      media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
-      acimaMeta: {
-        quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', 90),
-        total: finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
-        percentual: Math.round((contarItensMeta(finalDataUsoGPS, 'porcentagem', 90) / (finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
-      }
-    },
-    // Adicionar os dados dos operadores para a tabela da última página
-    operadores: finalDataEficiencia
-      .filter((item: any) => {
-        // Filtrar apenas operadores com nome preenchido
-        if (!item || !item.nome || item.nome.trim() === '') return false;
-        return true; // Manter todos os operadores com nome, independente dos valores
-      })
-      .map((item: any) => {
-        const motorOciosoItem = finalDataMotorOcioso.find((motor: any) => motor.id === item.id);
-        const horasElevadorItem = finalDataHorasElevador.find((horas: any) => horas.id === item.id);
-        const usoGPSItem = finalDataUsoGPS.find((gps: any) => gps.id === item.id);
-        
-        return {
-          id: item.id,
-          nome: item.nome,
-          eficiencia: item.eficiencia || 0,
-          motorOcioso: motorOciosoItem?.percentual || 0,
-          horasElevador: horasElevadorItem?.horas || 0,
-          usoGPS: usoGPSItem?.porcentagem || 0
-        };
-      })
-  }), [
+  const resumoData = useMemo(() => {
+    const metas = configManager.getMetas('colheita');
+    return {
+      disponibilidadeMecanica: {
+        meta: metas.disponibilidadeMecanica,
+        media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', metas.disponibilidadeMecanica),
+          total: finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 0,
+          percentual: Math.round((contarItensMeta(finalDataDisponibilidade, 'disponibilidade', metas.disponibilidadeMecanica) / (finalDataDisponibilidade?.filter((item: any) => item && item.frota && item.frota.trim() !== '').length || 1)) * 100)
+        }
+      },
+      eficienciaEnergetica: {
+        meta: metas.eficienciaEnergetica,
+        media: calcularMedia(finalDataEficiencia, 'eficiencia'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', metas.eficienciaEnergetica),
+          total: finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
+          percentual: Math.round((contarItensMeta(finalDataEficiencia, 'eficiencia', metas.eficienciaEnergetica) / (finalDataEficiencia?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
+        }
+      },
+      motorOcioso: {
+        meta: metas.motorOcioso,
+        media: calcularMedia(finalDataMotorOcioso, 'percentual'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', metas.motorOcioso, false),
+          total: finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
+          percentual: Math.round((contarItensMeta(finalDataMotorOcioso, 'percentual', metas.motorOcioso, false) / (finalDataMotorOcioso?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
+        }
+      },
+      horasElevador: {
+        meta: metas.horaElevador,
+        total: calcularTotal(finalDataHorasElevador, 'horas'),
+        media: calcularMedia(finalDataHorasElevador, 'horas'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataHorasElevador, 'horas', metas.horaElevador),
+          total: finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
+          percentual: Math.round((contarItensMeta(finalDataHorasElevador, 'horas', metas.horaElevador) / (finalDataHorasElevador?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
+        }
+      },
+      usoGPS: {
+        meta: metas.usoGPS,
+        media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', metas.usoGPS),
+          total: finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 0,
+          percentual: Math.round((contarItensMeta(finalDataUsoGPS, 'porcentagem', metas.usoGPS) / (finalDataUsoGPS?.filter((item: any) => item && item.nome && item.nome.trim() !== '').length || 1)) * 100)
+        }
+      },
+      // Adicionar os dados dos operadores para a tabela da última página
+      operadores: finalDataEficiencia
+        .filter((item: any) => {
+          // Filtrar apenas operadores com nome preenchido
+          if (!item || !item.nome || item.nome.trim() === '') return false;
+          return true; // Manter todos os operadores com nome, independente dos valores
+        })
+        .map((item: any) => {
+          const motorOciosoItem = finalDataMotorOcioso.find((motor: any) => motor.id === item.id);
+          const horasElevadorItem = finalDataHorasElevador.find((horas: any) => horas.id === item.id);
+          const usoGPSItem = finalDataUsoGPS.find((gps: any) => gps.id === item.id);
+          
+          return {
+            id: item.id,
+            nome: item.nome,
+            eficiencia: item.eficiencia || 0,
+            motorOcioso: motorOciosoItem?.percentual || 0,
+            horasElevador: horasElevadorItem?.horas || 0,
+            usoGPS: usoGPSItem?.porcentagem || 0
+          };
+        })
+    };
+  }, [
     finalDataDisponibilidade, 
     finalDataEficiencia, 
     finalDataHorasElevador, 
@@ -642,7 +663,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {reportId && (
               <Text fontSize="sm" color="gray.700" mr={4}>
                 Relatório #{reportId.substring(0, 8)} 
-                {reportData?.data && ` - ${new Date(reportData.data).toLocaleDateString('pt-BR')}`}
+                {reportData?.data && ` - ${formatarData(reportData.data)}`}
               </Text>
             )}
             
@@ -683,7 +704,10 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={3}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoDisponibilidadeMecanicaColheita data={finalDataDisponibilidade} meta={90} />
+                  <GraficoDisponibilidadeMecanicaColheita 
+                    data={finalDataDisponibilidade} 
+                    meta={configManager.getMetas('colheita').disponibilidadeMecanica} 
+                  />
                 </Box>
               </Box>
               
@@ -697,7 +721,10 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={2}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoEficienciaEnergetica data={finalDataEficiencia} meta={70} />
+                  <GraficoEficienciaEnergetica 
+                    data={finalDataEficiencia} 
+                    meta={configManager.getMetas('colheita').eficienciaEnergetica} 
+                  />
                 </Box>
               </Box>
               
@@ -711,7 +738,11 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={3}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoMotorOciosoColheita data={finalDataMotorOcioso} meta={10} inverterMeta />
+                  <GraficoMotorOciosoColheita 
+                    data={finalDataMotorOcioso} 
+                    meta={configManager.getMetas('colheita').motorOcioso} 
+                    inverterMeta 
+                  />
                 </Box>
               </Box>
             </Flex>
@@ -721,7 +752,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         {/* Página 2 - Horas Elevador e Uso GPS */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
+          <PageHeader />
             
             <Flex flex="1" direction="column" justify="space-between">
               {/* Horas Elevador */}
@@ -734,7 +765,10 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={2}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoHorasElevador data={finalDataHorasElevador} meta={5} />
+                  <GraficoHorasElevador 
+                    data={finalDataHorasElevador} 
+                    meta={configManager.getMetas('colheita').horaElevador} 
+                  />
                 </Box>
               </Box>
               
@@ -748,7 +782,10 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={2}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoUsoGPS data={finalDataUsoGPS} meta={90} />
+                  <GraficoUsoGPS 
+                    data={finalDataUsoGPS} 
+                    meta={configManager.getMetas('colheita').usoGPS} 
+                  />
                 </Box>
               </Box>
             </Flex>
