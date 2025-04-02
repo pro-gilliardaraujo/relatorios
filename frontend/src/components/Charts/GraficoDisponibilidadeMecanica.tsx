@@ -27,6 +27,9 @@ interface GraficoDisponibilidadeMecanicaProps {
   /** Array com os dados das máquinas */
   data: DisponibilidadeMecanicaData[];
   
+  /** Meta de disponibilidade */
+  meta?: number;
+
   /** Configurações de customização do gráfico */
   options?: {
     /** 
@@ -126,9 +129,6 @@ interface GraficoDisponibilidadeMecanicaProps {
   };
 }
 
-// Constante para a meta de disponibilidade
-const TARGET_PERCENTAGE = 90;
-
 // Helper function para formatar os ticks do eixo Y
 const formatYAxisTick = (value: number) => `${value}%`;
 
@@ -195,6 +195,7 @@ const defaultOptions = {
 
 export const GraficoDisponibilidadeMecanica: React.FC<GraficoDisponibilidadeMecanicaProps> = ({ 
   data, 
+  meta = 0,
   options = {} 
 }) => {
   // Ordena os dados pelo número da máquina
@@ -275,8 +276,9 @@ export const GraficoDisponibilidadeMecanica: React.FC<GraficoDisponibilidadeMeca
           domain={[0, 100]}
           ticks={[0, 20, 40, 60, 80, 100]}
         />
+        
         <ReferenceLine
-          y={TARGET_PERCENTAGE}
+          y={meta}
           stroke={opts.targetLine.stroke}
           strokeWidth={opts.targetLine.strokeWidth}
           strokeDasharray={opts.targetLine.strokeDasharray}
@@ -290,7 +292,7 @@ export const GraficoDisponibilidadeMecanica: React.FC<GraficoDisponibilidadeMeca
           {sortedData.map((entry, index) => (
             <Cell 
               key={`cell-${index}`}
-              fill={entry.percentage >= TARGET_PERCENTAGE ? opts.barStyle.fillAboveTarget : opts.barStyle.fillBelowTarget}
+              fill={entry.percentage >= meta ? opts.barStyle.fillAboveTarget : opts.barStyle.fillBelowTarget}
               style={{
                 transform: `translateX(${opts.chart.dx}px)`
               }}

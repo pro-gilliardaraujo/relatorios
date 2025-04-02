@@ -8,7 +8,7 @@ interface EficienciaData {
 }
 
 interface EficienciaEnergeticaProps {
-  data?: EficienciaData[];
+  data: EficienciaData[];
   meta?: number;
   exibirCards?: boolean;
 }
@@ -28,8 +28,7 @@ const defaultData: EficienciaData[] = [
 
 export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = ({ 
   data = defaultData,
-  // CONFIGURAÇÃO DE META: Percentual alvo de eficiência energética (valores mais altos são melhores)
-  meta = 70,
+  meta = 0,
   exibirCards = false
 }) => {
   // Calcula a média de eficiência

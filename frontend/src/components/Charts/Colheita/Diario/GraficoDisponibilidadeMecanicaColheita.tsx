@@ -20,8 +20,7 @@ const defaultData: DisponibilidadeData[] = [
 
 export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMecanicaProps> = ({ 
   data = defaultData,
-  // CONFIGURAÇÃO DE META: Percentual alvo de disponibilidade mecânica (valores mais altos são melhores)
-  meta = 90,
+  meta = 0,
   exibirCards = false
 }) => {
   // Verificar se há dados válidos

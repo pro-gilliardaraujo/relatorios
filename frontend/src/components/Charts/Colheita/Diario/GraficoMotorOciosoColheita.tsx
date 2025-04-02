@@ -8,7 +8,7 @@ interface MotorOciosoData {
 }
 
 interface MotorOciosoProps {
-  data?: MotorOciosoData[];
+  data: MotorOciosoData[];
   meta?: number;
   inverterMeta?: boolean;
   exibirCards?: boolean;
@@ -29,8 +29,7 @@ const defaultData: MotorOciosoData[] = [
 
 export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({ 
   data = defaultData,
-  // CONFIGURAÇÃO DE META: Percentual alvo de motor ocioso (valores mais baixos são melhores)
-  meta = 10,
+  meta = 0,
   inverterMeta = false,
   exibirCards = false
 }) => {

@@ -28,8 +28,7 @@ const defaultData: GPSData[] = [
 
 export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({ 
   data = defaultData,
-  // CONFIGURAÇÃO DE META: Percentual alvo de uso do GPS (valores mais altos são melhores)
-  meta = 90,
+  meta = 0,
   exibirCards = false
 }) => {
   // Calcula a média de uso do GPS

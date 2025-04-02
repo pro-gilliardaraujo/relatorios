@@ -110,12 +110,19 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [useExampleData, setUseExampleData] = useState<boolean>(false);
+  const [nomeFrente, setNomeFrente] = useState<string>('');
   
   // Função para formatar a data no padrão brasileiro
   const formatarData = (data: string) => {
     if (!data) return '';
     const [ano, mes, dia] = data.split('-');
     return `${dia}/${mes}/${ano}`;
+  };
+
+  // Função para gerar o nome do arquivo PDF
+  const gerarNomeArquivo = () => {
+    const data = reportData?.data ? formatarData(reportData.data).replace(/\//g, '-') : formatarData(new Date().toISOString().split('T')[0]).replace(/\//g, '-');
+    return `Relatório de Colheita Diário - ${nomeFrente} - ${data}.pdf`;
   };
 
   const currentDate = formatarData(new Date().toISOString().split('T')[0]);
@@ -176,6 +183,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             }
 
             setReportData(report);
+            setNomeFrente(report.frente || ''); // Atualiza o nome da frente
             setLoading(false);
             setUseExampleData(false);
 
@@ -208,6 +216,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   if (updatedReport) {
                     console.log('✅ Dados atualizados com sucesso');
                     setReportData(updatedReport);
+                    setNomeFrente(updatedReport.frente || ''); // Atualiza o nome da frente quando houver atualização
                   }
                 }
               )
@@ -421,8 +430,25 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
   // FUNÇÕES
   // Função para imprimir o relatório
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/pdf?id=${reportId}`);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = gerarNomeArquivo(); // Define o nome do arquivo
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      setError('Erro ao gerar PDF. Por favor, tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Função para calcular média
@@ -489,7 +515,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // Componente para o cabeçalho da página
   const PageHeader = () => {
     // Encontrar o nome completo da frente no config
-    const frenteConfig = configManager.getFrentes('colheita').find((f: { id: string }) => f.id === reportData?.frente);
+    const frenteConfig = configManager.getFrentes('colheita_diario').find((f: { id: string }) => f.id === reportData?.frente);
     const nomeFrente = frenteConfig?.nome || reportData?.frente || 'Exemplo';
 
     return (
@@ -534,7 +560,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
   // Calcular os dados para o resumo geral
   const resumoData = useMemo(() => {
-    const metas = configManager.getMetas('colheita');
+    const metas = configManager.getMetas('colheita_diario');
     return {
       disponibilidadeMecanica: {
         meta: metas.disponibilidadeMecanica,
@@ -706,7 +732,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoDisponibilidadeMecanicaColheita 
                     data={finalDataDisponibilidade} 
-                    meta={configManager.getMetas('colheita').disponibilidadeMecanica} 
+                    meta={configManager.getMetas('colheita_diario').disponibilidadeMecanica} 
                   />
                 </Box>
               </Box>
@@ -723,7 +749,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoEficienciaEnergetica 
                     data={finalDataEficiencia} 
-                    meta={configManager.getMetas('colheita').eficienciaEnergetica} 
+                    meta={configManager.getMetas('colheita_diario').eficienciaEnergetica} 
                   />
                 </Box>
               </Box>
@@ -740,7 +766,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoMotorOciosoColheita 
                     data={finalDataMotorOcioso} 
-                    meta={configManager.getMetas('colheita').motorOcioso} 
+                    meta={configManager.getMetas('colheita_diario').motorOcioso} 
                     inverterMeta 
                   />
                 </Box>
@@ -767,7 +793,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoHorasElevador 
                     data={finalDataHorasElevador} 
-                    meta={configManager.getMetas('colheita').horaElevador} 
+                    meta={configManager.getMetas('colheita_diario').horaElevador} 
                   />
                 </Box>
               </Box>
@@ -784,7 +810,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoUsoGPS 
                     data={finalDataUsoGPS} 
-                    meta={configManager.getMetas('colheita').usoGPS} 
+                    meta={configManager.getMetas('colheita_diario').usoGPS} 
                   />
                 </Box>
               </Box>
