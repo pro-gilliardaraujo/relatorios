@@ -1,0 +1,78 @@
+{
+  "tiposRelatorio": {
+    "plantio": {
+      "nome": "Plantio",
+      "frentes": [
+        { "id": "frente1", "nome": "Frente 1" },
+        { "id": "frente2", "nome": "Frente 2" },
+        { "id": "frente3", "nome": "Frente 3" }
+      ],
+      "metas": {
+        "disponibilidadeMecanica": 90,
+        "motorOcioso": 10,
+        "utilizacaoRTK": 95,
+        "mediaVelocidade": 8
+      },
+      "componentes": {
+        "mostrarImageUpload": true,
+        "mostrarExcelUpload": true,
+        "mostrarMapas": false
+      }
+    },
+    "colheita": {
+      "nome": "Colheita",
+      "frentes": [
+        { "id": "frente1", "nome": "Frente 1 - BP Ituiutaba" },
+        { "id": "frente2", "nome": "Frente 2 - CMAA Canápolis" },
+        { "id": "frente3", "nome": "Frente 3 - Alexandrita" },
+        { "id": "frente4", "nome": "Frente 4 - Zirleno" }
+      ],
+      "metas": {
+        "disponibilidadeMecanica": 85,
+        "eficienciaEnergetica": 70,
+        "motorOcioso": 15,
+        "horaElevador": 80,
+        "usoGPS": 90
+      },
+      "componentes": {
+        "mostrarImageUpload": true,
+        "mostrarExcelUpload": true,
+        "mostrarMapas": false
+      }
+    },
+    "cav": {
+      "nome": "CAV",
+      "frentes": [
+        { "id": "frente1", "nome": "Frente 1" },
+        { "id": "frente2", "nome": "Frente 2" }
+      ],
+      "metas": {
+        "disponibilidadeMecanica": 88,
+        "motorOcioso": 12,
+        "utilizacaoRTK": 90
+      },
+      "componentes": {
+        "mostrarImageUpload": true,
+        "mostrarExcelUpload": true,
+        "mostrarMapas": true
+      }
+    }
+  },
+  "fontes": {
+    "excel": [
+      { "id": "sgpa", "nome": "SGPA - Solinftec" },
+      { "id": "jd", "nome": "Operations Center - John Deere" }
+    ],
+    "imagens": [
+      { "id": "sgpa", "nome": "SGPA - Solinftec" },
+      { "id": "jd", "nome": "Operations Center - John Deere" },
+      { "id": "outro", "nome": "Outra Fonte" }
+    ]
+  },
+  "defaults": {
+    "dataInicial": -1,
+    "paginacao": 10,
+    "atualizacaoAutomatica": false,
+    "intervaloAtualizacao": 3600
+  }
+} 

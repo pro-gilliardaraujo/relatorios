@@ -3,7 +3,7 @@
 import { Box, VStack, Heading, Image, Flex, Text, Grid, GridItem } from '@chakra-ui/react';
 import A4_Plantio from '@/components/Layout/A4_Plantio';
 import { useReportStore } from '@/store/useReportStore';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { GraficoTopOfensores } from '@/components/Charts/GraficoTopOfensores';
 import { GraficoHorasTrabalhadas } from '@/components/Charts/GraficoHorasTrabalhadas';
 import { GraficoMotorOcioso } from '@/components/Charts/GraficoMotorOcioso';
@@ -13,6 +13,9 @@ import { GraficoUtilizacaoRTK } from '@/components/Charts/GraficoUtilizacaoRTK';
 import { GraficoMediaVelocidade } from '@/components/Charts/GraficoMediaVelocidade';
 import { GraficoGrupoOperacao } from '@/components/Charts/GraficoGrupoOperacao';
 import { GraficoUtilizacaoMotor } from '@/components/Charts/GraficoUtilizacaoMotor';
+import { useSearchParams } from 'next/navigation';
+import { configManager } from '@/utils/config';
+import { supabase } from '@/lib/supabase';
 
 interface PlantioA4Props {
   data?: any;
@@ -192,9 +195,32 @@ const sampleDataUtilizacaoMotor = [
 
 export default function PlantioA4({ data }: PlantioA4Props) {
   const { images, chartFontes } = useReportStore();
+  const searchParams = useSearchParams();
+  const reportId = searchParams.get('id');
   const currentDate = new Date().toLocaleDateString('pt-BR');
   const LOGO_HEIGHT = "50px";
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
+
+  // Carregar dados do relatório
+  const [reportData, setReportData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchReportData = async () => {
+      if (!reportId) return;
+
+      const { data: report, error } = await supabase
+        .from('relatorios_diarios')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+
+      if (!error && report) {
+        setReportData(report);
+      }
+    };
+
+    fetchReportData();
+  }, [reportId]);
 
   // Tipos de fonte
   type FonteType = 'excel' | 'image';
@@ -348,30 +374,36 @@ export default function PlantioA4({ data }: PlantioA4Props) {
     );
   };
 
-  const PageHeader = () => (
-    <Flex justify="space-between" align="center" mb={8}>
-      <Image
-        src={LOGO_URL}
-        alt="Logo IB"
-        h={LOGO_HEIGHT}
-        objectFit="contain"
-      />
-      <VStack spacing={1}>
-        <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-          Relatório de Plantio
-        </Heading>
-        <Text color="black" fontSize="sm">
-          {currentDate}
-        </Text>
-      </VStack>
-      <Image
-        src={LOGO_URL}
-        alt="Logo IB"
-        h={LOGO_HEIGHT}
-        objectFit="contain"
-      />
-    </Flex>
-  );
+  const PageHeader = () => {
+    // Encontrar o nome completo da frente no config
+    const frenteConfig = configManager.getFrentes('plantio').find((f: { id: string }) => f.id === reportData?.frente);
+    const nomeFrente = frenteConfig?.nome || reportData?.frente || 'Exemplo';
+
+    return (
+      <Flex justify="space-between" align="center" mb={8}>
+        <Image
+          src={LOGO_URL}
+          alt="Logo IB"
+          h={LOGO_HEIGHT}
+          objectFit="contain"
+        />
+        <VStack spacing={1}>
+          <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+            {`Relatório de Plantio Diário - ${nomeFrente}`}
+          </Heading>
+          <Text color="black" fontSize="sm">
+            {reportData?.data ? new Date(reportData.data).toLocaleDateString('pt-BR') : currentDate}
+          </Text>
+        </VStack>
+        <Image
+          src={LOGO_URL}
+          alt="Logo IB"
+          h={LOGO_HEIGHT}
+          objectFit="contain"
+        />
+      </Flex>
+    );
+  };
 
   return (
     <>

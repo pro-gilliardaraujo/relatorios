@@ -22,6 +22,7 @@ import {
 import { FiEye } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { configManager } from '@/utils/config';
 
 export default function ListaRelatorios() {
   const [relatorios, setRelatorios] = useState<any[]>([]);
@@ -31,6 +32,16 @@ export default function ListaRelatorios() {
   const [dataFiltro, setDataFiltro] = useState('');
   const router = useRouter();
   const toast = useToast();
+
+  // Obter tipos de relatório e frentes das configurações
+  const tiposRelatorio = configManager.getTiposRelatorio();
+  const frentesDisponiveis = tipoFiltro !== 'todos' 
+    ? configManager.getFrentes(tipoFiltro)
+    : Object.values(configManager.getTiposRelatorio())
+        .flatMap(tipo => configManager.getFrentes(tipo))
+        .filter((frente, index, self) => 
+          index === self.findIndex(f => f.id === frente.id)
+        );
 
   useEffect(() => {
     carregarRelatorios();
@@ -113,9 +124,14 @@ export default function ListaRelatorios() {
           onChange={(e) => setTipoFiltro(e.target.value)}
         >
           <option value="todos">Todos os tipos</option>
-          <option value="plantio">Plantio</option>
-          <option value="colheita">Colheita</option>
-          <option value="cav">CAV</option>
+          {tiposRelatorio.map(tipo => {
+            const config = configManager.getTipoRelatorio(tipo);
+            return (
+              <option key={tipo} value={tipo}>
+                {config?.nome || tipo}
+              </option>
+            );
+          })}
         </Select>
 
         <Select
@@ -124,9 +140,11 @@ export default function ListaRelatorios() {
           onChange={(e) => setFrenteFiltro(e.target.value)}
         >
           <option value="todas">Todas as frentes</option>
-          <option value="frente1">Frente 1</option>
-          <option value="frente2">Frente 2</option>
-          <option value="frente3">Frente 3</option>
+          {frentesDisponiveis.map(frente => (
+            <option key={frente.id} value={frente.id}>
+              {frente.nome}
+            </option>
+          ))}
         </Select>
 
         <Input
@@ -168,12 +186,17 @@ export default function ListaRelatorios() {
               {relatorios.map((relatorio) => (
                 <Tr key={relatorio.id}>
                   <Td>{relatorio.id.substring(0, 8)}</Td>
-                  <Td textTransform="capitalize">{relatorio.tipo}</Td>
+                  <Td textTransform="capitalize">
+                    {configManager.getTipoRelatorio(relatorio.tipo)?.nome || relatorio.tipo}
+                  </Td>
                   <Td>
                     {new Date(relatorio.data).toLocaleDateString('pt-BR')}
                   </Td>
                   <Td textTransform="capitalize">{relatorio.status}</Td>
-                  <Td>{relatorio.frente || '-'}</Td>
+                  <Td>
+                    {configManager.getFrentes(relatorio.tipo)
+                      .find(f => f.id === relatorio.frente)?.nome || relatorio.frente || '-'}
+                  </Td>
                   <Td>
                     <Button
                       leftIcon={<FiEye />}

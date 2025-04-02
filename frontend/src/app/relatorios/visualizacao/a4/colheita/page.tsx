@@ -13,6 +13,7 @@ import { RelatorioColheitaResumo } from '@/components/RelatorioColheitaResumo';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { FaPrint } from 'react-icons/fa';
+import { configManager } from '@/utils/config';
 
 // Dados de exemplo para visualização offline
 const dadosExemplo = {
@@ -468,33 +469,36 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
   // COMPONENTES
   // Componente para o cabeçalho da página
-  const PageHeader = () => (
-    <Flex justify="space-between" align="center" mb={4}>
-      <Image
-        src={LOGO_URL}
-        alt="Logo IB"
-        h={LOGO_HEIGHT}
-        objectFit="contain"
-      />
-      <VStack spacing={1}>
-        <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-          Relatório de Colheita - Diário
-        </Heading>
-        <Text color="black" fontSize="sm">
-          {reportData?.data ? new Date(reportData.data).toLocaleDateString('pt-BR') : currentDate}
-        </Text>
-        <Text color="gray.600" fontSize="xs">
-          Frente: {reportData?.frente || 'Exemplo'}
-        </Text>
-      </VStack>
-      <Image 
-        src={LOGO_URL} 
-        alt="Logo IB"
-        h={LOGO_HEIGHT}
-        objectFit="contain"
-      />
-    </Flex>
-  );
+  const PageHeader = () => {
+    // Encontrar o nome completo da frente no config
+    const frenteConfig = configManager.getFrentes('colheita').find((f: { id: string }) => f.id === reportData?.frente);
+    const nomeFrente = frenteConfig?.nome || reportData?.frente || 'Exemplo';
+
+    return (
+      <Flex justify="space-between" align="center" mb={4}>
+        <Image
+          src={LOGO_URL}
+          alt="Logo IB"
+          h={LOGO_HEIGHT}
+          objectFit="contain"
+        />
+        <VStack spacing={1}>
+          <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+            {`Relatório de Colheita Diário - ${nomeFrente}`}
+          </Heading>
+          <Text color="black" fontSize="sm">
+            {reportData?.data ? new Date(reportData.data).toLocaleDateString('pt-BR') : currentDate}
+          </Text>
+        </VStack>
+        <Image 
+          src={LOGO_URL} 
+          alt="Logo IB"
+          h={LOGO_HEIGHT}
+          objectFit="contain"
+        />
+      </Flex>
+    );
+  };
 
   // Componente para título de seção
   const SectionTitle = ({ title, centered = true }: { title: string; centered?: boolean }) => (
