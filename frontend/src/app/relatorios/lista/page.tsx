@@ -103,13 +103,20 @@ export default function ListaRelatorios() {
         path += 'plantio';
         break;
       case 'colheita':
+      case 'colheita_diario':
         path += 'colheita';
         break;
       case 'cav':
         path += 'cav';
         break;
+      case 'transbordo':
+        path += 'transbordo';
+        break;
+      case 'colheita-semanal':
+        path += 'colheita-semanal';
+        break;
       default:
-        path += 'plantio';
+        path += tipo; // Usa o tipo diretamente se não for um dos casos acima
     }
     router.push(`${path}?id=${id}`);
   };
@@ -125,13 +132,20 @@ export default function ListaRelatorios() {
           path += 'plantio';
           break;
         case 'colheita':
+        case 'colheita_diario':
           path += 'colheita';
           break;
         case 'cav':
           path += 'cav';
           break;
+        case 'transbordo':
+          path += 'transbordo';
+          break;
+        case 'colheita-semanal':
+          path += 'colheita-semanal';
+          break;
         default:
-          path += 'plantio';
+          path += tipo;
       }
 
       const reportWindow = window.open(
@@ -266,7 +280,7 @@ export default function ListaRelatorios() {
         setProgress(40 + Math.floor((i / pages.length) * 50));
 
         const canvas = await html2canvas(page as HTMLElement, {
-          scale: 3, // Aumentado para melhor qualidade
+          dpi: 300,
           useCORS: true,
           logging: false,
           allowTaint: true,
@@ -275,9 +289,9 @@ export default function ListaRelatorios() {
           height: 1122, // 297mm em pixels @ 96dpi
           windowWidth: 793,
           windowHeight: 1122,
-          onclone: (clonedDoc) => {
-            Array.from(clonedDoc.getElementsByClassName('chakra-progress')).forEach((progress: any) => {
-              if (progress.style) {
+          onclone: (clonedDoc: Document) => {
+            Array.from(clonedDoc.getElementsByClassName('chakra-progress')).forEach((progress: Element) => {
+              if (progress instanceof HTMLElement && progress.style) {
                 progress.style.transform = 'none';
                 progress.style.height = '24px';
               }
@@ -424,7 +438,7 @@ export default function ListaRelatorios() {
                     {configManager.getTipoRelatorio(relatorio.tipo)?.nome || relatorio.tipo}
                   </Td>
                   <Td color="black">
-                    {new Date(relatorio.data).toLocaleDateString('pt-BR')}
+                    {relatorio.data.split('-').reverse().join('/')}
                   </Td>
                   <Td color="black" textTransform="capitalize">{relatorio.status}</Td>
                   <Td color="black">

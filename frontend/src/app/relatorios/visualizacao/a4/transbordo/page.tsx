@@ -14,7 +14,6 @@ import { supabase } from '@/lib/supabase';
 import { FaPrint } from 'react-icons/fa';
 import { configManager } from '@/utils/config';
 import RelatorioColheitaDiarioResumo from '@/components/RelatorioColheitaDiarioResumo';
-import IndicatorCard from '@/components/IndicatorCard';
 
 // Dados de exemplo para visualização offline
 const dadosExemplo: DadosProcessados = {
@@ -765,17 +764,66 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   
   // RENDERIZAÇÃO PRINCIPAL
   return (
-    <Box>
+    <Box position="relative">
+      {/* Controles de relatório */}
+      <Box className="no-print" p={4} borderBottom="1px solid" borderColor="gray.200">
+        <Flex justify="space-between" align="center">
+          {/* Mostrar o switch apenas no modo template */}
+          {!reportId && (
+            <FormControl display="flex" alignItems="center" w="auto">
+              <FormLabel htmlFor="dados-exemplo" mb="0" fontSize="sm" mr={2} color="black">
+                {useExampleData ? 'Usando dados de exemplo' : 'Usando dados reais'}
+              </FormLabel>
+              <Switch 
+                id="dados-exemplo" 
+                isChecked={useExampleData}
+                onChange={() => setUseExampleData(!useExampleData)}
+                colorScheme="blue"
+                borderWidth="1px"
+                borderColor="black"
+                borderRadius="md"
+                p="1px"
+              />
+            </FormControl>
+          )}
+          
+          <Flex>
+            {reportId && (
+              <Text fontSize="sm" color="gray.700" mr={4}>
+                Relatório #{reportId.substring(0, 8)} 
+                {reportData?.data && ` - ${formatarData(reportData.data)}`}
+              </Text>
+            )}
+            
+            {error && (
+              <Text color="red.500" fontSize="sm" mr={4} fontWeight="bold">
+                {error}
+              </Text>
+            )}
+            
+            <Button
+              leftIcon={<FaPrint />}
+              onClick={handlePrint}
+              colorScheme="blue"
+              color="white"
+              _hover={{ bg: 'blue.600' }}
+            >
+              Imprimir
+            </Button>
+          </Flex>
+        </Flex>
+      </Box>
+
       {/* Conteúdo do relatório */}
       <Box className="report-content">
         {/* Página 1 - Disponibilidade, Eficiência e Motor Ocioso */}
         <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
+          <Box h="100%" display="flex" flexDirection="column">
             <PageHeader />
             
             <Flex flex="1" direction="column" justify="space-between">
               {/* Disponibilidade Mecânica */}
-              <Box flex="1" mb={3}>
+              <Box flex="1" mb={3} className="report-card">
                 <SectionTitle title="Disponibilidade Mecânica" centered={true} />
                 <Box 
                   border="1px solid"
@@ -792,7 +840,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               </Box>
               
               {/* Eficiência Energética */}
-              <Box flex="1" mb={3}>
+              <Box flex="1" mb={3} className="report-card">
                 <SectionTitle title="Eficiência Energética" centered={true} />
                 <Box 
                   border="1px solid"
@@ -809,7 +857,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               </Box>
               
               {/* Motor Ocioso */}
-              <Box flex="1">
+              <Box flex="1" className="report-card">
                 <SectionTitle title="Motor Ocioso" centered={true} />
                 <Box 
                   border="1px solid"
@@ -831,12 +879,12 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         
         {/* Página 2 - Horas Elevador e Uso GPS */}
         <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
-            <PageHeader />
+          <Box h="100%" display="flex" flexDirection="column">
+          <PageHeader />
             
             <Flex flex="1" direction="column" justify="space-between">
               {/* Horas Elevador */}
-              <Box flex="1" mb={3}>
+              <Box flex="1" mb={3} className="report-card">
                 <SectionTitle title="Horas Elevador" centered={true} />
                 <Box 
                   border="1px solid"
@@ -853,7 +901,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               </Box>
               
               {/* Uso GPS */}
-              <Box flex="1">
+              <Box flex="1" className="report-card">
                 <SectionTitle title="Uso GPS" centered={true} />
                 <Box 
                   border="1px solid"
@@ -874,76 +922,11 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         
         {/* Página 3 - Resumo Geral */}
         <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
+          <Box h="100%" display="flex" flexDirection="column">
             <PageHeader />
             
-            <Box flex="1" p={4}>
-              {/* Título Principal do Resumo */}
-              <Heading
-                as="h1"
-                size="md"
-                textAlign="center"
-                mb={6}
-                color="black"
-                fontWeight="bold"
-              >
-                Resumo do Relatório de Colheita Diário
-              </Heading>
-
-              {/* Seção Frotas */}
-              <Box mb={6}>
-                <SectionTitle title="Frotas" centered={true} />
-                
-                {/* Cards de indicadores de frotas */}
-                <SimpleGrid columns={2} spacing={4} mb={4}>
-                  <IndicatorCard 
-                    title="Disponibilidade Mecânica"
-                    value={resumoData.disponibilidadeMecanica.media || 0}
-                    meta={resumoData.disponibilidadeMecanica.meta || 0}
-                    acimaMeta={resumoData.disponibilidadeMecanica.acimaMeta}
-                  />
-                </SimpleGrid>
-
-                {/* Tabela de frotas */}
-                <RelatorioColheitaDiarioResumo data={resumoData} showFrotasOnly={true} />
-              </Box>
-
-              {/* Seção Operadores */}
-              <Box>
-                <SectionTitle title="Operadores" centered={true} />
-                
-                {/* Cards de indicadores de operadores */}
-                <SimpleGrid columns={2} spacing={4} mb={4}>
-                  <IndicatorCard 
-                    title="Eficiência Energética"
-                    value={resumoData.eficienciaEnergetica.media || 0}
-                    meta={resumoData.eficienciaEnergetica.meta || 0}
-                    acimaMeta={resumoData.eficienciaEnergetica.acimaMeta}
-                  />
-                  <IndicatorCard 
-                    title="Horas Elevador"
-                    value={resumoData.horaElevador.media || 0}
-                    meta={resumoData.horaElevador.meta || 0}
-                    acimaMeta={resumoData.horaElevador.acimaMeta}
-                  />
-                  <IndicatorCard 
-                    title="Motor Ocioso"
-                    value={resumoData.motorOcioso.media || 0}
-                    meta={resumoData.motorOcioso.meta || 0}
-                    isInverted={true}
-                    acimaMeta={resumoData.motorOcioso.acimaMeta}
-                  />
-                  <IndicatorCard 
-                    title="Uso GPS"
-                    value={resumoData.usoGPS.media || 0}
-                    meta={resumoData.usoGPS.meta || 0}
-                    acimaMeta={resumoData.usoGPS.acimaMeta}
-                  />
-                </SimpleGrid>
-
-                {/* Tabela de operadores */}
-                <RelatorioColheitaDiarioResumo data={resumoData} showOperadoresOnly={true} />
-              </Box>
+            <Box flex="1" p={2}>
+              <RelatorioColheitaDiarioResumo data={resumoData} />
             </Box>
           </Box>
         </A4Colheita>
