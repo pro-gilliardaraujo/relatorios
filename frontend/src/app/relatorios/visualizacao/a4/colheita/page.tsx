@@ -14,6 +14,7 @@ import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { FaPrint } from 'react-icons/fa';
 import { configManager } from '@/utils/config';
+import './custom-print.css';
 
 // Dados de exemplo para visualização offline
 const dadosExemplo: DadosProcessados = {
@@ -519,22 +520,11 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // Função para imprimir o relatório
   const handlePrint = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(`/api/pdf?id=${reportId}`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = gerarNomeArquivo(); // Define o nome do arquivo
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Tentar usar a API de impressão do navegador diretamente
+      window.print();
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      setError('Erro ao gerar PDF. Por favor, tente novamente.');
-    } finally {
-      setLoading(false);
+      console.error('Erro ao imprimir:', error);
+      setError('Erro ao imprimir. Por favor, tente novamente.');
     }
   };
 
@@ -776,17 +766,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // RENDERIZAÇÃO PRINCIPAL
   return (
     <Box position="relative">
-      {/* Barra de ações */}
-      <Box
-        position="sticky"
-        top={0}
-        bg="white"
-        p={4}
-        borderBottom="1px solid"
-        borderColor="gray.200"
-        zIndex={1000}
-        className="no-print"
-      >
+      {/* Controles de relatório */}
+      <Box className="no-print" p={4} borderBottom="1px solid" borderColor="gray.200">
         <Flex justify="space-between" align="center">
           {/* Mostrar o switch apenas no modo template */}
           {!reportId && (
@@ -843,7 +824,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             
             <Flex flex="1" direction="column" justify="space-between">
               {/* Disponibilidade Mecânica */}
-              <Box flex="1" mb={3}>
+              <Box flex="1" mb={3} className="report-card">
                 <SectionTitle title="Disponibilidade Mecânica" centered={true} />
                 <Box 
                   border="1px solid"
@@ -860,7 +841,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               </Box>
               
               {/* Eficiência Energética */}
-              <Box flex="1" mb={3}>
+              <Box flex="1" mb={3} className="report-card">
                 <SectionTitle title="Eficiência Energética" centered={true} />
                 <Box 
                   border="1px solid"
@@ -877,7 +858,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               </Box>
               
               {/* Motor Ocioso */}
-              <Box flex="1">
+              <Box flex="1" className="report-card">
                 <SectionTitle title="Motor Ocioso" centered={true} />
                 <Box 
                   border="1px solid"
@@ -904,7 +885,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             
             <Flex flex="1" direction="column" justify="space-between">
               {/* Horas Elevador */}
-              <Box flex="1" mb={3}>
+              <Box flex="1" mb={3} className="report-card">
                 <SectionTitle title="Horas Elevador" centered={true} />
                 <Box 
                   border="1px solid"
@@ -921,7 +902,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               </Box>
               
               {/* Uso GPS */}
-              <Box flex="1">
+              <Box flex="1" className="report-card">
                 <SectionTitle title="Uso GPS" centered={true} />
                 <Box 
                   border="1px solid"
@@ -951,26 +932,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
           </Box>
         </A4Colheita>
       </Box>
-
-      {/* Estilos para impressão */}
-      <style jsx global>{`
-        @media print {
-          .no-print {
-            display: none !important;
-          }
-          .report-content {
-            margin: 0;
-            padding: 0;
-          }
-          @page {
-            size: A4;
-            margin: 0;
-          }
-          body {
-            margin: 0;
-          }
-        }
-      `}</style>
     </Box>
   );
 } 
