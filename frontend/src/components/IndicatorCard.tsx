@@ -1,4 +1,4 @@
-import { Box, Text, Flex } from '@chakra-ui/react';
+import { Box, Text, Flex, VStack } from '@chakra-ui/react';
 
 interface IndicatorCardProps {
   title: string;
@@ -29,9 +29,12 @@ export default function IndicatorCard({
 
   return (
     <Box borderWidth="1px" borderColor="black" borderRadius="md" p={3} bg="white">
-      <Text fontSize="sm" fontWeight="bold" mb={1} color="black">{title}</Text>
+      <Text fontSize="sm" fontWeight="bold" mb={1} color="black" textAlign="center" w="100%">{title}</Text>
       <Flex direction="row" align="center" justify="space-between">
-        <Text fontSize="md" fontWeight="bold" color="green.500">{meta}%</Text>
+        <VStack spacing={0} align="center">
+          <Text fontSize="md" fontWeight="bold" color="green.500">{meta}%</Text>
+          <Text fontSize="10px" color="gray.500">Meta</Text>
+        </VStack>
         {metaText && (
           <Text 
             fontSize="xs" 
@@ -43,7 +46,10 @@ export default function IndicatorCard({
             {metaText}
           </Text>
         )}
-        <Text fontSize="md" fontWeight="bold" color={isAboveTarget ? "green.500" : "red.500"}>{value.toFixed(1)}%</Text>
+        <VStack spacing={0} align="center">
+          <Text fontSize="md" fontWeight="bold" color={isAboveTarget ? "green.500" : "red.500"}>{value.toFixed(1)}%</Text>
+          <Text fontSize="10px" color="gray.500">Média</Text>
+        </VStack>
       </Flex>
     </Box>
   );

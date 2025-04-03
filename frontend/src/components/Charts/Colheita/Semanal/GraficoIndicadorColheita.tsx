@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from '@chakra-ui/react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Cell, LabelList } from 'recharts';
 import ChartTitle from '../../ChartTitle';
 
 interface DataPoint {
@@ -55,9 +55,19 @@ export const GraficoIndicadorColheita: React.FC<GraficoIndicadorColheitaProps> =
           {chartData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={entry.valor >= meta ? color : '#FF0000'}
+              fill={entry.valor >= meta ? "green.500" : entry.valor >= meta * 0.8 ? "yellow.500" : "red.500"}
             />
           ))}
+          <LabelList 
+            dataKey="valor" 
+            position="top" 
+            formatter={(value: number) => formatValue(value)}
+            style={{ 
+              fill: (value: number) => value >= meta ? "green.500" : value >= meta * 0.8 ? "yellow.500" : "red.500",
+              fontSize: "10px",
+              fontWeight: "bold"
+            }}
+          />
         </Bar>
       </BarChart>
     </Box>
