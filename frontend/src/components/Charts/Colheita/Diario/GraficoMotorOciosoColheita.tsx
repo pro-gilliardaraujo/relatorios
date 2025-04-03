@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
 
 interface MotorOciosoData {
   id: string;
@@ -14,22 +15,22 @@ interface MotorOciosoProps {
   exibirCards?: boolean;
 }
 
+// Obter a meta do configManager
+const META_MOTOR_OCIOSO = configManager.getMetas('colheita_diario').motorOcioso;
+
 // Dados de exemplo para o caso de não serem fornecidos
 const defaultData: MotorOciosoData[] = [
-  { id: '1', nome: 'SEM OPERADOR', percentual: 28.1 },
-  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', percentual: 25.1 },
-  { id: '9999', nome: 'TROCA DE TURNO', percentual: 29.9 },
-  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', percentual: 22.0 },
-  { id: '11', nome: 'NAO CADASTRADO', percentual: 19.4 },
-  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', percentual: 40.1 },
-  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', percentual: 31.5 },
-  { id: '357887', nome: 'EVERTON TIAGO MARQUES', percentual: 32.0 },
-  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', percentual: 36.8 }
+  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', percentual: 15.1 },
+  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', percentual: 12.0 },
+  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', percentual: 20.1 },
+  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', percentual: 21.5 },
+  { id: '357887', nome: 'EVERTON TIAGO MARQUES', percentual: 22.0 },
+  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', percentual: 26.8 }
 ];
 
 export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({ 
   data = defaultData,
-  meta = 0,
+  meta = META_MOTOR_OCIOSO,
   inverterMeta = false,
   exibirCards = false
 }) => {
@@ -39,21 +40,21 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
   // Encontra o valor máximo para definir a escala
   const maxPercentual = Math.max(...data.map(item => item.percentual));
   
-  // Definir valor de referência para escala (o maior entre o valor máximo dos dados e a meta)
-  const valorReferencia = Math.max(maxPercentual, meta);
+  // Para "menor melhor", usamos o maior valor como referência para a escala
+  const valorReferencia = Math.max(maxPercentual, meta * 1.2); // Garante que a meta fique visível
   
   // Função de escala que garante que nunca ultrapasse 100%
   const scalePercentage = (percentual: number) => Math.min((percentual / valorReferencia) * 100, 100);
   
   // Calcula onde ficará a linha de meta na escala relativa
-  const metaScaled = Math.min((meta / valorReferencia) * 100, 100);
+  const metaScaled = (meta / valorReferencia) * 100;
 
   // Ordena por percentual (do menor para o maior - melhor performance no topo)
   const sortedData = [...data].sort((a, b) => a.percentual - b.percentual);
   
-  // Define as cores com base no valor do percentual ocioso
+  // Define as cores com base no valor do percentual ocioso (menor melhor)
   const getBarColor = (value: number) => {
-    if (value <= meta) return '#48BB78'; // verde para bom (abaixo da meta)
+    if (value <= meta) return '#48BB78'; // verde para bom (abaixo ou igual à meta)
     if (value <= meta * 1.2) return '#ECC94B'; // amarelo para médio (até 20% acima da meta)
     return '#E53E3E'; // vermelho para ruim (mais de 20% acima da meta)
   };
@@ -106,7 +107,7 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
                     alignItems="center"
                   />
                   
-                  {/* Linha vertical indicando a meta de motor ocioso (10%) */}
+                  {/* Linha vertical indicando a meta */}
                   <Box 
                     position="absolute" 
                     top="0" 
@@ -117,7 +118,7 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
                     zIndex="2"
                   />
                 </Box>
-                <Text fontSize="10px" fontWeight="bold" w="40px" textAlign="right" color="black">
+                <Text fontSize="10px" fontWeight="bold" w="40px" textAlign="right" color={getBarColor(item.percentual)}>
                   {item.percentual !== undefined ? item.percentual.toFixed(1) : "0.0"}%
                 </Text>
               </Flex>

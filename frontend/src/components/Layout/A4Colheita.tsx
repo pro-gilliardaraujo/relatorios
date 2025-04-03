@@ -17,17 +17,21 @@ export default function A4Colheita({ children }: A4ColheitaProps) {
       boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
       sx={{
         '@media print': {
-          w: '210mm',
-          h: '297mm',
-          m: 0,
-          p: 0,
-          boxShadow: 'none',
-          breakInside: 'avoid',
+          w: '210mm !important',
+          h: '297mm !important',
+          m: '0 !important',
+          p: '0 !important',
+          boxShadow: 'none !important',
+          breakInside: 'avoid !important',
+          breakAfter: 'always !important',
+          breakBefore: 'avoid !important',
+          pageBreakAfter: 'always !important',
+          pageBreakBefore: 'avoid !important',
           '@page': {
             size: 'A4',
-            margin: 0,
-          },
-        },
+            margin: '0 !important'
+          }
+        }
       }}
     >
       {/* Margem externa */}
@@ -38,6 +42,13 @@ export default function A4Colheita({ children }: A4ColheitaProps) {
         right="5mm"
         bottom="5mm"
         border="1px solid black"
+        sx={{
+          '@media print': {
+            m: '0 !important',
+            p: '0 !important',
+            border: '1px solid black !important'
+          }
+        }}
       />
       
       {/* Conteúdo com padding interno */}
@@ -46,14 +57,20 @@ export default function A4Colheita({ children }: A4ColheitaProps) {
         p="10mm"
         h="277mm"
         maxH="277mm"
-        overflow="hidden"
         sx={{
           '@media print': {
-            p: '10mm',
-            h: '277mm',
-            maxH: '277mm',
-            overflow: 'hidden',
-          },
+            p: '10mm !important',
+            h: '277mm !important',
+            maxH: '277mm !important',
+            overflow: 'hidden !important',
+            breakInside: 'avoid !important',
+            breakAfter: 'always !important',
+            breakBefore: 'avoid !important',
+            m: '0 !important',
+            '& > *': {
+              breakInside: 'avoid !important'
+            }
+          }
         }}
       >
         {children}

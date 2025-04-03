@@ -513,101 +513,30 @@ const RelatorioColheitaSemanalResumo: React.FC<RelatorioColheitaSemanalResumoPro
   }
 
   return (
-    <Box>
-      <VStack spacing={3} align="stretch">
-        {/* Se showFrotasOnly=true, mostra apenas a tabela de frotas */}
-        {showFrotasOnly && (
-          <TableContainer>
-            <TabelaFrotas data={data} />
-          </TableContainer>
+    <Box sx={{ '@media print': { m: '0 !important', p: '0 !important' } }}>
+      <VStack spacing={0} align="stretch" sx={{ '@media print': { m: '0 !important', p: '0 !important' } }}>
+        {/* Se não estiver mostrando apenas operadores, mostra a tabela de frotas */}
+        {!showOperadoresOnly && (
+          <Box sx={{ '@media print': { breakInside: 'avoid !important', m: '0 !important', p: '0 !important' } }}>
+            <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
+              Frotas
+            </Text>
+            <TableContainer sx={{ '@media print': { breakInside: 'avoid !important', m: '0 !important', p: '0 !important' } }}>
+              <TabelaFrotas data={data} />
+            </TableContainer>
+          </Box>
         )}
         
-        {/* Se showOperadoresOnly=true, mostra apenas a tabela de operadores */}
-        {showOperadoresOnly && (
-          <TableContainer>
-            <TabelaOperadores data={data} />
-          </TableContainer>
-        )}
-        
-        {/* Se nenhum dos dois, mostra tudo */}
-        {!showFrotasOnly && !showOperadoresOnly && (
-          <>
-            {/* Seção de Frotas */}
-            <Box mb={6}>
-              <Heading size="md" mb={3} color="black">Indicadores por Frota</Heading>
-              
-              {/* Cards de Métricas de Frota */}
-              <SimpleGrid columns={[1, 2, 4]} spacing={3} mb={3}>
-                <MetricCard
-                  title="TDH"
-                  meta={data.tdh?.meta || 0}
-                  media={data.tdh?.media || 0}
-                  acimaMeta={data.tdh?.acimaMeta}
-                />
-                <MetricCard
-                  title="Diesel"
-                  meta={data.diesel?.meta || 0}
-                  media={data.diesel?.media || 0}
-                  acimaMeta={data.diesel?.acimaMeta}
-                />
-                <MetricCard
-                  title="Disponibilidade Mecânica"
-                  meta={data.disponibilidadeMecanica.meta}
-                  media={data.disponibilidadeMecanica.media}
-                  acimaMeta={data.disponibilidadeMecanica.acimaMeta}
-                />
-                <MetricCard
-                  title="Impureza Vegetal"
-                  meta={data.impurezaVegetal?.meta || 0}
-                  media={data.impurezaVegetal?.media || 0}
-                  acimaMeta={data.impurezaVegetal?.acimaMeta}
-                />
-              </SimpleGrid>
-
-              {/* Tabela de Frotas */}
-              <TableContainer>
-                <TabelaFrotas data={data} />
-              </TableContainer>
-            </Box>
-
-            {/* Seção de Operadores */}
-            <Box>
-              <Heading size="md" mb={3} color="black">Indicadores por Operador</Heading>
-              
-              {/* Cards de Métricas de Operadores */}
-              <SimpleGrid columns={[1, 2, 4]} spacing={3} mb={3}>
-                <MetricCard
-                  title="Eficiência Energética"
-                  meta={data.eficienciaEnergetica.meta}
-                  media={data.eficienciaEnergetica.media}
-                  acimaMeta={data.eficienciaEnergetica.acimaMeta}
-                />
-                <HorasElevadorCard
-                  title="Horas Elevador"
-                  meta={data.horaElevador.meta}
-                  media={data.horaElevador.media}
-                  acimaMeta={data.horaElevador.acimaMeta}
-                />
-                <MetricCard
-                  title="Motor Ocioso"
-                  meta={data.motorOcioso.meta}
-                  media={data.motorOcioso.media}
-                  acimaMeta={data.motorOcioso.acimaMeta}
-                />
-                <MetricCard
-                  title="Uso GPS"
-                  meta={data.usoGPS.meta}
-                  media={data.usoGPS.media}
-                  acimaMeta={data.usoGPS.acimaMeta}
-                />
-              </SimpleGrid>
-
-              {/* Tabela de Operadores */}
-              <TableContainer>
-                <TabelaOperadores data={data} />
-              </TableContainer>
-            </Box>
-          </>
+        {/* Se não estiver mostrando apenas frotas, mostra a tabela de operadores */}
+        {!showFrotasOnly && (
+          <Box mt={2} sx={{ '@media print': { breakInside: 'avoid !important', m: '0 !important', p: '0 !important' } }}>
+            <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
+              Operadores
+            </Text>
+            <TableContainer sx={{ '@media print': { breakInside: 'avoid !important', m: '0 !important', p: '0 !important' } }}>
+              <TabelaOperadores data={data} />
+            </TableContainer>
+          </Box>
         )}
       </VStack>
     </Box>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
 
 interface EficienciaData {
   id: string;
@@ -13,22 +14,25 @@ interface EficienciaEnergeticaProps {
   exibirCards?: boolean;
 }
 
+// Obter a meta do configManager
+const META_EFICIENCIA_ENERGETICA = configManager.getMetas('colheita_diario').eficienciaEnergetica;
+
 // Dados de exemplo para o caso de não serem fornecidos
 const defaultData: EficienciaData[] = [
-  { id: '1', nome: 'SEM OPERADOR', eficiencia: 39 },
-  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', eficiencia: 59 },
-  { id: '9999', nome: 'TROCA DE TURNO', eficiencia: 53 },
-  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', eficiencia: 60 },
-  { id: '11', nome: 'NAO CADASTRADO', eficiencia: 62 },
-  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', eficiencia: 38 },
-  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', eficiencia: 38 },
-  { id: '357887', nome: 'EVERTON TIAGO MARQUES', eficiencia: 55 },
-  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', eficiencia: 31 }
+  { id: '1', nome: 'SEM OPERADOR', eficiencia: 65.1 },
+  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', eficiencia: 72.1 },
+  { id: '9999', nome: 'TROCA DE TURNO', eficiencia: 68.9 },
+  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', eficiencia: 75.0 },
+  { id: '11', nome: 'NAO CADASTRADO', eficiencia: 67.4 },
+  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', eficiencia: 71.1 },
+  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', eficiencia: 69.5 },
+  { id: '357887', nome: 'EVERTON TIAGO MARQUES', eficiencia: 73.0 },
+  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', eficiencia: 70.8 }
 ];
 
 export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = ({ 
   data = defaultData,
-  meta = 0,
+  meta = META_EFICIENCIA_ENERGETICA,
   exibirCards = false
 }) => {
   // Calcula a média de eficiência
@@ -37,23 +41,23 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
   // Encontra o valor máximo para definir a escala
   const maxEficiencia = Math.max(...data.map(item => item.eficiencia));
   
-  // Definir valor de referência para escala (o maior entre o valor máximo dos dados e a meta)
-  const valorReferencia = Math.max(maxEficiencia, meta);
+  // Para "maior melhor", usamos o maior valor como referência para a escala
+  const valorReferencia = Math.max(maxEficiencia, meta * 1.2); // Garante que a meta fique visível
   
   // Função de escala que garante que nunca ultrapasse 100%
   const scalePercentage = (eficiencia: number) => Math.min((eficiencia / valorReferencia) * 100, 100);
   
   // Calcula onde ficará a linha de meta na escala relativa
-  const metaScaled = Math.min((meta / valorReferencia) * 100, 100);
+  const metaScaled = (meta / valorReferencia) * 100;
 
   // Ordena por eficiência (do maior para o menor)
   const sortedData = [...data].sort((a, b) => b.eficiencia - a.eficiencia);
   
-  // Define as cores com base no valor de eficiência
+  // Define as cores com base no valor da eficiência (maior melhor)
   const getBarColor = (value: number) => {
-    if (value >= meta) return '#48BB78'; // verde para bom (acima da meta)
+    if (value >= meta) return '#48BB78'; // verde para bom (acima ou igual à meta)
     if (value >= meta * 0.8) return '#ECC94B'; // amarelo para médio (até 20% abaixo da meta)
-    return '#E53E3E'; // vermelho para ruim (mais de 20% abaixo da meta)
+    return '#E53E3E'; // vermelho para ruim (abaixo de 80% da meta)
   };
 
   // Define cores dos cards com transparência (0.3 para 30% de opacidade)
@@ -72,7 +76,7 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
   };
 
   const metaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
-  const mediaCardColor = getCardBgColor(getBarColor(mediaEficiencia)); // Cor dinâmica com transparência
+  const mediaCardColor = getCardBgColor(getBarColor(mediaEficiencia));
 
   return (
     <Box h="100%">      
@@ -104,7 +108,7 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
                     alignItems="center"
                   />
                   
-                  {/* Linha vertical indicando a meta de eficiência energética (60%) */}
+                  {/* Linha vertical indicando a meta */}
                   <Box 
                     position="absolute" 
                     top="0" 
@@ -115,8 +119,8 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
                     zIndex="2"
                   />
                 </Box>
-                <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color="black">
-                  {item.eficiencia !== undefined ? item.eficiencia : "0"}%
+                <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={getBarColor(item.eficiencia)}>
+                  {item.eficiencia !== undefined ? item.eficiencia.toFixed(1) : "0.0"}%
                 </Text>
               </Flex>
             </Box>

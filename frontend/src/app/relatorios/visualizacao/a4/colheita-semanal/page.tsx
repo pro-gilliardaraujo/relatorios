@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel, Grid, GridItem, Card, CardBody } from '@chakra-ui/react';
+import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Grid, GridItem, Card, CardBody } from '@chakra-ui/react';
 import A4Colheita from '@/components/Layout/A4Colheita';
 import { useReportStore } from '@/store/useReportStore';
 import { GraficoDisponibilidadeMecanicaColheita } from '@/components/Charts/Colheita/Diario/GraficoDisponibilidadeMecanicaColheita';
@@ -11,7 +11,6 @@ import { GraficoMotorOciosoColheita } from '@/components/Charts/Colheita/Diario/
 import { GraficoUsoGPS } from '@/components/Charts/Colheita/Diario/GraficoUsoGPS';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { FaPrint } from 'react-icons/fa';
 import { configManager } from '@/utils/config';
 import { GraficoTDH } from '@/components/Charts/Colheita/Semanal/GraficoTDH';
 import { GraficoDiesel } from '@/components/Charts/Colheita/Semanal/GraficoDiesel';
@@ -124,7 +123,7 @@ const IndicatorCard = ({ title, value, meta, isInverted = false, acimaMeta }: {
   value: number; 
   meta: number; 
   isInverted?: boolean;
-  acimaMeta?: { quantidade: number; total: number; }
+  acimaMeta?: { quantidade: number; total: number; percentual: number; }
 }) => {
   const isAboveTarget = isInverted ? value <= meta : value >= meta;
   const metaText = acimaMeta ? `${acimaMeta.quantidade} de ${acimaMeta.total} atingiram a meta (${((acimaMeta.quantidade/acimaMeta.total) * 100).toFixed(0)}%)` : '';
@@ -188,7 +187,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [useExampleData, setUseExampleData] = useState<boolean>(false);
   const [nomeFrente, setNomeFrente] = useState<string>('');
   
   // Função para formatar a data no padrão brasileiro
@@ -196,12 +194,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     if (!data) return '';
     const [ano, mes, dia] = data.split('-');
     return `${dia}/${mes}/${ano}`;
-  };
-
-  // Função para gerar o nome do arquivo PDF
-  const gerarNomeArquivo = () => {
-    const data = reportData?.data ? formatarData(reportData.data).replace(/\//g, '-') : formatarData(new Date().toISOString().split('T')[0]).replace(/\//g, '-');
-    return `Relatório de Colheita Diário - ${nomeFrente} - ${data}.pdf`;
   };
 
   const currentDate = formatarData(new Date().toISOString().split('T')[0]);
@@ -221,7 +213,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
           if (!reportId) {
             console.log('📋 Modo de visualização offline - usando dados de exemplo');
             setLoading(false);
-            setUseExampleData(true);
             return;
           }
 
@@ -237,7 +228,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               console.error('❌ Erro ao buscar dados:', error);
               setError(`Erro ao buscar dados: ${error.message}`);
               setLoading(false);
-              setUseExampleData(true);
               return;
             }
 
@@ -245,7 +235,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               console.error('❌ Relatório não encontrado');
               setError('Relatório não encontrado');
               setLoading(false);
-              setUseExampleData(true);
               return;
             }
 
@@ -264,7 +253,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             setReportData(report);
             setNomeFrente(report.frente || ''); // Atualiza o nome da frente
             setLoading(false);
-            setUseExampleData(false);
 
             // Configurar subscription para atualizações em tempo real
             subscription = supabase
@@ -305,7 +293,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             console.error('❌ Erro ao buscar dados do relatório:', error);
             setError(`Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
             setLoading(false);
-            setUseExampleData(true);
           }
         };
 
@@ -327,164 +314,164 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
   // PREPARAÇÃO DE DADOS
   const finalData = useMemo(() => {
-    if (!useExampleData && reportData?.dados) {
-      console.log('📊 DADOS BRUTOS DO RELATÓRIO:', reportData);
-      
-      // Função auxiliar para processar operador no formato "ID - NOME"
-      const processarOperador = (operador: any) => {
-        if (!operador || operador === 0) return null;
-        const match = String(operador).match(/^(\d+)\s*-\s*(.+)$/);
-        return match ? { id: match[1], nome: match[2].trim() } : null;
-      };
-
-      // Função auxiliar para converter número
-      const converterNumero = (valor: any) => {
-        if (typeof valor === 'number') return Number(valor.toFixed(2));
-        if (typeof valor === 'string') return Number(parseFloat(valor).toFixed(2));
-        return 0;
-      };
-
-      // Função auxiliar para processar porcentagem
-      const processarPorcentagem = (valor: any) => {
-        const numero = converterNumero(valor);
-        return Number((numero * 100).toFixed(2)); // Converter para porcentagem e fixar 2 casas decimais
-      };
-
-      // Garantir que os dados estejam no formato correto
-      const dadosProcessados = {
-        tdh: Array.isArray(reportData.dados.tdh) 
-          ? reportData.dados.tdh
-              .filter((item: any) => item && item.Frota && item.TDH !== undefined)
-              .map((item: any) => ({
-                frota: String(item.Frota),
-                valor: converterNumero(item.TDH)
-              }))
-          : [],
-        diesel: Array.isArray(reportData.dados.diesel) 
-          ? reportData.dados.diesel
-              .filter((item: any) => item && item.Frota && item.Consumo !== undefined)
-              .map((item: any) => ({
-                frota: String(item.Frota),
-                valor: converterNumero(item.Consumo)
-              }))
-          : [],
-        impureza_vegetal: Array.isArray(reportData.dados.impureza_vegetal) 
-          ? reportData.dados.impureza_vegetal
-              .filter((item: any) => item && item.Frota && item.Impureza !== undefined)
-              .map((item: any) => ({
-                frota: String(item.Frota),
-                valor: converterNumero(item.Impureza)
-              }))
-          : [],
-        disponibilidade_mecanica: Array.isArray(reportData.dados.disponibilidade_mecanica) 
-          ? reportData.dados.disponibilidade_mecanica
-              .filter((item: any) => item && item.Frota && item.Disponibilidade !== undefined)
-              .map((item: any) => ({
-                frota: String(item.Frota),
-                disponibilidade: processarPorcentagem(item.Disponibilidade)
-              }))
-          : [],
-        eficiencia_energetica: Array.isArray(reportData.dados.eficiencia_energetica)
-          ? reportData.dados.eficiencia_energetica
-              .filter((item: any) => item && item.Operador && item.Operador !== 0)
-              .map((item: any) => {
-                const operador = processarOperador(item.Operador);
-                if (!operador) return null;
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  eficiencia: processarPorcentagem(item["Eficiência Energética"])
-                };
-              })
-              .filter((item: any) => item !== null)
-              .sort((a: any, b: any) => b.eficiencia - a.eficiencia)
-          : [],
-        hora_elevador: Array.isArray(reportData.dados.hora_elevador)
-          ? reportData.dados.hora_elevador
-              .filter((item: any) => item && item.Operador && item.Operador !== 0)
-              .map((item: any) => {
-                const operador = processarOperador(item.Operador);
-                if (!operador) return null;
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  horas: converterNumero(item.Horas)
-                };
-              })
-              .filter((item: any) => item !== null)
-          : [],
-        motor_ocioso: Array.isArray(reportData.dados.motor_ocioso)
-          ? reportData.dados.motor_ocioso
-              .filter((item: any) => item && item.Operador && item.Operador !== 0)
-              .map((item: any) => {
-                const operador = processarOperador(item.Operador);
-                if (!operador) return null;
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  percentual: processarPorcentagem(item["Porcentagem Ociosa"])
-                };
-              })
-              .filter((item: any) => item !== null)
-          : [],
-        uso_gps: Array.isArray(reportData.dados.uso_gps)
-          ? reportData.dados.uso_gps
-              .filter((item: any) => item && item.Operador && item.Operador !== 0)
-              .map((item: any) => {
-                const operador = processarOperador(item.Operador);
-                if (!operador) return null;
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  porcentagem: processarPorcentagem(item["Porcentagem Uso"])
-                };
-              })
-              .filter((item: any) => item !== null)
-          : []
-      };
-
-      // Log detalhado após processamento
-      console.log('📊 DADOS APÓS PROCESSAMENTO:', {
-        tdh: dadosProcessados.tdh.map((d: { frota: string; valor: number }) => ({ 
-          frota: d.frota, 
-          valor: d.valor 
-        })),
-        diesel: dadosProcessados.diesel.map((d: { frota: string; valor: number }) => ({ 
-          frota: d.frota, 
-          valor: d.valor 
-        })),
-        impurezaVegetal: dadosProcessados.impureza_vegetal.map((d: { frota: string; valor: number }) => ({ 
-          frota: d.frota, 
-          valor: d.valor 
-        })),
-        disponibilidade: dadosProcessados.disponibilidade_mecanica.map((d: { frota: string; disponibilidade: number }) => ({ 
-          frota: d.frota, 
-          valor: d.disponibilidade 
-        })),
-        eficiencia: dadosProcessados.eficiencia_energetica.map((e: { nome: string; eficiencia: number }) => ({ 
-          nome: e.nome, 
-          valor: e.eficiencia 
-        })),
-        motorOcioso: dadosProcessados.motor_ocioso.map((m: { nome: string; percentual: number }) => ({ 
-          nome: m.nome, 
-          valor: m.percentual 
-        })),
-        horasElevador: dadosProcessados.hora_elevador.map((h: { nome: string; horas: number }) => ({ 
-          nome: h.nome, 
-          valor: h.horas 
-        })),
-        usoGPS: dadosProcessados.uso_gps.map((g: { nome: string; porcentagem: number }) => ({ 
-          nome: g.nome, 
-          valor: g.porcentagem 
-        }))
-      });
-
-      return dadosProcessados;
+    if (!reportData?.dados) {
+      console.log('📊 Usando dados de exemplo');
+      return dadosExemplo;
     }
 
-    console.log('📊 Usando dados de exemplo');
-    return dadosExemplo;
-  }, [useExampleData, reportData]);
+    console.log('📊 DADOS BRUTOS DO RELATÓRIO:', reportData);
+    
+    // Função auxiliar para processar operador no formato "ID - NOME"
+    const processarOperador = (operador: any) => {
+      if (!operador || operador === 0) return null;
+      const match = String(operador).match(/^(\d+)\s*-\s*(.+)$/);
+      return match ? { id: match[1], nome: match[2].trim() } : null;
+    };
+
+    // Função auxiliar para converter número
+    const converterNumero = (valor: any) => {
+      if (typeof valor === 'number') return Number(valor.toFixed(2));
+      if (typeof valor === 'string') return Number(parseFloat(valor).toFixed(2));
+      return 0;
+    };
+
+    // Função auxiliar para processar porcentagem
+    const processarPorcentagem = (valor: any) => {
+      const numero = converterNumero(valor);
+      return Number((numero * 100).toFixed(2)); // Converter para porcentagem e fixar 2 casas decimais
+    };
+
+    // Garantir que os dados estejam no formato correto
+    const dadosProcessados = {
+      tdh: Array.isArray(reportData.dados.tdh) 
+        ? reportData.dados.tdh
+            .filter((item: any) => item && item.Frota && item.TDH !== undefined)
+            .map((item: any) => ({
+              frota: String(item.Frota),
+              valor: converterNumero(item.TDH)
+            }))
+        : [],
+      diesel: Array.isArray(reportData.dados.diesel) 
+        ? reportData.dados.diesel
+            .filter((item: any) => item && item.Frota && item.Consumo !== undefined)
+            .map((item: any) => ({
+              frota: String(item.Frota),
+              valor: converterNumero(item.Consumo)
+            }))
+        : [],
+      impureza_vegetal: Array.isArray(reportData.dados.impureza_vegetal) 
+        ? reportData.dados.impureza_vegetal
+            .filter((item: any) => item && item.Frota && item.Impureza !== undefined)
+            .map((item: any) => ({
+              frota: String(item.Frota),
+              valor: converterNumero(item.Impureza)
+            }))
+        : [],
+      disponibilidade_mecanica: Array.isArray(reportData.dados.disponibilidade_mecanica) 
+        ? reportData.dados.disponibilidade_mecanica
+            .filter((item: any) => item && item.Frota && item.Disponibilidade !== undefined)
+            .map((item: any) => ({
+              frota: String(item.Frota),
+              disponibilidade: processarPorcentagem(item.Disponibilidade)
+            }))
+        : [],
+      eficiencia_energetica: Array.isArray(reportData.dados.eficiencia_energetica)
+        ? reportData.dados.eficiencia_energetica
+            .filter((item: any) => item && item.Operador && item.Operador !== 0)
+            .map((item: any) => {
+              const operador = processarOperador(item.Operador);
+              if (!operador) return null;
+              return {
+                id: operador.id,
+                nome: operador.nome,
+                eficiencia: processarPorcentagem(item["Eficiência Energética"])
+              };
+            })
+            .filter((item: any) => item !== null)
+            .sort((a: any, b: any) => b.eficiencia - a.eficiencia)
+        : [],
+      hora_elevador: Array.isArray(reportData.dados.hora_elevador)
+        ? reportData.dados.hora_elevador
+            .filter((item: any) => item && item.Operador && item.Operador !== 0)
+            .map((item: any) => {
+              const operador = processarOperador(item.Operador);
+              if (!operador) return null;
+              return {
+                id: operador.id,
+                nome: operador.nome,
+                horas: converterNumero(item.Horas)
+              };
+            })
+            .filter((item: any) => item !== null)
+        : [],
+      motor_ocioso: Array.isArray(reportData.dados.motor_ocioso)
+        ? reportData.dados.motor_ocioso
+            .filter((item: any) => item && item.Operador && item.Operador !== 0)
+            .map((item: any) => {
+              const operador = processarOperador(item.Operador);
+              if (!operador) return null;
+              return {
+                id: operador.id,
+                nome: operador.nome,
+                percentual: processarPorcentagem(item["Porcentagem Ociosa"])
+              };
+            })
+            .filter((item: any) => item !== null)
+        : [],
+      uso_gps: Array.isArray(reportData.dados.uso_gps)
+        ? reportData.dados.uso_gps
+            .filter((item: any) => item && item.Operador && item.Operador !== 0)
+            .map((item: any) => {
+              const operador = processarOperador(item.Operador);
+              if (!operador) return null;
+              return {
+                id: operador.id,
+                nome: operador.nome,
+                porcentagem: processarPorcentagem(item["Porcentagem Uso"])
+              };
+            })
+            .filter((item: any) => item !== null)
+        : []
+    };
+
+    // Log detalhado após processamento
+    console.log('📊 DADOS APÓS PROCESSAMENTO:', {
+      tdh: dadosProcessados.tdh.map((d: { frota: string; valor: number }) => ({ 
+        frota: d.frota, 
+        valor: d.valor 
+      })),
+      diesel: dadosProcessados.diesel.map((d: { frota: string; valor: number }) => ({ 
+        frota: d.frota, 
+        valor: d.valor 
+      })),
+      impurezaVegetal: dadosProcessados.impureza_vegetal.map((d: { frota: string; valor: number }) => ({ 
+        frota: d.frota, 
+        valor: d.valor 
+      })),
+      disponibilidade: dadosProcessados.disponibilidade_mecanica.map((d: { frota: string; disponibilidade: number }) => ({ 
+        frota: d.frota, 
+        valor: d.disponibilidade 
+      })),
+      eficiencia: dadosProcessados.eficiencia_energetica.map((e: { nome: string; eficiencia: number }) => ({ 
+        nome: e.nome, 
+        valor: e.eficiencia 
+      })),
+      motorOcioso: dadosProcessados.motor_ocioso.map((m: { nome: string; percentual: number }) => ({ 
+        nome: m.nome, 
+        valor: m.percentual 
+      })),
+      horasElevador: dadosProcessados.hora_elevador.map((h: { nome: string; horas: number }) => ({ 
+        nome: h.nome, 
+        valor: h.horas 
+      })),
+      usoGPS: dadosProcessados.uso_gps.map((g: { nome: string; porcentagem: number }) => ({ 
+        nome: g.nome, 
+        valor: g.porcentagem 
+      }))
+    });
+
+    return dadosProcessados;
+  }, [reportData]);
 
   // Preparar os arrays de dados
   const finalDataDisponibilidade = useMemo(() => {
@@ -526,7 +513,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       console.log('===== DETALHES DO RELATÓRIO =====');
       console.log('📊 Modo:', isModoTemplate ? 'Template/Layout' : 'Relatório Específico');
       console.log('📊 ID do relatório:', reportId || 'Nenhum');
-      console.log('📊 Usando dados de exemplo:', useExampleData);
       console.log('📊 Disponibilidade:', finalDataDisponibilidade.length, 'itens');
       console.log('📊 Eficiência:', finalDataEficiencia.length, 'itens');
       console.log('📊 Horas elevador:', finalDataHorasElevador.length, 'itens');
@@ -541,31 +527,9 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
       }
     }
-  }, [loading, isModoTemplate, reportId, useExampleData, finalDataDisponibilidade, finalDataEficiencia, finalDataHorasElevador, finalDataMotorOcioso, finalDataUsoGPS]);
+  }, [loading, isModoTemplate, reportId, finalDataDisponibilidade, finalDataEficiencia, finalDataHorasElevador, finalDataMotorOcioso, finalDataUsoGPS]);
 
   // FUNÇÕES
-  // Função para imprimir o relatório
-  const handlePrint = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/pdf?id=${reportId}`);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = gerarNomeArquivo(); // Define o nome do arquivo
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      setError('Erro ao gerar PDF. Por favor, tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Função para calcular média
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
     if (!array || array.length === 0) return 0;
@@ -830,266 +794,272 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   
   // RENDERIZAÇÃO PRINCIPAL
   return (
-    <Box>
-      {/* Conteúdo do relatório */}
-      <Box className="report-content">
-        {/* Página 1 - TDH, Diesel, Disponibilidade e Impureza */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
-            <PageHeader showDate={true} />
-            
-            <Flex flex="1" direction="column" justify="space-between">
-              {/* TDH */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="TDH" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoTDH 
-                    data={finalDataTDH} 
-                    meta={configManager.getMetas('colheita_semanal').tdh} 
-                  />
-                </Box>
-              </Box>
-              
-              {/* Diesel */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Consumo de Diesel" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoDiesel 
-                    data={finalDataDiesel} 
-                    meta={configManager.getMetas('colheita_semanal').diesel} 
-                  />
-                </Box>
-              </Box>
-
-              {/* Disponibilidade Mecânica */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Disponibilidade Mecânica" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoDisponibilidadeMecanicaColheita 
-                    data={finalDataDisponibilidade} 
-                    meta={configManager.getMetas('colheita_semanal').disponibilidadeMecanica} 
-                  />
-                </Box>
-              </Box>
-              
-              {/* Impureza Vegetal */}
-              <Box flex="1">
-                <SectionTitle title="Impureza Vegetal" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoImpurezaVegetal 
-                    data={finalDataImpureza} 
-                    meta={configManager.getMetas('colheita_semanal').impureza_vegetal} 
-                  />
-                </Box>
-              </Box>
-            </Flex>
-          </Box>
-        </A4Colheita>
-        
-        {/* Página 2 - Eficiência Energética e Horas Elevador */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
-            <PageHeader showDate={false} />
-            
-            <Flex flex="1" direction="column" justify="space-between">
-              {/* Eficiência Energética */}
-              <Box flex="1" mb={6}>
-                <SectionTitle title="Eficiência Energética" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoEficienciaEnergetica 
-                    data={finalDataEficiencia} 
-                    meta={configManager.getMetas('colheita_semanal').eficienciaEnergetica} 
-                  />
-                </Box>
-              </Box>
-              
-              {/* Horas Elevador */}
-              <Box flex="1">
-                <SectionTitle title="Horas Elevador" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoHorasElevador 
-                    data={finalDataHorasElevador} 
-                    meta={configManager.getMetas('colheita_semanal').horaElevador} 
-                  />
-                </Box>
-              </Box>
-            </Flex>
-          </Box>
-        </A4Colheita>
-        
-        {/* Página 3 - Motor Ocioso e Uso GPS */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
-            <PageHeader showDate={false} />
-            
-            <Flex flex="1" direction="column" justify="space-between">
-              {/* Motor Ocioso */}
-              <Box flex="1" mb={6}>
-                <SectionTitle title="Motor Ocioso" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoMotorOciosoColheita 
-                    data={finalDataMotorOcioso} 
-                    meta={configManager.getMetas('colheita_semanal').motorOcioso} 
-                  />
-                </Box>
-              </Box>
-              
-              {/* Uso GPS */}
-              <Box flex="1">
-                <SectionTitle title="Uso GPS" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoUsoGPS 
-                    data={finalDataUsoGPS} 
-                    meta={configManager.getMetas('colheita_semanal').usoGPS} 
-                  />
-                </Box>
-              </Box>
-            </Flex>
-          </Box>
-        </A4Colheita>
-        
-        {/* Página 4 - Resumo */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
-            <PageHeader showDate={false} />
-            
-            <Box flex="1" p={4}>
-              {/* Título Principal do Resumo */}
-              <Heading
-                as="h1"
-                size="md"
-                textAlign="center"
-                mb={6}
-                color="black"
-                fontWeight="bold"
+    <Box 
+      className="report-content" 
+      sx={{ 
+        '@media print': { 
+          m: '0 !important', 
+          p: '0 !important',
+          breakInside: 'avoid !important',
+          breakBefore: 'avoid !important',
+          breakAfter: 'avoid !important',
+          pageBreakAfter: 'avoid !important',
+          pageBreakBefore: 'avoid !important',
+          '& > *': {
+            m: '0 !important',
+            p: '0 !important'
+          }
+        } 
+      }}
+    >
+      {/* Página 1 - TDH, Diesel, Disponibilidade e Impureza */}
+      <A4Colheita>
+        <Box h="100%" display="flex" flexDirection="column" bg="white" sx={{ '@media print': { breakInside: 'avoid !important', m: '0 !important', p: '0 !important' } }}>
+          <PageHeader showDate={true} />
+          
+          <Flex flex="1" direction="column" justify="space-between">
+            {/* TDH */}
+            <Box flex="1" mb={3}>
+              <SectionTitle title="TDH" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={2}
+                h="calc(100% - 25px)"
               >
-                Resumo do Relatório de Colheita Semanal
-              </Heading>
-
-              {/* Seção Frotas */}
-              <Box mb={6}>
-                <SectionTitle title="Frotas" centered={true} />
-                
-                {/* Cards de indicadores de frotas */}
-                <SimpleGrid columns={2} spacing={4} mb={4}>
-                  <IndicatorCard 
-                    title="Consumo de TDH"
-                    value={processarDadosResumo(reportData || dadosExemplo).tdh.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).tdh.meta || 0}
-                    isInverted={true}
-                  />
-                  <IndicatorCard 
-                    title="Consumo de Diesel"
-                    value={processarDadosResumo(reportData || dadosExemplo).diesel.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).diesel.meta || 0}
-                    isInverted={true}
-                  />
-                  <IndicatorCard 
-                    title="Disponibilidade Mecânica"
-                    value={processarDadosResumo(reportData || dadosExemplo).disponibilidadeMecanica.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).disponibilidadeMecanica.meta || 0}
-                    acimaMeta={processarDadosResumo(reportData || dadosExemplo).disponibilidadeMecanica.acimaMeta}
-                  />
-                  <IndicatorCard 
-                    title="Impureza Vegetal"
-                    value={processarDadosResumo(reportData || dadosExemplo).impurezaVegetal.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).impurezaVegetal.meta || 0}
-                    isInverted={true}
-                  />
-                </SimpleGrid>
-
-                {/* Tabela de frotas */}
-                <RelatorioColheitaSemanalResumo data={processarDadosResumo(reportData || dadosExemplo)} showFrotasOnly={true} />
-              </Box>
-
-              {/* Seção Operadores */}
-              <Box>
-                <SectionTitle title="Operadores" centered={true} />
-                
-                {/* Cards de indicadores de operadores */}
-                <SimpleGrid columns={2} spacing={4} mb={4}>
-                  <IndicatorCard 
-                    title="Eficiência Energética"
-                    value={processarDadosResumo(reportData || dadosExemplo).eficienciaEnergetica.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).eficienciaEnergetica.meta || 0}
-                    acimaMeta={processarDadosResumo(reportData || dadosExemplo).eficienciaEnergetica.acimaMeta}
-                  />
-                  <IndicatorCard 
-                    title="Horas Elevador"
-                    value={processarDadosResumo(reportData || dadosExemplo).horaElevador.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).horaElevador.meta || 0}
-                    acimaMeta={processarDadosResumo(reportData || dadosExemplo).horaElevador.acimaMeta}
-                  />
-                  <IndicatorCard 
-                    title="Motor Ocioso"
-                    value={processarDadosResumo(reportData || dadosExemplo).motorOcioso.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).motorOcioso.meta || 0}
-                    isInverted={true}
-                    acimaMeta={processarDadosResumo(reportData || dadosExemplo).motorOcioso.acimaMeta}
-                  />
-                  <IndicatorCard 
-                    title="Uso GPS"
-                    value={processarDadosResumo(reportData || dadosExemplo).usoGPS.media || 0}
-                    meta={processarDadosResumo(reportData || dadosExemplo).usoGPS.meta || 0}
-                    acimaMeta={processarDadosResumo(reportData || dadosExemplo).usoGPS.acimaMeta}
-                  />
-                </SimpleGrid>
-
-                {/* Tabela de operadores */}
-                <RelatorioColheitaSemanalResumo data={processarDadosResumo(reportData || dadosExemplo)} showOperadoresOnly={true} />
+                <GraficoTDH 
+                  data={finalDataTDH} 
+                  meta={configManager.getMetas('colheita_semanal').tdh} 
+                />
               </Box>
             </Box>
+            
+            {/* Diesel */}
+            <Box flex="1" mb={3}>
+              <SectionTitle title="Consumo de Diesel" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={3}
+                h="calc(100% - 25px)"
+              >
+                <GraficoDiesel 
+                  data={finalDataDiesel} 
+                  meta={configManager.getMetas('colheita_semanal').diesel} 
+                />
+              </Box>
+            </Box>
+
+            {/* Disponibilidade Mecânica */}
+            <Box flex="1" mb={3}>
+              <SectionTitle title="Disponibilidade Mecânica" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={3}
+                h="calc(100% - 25px)"
+              >
+                <GraficoDisponibilidadeMecanicaColheita 
+                  data={finalDataDisponibilidade} 
+                  meta={configManager.getMetas('colheita_semanal').disponibilidadeMecanica} 
+                />
+              </Box>
+            </Box>
+            
+            {/* Impureza Vegetal */}
+            <Box flex="1">
+              <SectionTitle title="Impureza Vegetal" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={3}
+                h="calc(100% - 25px)"
+              >
+                <GraficoImpurezaVegetal 
+                  data={finalDataImpureza} 
+                  meta={configManager.getMetas('colheita_semanal').impureza_vegetal} 
+                />
+              </Box>
+            </Box>
+          </Flex>
+        </Box>
+      </A4Colheita>
+      
+      {/* Página 2 - Eficiência Energética e Horas Elevador */}
+      <A4Colheita>
+        <Box h="100%" display="flex" flexDirection="column" bg="white">
+          <PageHeader showDate={false} />
+          
+          <Flex flex="1" direction="column" justify="space-between">
+            {/* Eficiência Energética */}
+            <Box flex="1" mb={6}>
+              <SectionTitle title="Eficiência Energética" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={3}
+                h="calc(100% - 25px)"
+              >
+                <GraficoEficienciaEnergetica 
+                  data={finalDataEficiencia} 
+                  meta={configManager.getMetas('colheita_semanal').eficienciaEnergetica} 
+                />
+              </Box>
+            </Box>
+            
+            {/* Horas Elevador */}
+            <Box flex="1">
+              <SectionTitle title="Horas Elevador" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={3}
+                h="calc(100% - 25px)"
+              >
+                <GraficoHorasElevador 
+                  data={finalDataHorasElevador} 
+                  meta={configManager.getMetas('colheita_semanal').horaElevador} 
+                />
+              </Box>
+            </Box>
+          </Flex>
+        </Box>
+      </A4Colheita>
+      
+      {/* Página 3 - Motor Ocioso e Uso GPS */}
+      <A4Colheita>
+        <Box h="100%" display="flex" flexDirection="column" bg="white">
+          <PageHeader showDate={false} />
+          
+          <Flex flex="1" direction="column" justify="space-between">
+            {/* Motor Ocioso */}
+            <Box flex="1" mb={6}>
+              <SectionTitle title="Motor Ocioso" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={3}
+                h="calc(100% - 25px)"
+              >
+                <GraficoMotorOciosoColheita 
+                  data={finalDataMotorOcioso} 
+                  meta={configManager.getMetas('colheita_semanal').motorOcioso} 
+                />
+              </Box>
+            </Box>
+            
+            {/* Uso GPS */}
+            <Box flex="1">
+              <SectionTitle title="Uso GPS" centered={true} />
+              <Box 
+                border="1px solid"
+                borderColor="black"
+                borderRadius="md"
+                p={3}
+                h="calc(100% - 25px)"
+              >
+                <GraficoUsoGPS 
+                  data={finalDataUsoGPS} 
+                  meta={configManager.getMetas('colheita_semanal').usoGPS} 
+                />
+              </Box>
+            </Box>
+          </Flex>
+        </Box>
+      </A4Colheita>
+      
+      {/* Página 4 - Resumo */}
+      <A4Colheita>
+        <Box h="100%" display="flex" flexDirection="column" bg="white">
+          <PageHeader showDate={false} />
+          
+          <Box flex="1" p={4}>
+            {/* Título Principal do Resumo */}
+            <Heading
+              as="h1"
+              size="md"
+              textAlign="center"
+              mb={6}
+              color="black"
+              fontWeight="bold"
+            >
+              Resumo do Relatório de Colheita Semanal
+            </Heading>
+
+            {/* Seção Frotas */}
+            <Box mb={6}>
+              <SectionTitle title="Resumo" centered={true} />
+              
+              {/* Cards de indicadores de frotas */}
+              <SimpleGrid columns={2} spacing={4} mb={4}>
+                <IndicatorCard 
+                  title="Consumo de TDH"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).tdh?.media ?? 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).tdh?.meta ?? 0}
+                  isInverted={true}
+                />
+                <IndicatorCard 
+                  title="Consumo de Diesel"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).diesel?.media ?? 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).diesel?.meta ?? 0}
+                  isInverted={true}
+                />
+                <IndicatorCard 
+                  title="Disponibilidade Mecânica"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).disponibilidadeMecanica?.media ?? 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).disponibilidadeMecanica?.meta ?? 0}
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).disponibilidadeMecanica?.acimaMeta ?? { quantidade: 0, total: 0, percentual: 0 }}
+                />
+                <IndicatorCard 
+                  title="Impureza Vegetal"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).impurezaVegetal?.media ?? 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).impurezaVegetal?.meta ?? 0}
+                  isInverted={true}
+                />
+              </SimpleGrid>
+
+              {/* Cards de indicadores de operadores */}
+              <SimpleGrid columns={2} spacing={4} mb={4}>
+                <IndicatorCard 
+                  title="Eficiência Energética"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).eficienciaEnergetica.media || 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).eficienciaEnergetica.meta || 0}
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).eficienciaEnergetica.acimaMeta}
+                />
+                <IndicatorCard 
+                  title="Horas Elevador"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).horaElevador.media || 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).horaElevador.meta || 0}
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).horaElevador.acimaMeta}
+                />
+                <IndicatorCard 
+                  title="Motor Ocioso"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).motorOcioso.media || 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).motorOcioso.meta || 0}
+                  isInverted={true}
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).motorOcioso.acimaMeta}
+                />
+                <IndicatorCard 
+                  title="Uso GPS"
+                  value={processarDadosResumo(reportData ?? dadosExemplo).usoGPS.media || 0}
+                  meta={processarDadosResumo(reportData ?? dadosExemplo).usoGPS.meta || 0}
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).usoGPS.acimaMeta}
+                />
+              </SimpleGrid>
+
+              {/* Tabelas de resumo */}
+              <RelatorioColheitaSemanalResumo data={processarDadosResumo(reportData ?? dadosExemplo)} />
+            </Box>
           </Box>
-        </A4Colheita>
-      </Box>
+        </Box>
+      </A4Colheita>
     </Box>
   );
 } 

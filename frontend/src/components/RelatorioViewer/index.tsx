@@ -168,7 +168,7 @@ const RelatorioViewer: React.FC<RelatorioViewerProps> = ({
   }
 
   return (
-    <Box position="relative">
+    <Box position="relative" sx={{ '@media print': { m: '0 !important', p: '0 !important' } }}>
       {/* Barra de ações */}
       <Box
         position="sticky"
@@ -178,7 +178,18 @@ const RelatorioViewer: React.FC<RelatorioViewerProps> = ({
         borderBottom="1px solid"
         borderColor="gray.200"
         zIndex={1000}
-        className="no-print" // Não mostrar na impressão
+        className="no-print"
+        sx={{
+          '@media print': {
+            display: 'none !important',
+            height: '0 !important',
+            position: 'absolute !important',
+            width: '0 !important',
+            overflow: 'hidden !important',
+            margin: '0 !important',
+            padding: '0 !important'
+          }
+        }}
       >
         <HStack spacing={4} justify="flex-end">
           <Button
@@ -212,25 +223,43 @@ const RelatorioViewer: React.FC<RelatorioViewerProps> = ({
       </Box>
 
       {/* Conteúdo do relatório */}
-      <Box className="report-content" id="report-content">
+      <Box 
+        className="report-content" 
+        id="report-content"
+        sx={{ 
+          '@media print': { 
+            m: '0 !important', 
+            p: '0 !important',
+            '& > *': {
+              m: '0 !important',
+              p: '0 !important'
+            }
+          } 
+        }}
+      >
         {children}
       </Box>
 
-      {/* Estilos para impressão */}
+      {/* Estilos globais para impressão */}
       <style jsx global>{`
         @media print {
-          .no-print {
-            display: none !important;
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
           }
           .report-content {
-            margin: 0;
-            padding: 0;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .no-print {
+            display: none !important;
+            height: 0 !important;
+            position: absolute !important;
+            width: 0 !important;
+            overflow: hidden !important;
           }
           @page {
             size: A4;
-            margin: 0;
-          }
-          body {
             margin: 0;
           }
         }

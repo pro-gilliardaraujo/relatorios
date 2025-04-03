@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
 
 interface DisponibilidadeData {
   frota: string;
@@ -12,6 +13,9 @@ interface DisponibilidadeMecanicaProps {
   exibirCards?: boolean;
 }
 
+// Obter a meta do configManager
+const META_DISPONIBILIDADE_MECANICA = configManager.getMetas('colheita_diario').disponibilidadeMecanica;
+
 // Dados de exemplo para o caso de não serem fornecidos
 const defaultData: DisponibilidadeData[] = [
   { frota: '7041', disponibilidade: 94.49 },
@@ -20,7 +24,7 @@ const defaultData: DisponibilidadeData[] = [
 
 export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMecanicaProps> = ({ 
   data = defaultData,
-  meta = 0,
+  meta = META_DISPONIBILIDADE_MECANICA,
   exibirCards = false
 }) => {
   // Verificar se há dados válidos
@@ -38,31 +42,9 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
   
   // Define as cores com base no valor da disponibilidade
   const getBarColor = (value: number) => {
-    if (value >= meta) return '#48BB78'; // verde para acima da meta (90%)
-    if (value >= 80) return '#9AE6B4'; // verde claro para valores entre 80% e meta
-    
-    // Gradiente de amarelo para vermelho para valores abaixo de 80%
-    const percentage = Math.max(0, value) / 80; // 0 = vermelho, 1 = amarelo
-    const r = 255;
-    const g = Math.round(255 * percentage);
-    const b = 0;
-    
-    return `rgb(${r}, ${g}, ${b})`;
-  };
-
-  // Define cores dos cards com transparência (0.3 para 30% de opacidade)
-  const getCardBgColor = (color: string) => {
-    if (color.startsWith('#')) {
-      // Conversão simplificada de hex para rgba
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, 0.3)`;
-    } else if (color.startsWith('rgb')) {
-      // Se já for rgb, apenas adiciona alpha
-      return color.replace('rgb', 'rgba').replace(')', ', 0.3)');
-    }
-    return color;
+    if (value >= meta) return '#48BB78'; // verde para acima da meta
+    if (value >= meta * 0.8) return '#ECC94B'; // amarelo para próximo da meta
+    return '#E53E3E'; // vermelho para abaixo da meta
   };
 
   // Formata o valor de porcentagem com vírgula em vez de ponto (pt-BR)
@@ -72,9 +54,6 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
     }
     return valor.toFixed(2).replace('.', ',') + '%';
   };
-
-  const metaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
-  const mediaCardColor = getCardBgColor(getBarColor(mediaDisponibilidade)); // Cor dinâmica com transparência
 
   return (
     <Box h="100%">
@@ -98,14 +77,14 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
                 />
               </Flex>
               
-              {/* Linha vertical indicando a meta de disponibilidade mecânica (90%) */}
+              {/* Linha vertical indicando a meta */}
               <Box 
                 position="absolute" 
                 top="0" 
                 left={`${meta}%`} 
                 h="23px"
                 w="2px"
-                bg="black"
+                bg="rgba(0,0,0,0.7)"
                 zIndex="2"
               />
             </Box>

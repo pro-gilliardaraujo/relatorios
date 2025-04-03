@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
 
 interface HorasElevadorData {
   id: string;
@@ -8,67 +9,52 @@ interface HorasElevadorData {
 }
 
 interface HorasElevadorProps {
-  data?: HorasElevadorData[];
-  exibirCards?: boolean;
+  data: HorasElevadorData[];
   meta?: number;
+  exibirCards?: boolean;
 }
+
+// Obter a meta do configManager
+const META_HORAS_ELEVADOR = configManager.getMetas('colheita_diario').horaElevador;
 
 // Dados de exemplo para o caso de não serem fornecidos
 const defaultData: HorasElevadorData[] = [
-  { id: '1', nome: 'SEM OPERADOR', horas: 2.42 },
-  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', horas: 7.42 },
-  { id: '9999', nome: 'TROCA DE TURNO', horas: 7.59 },
-  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', horas: 6.33 },
-  { id: '11', nome: 'NAO CADASTRADO', horas: 6.26 },
-  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', horas: 4.54 },
-  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', horas: 4.62 },
+  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', horas: 5.75 },
+  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', horas: 5.50 },
+  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', horas: 5.25 },
+  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', horas: 5.15 },
   { id: '357887', nome: 'EVERTON TIAGO MARQUES', horas: 5.10 },
-  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', horas: 0.42 }
+  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', horas: 5.00 }
 ];
 
 export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({ 
   data = defaultData,
+  meta = META_HORAS_ELEVADOR,
   exibirCards = false
 }) => {
-  // Calcula o total e a média de horas
-  const totalHoras = data.reduce((acc, item) => acc + item.horas, 0);
-  const mediaHoras = totalHoras / data.length;
+  // Calcula a média de horas
+  const mediaHoras = data.reduce((acc, item) => acc + item.horas, 0) / data.length;
   
   // Encontra o valor máximo para definir a escala
   const maxHoras = Math.max(...data.map(item => item.horas));
   
-  // CONFIGURAÇÃO DE META: Horas alvo de elevador (valores mais altos são melhores)
-  const metaHoras = 5;
-  
-  // Definir valor de referência para escala (o maior entre o valor máximo dos dados e a meta)
-  const valorReferencia = Math.max(maxHoras, metaHoras);
+  // Para "maior melhor", usamos o maior valor como referência para a escala
+  const valorReferencia = Math.max(maxHoras, meta * 1.2); // Garante que a meta fique visível
   
   // Função de escala que garante que nunca ultrapasse 100%
   const scalePercentage = (horas: number) => Math.min((horas / valorReferencia) * 100, 100);
   
   // Calcula onde ficará a linha de meta na escala relativa
-  const metaScaled = Math.min((metaHoras / valorReferencia) * 100, 100);
+  const metaScaled = (meta / valorReferencia) * 100;
 
   // Ordena por horas (do maior para o menor)
   const sortedData = [...data].sort((a, b) => b.horas - a.horas);
   
-  // Define as cores com base no valor das horas
+  // Define as cores com base no valor das horas (maior melhor)
   const getBarColor = (value: number) => {
-    if (value >= metaHoras) return '#48BB78'; // verde para valores que atingiram a meta
-    
-    // Calcula a diferença em minutos para a meta
-    const valorHorasInteiras = Math.floor(value);
-    const valorMinutos = Math.round((value - valorHorasInteiras) * 60);
-    const metaHorasInteiras = Math.floor(metaHoras);
-    const metaMinutos = Math.round((metaHoras - metaHorasInteiras) * 60);
-    
-    const totalMinutosValor = valorHorasInteiras * 60 + valorMinutos;
-    const totalMinutosMeta = metaHorasInteiras * 60 + metaMinutos;
-    
-    // Se estiver a menos de 30 minutos da meta, usa amarelo
-    if (totalMinutosMeta - totalMinutosValor <= 30) return '#ECC94B'; // amarelo para valores próximos da meta
-    
-    return '#E53E3E'; // vermelho para valores muito abaixo da meta
+    if (value >= meta) return '#48BB78'; // verde para bom (acima ou igual à meta)
+    if (value >= meta * 0.8) return '#ECC94B'; // amarelo para médio (até 20% abaixo da meta)
+    return '#E53E3E'; // vermelho para ruim (abaixo de 80% da meta)
   };
 
   // Define cores dos cards com transparência (0.3 para 30% de opacidade)
@@ -86,8 +72,8 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
     return color;
   };
 
-  const totalCardColor = getCardBgColor('#48BB78'); // Verde com transparência
-  const mediaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
+  const metaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
+  const mediaCardColor = getCardBgColor(getBarColor(mediaHoras));
 
   // Formata o valor de horas para exibição (horas e minutos)
   const formatHoras = (horas: number) => {
@@ -100,7 +86,7 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
   };
 
   return (
-    <Box h="100%">
+    <Box h="100%">      
       {/* Container principal apenas para o gráfico */}
       <Box h="100%" overflowY="auto">
         <VStack spacing={0} align="stretch">
@@ -124,12 +110,12 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
                     position="absolute" 
                     bg={getBarColor(item.horas)} 
                     h="100%" 
-                    w={`${scalePercentage(item.horas)}%`} 
+                    w={`${scalePercentage(item.horas)}%`}
                     borderRadius="sm"
                     alignItems="center"
                   />
                   
-                  {/* Linha vertical indicando a meta de horas de elevador (6 horas) */}
+                  {/* Linha vertical indicando a meta */}
                   <Box 
                     position="absolute" 
                     top="0" 
@@ -140,7 +126,7 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
                     zIndex="2"
                   />
                 </Box>
-                <Text fontSize="10px" fontWeight="bold" w="45px" textAlign="right" color="black">
+                <Text fontSize="10px" fontWeight="bold" w="45px" textAlign="right" color={getBarColor(item.horas)}>
                   {formatHoras(item.horas)}
                 </Text>
               </Flex>

@@ -262,25 +262,25 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
   }, [reportId]);
 
   // Funções utilitárias para processamento de dados
-  const processarOperador = (operador: any) => {
+      const processarOperador = (operador: any) => {
     if (!operador || !operador.nome) return 'Não informado';
     return operador.nome;
-  };
+      };
 
-  const converterNumero = (valor: any) => {
+      const converterNumero = (valor: any) => {
     if (valor === undefined || valor === null) return 0;
     const numero = Number(valor);
     return isNaN(numero) ? 0 : numero;
   };
 
-  const processarPorcentagem = (valor: any) => {
-    const numero = converterNumero(valor);
+      const processarPorcentagem = (valor: any) => {
+        const numero = converterNumero(valor);
     return `${numero.toFixed(1)}%`;
   };
 
   // Função para imprimir o relatório
   const handlePrint = async () => {
-    window.print();
+      window.print();
   };
 
   // Funções para cálculos estatísticos
@@ -366,7 +366,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       color="black"
     >
       {title}
-    </Heading>
+      </Heading>
   );
 
   // Dados processados para os gráficos
@@ -409,159 +409,255 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       </Center>
     );
   }
-
-  // Componente principal
+  
+  // RENDERIZAÇÃO PRINCIPAL
   return (
-    <Box className="relatorio-container" bg="white" minH="100vh">
+    <Box 
+      className="relatorio-container" 
+      bg="white" 
+      p={0}
+      m={0}
+      sx={{
+        '@media print': {
+          bg: 'white',
+          m: '0 !important',
+          p: '0 !important',
+          '& > *': {
+            m: '0 !important',
+            p: '0 !important'
+          }
+        }
+      }}
+    >
       {/* Páginas do Relatório */}
-      <VStack spacing={8} className="paginas">
+      <VStack 
+        spacing={0} 
+        m={0}
+        p={0}
+        className="paginas"
+        sx={{
+          '@media screen': {
+            '& > *:not(:last-child)': {
+              mb: '2rem'
+            }
+          },
+          '@media print': {
+            m: '0 !important',
+            p: '0 !important',
+            '& > *': {
+              m: '0 !important',
+              p: '0 !important'
+            }
+          }
+        }}
+      >
         {/* Primeira Página */}
         <A4Colheita>
-          <PageHeader />
-          <VStack spacing={0} p={2}>
-            <SectionTitle title="Disponibilidade Mecânica" />
-            <Box w="100%" border="1px solid black" p={2} borderRadius="md" mb={2}>
-              <GraficoDisponibilidadeMecanicaTransbordo
-                data={dados.disponibilidade_mecanica}
-                meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
-              />
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader />
+            <Box flex="1" display="flex" flexDirection="column">
+              {/* Disponibilidade Mecânica */}
+              <Box flex="1" mb={2}>
+                <SectionTitle title="Disponibilidade Mecânica" />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 30px)"
+                  overflow="hidden"
+                >
+                  <GraficoDisponibilidadeMecanicaTransbordo
+                    data={dados.disponibilidade_mecanica}
+                    meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
+                  />
+                </Box>
+              </Box>
+              
+              {/* Eficiência Energética */}
+              <Box flex="1">
+                <SectionTitle title="Eficiência Energética" />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 30px)"
+                  overflow="hidden"
+                >
+                  <GraficoEficienciaEnergetica 
+                    data={dados.eficiencia_energetica}
+                    meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
+                  />
+                </Box>
+              </Box>
             </Box>
-
-            <SectionTitle title="Eficiência Energética" />
-            <Box w="100%" border="1px solid black" p={2} borderRadius="md">
-              <GraficoEficienciaEnergetica
-                data={dados.eficiencia_energetica}
-                meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
-              />
-            </Box>
-          </VStack>
+          </Box>
         </A4Colheita>
-
+              
         {/* Segunda Página */}
         <A4Colheita>
-          <PageHeader />
-          <VStack spacing={0} p={2}>
-            <SectionTitle title="Motor Ocioso" />
-            <Box w="100%" border="1px solid black" p={2} borderRadius="md" mb={2}>
-              <GraficoMotorOciosoTransbordo
-                data={dados.motor_ocioso}
-                meta={configManager.getMetas('transbordo_diario').motorOcioso}
-              />
-            </Box>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader />
+            <Box flex="1" display="flex" flexDirection="column">
+              {/* Motor Ocioso */}
+              <Box flex="1" mb={2}>
+                <SectionTitle title="Motor Ocioso" />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 30px)"
+                  overflow="hidden"
+                >
+                  <GraficoMotorOciosoTransbordo
+                    data={dados.motor_ocioso}
+                    meta={configManager.getMetas('transbordo_diario').motorOcioso}
+                  />
+                </Box>
+              </Box>
 
-            <SectionTitle title="Falta de Apontamento" />
-            <Box w="100%" border="1px solid black" p={2} borderRadius="md">
-              <GraficoFaltaApontamentoTransbordo
-                data={dados.falta_apontamento}
-                meta={configManager.getMetas('transbordo_diario').faltaApontamento}
-              />
+              {/* Falta de Apontamento */}
+              <Box flex="1">
+                <SectionTitle title="Falta de Apontamento" />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 30px)"
+                  overflow="hidden"
+                >
+                  <GraficoFaltaApontamentoTransbordo
+                    data={dados.falta_apontamento}
+                    meta={configManager.getMetas('transbordo_diario').faltaApontamento}
+                  />
+                </Box>
+              </Box>
             </Box>
-          </VStack>
+          </Box>
         </A4Colheita>
-
+              
         {/* Terceira Página */}
         <A4Colheita>
-          <PageHeader />
-          <VStack spacing={0} p={2}>
-            <SectionTitle title="Uso GPS" />
-            <Box w="100%" border="1px solid black" p={2} borderRadius="md">
-              <GraficoUsoGPS
-                data={dados.uso_gps}
-                meta={configManager.getMetas('transbordo_diario').usoGPS}
-              />
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader />
+            <Box flex="1" display="flex" flexDirection="column">
+              {/* Uso GPS */}
+              <Box flex="1">
+                <SectionTitle title="Uso GPS" />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 30px)"
+                  overflow="hidden"
+                >
+                  <GraficoUsoGPS 
+                    data={dados.uso_gps}
+                    meta={configManager.getMetas('transbordo_diario').usoGPS}
+                  />
+                </Box>
+              </Box>
             </Box>
-          </VStack>
+          </Box>
         </A4Colheita>
-
+        
         {/* Quarta Página - Resumo */}
         <A4Colheita>
-          <PageHeader />
-          <VStack spacing={0} p={2}>
-            <Heading
-              as="h1"
-              size="sm"
-              textAlign="center"
-              mb={4}
-              color="black"
-              fontWeight="bold"
-              fontSize="15px"
-            >
-              Resumo do Relatório de Transbordo Diário
-            </Heading>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader />
+            <Box flex="1" display="flex" flexDirection="column" p={4}>
+              <Heading
+                as="h1"
+                size="sm"
+                textAlign="center"
+                mb={4}
+                color="black"
+                fontWeight="bold"
+                fontSize="15px"
+              >
+                Resumo do Relatório de Transbordo Diário
+              </Heading>
 
-            {/* Seção Frotas */}
-            <Box w="100%" mb={4}>
-              <Text fontSize="13px" fontWeight="bold" color="black" mb={2} textAlign="center">
-                Frotas
-              </Text>
-              <SimpleGrid columns={2} spacing={4} w="100%" mb={4}>
-                <IndicatorCard
-                  title="Disponibilidade Mecânica"
-                  value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
-                  meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
-                  acimaMeta={{
-                    quantidade: contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica),
-                    total: dados.disponibilidade_mecanica.length,
-                    percentual: (contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica) / dados.disponibilidade_mecanica.length) * 100
-                  }}
-                />
-              </SimpleGrid>
+              {/* Seção Frotas */}
+              <Box mb={4}>
+                <Text fontSize="13px" fontWeight="bold" color="black" mb={2} textAlign="center">
+                  Frotas
+                </Text>
+                <SimpleGrid columns={2} spacing={4} w="100%" mb={4}>
+                  <IndicatorCard
+                    title="Disponibilidade Mecânica"
+                    value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
+                    meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica),
+                      total: dados.disponibilidade_mecanica.length,
+                      percentual: (contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica) / dados.disponibilidade_mecanica.length) * 100
+                    }}
+                  />
+                </SimpleGrid>
+              </Box>
+
+              {/* Seção Operadores */}
+              <Box flex="1">
+                <Text fontSize="13px" fontWeight="bold" color="black" mb={2} textAlign="center">
+                  Operadores
+                </Text>
+                <SimpleGrid columns={2} spacing={4} w="100%" mb={4}>
+                  <IndicatorCard
+                    title="Eficiência Energética"
+                    value={calcularMedia(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia')}
+                    meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica),
+                      total: dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica) / dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                    }}
+                  />
+                  <IndicatorCard
+                    title="Motor Ocioso"
+                    value={calcularMedia(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
+                    meta={configManager.getMetas('transbordo_diario').motorOcioso}
+                    isInverted={true}
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, false),
+                      total: dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, false) / dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                    }}
+                  />
+                  <IndicatorCard
+                    title="Falta de Apontamento"
+                    value={calcularMedia(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
+                    meta={configManager.getMetas('transbordo_diario').faltaApontamento}
+                    isInverted={true}
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, false),
+                      total: dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, false) / dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                    }}
+                  />
+                  <IndicatorCard
+                    title="Uso GPS"
+                    value={calcularMedia(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem')}
+                    meta={configManager.getMetas('transbordo_diario').usoGPS}
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS),
+                      total: dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS) / dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                    }}
+                  />
+                </SimpleGrid>
+
+                {/* Tabela de Operadores */}
+                <Box>
+                  <TabelaOperadores dados={dados} />
+                </Box>
+              </Box>
             </Box>
-
-            {/* Seção Operadores */}
-            <Box w="100%">
-              <Text fontSize="13px" fontWeight="bold" color="black" mb={2} textAlign="center">
-                Operadores
-              </Text>
-              <SimpleGrid columns={2} spacing={4} w="100%" mb={4}>
-                <IndicatorCard
-                  title="Eficiência Energética"
-                  value={calcularMedia(dados.eficiencia_energetica, 'eficiencia')}
-                  meta={60}
-                  acimaMeta={{
-                    quantidade: contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', 60),
-                    total: dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                    percentual: (contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', 60) / dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                  }}
-                />
-                <IndicatorCard
-                  title="Motor Ocioso"
-                  value={calcularMedia(dados.motor_ocioso, 'percentual')}
-                  meta={25}
-                  isInverted={true}
-                  acimaMeta={{
-                    quantidade: contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', 25, false),
-                    total: dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                    percentual: (contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', 25, false) / dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                  }}
-                />
-                <IndicatorCard
-                  title="Falta de Apontamento"
-                  value={calcularMedia(dados.falta_apontamento, 'percentual')}
-                  meta={25}
-                  isInverted={true}
-                  acimaMeta={{
-                    quantidade: contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', 25, false),
-                    total: dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                    percentual: (contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', 25, false) / dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                  }}
-                />
-                <IndicatorCard
-                  title="Uso GPS"
-                  value={calcularMedia(dados.uso_gps, 'porcentagem')}
-                  meta={configManager.getMetas('transbordo_diario').usoGPS}
-                  acimaMeta={{
-                    quantidade: contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS),
-                    total: dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                    percentual: (contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS) / dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                  }}
-                />
-              </SimpleGrid>
-
-              {/* Tabela de Operadores */}
-              <TabelaOperadores dados={dados} />
-            </Box>
-          </VStack>
+          </Box>
         </A4Colheita>
       </VStack>
     </Box>

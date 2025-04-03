@@ -17,6 +17,7 @@ interface GraficoIndicadorColheitaProps {
   fonte: string;
   onFonteChange: (newFonte: string) => void;
   formatValue?: (value: number) => string;
+  isInverted?: boolean;
 }
 
 export const GraficoIndicadorColheita: React.FC<GraficoIndicadorColheitaProps> = ({
@@ -27,12 +28,28 @@ export const GraficoIndicadorColheita: React.FC<GraficoIndicadorColheitaProps> =
   unit,
   fonte,
   onFonteChange,
-  formatValue = (value) => `${value.toFixed(2)}${unit}`
+  formatValue = (value) => `${value.toFixed(2)}${unit}`,
+  isInverted = false
 }) => {
   const chartData = data.map(item => ({
     frota: item.frota,
     valor: item.valor
   }));
+
+  // Define as cores com base no valor
+  const getColor = (value: number) => {
+    if (isInverted) {
+      // Para métricas onde menor é melhor (TDH, Diesel, Impureza Vegetal)
+      if (value <= meta) return '#48BB78'; // verde para abaixo da meta
+      if (value <= meta * 1.2) return '#ECC94B'; // amarelo para próximo da meta
+      return '#E53E3E'; // vermelho para acima da meta
+    } else {
+      // Para métricas onde maior é melhor (Disponibilidade, Eficiência, etc)
+      if (value >= meta) return '#48BB78'; // verde para acima da meta
+      if (value >= meta * 0.8) return '#ECC94B'; // amarelo para próximo da meta
+      return '#E53E3E'; // vermelho para abaixo da meta
+    }
+  };
 
   return (
     <Box width="100%" height="100%" p={4}>
@@ -50,12 +67,12 @@ export const GraficoIndicadorColheita: React.FC<GraficoIndicadorColheitaProps> =
           formatter={(value: number) => [formatValue(value), 'Valor']}
           labelFormatter={(label) => `Frota: ${label}`}
         />
-        <ReferenceLine y={meta} stroke="red" strokeDasharray="3 3" />
+        <ReferenceLine y={meta} stroke="rgba(0,0,0,0.7)" strokeDasharray="3 3" />
         <Bar dataKey="valor" fill={color}>
           {chartData.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={entry.valor >= meta ? "green.500" : entry.valor >= meta * 0.8 ? "yellow.500" : "red.500"}
+              fill={getColor(entry.valor)}
             />
           ))}
           <LabelList 
@@ -63,7 +80,7 @@ export const GraficoIndicadorColheita: React.FC<GraficoIndicadorColheitaProps> =
             position="top" 
             formatter={(value: number) => formatValue(value)}
             style={{ 
-              fill: (value: number) => value >= meta ? "green.500" : value >= meta * 0.8 ? "yellow.500" : "red.500",
+              fill: "#000000",
               fontSize: "10px",
               fontWeight: "bold"
             }}
