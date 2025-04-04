@@ -130,7 +130,12 @@
       ],
       "metas": {
         "tdh": 0.019,
-        "diesel": 9
+        "diesel": 9,        
+        "disponibilidadeMecanica": 90,
+        "eficienciaEnergetica": 65,
+        "motorOcioso": 6,
+        "faltaApontamento": 10,
+        "usoGPS": 90
       },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",

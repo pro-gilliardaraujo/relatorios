@@ -380,7 +380,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
   };
 
   // Componentes de layout
-  const PageHeader = () => {
+  const PageHeader = ({ showDate = true }: { showDate?: boolean }) => {
     // Encontrar o nome completo da frente no config
     const frenteConfig = configManager.getFrentes('transbordo_diario').find((f: { id: string }) => f.id === reportData?.frente);
     const nomeFrente = frenteConfig?.nome || reportData?.frente || 'Exemplo';
@@ -397,9 +397,11 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           <Heading size="md" color="black" fontWeight="bold" textAlign="center">
             {`Relatório de Transbordo Diário - ${nomeFrente}`}
           </Heading>
-          <Text color="black" fontSize="sm">
-            {reportData?.data ? formatarData(reportData.data) : currentDate}
-          </Text>
+          {showDate && (
+            <Text color="black" fontSize="sm">
+              {reportData?.data ? formatarData(reportData.data) : currentDate}
+            </Text>
+          )}
         </VStack>
         <Image 
           src={LOGO_URL} 

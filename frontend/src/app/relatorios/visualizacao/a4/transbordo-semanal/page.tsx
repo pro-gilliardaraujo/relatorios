@@ -19,6 +19,7 @@ import RelatorioColheitaDiarioResumo from '@/components/RelatorioColheitaDiarioR
 import IndicatorCard from '@/components/IndicatorCard';
 import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
+import { DateRangeDisplay } from '@/components/DateRangeDisplay';
 
 // Dados de exemplo para visualização offline
 const dadosExemplo: DadosProcessados = {
@@ -167,6 +168,8 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   const [error, setError] = useState<string | null>(null);
   const [useExampleData, setUseExampleData] = useState<boolean>(false);
   const [nomeFrente, setNomeFrente] = useState<string>('');
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
   
   // Função para formatar a data no padrão brasileiro
   const formatarData = (data: string) => {
@@ -240,6 +243,15 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
 
             setReportData(report);
             setNomeFrente(report.frente || ''); // Atualiza o nome da frente
+            
+            // Definir datas de início e fim
+            if (report.start_date) {
+              setStartDate(new Date(report.start_date));
+            }
+            if (report.end_date) {
+              setEndDate(new Date(report.end_date));
+            }
+            
             setLoading(false);
             setUseExampleData(false);
 
@@ -410,7 +422,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   };
 
   // Componentes de layout
-  const PageHeader = () => {
+  const PageHeader = ({ showDate = false }: { showDate?: boolean }) => {
     // Encontrar o nome completo da frente no config
     const frenteConfig = configManager.getFrentes('transbordo_semanal').find((f: { id: string }) => f.id === reportData?.frente);
     const nomeFrente = frenteConfig?.nome || reportData?.frente || 'Exemplo';
@@ -427,9 +439,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           <Heading size="md" color="black" fontWeight="bold" textAlign="center">
             {`Relatório de Transbordo Semanal - ${nomeFrente}`}
           </Heading>
-          <Text color="black" fontSize="sm">
-            {reportData?.data ? formatarData(reportData.data) : currentDate}
-          </Text>
+          {showDate && <DateRangeDisplay startDate={startDate} endDate={endDate} />}
         </VStack>
         <Image 
           src={LOGO_URL} 
@@ -541,7 +551,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         {/* Primeira Página - TDH e Diesel */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
+            <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
               {/* TDH */}
               <Box flex="1" mb={2}>
@@ -699,7 +709,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         {/* Quinta Página - Resumo */}
         <A4Colheita isLastPage={true}>
           <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
+            <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column" p={3}>
               <Heading
                 as="h1"
