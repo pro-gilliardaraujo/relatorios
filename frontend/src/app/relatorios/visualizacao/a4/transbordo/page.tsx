@@ -268,15 +268,18 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       };
 
       const converterNumero = (valor: any) => {
-    if (valor === undefined || valor === null) return 0;
-    const numero = Number(valor);
-    return isNaN(numero) ? 0 : numero;
-  };
+        if (typeof valor === 'number') return valor;
+        if (typeof valor === 'string') {
+          const parsedValue = parseFloat(valor);
+          return isNaN(parsedValue) ? 0 : parsedValue;
+        }
+        return 0;
+      };
 
       const processarPorcentagem = (valor: any) => {
         const numero = converterNumero(valor);
-    return `${numero.toFixed(1)}%`;
-  };
+        return numero * 100; // Converter para porcentagem sem arredondar
+      };
 
   // Função para imprimir o relatório
   const handlePrint = async () => {
@@ -287,17 +290,69 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
     if (!array || array.length === 0) return 0;
     
-    const valores = array
-      .map(item => {
-        const valor = item[propriedade];
-        return typeof valor === 'number' ? valor : 0;
-      })
-      .filter(valor => !isNaN(valor));
+    // Log de entrada para debug
+    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`, 
+      array.map(item => ({
+        id: item.frota || item.nome || 'desconhecido',
+        valor: item[propriedade]
+      }))
+    );
     
-    if (valores.length === 0) return 0;
+    // Filtrar apenas itens com valores válidos
+    const itensFiltrados = array.filter(item => {
+      if (!item) return false;
+      
+      // Verificação adicional para garantir que o valor existe e é válido
+      const valorExiste = item[propriedade] !== undefined && item[propriedade] !== null;
+      
+      // Para disponibilidade, verificar se tem frota
+      if (propriedade === 'disponibilidade') {
+        return item.frota && item.frota.trim() !== '' && valorExiste;
+      }
+      
+      // Para outros, verificar se tem nome de operador (exceto se for valor de frota)
+      if (item.frota) {
+        return item.frota.trim() !== '' && valorExiste;
+      } else {
+        return item.nome && item.nome.trim() !== '' && valorExiste;
+      }
+    });
     
-    const soma = valores.reduce((acc, curr) => acc + curr, 0);
-    return soma / valores.length;
+    // Log para depuração dos itens filtrados
+    console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
+    
+    // Se não há itens válidos, retorna zero
+    if (itensFiltrados.length === 0) return 0;
+    
+    // Convertendo cada valor para número com cuidado para preservar valores pequenos
+    const valores = itensFiltrados.map(item => {
+      const valor = item[propriedade];
+      // Garantir que valores como "0.01" sejam preservados como 0.01 e não convertidos para 0
+      if (typeof valor === 'string') {
+        return parseFloat(valor);
+      }
+      return typeof valor === 'number' ? valor : 0;
+    });
+    
+    // Log individual de cada valor para debug
+    valores.forEach((valor, index) => {
+      console.log(`📊 Valor[${index}] para média de "${propriedade}": ${valor} (${typeof valor})`);
+    });
+    
+    // Calculando a soma manualmente para garantir precisão com números pequenos
+    let soma = 0;
+    for (let i = 0; i < valores.length; i++) {
+      soma += valores[i];
+    }
+    
+    // Calcular média com alta precisão
+    const media = soma / valores.length;
+    
+    // Log para depuração da soma e média calculada
+    console.log(`📊 Soma para "${propriedade}": ${soma}, Itens: ${valores.length}, Média: ${media}`);
+    
+    // Retorna a média calculada sem arredondar
+    return media;
   };
 
   const calcularTotal = (array: any[] | undefined, propriedade: string): number => {
@@ -425,7 +480,9 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           '& > *': {
             m: '0 !important',
             p: '0 !important'
-          }
+          },
+          breakAfter: 'avoid !important',
+          pageBreakAfter: 'avoid !important'
         }
       }}
     >
@@ -566,7 +623,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         </A4Colheita>
         
         {/* Quarta Página - Resumo */}
-        <A4Colheita>
+        <A4Colheita isLastPage={true}>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader />
             <Box flex="1" display="flex" flexDirection="column" p={4}>
@@ -592,13 +649,35 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     title="Disponibilidade Mecânica"
                     value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
                     meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica),
-                      total: dados.disponibilidade_mecanica.length,
-                      percentual: (contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica) / dados.disponibilidade_mecanica.length) * 100
-                    }}
+                    unitType="porcentagem"
                   />
                 </SimpleGrid>
+                
+                {/* Tabela de Frotas */}
+                <Box mb={4}>
+                  <TabelaFrotas 
+                    dados={dados.disponibilidade_mecanica} 
+                    tipo="transbordo_diario"
+                    dadosAdicionais={{
+                      eficiencia_energetica: dados.eficiencia_energetica.map((item: { id: string; eficiencia: number }) => ({
+                        frota: item.id,
+                        valor: item.eficiencia
+                      })),
+                      motor_ocioso: dados.motor_ocioso.map((item: { id: string; percentual: number }) => ({
+                        frota: item.id,
+                        valor: item.percentual
+                      })),
+                      falta_apontamento: dados.falta_apontamento.map((item: { id: string; percentual: number }) => ({
+                        frota: item.id,
+                        valor: item.percentual
+                      })),
+                      uso_gps: dados.uso_gps.map((item: { id: string; porcentagem: number }) => ({
+                        frota: item.id,
+                        valor: item.porcentagem
+                      }))
+                    }}
+                  />
+                </Box>
               </Box>
 
               {/* Seção Operadores */}
@@ -611,6 +690,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     title="Eficiência Energética"
                     value={calcularMedia(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia')}
                     meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
+                    unitType="porcentagem"
                     acimaMeta={{
                       quantidade: contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica),
                       total: dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
@@ -622,6 +702,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     value={calcularMedia(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
                     meta={configManager.getMetas('transbordo_diario').motorOcioso}
                     isInverted={true}
+                    unitType="porcentagem"
                     acimaMeta={{
                       quantidade: contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, false),
                       total: dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
@@ -633,6 +714,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     value={calcularMedia(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
                     meta={configManager.getMetas('transbordo_diario').faltaApontamento}
                     isInverted={true}
+                    unitType="porcentagem"
                     acimaMeta={{
                       quantidade: contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, false),
                       total: dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
@@ -643,6 +725,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     title="Uso GPS"
                     value={calcularMedia(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem')}
                     meta={configManager.getMetas('transbordo_diario').usoGPS}
+                    unitType="porcentagem"
                     acimaMeta={{
                       quantidade: contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS),
                       total: dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
@@ -653,7 +736,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
 
                 {/* Tabela de Operadores */}
                 <Box>
-                  <TabelaOperadores dados={dados} />
+                  <TabelaOperadores dados={dados} tipo="transbordo_diario" />
                 </Box>
               </Box>
             </Box>

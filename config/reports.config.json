@@ -23,11 +23,11 @@
         "5_Uso GPS"
       ],
       "colunas_excel": {
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade"],
-        "eficiencia_energetica": ["Operador", "Eficiência"],
-        "motor_ocioso": ["Operador", "Porcentagem"],
-        "hora_elevador": ["Operador", "Horas"],
-        "uso_gps": ["Operador", "Porcentagem"]
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
+        "hora_elevador": ["Operador", "Horas", "horas"],
+        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -66,14 +66,14 @@
         "8_Uso GPS"
       ],
       "colunas_excel": {
-        "tdh": ["Frota", "TDH"],
-        "diesel": ["Frota", "Diesel"],
-        "impureza_vegetal": ["Frota", "Impureza"],
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade"],
-        "eficiencia_energetica": ["Operador", "Eficiência"],
-        "motor_ocioso": ["Operador", "Porcentagem"],
-        "hora_elevador": ["Operador", "Horas"],
-        "uso_gps": ["Operador", "Porcentagem"]
+        "tdh": ["Frota", "TDH", "decimal"],
+        "diesel": ["Frota", "Diesel", "decimal"],
+        "impureza_vegetal": ["Frota", "Impureza", "porcentagem"],
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
+        "hora_elevador": ["Operador", "Horas", "horas"],
+        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -106,11 +106,11 @@
         "5_Uso GPS"
       ],
       "colunas_excel": {
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade"],
-        "eficiencia_energetica": ["Operador", "Eficiência"],
-        "motor_ocioso": ["Operador", "Porcentagem"],
-        "falta_apontamento": ["Operador", "Porcentagem"],
-        "uso_gps": ["Operador", "Porcentagem"]
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
+        "falta_apontamento": ["Operador", "Porcentagem", "porcentagem"],
+        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -142,13 +142,13 @@
         "7_Uso GPS"
       ],
       "colunas_excel": {
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade"],
-        "tdh": ["Frota", "TDH"],
-        "diesel": ["Frota", "Diesel"],
-        "eficiencia_energetica": ["Operador", "Eficiência"],
-        "motor_ocioso": ["Operador", "Porcentagem"],
-        "falta_apontamento": ["Operador", "Porcentagem"],
-        "uso_gps": ["Operador", "Porcentagem"]
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
+        "tdh": ["Frota", "TDH", "decimal"],
+        "diesel": ["Frota", "Diesel", "decimal"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
+        "falta_apontamento": ["Operador", "Porcentagem", "porcentagem"],
+        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,

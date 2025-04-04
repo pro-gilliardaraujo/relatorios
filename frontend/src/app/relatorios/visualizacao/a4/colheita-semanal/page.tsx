@@ -18,6 +18,9 @@ import { GraficoImpurezaVegetal } from '@/components/Charts/Colheita/Semanal/Gra
 import { DateRangeDisplay } from '@/components/DateRangeDisplay';
 import { useReportData } from '@/hooks/useReportData';
 import RelatorioColheitaSemanalResumo, { ResumoData, MetricData, FrotaData, OperadorData } from '@/components/RelatorioColheitaSemanalResumo';
+import TabelaOperadores from '@/components/TabelaOperadores';
+import TabelaFrotas from '@/components/TabelaFrotas';
+import IndicatorCard from '@/components/IndicatorCard';
 
 // Dados de exemplo para visualização offline
 const dadosExemplo = {
@@ -116,39 +119,6 @@ const SectionTitle = ({ title, centered = true }: { title: string; centered?: bo
     {title}
   </Heading>
 );
-
-// Componente para card de indicador
-const IndicatorCard = ({ title, value, meta, isInverted = false, acimaMeta }: { 
-  title: string; 
-  value: number; 
-  meta: number; 
-  isInverted?: boolean;
-  acimaMeta?: { quantidade: number; total: number; percentual: number; }
-}) => {
-  const isAboveTarget = isInverted ? value <= meta : value >= meta;
-  const metaText = acimaMeta ? `${acimaMeta.quantidade} de ${acimaMeta.total} atingiram a meta (${((acimaMeta.quantidade/acimaMeta.total) * 100).toFixed(0)}%)` : '';
-  
-  return (
-    <Box borderWidth="1px" borderColor="black" borderRadius="md" p={3} bg="white">
-      <Text fontSize="sm" fontWeight="bold" mb={1} color="black">{title}</Text>
-      <Flex direction="row" align="center" justify="space-between">
-        <Text fontSize="md" fontWeight="bold" color="green.500">{meta}%</Text>
-        {metaText && (
-          <Text 
-            fontSize="xs" 
-            color={isAboveTarget ? "green.500" : "red.500"} 
-            textAlign="center"
-            mx={2}
-            flex={1}
-          >
-            {metaText}
-          </Text>
-        )}
-        <Text fontSize="md" fontWeight="bold" color={isAboveTarget ? "green.500" : "red.500"}>{value.toFixed(1)}%</Text>
-      </Flex>
-    </Box>
-  );
-};
 
 interface DataItem {
   frota?: string;
@@ -330,15 +300,15 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
     // Função auxiliar para converter número
     const converterNumero = (valor: any) => {
-      if (typeof valor === 'number') return Number(valor.toFixed(2));
-      if (typeof valor === 'string') return Number(parseFloat(valor).toFixed(2));
+      if (typeof valor === 'number') return valor;
+      if (typeof valor === 'string') return parseFloat(valor);
       return 0;
     };
 
     // Função auxiliar para processar porcentagem
     const processarPorcentagem = (valor: any) => {
       const numero = converterNumero(valor);
-      return Number((numero * 100).toFixed(2)); // Converter para porcentagem e fixar 2 casas decimais
+      return numero * 100; // Converter para porcentagem sem arredondar
     };
 
     // Garantir que os dados estejam no formato correto
@@ -534,24 +504,70 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
     if (!array || array.length === 0) return 0;
     
-    // Filtrar apenas itens que têm operador/frota preenchidos
+    // Log de entrada para debug
+    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens:`, 
+      array.map(item => ({
+        id: item.frota || item.nome || 'desconhecido',
+        valor: item[propriedade]
+      }))
+    );
+    
+    // Filtrar apenas itens que têm operador/frota preenchidos e valores válidos
     const itensFiltrados = array.filter(item => {
       if (!item) return false;
       
+      // Verificação adicional para garantir que o valor existe e é válido
+      const valorExiste = item[propriedade] !== undefined && item[propriedade] !== null;
+      
       // Para disponibilidade, verificar se tem frota
       if (propriedade === 'disponibilidade') {
-        return item.frota && item.frota.trim() !== '';
+        return item.frota && item.frota.trim() !== '' && valorExiste;
+      }
+      
+      // Para valor (TDH, diesel, impureza)
+      if (propriedade === 'valor') {
+        return item.frota && item.frota.trim() !== '' && valorExiste;
       }
       
       // Para outros, verificar se tem nome de operador
-      return item.nome && item.nome.trim() !== '';
+      return item.nome && item.nome.trim() !== '' && valorExiste;
     });
+    
+    // Log para depuração dos itens filtrados
+    console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
     
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) return 0;
     
-    // Calcula a média apenas dos itens com operador/frota válidos
-    return itensFiltrados.reduce((acc: number, item: any) => acc + Number(item[propriedade] || 0), 0) / itensFiltrados.length;
+    // Convertendo cada valor para número com cuidado para preservar valores pequenos
+    const valores = itensFiltrados.map(item => {
+      const valor = item[propriedade];
+      // Garantir que valores como "0.01" sejam preservados como 0.01 e não convertidos para 0
+      if (typeof valor === 'string') {
+        return parseFloat(valor);
+      }
+      return typeof valor === 'number' ? valor : 0;
+    });
+    
+    // Log individual de cada valor para debug
+    valores.forEach((valor, index) => {
+      console.log(`📊 Valor[${index}] para média de "${propriedade}": ${valor} (${typeof valor})`);
+    });
+    
+    // Calculando a soma manualmente para garantir precisão com números pequenos
+    let soma = 0;
+    for (let i = 0; i < valores.length; i++) {
+      soma += valores[i];
+    }
+    
+    // Calcular média com alta precisão
+    const media = soma / valores.length;
+    
+    // Log para depuração da soma e média calculada
+    console.log(`📊 Soma para "${propriedade}": ${soma}, Itens: ${valores.length}, Média: ${media}`);
+    
+    // Retorna a média calculada sem arredondar
+    return media;
   };
 
   // Função para calcular total
@@ -976,7 +992,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       </A4Colheita>
       
       {/* Página 4 - Resumo */}
-      <A4Colheita>
+      <A4Colheita isLastPage={true}>
         <Box h="100%" display="flex" flexDirection="column" bg="white">
           <PageHeader showDate={false} />
           
@@ -984,18 +1000,19 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {/* Título Principal do Resumo */}
             <Heading
               as="h1"
-              size="md"
+              size="sm"
               textAlign="center"
-              mb={6}
+              mb={4}
               color="black"
               fontWeight="bold"
+              fontSize="15px"
             >
               Resumo do Relatório de Colheita Semanal
             </Heading>
 
             {/* Seção Frotas */}
             <Box mb={6}>
-              <SectionTitle title="Resumo" centered={true} />
+              <SectionTitle title="Frotas" centered={true} />
               
               {/* Cards de indicadores de frotas */}
               <SimpleGrid columns={2} spacing={4} mb={4}>
@@ -1004,39 +1021,64 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   value={processarDadosResumo(reportData ?? dadosExemplo).tdh?.media ?? 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).tdh?.meta ?? 0}
                   isInverted={true}
+                  unitType="decimal"
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).tdh?.acimaMeta}
                 />
                 <IndicatorCard 
                   title="Consumo de Diesel"
                   value={processarDadosResumo(reportData ?? dadosExemplo).diesel?.media ?? 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).diesel?.meta ?? 0}
                   isInverted={true}
+                  unitType="decimal"
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).diesel?.acimaMeta}
                 />
                 <IndicatorCard 
                   title="Disponibilidade Mecânica"
                   value={processarDadosResumo(reportData ?? dadosExemplo).disponibilidadeMecanica?.media ?? 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).disponibilidadeMecanica?.meta ?? 0}
-                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).disponibilidadeMecanica?.acimaMeta ?? { quantidade: 0, total: 0, percentual: 0 }}
+                  unitType="porcentagem"
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).disponibilidadeMecanica?.acimaMeta}
                 />
                 <IndicatorCard 
                   title="Impureza Vegetal"
                   value={processarDadosResumo(reportData ?? dadosExemplo).impurezaVegetal?.media ?? 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).impurezaVegetal?.meta ?? 0}
                   isInverted={true}
+                  unitType="porcentagem"
+                  acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).impurezaVegetal?.acimaMeta}
                 />
               </SimpleGrid>
 
+              {/* Tabela de frotas */}
+              <TabelaFrotas 
+                dados={reportData ? reportData.dados.disponibilidade_mecanica : dadosExemplo.disponibilidade_mecanica} 
+                tipo="colheita_semanal" 
+                dadosCompletos={{
+                  tdh: reportData ? reportData.dados.tdh : dadosExemplo.tdh,
+                  diesel: reportData ? reportData.dados.diesel : dadosExemplo.diesel,
+                  impureza_vegetal: reportData ? reportData.dados.impureza_vegetal : dadosExemplo.impureza_vegetal
+                }}
+              />
+            </Box>
+
+            {/* Seção Operadores */}
+            <Box>
+              <SectionTitle title="Operadores" centered={true} />
+              
               {/* Cards de indicadores de operadores */}
               <SimpleGrid columns={2} spacing={4} mb={4}>
                 <IndicatorCard 
                   title="Eficiência Energética"
                   value={processarDadosResumo(reportData ?? dadosExemplo).eficienciaEnergetica.media || 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).eficienciaEnergetica.meta || 0}
+                  unitType="porcentagem"
                   acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).eficienciaEnergetica.acimaMeta}
                 />
                 <IndicatorCard 
                   title="Horas Elevador"
                   value={processarDadosResumo(reportData ?? dadosExemplo).horaElevador.media || 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).horaElevador.meta || 0}
+                  unitType="horas"
                   acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).horaElevador.acimaMeta}
                 />
                 <IndicatorCard 
@@ -1044,18 +1086,29 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   value={processarDadosResumo(reportData ?? dadosExemplo).motorOcioso.media || 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).motorOcioso.meta || 0}
                   isInverted={true}
+                  unitType="porcentagem"
                   acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).motorOcioso.acimaMeta}
                 />
                 <IndicatorCard 
                   title="Uso GPS"
                   value={processarDadosResumo(reportData ?? dadosExemplo).usoGPS.media || 0}
                   meta={processarDadosResumo(reportData ?? dadosExemplo).usoGPS.meta || 0}
+                  unitType="porcentagem"
                   acimaMeta={processarDadosResumo(reportData ?? dadosExemplo).usoGPS.acimaMeta}
                 />
               </SimpleGrid>
 
-              {/* Tabelas de resumo */}
-              <RelatorioColheitaSemanalResumo data={processarDadosResumo(reportData ?? dadosExemplo)} />
+              {/* Tabela de operadores */}
+              <TabelaOperadores dados={{
+                eficiencia_energetica: reportData ? reportData.dados.eficiencia_energetica : dadosExemplo.eficiencia_energetica,
+                motor_ocioso: reportData ? reportData.dados.motor_ocioso : dadosExemplo.motor_ocioso,
+                falta_apontamento: (reportData ? reportData.dados.hora_elevador : dadosExemplo.hora_elevador).map((item: any) => ({
+                  id: item.id,
+                  nome: item.nome,
+                  percentual: item.horas
+                })),
+                uso_gps: reportData ? reportData.dados.uso_gps : dadosExemplo.uso_gps
+              }} tipo="colheita_semanal" />
             </Box>
           </Box>
         </Box>

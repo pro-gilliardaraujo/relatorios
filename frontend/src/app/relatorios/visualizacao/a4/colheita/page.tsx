@@ -15,6 +15,8 @@ import { FaPrint } from 'react-icons/fa';
 import { configManager } from '@/utils/config';
 import RelatorioColheitaDiarioResumo from '@/components/RelatorioColheitaDiarioResumo';
 import IndicatorCard from '@/components/IndicatorCard';
+import TabelaOperadores from '@/components/TabelaOperadores';
+import TabelaFrotas from '@/components/TabelaFrotas';
 
 // Dados de exemplo para visualização offline
 const dadosExemplo: DadosProcessados = {
@@ -312,15 +314,15 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
       // Função auxiliar para converter número
       const converterNumero = (valor: any) => {
-        if (typeof valor === 'number') return Number(valor.toFixed(2));
-        if (typeof valor === 'string') return Number(parseFloat(valor).toFixed(2));
+        if (typeof valor === 'number') return valor;
+        if (typeof valor === 'string') return parseFloat(valor);
         return 0;
       };
 
       // Função auxiliar para processar porcentagem
       const processarPorcentagem = (valor: any) => {
         const numero = converterNumero(valor);
-        return Number((numero * 100).toFixed(2)); // Converter para porcentagem e fixar 2 casas decimais
+        return numero * 100; // Converter para porcentagem sem arredondar
       };
 
       // Garantir que os dados estejam no formato correto
@@ -532,24 +534,70 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
     if (!array || array.length === 0) return 0;
     
-    // Filtrar apenas itens que têm operador/frota preenchidos
+    // Log de entrada para debug
+    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens:`, 
+      array.map(item => ({
+        id: item.frota || item.nome || 'desconhecido',
+        valor: item[propriedade]
+      }))
+    );
+    
+    // Filtrar apenas itens com valores válidos
     const itensFiltrados = array.filter(item => {
       if (!item) return false;
       
+      // Verificação adicional para garantir que o valor existe e é válido
+      const valorExiste = item[propriedade] !== undefined && item[propriedade] !== null;
+      
       // Para disponibilidade, verificar se tem frota
       if (propriedade === 'disponibilidade') {
-        return item.frota && item.frota.trim() !== '';
+        return item.frota && item.frota.trim() !== '' && valorExiste;
+      }
+      
+      // Para valor (TDH, diesel, impureza)
+      if (propriedade === 'valor') {
+        return item.frota && item.frota.trim() !== '' && valorExiste;
       }
       
       // Para outros, verificar se tem nome de operador
-      return item.nome && item.nome.trim() !== '';
+      return item.nome && item.nome.trim() !== '' && valorExiste;
     });
+    
+    // Log para depuração dos itens filtrados
+    console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
     
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) return 0;
     
-    // Calcula a média apenas dos itens com operador/frota válidos
-    return itensFiltrados.reduce((acc: number, item: any) => acc + Number(item[propriedade] || 0), 0) / itensFiltrados.length;
+    // Convertendo cada valor para número com cuidado para preservar valores pequenos
+    const valores = itensFiltrados.map(item => {
+      const valor = item[propriedade];
+      // Garantir que valores como "0.01" sejam preservados como 0.01 e não convertidos para 0
+      if (typeof valor === 'string') {
+        return parseFloat(valor);
+      }
+      return typeof valor === 'number' ? valor : 0;
+    });
+    
+    // Log individual de cada valor para debug
+    valores.forEach((valor, index) => {
+      console.log(`📊 Valor[${index}] para média de "${propriedade}": ${valor} (${typeof valor})`);
+    });
+    
+    // Calculando a soma manualmente para garantir precisão com números pequenos
+    let soma = 0;
+    for (let i = 0; i < valores.length; i++) {
+      soma += valores[i];
+    }
+    
+    // Calcular média com alta precisão
+    const media = soma / valores.length;
+    
+    // Log para depuração da soma e média calculada
+    console.log(`📊 Soma para "${propriedade}": ${soma}, Itens: ${valores.length}, Média: ${media}`);
+    
+    // Retorna a média calculada sem arredondar
+    return media;
   };
 
   // Função para calcular total
@@ -873,19 +921,20 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         </A4Colheita>
         
         {/* Página 3 - Resumo Geral */}
-        <A4Colheita>
+        <A4Colheita isLastPage={true}>
           <Box h="100%" display="flex" flexDirection="column" bg="white">
             <PageHeader />
             
-            <Box flex="1" p={4}>
+            <Box p={4} flex="1">
               {/* Título Principal do Resumo */}
               <Heading
                 as="h1"
-                size="md"
+                size="sm"
                 textAlign="center"
-                mb={6}
+                mb={4}
                 color="black"
                 fontWeight="bold"
+                fontSize="15px"
               >
                 Resumo do Relatório de Colheita Diário
               </Heading>
@@ -900,12 +949,10 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                     title="Disponibilidade Mecânica"
                     value={resumoData.disponibilidadeMecanica.media || 0}
                     meta={resumoData.disponibilidadeMecanica.meta || 0}
+                    unitType="porcentagem"
                     acimaMeta={resumoData.disponibilidadeMecanica.acimaMeta}
                   />
                 </SimpleGrid>
-
-                {/* Tabela de frotas */}
-                <RelatorioColheitaDiarioResumo data={resumoData} showFrotasOnly={true} />
               </Box>
 
               {/* Seção Operadores */}
@@ -918,12 +965,14 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                     title="Eficiência Energética"
                     value={resumoData.eficienciaEnergetica.media || 0}
                     meta={resumoData.eficienciaEnergetica.meta || 0}
+                    unitType="porcentagem"
                     acimaMeta={resumoData.eficienciaEnergetica.acimaMeta}
                   />
                   <IndicatorCard 
                     title="Horas Elevador"
                     value={resumoData.horaElevador.media || 0}
                     meta={resumoData.horaElevador.meta || 0}
+                    unitType="horas"
                     acimaMeta={resumoData.horaElevador.acimaMeta}
                   />
                   <IndicatorCard 
@@ -931,18 +980,29 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                     value={resumoData.motorOcioso.media || 0}
                     meta={resumoData.motorOcioso.meta || 0}
                     isInverted={true}
+                    unitType="porcentagem"
                     acimaMeta={resumoData.motorOcioso.acimaMeta}
                   />
                   <IndicatorCard 
                     title="Uso GPS"
                     value={resumoData.usoGPS.media || 0}
                     meta={resumoData.usoGPS.meta || 0}
+                    unitType="porcentagem"
                     acimaMeta={resumoData.usoGPS.acimaMeta}
                   />
                 </SimpleGrid>
 
                 {/* Tabela de operadores */}
-                <RelatorioColheitaDiarioResumo data={resumoData} showOperadoresOnly={true} />
+                <TabelaOperadores dados={{
+                  eficiencia_energetica: finalData.eficiencia_energetica,
+                  motor_ocioso: finalData.motor_ocioso,
+                  falta_apontamento: finalData.hora_elevador.map(item => ({
+                    id: item.id,
+                    nome: item.nome,
+                    percentual: item.horas
+                  })),
+                  uso_gps: finalData.uso_gps
+                }} tipo="colheita_diario" />
               </Box>
             </Box>
           </Box>

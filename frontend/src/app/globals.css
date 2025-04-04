@@ -1,4 +1,4 @@
-/* Estilos de impressão originais */
+/* Estilos de impressão */
 @media print {
   @page {
     size: A4;
@@ -25,5 +25,15 @@
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+
+  /* Evita que o navegador adicione uma página em branco no final */
+  @page :last {
+    page-break-after: avoid;
+  }
+  
+  /* Controle a quebra de página apenas no que for necessário */
+  .last-page {
+    page-break-after: avoid;
   }
 } 

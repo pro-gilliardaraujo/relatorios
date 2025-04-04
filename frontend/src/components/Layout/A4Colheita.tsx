@@ -3,9 +3,10 @@ import { ReactNode } from 'react';
 
 interface A4ColheitaProps {
   children: ReactNode;
+  isLastPage?: boolean;
 }
 
-export default function A4Colheita({ children }: A4ColheitaProps) {
+export default function A4Colheita({ children, isLastPage = false }: A4ColheitaProps) {
   return (
     <Box
       w="210mm"
@@ -15,6 +16,7 @@ export default function A4Colheita({ children }: A4ColheitaProps) {
       bg="white"
       position="relative"
       boxShadow="0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+      className={isLastPage ? "last-page" : ""}
       sx={{
         '@media print': {
           w: '210mm !important',
@@ -23,10 +25,8 @@ export default function A4Colheita({ children }: A4ColheitaProps) {
           p: '0 !important',
           boxShadow: 'none !important',
           breakInside: 'avoid !important',
-          breakAfter: 'always !important',
-          breakBefore: 'avoid !important',
-          pageBreakAfter: 'always !important',
-          pageBreakBefore: 'avoid !important',
+          breakAfter: isLastPage ? 'avoid !important' : 'always !important',
+          pageBreakAfter: isLastPage ? 'avoid !important' : 'always !important',
           '@page': {
             size: 'A4',
             margin: '0 !important'
@@ -64,8 +64,7 @@ export default function A4Colheita({ children }: A4ColheitaProps) {
             maxH: '277mm !important',
             overflow: 'hidden !important',
             breakInside: 'avoid !important',
-            breakAfter: 'always !important',
-            breakBefore: 'avoid !important',
+            breakAfter: isLastPage ? 'avoid !important' : 'always !important',
             m: '0 !important',
             '& > *': {
               breakInside: 'avoid !important'
