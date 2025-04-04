@@ -626,12 +626,12 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         <A4Colheita isLastPage={true}>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader />
-            <Box flex="1" display="flex" flexDirection="column" p={4}>
+            <Box flex="1" display="flex" flexDirection="column" p={3}>
               <Heading
                 as="h1"
                 size="sm"
                 textAlign="center"
-                mb={4}
+                mb={2}
                 color="black"
                 fontWeight="bold"
                 fontSize="15px"
@@ -640,11 +640,11 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               </Heading>
 
               {/* Seção Frotas */}
-              <Box mb={4}>
-                <Text fontSize="13px" fontWeight="bold" color="black" mb={2} textAlign="center">
+              <Box mb={2}>
+                <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
                   Frotas
                 </Text>
-                <SimpleGrid columns={2} spacing={4} w="100%" mb={4}>
+                <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title="Disponibilidade Mecânica"
                     value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
@@ -654,7 +654,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                 </SimpleGrid>
                 
                 {/* Tabela de Frotas */}
-                <Box mb={4}>
+                <Box mb={2}>
                   <TabelaFrotas 
                     dados={dados.disponibilidade_mecanica} 
                     tipo="transbordo_diario"
@@ -681,11 +681,11 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               </Box>
 
               {/* Seção Operadores */}
-              <Box flex="1">
-                <Text fontSize="13px" fontWeight="bold" color="black" mb={2} textAlign="center">
+              <Box>
+                <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
                   Operadores
                 </Text>
-                <SimpleGrid columns={2} spacing={4} w="100%" mb={4}>
+                <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title="Eficiência Energética"
                     value={calcularMedia(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia')}
