@@ -769,33 +769,17 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 {/* Tabela de Frotas */}
                 <Box mb={2}>
                   <TabelaFrotas 
-                    dados={dados.disponibilidade_mecanica} 
-                    tipo="transbordo_semanal"
-                    dadosAdicionais={{
-                      tdh: dados.tdh.map((item: { frota: string; valor: number }) => ({
+                    dados={dados.disponibilidade_mecanica
+                      .filter((item: { frota: string }) => item.frota !== '0')
+                      .map((item: { frota: string; disponibilidade: number }) => ({
                         frota: item.frota,
-                        valor: item.valor
-                      })),
-                      diesel: dados.diesel.map((item: { frota: string; valor: number }) => ({
-                        frota: item.frota,
-                        valor: item.valor
-                      })),
-                      eficiencia_energetica: dados.eficiencia_energetica.map((item: { id: string; eficiencia: number }) => ({
-                        frota: item.id,
-                        valor: item.eficiencia
-                      })),
-                      motor_ocioso: dados.motor_ocioso.map((item: { id: string; percentual: number }) => ({
-                        frota: item.id,
-                        valor: item.percentual
-                      })),
-                      falta_apontamento: dados.falta_apontamento.map((item: { id: string; percentual: number }) => ({
-                        frota: item.id,
-                        valor: item.percentual
-                      })),
-                      uso_gps: dados.uso_gps.map((item: { id: string; porcentagem: number }) => ({
-                        frota: item.id,
-                        valor: item.porcentagem
+                        disponibilidade: item.disponibilidade
                       }))
+                    }
+                    tipo="transbordo_semanal"
+                    dadosCompletos={{
+                      tdh: dados.tdh,
+                      diesel: dados.diesel
                     }}
                   />
                 </Box>

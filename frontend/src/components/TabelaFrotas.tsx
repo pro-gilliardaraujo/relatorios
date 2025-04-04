@@ -8,17 +8,10 @@ interface FrotaData {
   tdh?: number;
   diesel?: number;
   impureza?: number;
-  eficiencia?: number;
-  motor_ocioso?: number;
-  falta_apontamento?: number;
-  uso_gps?: number;
+  isHeader?: boolean;
 }
 
 interface DadosAdicionais {
-  eficiencia_energetica?: Array<{ frota: string; valor: number; }>;
-  motor_ocioso?: Array<{ frota: string; valor: number; }>;
-  falta_apontamento?: Array<{ frota: string; valor: number; }>;
-  uso_gps?: Array<{ frota: string; valor: number; }>;
   tdh?: Array<{ frota: string; valor: number; }>;
   diesel?: Array<{ frota: string; valor: number; }>;
 }
@@ -128,14 +121,18 @@ export default function TabelaFrotas({
   
   // Colunas específicas para transbordo
   const ehTransbordo = tipo.includes('transbordo');
-  const mostrarEficiencia = ehTransbordo;
-  const mostrarMotorOcioso = ehTransbordo;
-  const mostrarFaltaApontamento = ehTransbordo;
-  const mostrarUsoGPS = ehTransbordo;
+  const mostrarEficiencia = false;
+  const mostrarMotorOcioso = false;
+  const mostrarFaltaApontamento = false;
+  const mostrarUsoGPS = false;
 
   // Função para combinar dados com os dados completos
   const dadosCombinados = useMemo(() => {
     let dadosFinal = [...dados];
+    
+    // Log para debug
+    console.log("📊 Dados originais (Frotas):", JSON.stringify(dados));
+    console.log("📊 Dados completos:", JSON.stringify(dadosCompletos));
 
     // Adicionar dados de TDH, Diesel, Impureza se disponíveis
     if (dadosCompletos) {
@@ -152,31 +149,11 @@ export default function TabelaFrotas({
         };
       });
     }
-
-    // Adicionar dados de eficiência, motor ocioso, falta de apontamento e uso de GPS se disponíveis
-    if (dadosAdicionais) {
-      dadosFinal = dadosFinal.map(item => {
-        const eficiencia = dadosAdicionais.eficiencia_energetica?.find(e => e.frota === item.frota)?.valor;
-        const motor_ocioso = dadosAdicionais.motor_ocioso?.find(m => m.frota === item.frota)?.valor;
-        const falta_apontamento = dadosAdicionais.falta_apontamento?.find(f => f.frota === item.frota)?.valor;
-        const uso_gps = dadosAdicionais.uso_gps?.find(u => u.frota === item.frota)?.valor;
-        const tdh = dadosAdicionais.tdh?.find(t => t.frota === item.frota)?.valor;
-        const diesel = dadosAdicionais.diesel?.find(d => d.frota === item.frota)?.valor;
-
-        return {
-          ...item,
-          eficiencia,
-          motor_ocioso,
-          falta_apontamento,
-          uso_gps,
-          tdh: tdh || item.tdh,
-          diesel: diesel || item.diesel
-        };
-      });
-    }
-
+    
+    // Log dos dados finais para debug
+    console.log("📊 Dados combinados (finais):", JSON.stringify(dadosFinal));
     return dadosFinal;
-  }, [dados, dadosCompletos, dadosAdicionais]);
+  }, [dados, dadosCompletos]);
 
   return (
     <Box 
@@ -238,14 +215,27 @@ export default function TabelaFrotas({
         <Box as="tbody">
           {dadosCombinados
             .filter(item => item.frota !== '0')
-            .sort((a, b) => (b.disponibilidade || 0) - (a.disponibilidade || 0))
+            .sort((a, b) => {
+              // Se ambos têm disponibilidade, ordenar por ela
+              if (a.disponibilidade !== undefined && b.disponibilidade !== undefined) {
+                return (b.disponibilidade || 0) - (a.disponibilidade || 0);
+              }
+              return 0;
+            })
             .map((item, index) => (
               <Box 
                 as="tr" 
                 key={index}
                 bg={index % 2 === 0 ? "white" : "gray.50"}
               >
-                <Box as="td" p={2} borderBottom="1px solid" borderColor="black" color="black" fontWeight="medium">
+                <Box 
+                  as="td" 
+                  p={2} 
+                  borderBottom="1px solid" 
+                  borderColor="black" 
+                  color="black" 
+                  fontWeight="medium"
+                >
                   {item.frota}
                 </Box>
                 {mostrarDisponibilidade && (
@@ -259,58 +249,6 @@ export default function TabelaFrotas({
                     fontWeight="bold"
                   >
                     {formatPercentage(item.disponibilidade || 0)}
-                  </Box>
-                )}
-                {mostrarEficiencia && (
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={(item.eficiencia || 0) >= metaEficiencia ? "green.600" : (item.eficiencia || 0) >= metaEficienciaIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatPercentage(item.eficiencia || 0)}
-                  </Box>
-                )}
-                {mostrarMotorOcioso && (
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={(item.motor_ocioso || 0) <= metaMotorOcioso ? "green.600" : (item.motor_ocioso || 0) <= metaMotorOciosoIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatPercentage(item.motor_ocioso || 0)}
-                  </Box>
-                )}
-                {mostrarFaltaApontamento && (
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={(item.falta_apontamento || 0) <= metaFaltaApontamento ? "green.600" : (item.falta_apontamento || 0) <= metaFaltaApontamentoIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatPercentage(item.falta_apontamento || 0)}
-                  </Box>
-                )}
-                {mostrarUsoGPS && (
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={(item.uso_gps || 0) >= metaUsoGPS ? "green.600" : (item.uso_gps || 0) >= metaUsoGPSIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatPercentage(item.uso_gps || 0)}
                   </Box>
                 )}
                 {mostrarTDH && (

@@ -652,34 +652,13 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
                     meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
                     unitType="porcentagem"
-                  />
-                </SimpleGrid>
-                
-                {/* Tabela de Frotas */}
-                <Box mb={2}>
-                  <TabelaFrotas 
-                    dados={dados.disponibilidade_mecanica} 
-                    tipo="transbordo_diario"
-                    dadosAdicionais={{
-                      eficiencia_energetica: dados.eficiencia_energetica.map((item: { id: string; eficiencia: number }) => ({
-                        frota: item.id,
-                        valor: item.eficiencia
-                      })),
-                      motor_ocioso: dados.motor_ocioso.map((item: { id: string; percentual: number }) => ({
-                        frota: item.id,
-                        valor: item.percentual
-                      })),
-                      falta_apontamento: dados.falta_apontamento.map((item: { id: string; percentual: number }) => ({
-                        frota: item.id,
-                        valor: item.percentual
-                      })),
-                      uso_gps: dados.uso_gps.map((item: { id: string; porcentagem: number }) => ({
-                        frota: item.id,
-                        valor: item.porcentagem
-                      }))
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica),
+                      total: dados.disponibilidade_mecanica.length,
+                      percentual: (contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica) / dados.disponibilidade_mecanica.length) * 100
                     }}
                   />
-                </Box>
+                </SimpleGrid>
               </Box>
 
               {/* Seção Operadores */}
