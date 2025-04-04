@@ -720,22 +720,39 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 </Text>
                 <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
-                    title="TDH"
+                    title="Consumo de TDH"
                     value={calcularMedia(dados.tdh, 'valor')}
                     meta={configManager.getMetas('transbordo_semanal').tdh}
                     unitType="decimal"
+                    isInverted={true}
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false),
+                      total: dados.tdh.length,
+                      percentual: (contarItensMeta(dados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false) / dados.tdh.length) * 100
+                    }}
                   />
                   <IndicatorCard
                     title="Consumo de Diesel"
                     value={calcularMedia(dados.diesel, 'valor')}
                     meta={configManager.getMetas('transbordo_semanal').diesel}
                     unitType="decimal"
+                    isInverted={true}
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false),
+                      total: dados.diesel.length,
+                      percentual: (contarItensMeta(dados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false) / dados.diesel.length) * 100
+                    }}
                   />
                   <IndicatorCard
                     title="Disponibilidade Mecânica"
                     value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
                     meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
                     unitType="porcentagem"
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica),
+                      total: dados.disponibilidade_mecanica.length,
+                      percentual: (contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica) / dados.disponibilidade_mecanica.length) * 100
+                    }}
                   />
                 </SimpleGrid>
                 
