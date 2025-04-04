@@ -33,15 +33,41 @@ export default function ReportsPage() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedFrente, setSelectedFrente] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // Obter configurações
-  const tiposRelatorio = configManager.getTiposRelatorio();
-  const frentesDisponiveis = reportType ? configManager.getFrentes(reportType) : [];
-  const fontesExcel = configManager.getFontesExcel();
-  const fontesImagens = configManager.getFontesImagens();
+  // Carregar configurações
+  useEffect(() => {
+    const loadConfigs = async () => {
+      try {
+        // Garantir que as configurações sejam carregadas
+        if (!configManager.isLoaded()) {
+          await configManager.reloadConfig();
+        }
+        setIsConfigLoaded(true);
+        console.log('Configurações carregadas com sucesso');
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+        toast({
+          title: "Erro ao carregar configurações",
+          description: "Usando configurações padrão",
+          status: "warning",
+          duration: 3000,
+        });
+        setIsConfigLoaded(true); // Continuar mesmo com erro
+      }
+    };
+    
+    loadConfigs();
+  }, []);
+
+  // Obter configurações apenas quando isConfigLoaded for true
+  const tiposRelatorio = isConfigLoaded ? configManager.getTiposRelatorio() : [];
+  const frentesDisponiveis = isConfigLoaded && reportType ? configManager.getFrentes(reportType) : [];
+  const fontesExcel = isConfigLoaded ? configManager.getFontesExcel() : [];
+  const fontesImagens = isConfigLoaded ? configManager.getFontesImagens() : [];
 
   // Configurando a data de ontem como padrão
   const yesterday = new Date();
@@ -80,10 +106,10 @@ export default function ReportsPage() {
       return;
     }
 
-    if (reportType.includes('colheita') && !selectedFrente) {
+    if (!selectedFrente) {
       toast({
         title: "Campo obrigatório",
-        description: "Selecione a frente para relatório de colheita",
+        description: "Selecione a frente para o relatório",
         status: "warning",
         duration: 3000,
       });
@@ -91,10 +117,10 @@ export default function ReportsPage() {
     }
 
     // Verificar se há dados suficientes para o tipo de relatório selecionado
-    if (reportType.includes('colheita') && (!previewData || !previewData.processedData)) {
+    if (!previewData || !previewData.processedData) {
       toast({
         title: "Dados insuficientes",
-        description: "Faça o upload da planilha com os dados de colheita",
+        description: "Faça o upload da planilha com os dados do relatório",
         status: "warning",
         duration: 3000,
       });
@@ -113,29 +139,27 @@ export default function ReportsPage() {
     console.log("Iniciando salvamento de dados de relatório...");
 
     try {
-      // Estruturar os dados processados de acordo com o tipo de relatório
-      let processedData = {};
-
-      if (reportType.includes('colheita')) {
-        // Estruturar dados para relatório de colheita
-        processedData = {
-          disponibilidade_mecanica: previewData?.processedData['1_Disponibilidade Mecânica'] || [],
-          eficiencia_energetica: previewData?.processedData['2_Eficiência Energética'] || [],
-          hora_elevador: previewData?.processedData['3_Hora Elevador'] || [],
-          motor_ocioso: previewData?.processedData['4_Motor Ocioso'] || [],
-          uso_gps: previewData?.processedData['5_Uso GPS'] || []
-        };
-      } else if (reportType.includes('plantio')) {
-        // Estruturar dados para relatório de plantio
-        processedData = {
-          // Adicionar estrutura específica para plantio quando necessário
-        };
-      } else if (reportType.includes('cav')) {
-        // Estruturar dados para relatório de CAV
-        processedData = {
-          // Adicionar estrutura específica para CAV quando necessário
-        };
+      // Obter a configuração do tipo de relatório selecionado
+      const tipoRelatorioConfig = configManager.getTipoRelatorio(reportType);
+      if (!tipoRelatorioConfig) {
+        throw new Error(`Configuração para o tipo de relatório ${reportType} não encontrada`);
       }
+
+      // Estruturar os dados processados de acordo com o tipo de relatório
+      const processedData: Record<string, any[]> = {};
+      
+      // Mapear as planilhas encontradas para as chaves esperadas no processedData
+      if (tipoRelatorioConfig.planilhas_excel && previewData.processedData) {
+        tipoRelatorioConfig.planilhas_excel.forEach(planilha => {
+          if (previewData.processedData[planilha]) {
+            // Usar o nome da planilha como chave, removendo prefixos numéricos como "1_"
+            const chave = planilha.replace(/^\d+_/, '').toLowerCase().replace(/\s+/g, '_');
+            processedData[chave] = previewData.processedData[planilha] || [];
+          }
+        });
+      }
+      
+      console.log("Dados processados:", processedData);
 
       // Enviar dados para a API
       const response = await fetch('/api/reports/generate', {
@@ -171,6 +195,8 @@ export default function ReportsPage() {
           reportPath = `/relatorios/visualizacao/a4/plantio?id=${result.id}`;
         } else if (reportType.includes('colheita')) {
           reportPath = `/relatorios/visualizacao/a4/colheita?id=${result.id}`;
+        } else if (reportType.includes('transbordo')) {
+          reportPath = `/relatorios/visualizacao/a4/transbordo?id=${result.id}`;
         } else if (reportType.includes('cav')) {
           reportPath = `/relatorios/visualizacao/a4/cav?id=${result.id}`;
         }
@@ -261,7 +287,7 @@ export default function ReportsPage() {
             >
               <Box w={{ base: "100%", sm: "200px" }}>
                 <Select 
-                  placeholder="Tipo de Relatório"
+                  placeholder={isConfigLoaded ? "Tipo de Relatório" : "Carregando..."}
                   size="md"
                   bg="white"
                   color="black"
@@ -272,6 +298,7 @@ export default function ReportsPage() {
                   }}
                   borderColor="gray.300"
                   _hover={{ borderColor: "gray.400" }}
+                  isDisabled={!isConfigLoaded}
                   sx={{
                     option: {
                       bg: 'white',
@@ -303,7 +330,7 @@ export default function ReportsPage() {
               </Box>
               <Box w={{ base: "100%", sm: "200px" }}>
                 <Select 
-                  placeholder="Selecione a Frente"
+                  placeholder={isConfigLoaded ? "Selecione a Frente" : "Carregando..."}
                   size="md"
                   bg="white"
                   color="black"
@@ -311,7 +338,7 @@ export default function ReportsPage() {
                   onChange={(e) => setSelectedFrente(e.target.value)}
                   borderColor="gray.300"
                   _hover={{ borderColor: "gray.400" }}
-                  isDisabled={!reportType}
+                  isDisabled={!reportType || !isConfigLoaded}
                   sx={{
                     option: {
                       bg: 'white',
@@ -329,7 +356,8 @@ export default function ReportsPage() {
               <Box w={{ base: "100%", sm: "auto" }}>
                 <ExcelUpload 
                   onPreviewData={setPreviewData} 
-                  isEnabled={isUploadEnabled}
+                  isEnabled={isUploadEnabled && isConfigLoaded}
+                  selectedReportType={reportType}
                 />
               </Box>
             </Flex>

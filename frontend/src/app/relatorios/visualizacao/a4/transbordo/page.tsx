@@ -117,12 +117,16 @@ const verificarFormatoDados = (dados: any) => {
     dados.motor_ocioso.length > 0 &&
     dados.motor_ocioso.some((item: any) => item && item.nome && item.percentual !== undefined);
   
+  const temFaltaApontamento = Array.isArray(dados.falta_apontamento) && 
+    dados.falta_apontamento.length > 0 &&
+    dados.falta_apontamento.some((item: any) => item && item.nome && item.percentual !== undefined);
+  
   const temUsoGPS = Array.isArray(dados.uso_gps) && 
     dados.uso_gps.length > 0 &&
     dados.uso_gps.some((item: any) => item && item.nome && item.porcentagem !== undefined);
   
   // Verificar se pelo menos uma das seções tem dados
-  return temDisponibilidade || temEficiencia || temMotorOcioso || temUsoGPS;
+  return temDisponibilidade || temEficiencia || temMotorOcioso || temFaltaApontamento || temUsoGPS;
 };
 
 export default function TransbordoA4({ data }: TransbordoA4Props) {
@@ -156,110 +160,116 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
 
   useEffect(() => {
+    // Recarregar configurações antes de buscar dados
+    const reloadConfig = async () => {
+      await configManager.reloadConfig();
+    };
+    
     const loadData = async () => {
       try {
-        // Recarrega as configurações antes de carregar os dados
-        await configManager.reloadConfig();
+        await reloadConfig();
+        setLoading(true);
+        console.log("🔄 Buscando relatório:", searchParams);
         
-        let subscription: any = null;
-
+        const reportId = searchParams.get('id');
+        console.log("📊 ID do relatório:", reportId);
+        
+        if (!reportId) {
+          console.log("⚠️ ID do relatório não fornecido, usando dados de exemplo");
+          setUseExampleData(true);
+          setLoading(false);
+          return;
+        }
+        
+        // Mostrar dados brutos do relatório para debugging
         const fetchReportData = async () => {
-          // Se não tiver ID, apenas mostrar o layout com dados de exemplo
-          if (!reportId) {
-            console.log('📋 Modo de visualização offline - usando dados de exemplo');
-            setLoading(false);
-            setUseExampleData(true);
-            return;
-          }
-
           try {
-            console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
-            const { data: report, error } = await supabase
+            // Buscar dados do relatório
+            const { data: reportData, error } = await supabase
               .from('relatorios_diarios')
               .select('*')
               .eq('id', reportId)
               .single();
-
+            
             if (error) {
-              console.error('❌ Erro ao buscar dados:', error);
-              setError(`Erro ao buscar dados: ${error.message}`);
-              setLoading(false);
-              setUseExampleData(true);
-              return;
+              throw error;
             }
-
-            if (!report) {
-              console.error('❌ Relatório não encontrado');
-              setError('Relatório não encontrado');
-              setLoading(false);
-              setUseExampleData(true);
-              return;
+            
+            if (!reportData) {
+              throw new Error('Relatório não encontrado');
             }
-
-            console.log('✅ Dados carregados com sucesso:', {
-              tipo: report.tipo,
-              frente: report.frente,
-              status: report.status,
-              dados: report.dados ? 'Presentes' : 'Ausentes'
-            });
-
-            // Log detalhado dos dados
-            if (report.dados) {
-              console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
-            }
-
-            setReportData(report);
-            setNomeFrente(report.frente || ''); // Atualiza o nome da frente
-            setLoading(false);
-            setUseExampleData(false);
-
-            // Configurar subscription para atualizações em tempo real
-            subscription = supabase
-              .channel('relatorios_changes')
-              .on(
-                'postgres_changes',
-                {
-                  event: '*', // Escutar todos os eventos (INSERT, UPDATE, DELETE)
-                  schema: 'public',
-                  table: 'relatorios_diarios',
-                  filter: `id=eq.${reportId}`
-                },
-                (payload) => {
-                  console.log('🔄 Atualização em tempo real recebida:', payload);
-                  if (payload.eventType === 'DELETE') {
-                    setError('Este relatório foi excluído');
-                    return;
-                  }
-                  setReportData(payload.new);
+            
+            console.log("🔍 DADOS BRUTOS DO RELATÓRIO:", JSON.stringify(reportData, null, 2));
+            
+            // Exibir estrutura da árvore de dados para debug
+            console.log("📋 ESTRUTURA DE DADOS:");
+            console.log("- id:", reportData.id);
+            console.log("- tipo:", reportData.tipo);
+            console.log("- data:", reportData.data);
+            console.log("- frente:", reportData.frente);
+            
+            if (reportData.dados) {
+              console.log("- dados: ✓ Presente");
+              Object.keys(reportData.dados).forEach(key => {
+                const items = reportData.dados[key];
+                console.log(`  - ${key}: ${Array.isArray(items) ? items.length + ' itens' : 'não é array'}`);
+                
+                // Mostrar primeiro item de cada categoria, se disponível
+                if (Array.isArray(items) && items.length > 0) {
+                  console.log(`    Exemplo: ${JSON.stringify(items[0])}`);
                 }
-              )
+              });
+            } else {
+              console.log("- dados: ❌ Ausente");
+            }
+            
+            // Definir dados do relatório
+            setReportData(reportData);
+            
+            // NOVA ABORDAGEM: Se temos dados, usar eles sempre (sem validação complexa)
+            if (reportData && reportData.dados) {
+              console.log("✅ Dados encontrados, usando dados reais do Excel");
+              setUseExampleData(false);
+            } else {
+              console.log("❌ Dados ausentes, usando exemplo");
+              setUseExampleData(true);
+            }
+            
+            // Assinatura para atualizações em tempo real
+            const subscription = supabase
+              .channel('report_updates')
+              .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'relatorios_diarios',
+                filter: `id=eq.${reportId}`,
+              }, (payload) => {
+                console.log('Relatório atualizado:', payload);
+                setReportData(payload.new as any);
+              })
               .subscribe();
-
+            
+            return () => {
+              subscription.unsubscribe();
+            };
           } catch (error) {
-            console.error('❌ Erro ao buscar dados:', error);
-            setError(`Erro ao buscar dados: ${error}`);
-            setLoading(false);
+            console.error('Erro ao buscar dados do relatório:', error);
             setUseExampleData(true);
+            return null;
           }
         };
-
+        
         await fetchReportData();
-
-        return () => {
-          if (subscription) {
-            subscription.unsubscribe();
-          }
-        };
-      } catch (error) {
-        console.error('❌ Erro ao carregar dados:', error);
-        setError(`Erro ao carregar dados: ${error}`);
         setLoading(false);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
         setUseExampleData(true);
+        setLoading(false);
       }
     };
-
+    
     loadData();
-  }, [reportId]);
+  }, [searchParams]);
 
   // Funções utilitárias para processamento de dados
       const processarOperador = (operador: any) => {
@@ -379,6 +389,79 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     }, 0);
   };
 
+  // Função utilitária para calcular indicadores com segurança
+  function calcularIndicador(
+    dados: any[] | undefined,
+    propriedade: string,
+    meta: number,
+    isInverted: boolean = false
+  ) {
+    // Se dados for undefined ou vazio, retornar valores padrão
+    if (!dados || !Array.isArray(dados) || dados.length === 0) {
+      console.log(`⚠️ Dados ausentes ou inválidos para ${propriedade}`);
+      return {
+        valor: 0,
+        acimaMeta: {
+          quantidade: 0,
+          total: 0,
+          percentual: 0
+        }
+      };
+    }
+
+    try {
+      // Filtrar itens válidos e remover 'TROCA DE TURNO' e 'SEM OPERADOR'
+      const itensValidos = dados.filter((item) => 
+        item && 
+        typeof item[propriedade] === 'number' && 
+        (!item.nome || (item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR')));
+      
+      if (itensValidos.length === 0) {
+        console.log(`⚠️ Sem itens válidos para ${propriedade}`);
+        return {
+          valor: 0,
+          acimaMeta: {
+            quantidade: 0,
+            total: 0,
+            percentual: 0
+          }
+        };
+      }
+
+      // Calcular média dos valores
+      const soma = itensValidos.reduce((acc, item) => acc + item[propriedade], 0);
+      const media = soma / itensValidos.length;
+      
+      // Contar quantos itens estão acima da meta
+      const itensMeta = isInverted
+        ? itensValidos.filter((item) => item[propriedade] <= meta)
+        : itensValidos.filter((item) => item[propriedade] >= meta);
+      
+      const quantidade = itensMeta.length;
+      const total = itensValidos.length;
+      const percentual = total > 0 ? (quantidade / total) * 100 : 0;
+
+      return {
+        valor: Number(media.toFixed(1)),
+        acimaMeta: {
+          quantidade,
+          total,
+          percentual: Number(percentual.toFixed(1))
+        }
+      };
+    } catch (error) {
+      console.error(`❌ Erro ao calcular indicador ${propriedade}:`, error);
+      return {
+        valor: 0,
+        acimaMeta: {
+          quantidade: 0,
+          total: 0,
+          percentual: 0
+        }
+      };
+    }
+  }
+
   // Componentes de layout
   const PageHeader = ({ showDate = true }: { showDate?: boolean }) => {
     // Encontrar o nome completo da frente no config
@@ -428,19 +511,75 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
 
   // Dados processados para os gráficos
   const dados = useMemo(() => {
-    if (useExampleData) {
-      console.log('📊 Usando dados de exemplo');
+    try {
+      console.log("⚙️ Processando dados do relatório...");
+      
+      // Se não há dados ou estamos usando exemplo, retornar dados de exemplo
+      if (!reportData?.dados) {
+        console.log("❌ Dados ausentes, usando exemplo");
+        return dadosExemplo;
+      }
+      
+      // Aqui vamos fazer log detalhado de cada seção de dados
+      console.log("✅ PROCESSANDO DADOS REAIS:");
+      
+      // Disponibilidade Mecânica
+      if (reportData.dados.disponibilidade_mecanica) {
+        console.log("- Disponibilidade Mecânica:");
+        console.log(`  ${reportData.dados.disponibilidade_mecanica.length} itens encontrados`);
+        console.log("  Exemplo:", JSON.stringify(reportData.dados.disponibilidade_mecanica[0]));
+      } else {
+        console.log("- Disponibilidade Mecânica: ❌ Ausente");
+      }
+      
+      // Eficiência Energética
+      if (reportData.dados.eficiencia_energetica) {
+        console.log("- Eficiência Energética:");
+        console.log(`  ${reportData.dados.eficiencia_energetica.length} itens encontrados`);
+        console.log("  Exemplo:", JSON.stringify(reportData.dados.eficiencia_energetica[0]));
+      } else {
+        console.log("- Eficiência Energética: ❌ Ausente");
+      }
+      
+      // Motor Ocioso
+      if (reportData.dados.motor_ocioso) {
+        console.log("- Motor Ocioso:");
+        console.log(`  ${reportData.dados.motor_ocioso.length} itens encontrados`);
+        console.log("  Exemplo:", JSON.stringify(reportData.dados.motor_ocioso[0]));
+      } else {
+        console.log("- Motor Ocioso: ❌ Ausente");
+      }
+      
+      // Falta de Apontamento
+      if (reportData.dados.falta_apontamento) {
+        console.log("- Falta de Apontamento:");
+        console.log(`  ${reportData.dados.falta_apontamento.length} itens encontrados`);
+        console.log("  Exemplo:", JSON.stringify(reportData.dados.falta_apontamento[0]));
+      } else {
+        console.log("- Falta de Apontamento: ❌ Ausente");
+      }
+      
+      // Uso GPS
+      if (reportData.dados.uso_gps) {
+        console.log("- Uso GPS:");
+        console.log(`  ${reportData.dados.uso_gps.length} itens encontrados`);
+        console.log("  Exemplo:", JSON.stringify(reportData.dados.uso_gps[0]));
+      } else {
+        console.log("- Uso GPS: ❌ Ausente");
+      }
+      
+      // Clonar os dados para evitar modificação do objeto original
+      const dadosProcessados = { ...reportData.dados };
+      
+      console.log("✅ Usando dados do Excel");
+      return dadosProcessados;
+      
+    } catch (error) {
+      console.error("❌ Erro ao processar dados:", error);
+      console.log("Usando dados de exemplo como fallback");
       return dadosExemplo;
     }
-
-    if (!reportData?.dados || !verificarFormatoDados(reportData.dados)) {
-      console.log('❌ Dados inválidos ou ausentes');
-      return dadosExemplo;
-    }
-
-    console.log('📊 Usando dados do relatório');
-    return reportData.dados;
-  }, [reportData, useExampleData]);
+  }, [reportData]);
 
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
@@ -649,14 +788,10 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                 <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title="Disponibilidade Mecânica"
-                    value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
+                    value={calcularIndicador(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica).valor}
                     meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
                     unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica),
-                      total: dados.disponibilidade_mecanica.length,
-                      percentual: (contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica) / dados.disponibilidade_mecanica.length) * 100
-                    }}
+                    acimaMeta={calcularIndicador(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica).acimaMeta}
                   />
                 </SimpleGrid>
               </Box>
@@ -669,49 +804,17 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                 <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title="Eficiência Energética"
-                    value={calcularMedia(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia')}
+                    value={calcularIndicador(dados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).valor}
                     meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
                     unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica),
-                      total: dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica) / dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
+                    acimaMeta={calcularIndicador(dados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).acimaMeta}
                   />
                   <IndicatorCard
                     title="Motor Ocioso"
-                    value={calcularMedia(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
+                    value={calcularIndicador(dados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso).valor}
                     meta={configManager.getMetas('transbordo_diario').motorOcioso}
-                    isInverted={true}
                     unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, false),
-                      total: dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, false) / dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
-                  />
-                  <IndicatorCard
-                    title="Falta de Apontamento"
-                    value={calcularMedia(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
-                    meta={configManager.getMetas('transbordo_diario').faltaApontamento}
-                    isInverted={true}
-                    unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, false),
-                      total: dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, false) / dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
-                  />
-                  <IndicatorCard
-                    title="Uso GPS"
-                    value={calcularMedia(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem')}
-                    meta={configManager.getMetas('transbordo_diario').usoGPS}
-                    unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS),
-                      total: dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS) / dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
+                    acimaMeta={calcularIndicador(dados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso).acimaMeta}
                   />
                 </SimpleGrid>
 

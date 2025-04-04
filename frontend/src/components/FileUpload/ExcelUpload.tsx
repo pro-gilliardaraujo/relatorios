@@ -21,10 +21,11 @@ import {
 } from '@chakra-ui/react';
 import { FiUpload } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
+import { configManager } from '@/utils/config';
 
 interface PreviewData {
   headers: string[];
-  rows: string[][];
+  rows: any[][];
   processedData: { [key: string]: any[] };
   previewRows: number;
 }
@@ -32,15 +33,16 @@ interface PreviewData {
 interface ExcelUploadProps {
   onPreviewData?: (data: PreviewData | null) => void;
   isEnabled?: boolean;
+  selectedReportType?: string;
 }
 
-export default function ExcelUpload({ onPreviewData, isEnabled = false }: ExcelUploadProps) {
+export default function ExcelUpload({ onPreviewData, isEnabled = false, selectedReportType }: ExcelUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const toast = useToast();
 
   const handleFile = useCallback(async (file: File) => {
-    if (!isEnabled) {
+    if (!isEnabled || !selectedReportType) {
       toast({
         title: "Selecione os campos obrigatórios",
         description: "Preencha o tipo de relatório, data e frente antes de fazer o upload",
@@ -71,14 +73,14 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false }: ExcelU
       console.log('\n=== Planilhas no arquivo ===');
       console.log(workbook.SheetNames);
 
-      // Lista de planilhas necessárias para relatório de Colheita
-      const requiredSheets = [
-        '1_Disponibilidade Mecânica',
-        '2_Eficiência Energética',
-        '3_Hora Elevador',
-        '4_Motor Ocioso',
-        '5_Uso GPS'
-      ];
+      // Obter a lista de planilhas necessárias do arquivo de configuração
+      const tipoRelatorio = configManager.getTipoRelatorio(selectedReportType);
+      if (!tipoRelatorio?.planilhas_excel) {
+        throw new Error("Tipo de relatório não encontrado ou sem planilhas configuradas");
+      }
+
+      const requiredSheets = tipoRelatorio.planilhas_excel;
+      console.log(`\n📋 Planilhas esperadas para ${selectedReportType} (${tipoRelatorio.nome}):`, requiredSheets);
       
       const foundSheets = workbook.SheetNames.filter(sheet => requiredSheets.includes(sheet));
       const missingSheets = requiredSheets.filter(sheet => !workbook.SheetNames.includes(sheet));
@@ -92,6 +94,13 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false }: ExcelU
 
       if (missingSheets.length > 0) {
         console.log('\n⚠ Planilhas não encontradas:', missingSheets.join(', '));
+        // Mostrar aviso sobre planilhas ausentes
+        toast({
+          title: "Atenção",
+          description: `Planilhas ausentes: ${missingSheets.join(', ')}`,
+          status: "warning",
+          duration: 5000,
+        });
       }
 
       // Processar apenas as planilhas de interesse
@@ -116,11 +125,11 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false }: ExcelU
         throw new Error("Nenhuma planilha de interesse encontrada");
       }
 
-      // Criar preview da primeira planilha (Disponibilidade Mecânica)
-      const previewSheet = processedData['1_Disponibilidade Mecânica'] || processedData[foundSheets[0]];
+      // Criar preview da primeira planilha
+      const firstSheet = foundSheets[0];
+      const previewSheet = processedData[firstSheet];
       if (previewSheet?.length > 0) {
         const headers = Object.keys(previewSheet[0] as object);
-        // Ajusta o número de linhas baseado na quantidade de planilhas
         const previewRows = foundSheets.length > 1 ? 4 : 5;
         const rows = previewSheet.slice(0, previewRows).map(row => 
           headers.map(header => (row as any)[header])
@@ -153,7 +162,7 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false }: ExcelU
       setFile(null);
       onPreviewData?.(null);
     }
-  }, [onPreviewData, toast, isEnabled]);
+  }, [onPreviewData, toast, isEnabled, selectedReportType]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -176,32 +185,33 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false }: ExcelU
   }, []);
 
   return (
-    <Box position="relative">
-      <input
-        type="file"
-        accept=".xlsx,.csv"
-        onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-        style={{ display: 'none' }}
-        id="excel-upload"
-      />
-      <Button
-        as="label"
-        htmlFor="excel-upload"
-        colorScheme="blue"
-        variant="outline"
-        size="md"
-        cursor={isEnabled ? "pointer" : "not-allowed"}
-        opacity={isEnabled ? 1 : 0.5}
-        color="black"
-        _hover={{ bg: 'gray.50' }}
-        w={{ base: "100%", sm: "auto" }}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        <FiUpload />
-        <Text ml={2}>Upload Excel</Text>
-      </Button>
+    <Box
+      border="2px dashed"
+      borderColor={isDragging ? "blue.500" : "gray.300"}
+      borderRadius="md"
+      p={4}
+      textAlign="center"
+      bg={isDragging ? "blue.50" : "white"}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      cursor="pointer"
+      transition="all 0.2s"
+      _hover={{ borderColor: "blue.500", bg: "blue.50" }}
+      onClick={() => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.xlsx,.csv';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) handleFile(file);
+        };
+        input.click();
+      }}
+    >
+      <Text color="gray.500">
+        {file ? file.name : "Arraste um arquivo Excel ou clique para selecionar"}
+      </Text>
     </Box>
   );
 }
@@ -219,13 +229,6 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
   }
 
   const { processedData, previewRows } = preview;
-  const sheets = [
-    '1_Disponibilidade Mecânica',
-    '2_Eficiência Energética',
-    '3_Hora Elevador',
-    '4_Motor Ocioso',
-    '5_Uso GPS'
-  ];
 
   // Função para formatar valores numéricos
   const formatValue = (value: any): string => {
@@ -242,74 +245,46 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
       maxH="180px"
       position="relative"
     >
-      <Tabs size="sm" variant="enclosed" h="100%" colorScheme="blue">
-        <TabList>
-          {sheets.map(sheet => (
-            processedData[sheet]?.length > 0 && (
-              <Tab 
-                key={sheet}
-                fontSize="xs"
-                py={1}
-                px={2}
-                color="black"
-                _selected={{ color: 'black', borderColor: 'black' }}
-              >
-                {sheet.replace(/^\d+_/, '')}
-              </Tab>
-            )
-          ))}
-        </TabList>
-        <TabPanels h="calc(100% - 32px)" overflowY="auto">
-          {sheets.map(sheet => (
-            processedData[sheet]?.length > 0 && (
-              <TabPanel key={sheet} p={0}>
-                <Box 
-                  overflowX="auto" 
-                  overflowY="auto" 
-                  h="100%"
-                  sx={{
-                    '&::-webkit-scrollbar': {
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '8px',
-                      backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                      borderRadius: '8px',
-                      '&:hover': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                      },
-                    },
-                  }}
-                >
-                  <Table size="sm" variant="simple">
-                    <Thead position="sticky" top={0} bg="white" zIndex={1}>
-                      <Tr>
-                        {processedData[sheet] && processedData[sheet].length > 0 
-                          ? Object.keys(processedData[sheet][0]).map((key, i) => (
-                              <Th key={i} fontSize="xs" p={1} color="black">{key}</Th>
-                            ))
-                          : null
-                        }
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {processedData[sheet]?.slice(0, 5).map((row: any, rowIdx: number) => (
-                        <Tr key={rowIdx}>
-                          {Object.values(row).map((cell: any, cellIdx: number) => (
-                            <Td key={cellIdx} fontSize="xs" p={1} color="black">{formatValue(cell)}</Td>
-                          ))}
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  </Table>
-                </Box>
-              </TabPanel>
-            )
-          ))}
-        </TabPanels>
-      </Tabs>
+      <Box 
+        overflowY="auto" 
+        h="100%"
+        css={{
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#888',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: '#555',
+          },
+        }}
+      >
+        <Table size="sm" variant="simple">
+          <Thead position="sticky" top={0} bg="white" zIndex={1}>
+            <Tr>
+              {preview.headers.map((header, index) => (
+                <Th key={index} color="black">{header}</Th>
+              ))}
+            </Tr>
+          </Thead>
+          <Tbody>
+            {preview.rows.map((row, rowIndex) => (
+              <Tr key={rowIndex}>
+                {row.map((cell, cellIndex) => (
+                  <Td key={cellIndex} color="black">
+                    {formatValue(cell)}
+                  </Td>
+                ))}
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </Box>
     </Box>
   );
 } 
