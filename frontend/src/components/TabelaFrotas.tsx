@@ -19,6 +19,8 @@ interface DadosAdicionais {
   motor_ocioso?: Array<{ frota: string; valor: number; }>;
   falta_apontamento?: Array<{ frota: string; valor: number; }>;
   uso_gps?: Array<{ frota: string; valor: number; }>;
+  tdh?: Array<{ frota: string; valor: number; }>;
+  diesel?: Array<{ frota: string; valor: number; }>;
 }
 
 interface TabelaFrotasProps {
@@ -158,13 +160,17 @@ export default function TabelaFrotas({
         const motor_ocioso = dadosAdicionais.motor_ocioso?.find(m => m.frota === item.frota)?.valor;
         const falta_apontamento = dadosAdicionais.falta_apontamento?.find(f => f.frota === item.frota)?.valor;
         const uso_gps = dadosAdicionais.uso_gps?.find(u => u.frota === item.frota)?.valor;
+        const tdh = dadosAdicionais.tdh?.find(t => t.frota === item.frota)?.valor;
+        const diesel = dadosAdicionais.diesel?.find(d => d.frota === item.frota)?.valor;
 
         return {
           ...item,
           eficiencia,
           motor_ocioso,
           falta_apontamento,
-          uso_gps
+          uso_gps,
+          tdh: tdh || item.tdh,
+          diesel: diesel || item.diesel
         };
       });
     }
