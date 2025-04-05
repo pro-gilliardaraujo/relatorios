@@ -47,8 +47,21 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
     console.log('📊 Amostra de dados válidos:', dadosValidos.slice(0, 2));
   }
   
+  // Processar valores de porcentagem: se for entre 0 e 1, converter para porcentagem (multiplicar por 100)
+  const processedData = dadosValidos.map(item => {
+    const porcentagem = item.porcentagem;
+    // Se o valor for menor que 1 e maior que 0, provavelmente é um decimal que representa porcentagem
+    if (porcentagem > 0 && porcentagem < 1) {
+      return {
+        ...item,
+        porcentagem: porcentagem * 100
+      };
+    }
+    return item;
+  });
+  
   // Se não houver dados válidos, retornar mensagem
-  if (dadosValidos.length === 0) {
+  if (processedData.length === 0) {
     console.log('❌ Sem dados válidos para o gráfico UsoGPS');
     return (
       <Box h="100%" display="flex" alignItems="center" justifyContent="center">
@@ -58,7 +71,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
   }
   
   // Calcular a média de porcentagem
-  const mediaPorcentagem = dadosValidos.reduce((acc, item) => acc + item.porcentagem, 0) / dadosValidos.length;
+  const mediaPorcentagem = processedData.reduce((acc, item) => acc + item.porcentagem, 0) / processedData.length;
   
   // Sempre usar 100 como base para escala máxima para manter a proporcionalidade
   const maxValueForScale = 100;
@@ -74,7 +87,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
   };
 
   // Ordena por porcentagem (do maior para o menor)
-  const sortedData = [...dadosValidos].sort((a, b) => b.porcentagem - a.porcentagem);
+  const sortedData = [...processedData].sort((a, b) => b.porcentagem - a.porcentagem);
   
   // Define as cores com base no valor da porcentagem (maior melhor)
   const getBarColor = (value: number) => {
@@ -125,7 +138,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
               borderRadius="sm"
             >
               {/* Primeira linha: ID e nome do operador */}
-              <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id} - ${item.nome}`} mb={0.5} color="black">
+              <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={item.nome} mb={0.5} color="black">
                 {item.id} - {item.nome}
               </Text>
               
@@ -154,7 +167,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
                   />
                 </Box>
                 <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={getBarColor(item.porcentagem)}>
-                  {item.porcentagem.toFixed(1)}%
+                  {item.porcentagem.toFixed(2)}%
                 </Text>
               </Flex>
             </Box>

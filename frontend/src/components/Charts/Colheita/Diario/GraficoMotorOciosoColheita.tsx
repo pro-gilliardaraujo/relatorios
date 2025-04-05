@@ -57,8 +57,21 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
     { id: '3', nome: 'OPERADOR 3', percentual: 3.2 }
   ];
   
+  // Processar valores de percentual: se for entre 0 e 1, converter para porcentagem (multiplicar por 100)
+  const processedData = dadosValidos.map(item => {
+    const percentual = item.percentual;
+    // Se o valor for menor que 1 e maior que 0, provavelmente é um decimal que representa porcentagem
+    if (percentual > 0 && percentual < 1) {
+      return {
+        ...item,
+        percentual: percentual * 100
+      };
+    }
+    return item;
+  });
+  
   // Usar dados padrão SE e SOMENTE SE não houver dados válidos
-  const dadosFinais = dadosValidos.length > 0 ? dadosValidos : defaultData;
+  const dadosFinais = processedData.length > 0 ? processedData : defaultData;
   
   if (dadosValidos.length === 0 && Array.isArray(data) && data.length > 0) {
     console.log('⚠️ Dados recebidos mas todos foram filtrados como inválidos:', data);
@@ -151,7 +164,7 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
                 bg={index % 2 === 0 ? "gray.50" : "white"}
                 borderRadius="sm"
               >
-                <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id} - ${item.nome}`} mb={0.5} color="black">
+                <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={item.nome} mb={0.5} color="black">
                   {item.id} - {item.nome}
                 </Text>
                 
@@ -177,7 +190,7 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
                     />
                   </Box>
                   <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={barColor}>
-                    {item.percentual.toFixed(formatacao.porcentagem.casas)}%
+                    {item.percentual.toFixed(2)}%
                   </Text>
                 </Flex>
               </Box>

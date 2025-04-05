@@ -6,6 +6,7 @@ from pathlib import Path
 from fastapi import UploadFile, HTTPException
 from ..core.config import settings
 from io import BytesIO
+import re
 
 class ExcelProcessor:
     def __init__(self):
@@ -199,7 +200,7 @@ class ExcelProcessor:
             return None
     
     def convert_value(self, row, col, fmt_type="porcentagem"):
-        """Converte valores com tratamento especial para porcentagens"""
+        """Converte valores com tratamento especial para porcentagens e textos"""
         # Pegar o valor da coluna
         valor = row[col]
         
@@ -207,7 +208,11 @@ class ExcelProcessor:
         if valor is None or pd.isna(valor):
             return None
         
-        # Tentar converter para float
+        # Se o tipo for texto, apenas retorna como string
+        if fmt_type == "texto":
+            return str(valor).strip()
+        
+        # Tentar converter para float para tipos numéricos
         try:
             # Remover % e trocar vírgula por ponto se for string
             if isinstance(valor, str):
@@ -217,13 +222,18 @@ class ExcelProcessor:
             
             # Para valores percentuais, verificar se precisam ser convertidos
             if fmt_type == "porcentagem":
-                # Debug para valores de motor ocioso
-                if col == "Porcentagem" and row.get("Operador") is not None:
-                    print(f"DEBUG - Valor original Motor Ocioso para {row['Operador']}: {valor}, convertido: {valor_float}")
+                # Log para depuração
+                print(f"DEBUG - Valor percentual original: {valor}, convertido: {valor_float}")
                 
-                # Se o valor já está em porcentagem (ex: 80.5), manter como está
-                # Se está em decimal (ex: 0.805), converter para porcentagem
-                if valor_float < 1.0 and valor_float > 0:
+                # Regras para identificar se o valor já está em porcentagem:
+                # 1. Se o valor for exatamente 1.0, consideramos que é 100%
+                # 2. Se o valor estiver entre 0 e 1, consideramos decimal e convertemos para porcentagem
+                # 3. Valores > 1 já são considerados percentuais
+                
+                if valor_float == 1.0:
+                    print(f"  - Valor 1.0 detectado, considerando como 100%")
+                    valor_float = 100.0
+                elif valor_float > 0 and valor_float < 1.0:
                     print(f"  - Convertendo valor decimal para porcentagem: {valor_float} -> {valor_float * 100}")
                     valor_float = valor_float * 100
             
@@ -249,35 +259,60 @@ class ExcelProcessor:
             
             # Obter configuração para este tipo de planilha
             type_config = column_config.get(sheet_type, [])
-            format_type = "porcentagem"
             
-            # Use a configuração ou tente deduzir as colunas
-            if len(type_config) >= 3:
-                id_col, value_col, format_type = type_config[0], type_config[1], type_config[2]
-            elif len(type_config) >= 2:
+            # Variáveis padrão
+            id_col = ""
+            value_col = ""
+            id_type = "texto"  # Tipo padrão para a coluna ID
+            value_type = "porcentagem"  # Tipo padrão para a coluna de valor
+            
+            # Interpretar a configuração com o novo formato
+            if len(type_config) >= 4:
+                # Novo formato: ["Coluna1", "Coluna2", "tipo_coluna1", "tipo_coluna2"]
                 id_col, value_col = type_config[0], type_config[1]
+                id_type, value_type = type_config[2], type_config[3]
+                print(f"  - Usando configuração de colunas: {id_col}({id_type}), {value_col}({value_type})")
+            elif len(type_config) >= 3:
+                # Formato anterior: ["Coluna1", "Coluna2", "tipo_geral"]
+                id_col, value_col = type_config[0], type_config[1]
+                value_type = type_config[2]
+                print(f"  - Usando configuração de colunas: {id_col}, {value_col}({value_type})")
+            elif len(type_config) >= 2:
+                # Formato básico: ["Coluna1", "Coluna2"]
+                id_col, value_col = type_config[0], type_config[1]
+                print(f"  - Usando configuração de colunas básica: {id_col}, {value_col}")
             else:
                 # Configuração padrão por tipo
                 if sheet_type == "disponibilidade_mecanica":
                     id_col, value_col = "Frota", "Disponibilidade"
+                    id_type, value_type = "texto", "porcentagem"
                 elif sheet_type == "eficiencia_energetica":
                     id_col, value_col = "Operador", "Eficiência"
+                    id_type, value_type = "texto", "porcentagem"
                 elif sheet_type == "hora_elevador":
-                    id_col, value_col, format_type = "Operador", "Horas", "horas"
+                    id_col, value_col = "Operador", "Horas"
+                    id_type, value_type = "texto", "horas"
                 elif sheet_type == "motor_ocioso":
                     id_col, value_col = "Operador", "Porcentagem"
+                    id_type, value_type = "texto", "porcentagem"
                 elif sheet_type == "uso_gps":
                     id_col, value_col = "Operador", "Porcentagem"
+                    id_type, value_type = "texto", "porcentagem"
                 elif sheet_type == "tdh":
-                    id_col, value_col, format_type = "Frota", "TDH", "decimal"
+                    id_col, value_col = "Frota", "TDH"
+                    id_type, value_type = "texto", "decimal"
                 elif sheet_type == "diesel":
-                    id_col, value_col, format_type = "Frota", "Diesel", "decimal"
+                    id_col, value_col = "Frota", "Diesel"
+                    id_type, value_type = "texto", "decimal"
                 elif sheet_type == "impureza_vegetal":
                     id_col, value_col = "Frota", "Impureza"
+                    id_type, value_type = "texto", "porcentagem"
                 elif sheet_type == "falta_apontamento":
                     id_col, value_col = "Operador", "Porcentagem"
+                    id_type, value_type = "texto", "porcentagem"
                 else:
                     return {}
+                print(f"  - Usando configuração padrão para {sheet_type}: {id_col}({id_type}), {value_col}({value_type})")
             
             # Verificar variações de nomes de colunas
             if id_col not in df.columns:
@@ -300,45 +335,75 @@ class ExcelProcessor:
                     if not self.is_valid_id(row[id_col]):
                         continue
                     
-                    # Converter o valor
-                    valor = self.convert_value(row, value_col, format_type)
+                    # Extrair o ID, sempre como texto se configurado assim
+                    id_value = row[id_col]
+                    if id_type == "texto":
+                        id_value = str(id_value).strip()
+                        
+                    # Limpar valor de frota (remover decimal se for um número)
+                    if sheet_type == "disponibilidade_mecanica" or sheet_type in ["tdh", "diesel", "impureza_vegetal"]:
+                        # Para frota, remover a parte decimal se for um número com ponto
+                        if re.match(r'^\d+\.\d+$', id_value):
+                            id_value = id_value.split('.')[0]
+                    
+                    # Processar ID e nome para operadores
+                    operator_id = id_value
+                    operator_name = id_value
+                    
+                    # Se for um tipo relacionado a operadores, tentar separar ID do nome
+                    if sheet_type in ["eficiencia_energetica", "hora_elevador", "motor_ocioso", "uso_gps", "falta_apontamento"]:
+                        # Tentar extrair ID e nome se estiver no formato "ID - Nome"
+                        if " - " in id_value:
+                            parts = id_value.split(" - ", 1)
+                            operator_id = parts[0].strip()
+                            operator_name = parts[1].strip() if len(parts) > 1 else parts[0].strip()
+                            print(f"  - Separando ID e nome: '{id_value}' -> ID='{operator_id}', Nome='{operator_name}'")
+                    
+                    # Converter o valor conforme o tipo configurado
+                    valor = self.convert_value(row, value_col, value_type)
                     if valor is None:
                         continue
                     
-                    # Criar item com base no tipo
+                    # Criar item com base no tipo de planilha
                     if sheet_type == "disponibilidade_mecanica":
                         result[sheet_type].append({
-                            'frota': str(row[id_col]).strip(),
+                            'frota': id_value,
                             'disponibilidade': valor
                         })
                     elif sheet_type == "eficiencia_energetica":
                         result[sheet_type].append({
-                            'id': str(row[id_col]).strip(),
-                            'nome': str(row[id_col]).strip(),
+                            'id': operator_id,
+                            'nome': operator_name,
                             'eficiencia': valor
                         })
                     elif sheet_type == "hora_elevador":
                         result[sheet_type].append({
-                            'id': str(row[id_col]).strip(),
-                            'nome': str(row[id_col]).strip(),
+                            'id': operator_id,
+                            'nome': operator_name,
                             'horas': valor
                         })
                     elif sheet_type == "motor_ocioso":
                         result[sheet_type].append({
-                            'id': str(row[id_col]).strip(),
-                            'nome': str(row[id_col]).strip(),
+                            'id': operator_id,
+                            'nome': operator_name,
                             'percentual': valor
                         })
                     elif sheet_type == "uso_gps":
                         result[sheet_type].append({
-                            'id': str(row[id_col]).strip(),
-                            'nome': str(row[id_col]).strip(),
+                            'id': operator_id,
+                            'nome': operator_name,
                             'porcentagem': valor
                         })
                     elif sheet_type in ["tdh", "diesel", "impureza_vegetal"]:
                         result[sheet_type].append({
-                            'frota': str(row[id_col]).strip(),
+                            'frota': id_value,
                             'valor': valor
+                        })
+                    elif sheet_type == "falta_apontamento":
+                        result[sheet_type].append({
+                            'id': operator_id,
+                            'nome': operator_name,
+                            'percentual': valor
                         })
                 except Exception as row_error:
                     print(f"  - Erro ao processar linha: {str(row_error)}")
@@ -363,32 +428,28 @@ class ExcelProcessor:
             # Substituir NaN por None em todo o DataFrame
             df = df.replace({np.nan: None})
             
-            # Função para validar e converter valores
-            def convert_value(row, col, fmt_type="porcentagem"):
-                # Pegar o valor da coluna
-                valor = row[col]
+            # Função para separar ID e nome de operadores
+            def process_operator_id(id_value):
+                id_value = str(id_value).strip()
+                operator_id = id_value
+                operator_name = id_value
                 
-                # Verificar se é None ou NaN
-                if valor is None or pd.isna(valor):
-                    return None
+                # Tentar extrair ID e nome se estiver no formato "ID - Nome"
+                if " - " in id_value:
+                    parts = id_value.split(" - ", 1)
+                    operator_id = parts[0].strip()
+                    operator_name = parts[1].strip() if len(parts) > 1 else parts[0].strip()
+                    print(f"  - Separando ID e nome: '{id_value}' -> ID='{operator_id}', Nome='{operator_name}'")
                 
-                # Tentar converter para float
-                try:
-                    # Remover % e trocar vírgula por ponto se for string
-                    if isinstance(valor, str):
-                        valor = valor.replace('%', '').replace(',', '.').strip()
-                    
-                    valor_float = float(valor)
-                    
-                    # Verificar se é muito pequeno para porcentagem (provavelmente já é decimal)
-                    if fmt_type == "porcentagem" and valor_float < 1.0:
-                        # Se for muito pequeno, multiplicar por 100 para converter para porcentagem
-                        valor_float = valor_float * 100
-                    
-                    return valor_float
-                except (ValueError, TypeError):
-                    # Se não conseguir converter, retornar None
-                    return None
+                return operator_id, operator_name
+            
+            # Função para limpar valores de frota (remover decimal se for um número)
+            def clean_frota_value(frota_value):
+                frota_value = str(frota_value).strip()
+                if re.match(r'^\d+\.\d+$', frota_value):
+                    print(f"  - Limpando valor de frota: '{frota_value}' -> '{frota_value.split('.')[0]}'")
+                    return frota_value.split('.')[0]
+                return frota_value
             
             # Função para validar o ID (não aceitar "0-0" ou outros valores inválidos)
             def is_valid_id(id_value):
@@ -397,10 +458,19 @@ class ExcelProcessor:
                 
                 id_str = str(id_value).strip()
                 
+                # Se estiver no formato "ID - Nome", extrair apenas o ID
+                if " - " in id_str:
+                    id_str = id_str.split(" - ")[0].strip()
+                
                 # Verificar se está vazio ou é inválido
                 if not id_str or id_str == "0-0" or id_str == "-" or id_str == "0":
                     return False
                 
+                # Se for um número com decimal (ex: 7041.0), é válido
+                if re.match(r'^\d+\.\d+$', id_str):
+                    return True
+                
+                # Qualquer outro valor não vazio é válido
                 return True
             
             # Verificar se temos dados de disponibilidade mecânica
@@ -414,13 +484,16 @@ class ExcelProcessor:
                     if not is_valid_id(row['Frota']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, disp_col, "porcentagem")
+                    # Limpar valor de frota
+                    frota_limpa = clean_frota_value(row['Frota'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, disp_col, "porcentagem")
                     if valor is None:
                         continue
                     
                     result['disponibilidade_mecanica'].append({
-                        'frota': str(row['Frota']).strip(),
+                        'frota': frota_limpa,
                         'disponibilidade': valor
                     })
                 print(f"Processados {len(result['disponibilidade_mecanica'])} registros de disponibilidade mecânica")
@@ -436,14 +509,17 @@ class ExcelProcessor:
                     if not is_valid_id(row['Operador']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, ef_col, "porcentagem")
+                    # Separar ID e nome do operador
+                    operator_id, operator_name = process_operator_id(row['Operador'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, ef_col, "porcentagem")
                     if valor is None:
                         continue
                     
                     result['eficiencia_energetica'].append({
-                        'id': str(row['Operador']).strip(),
-                        'nome': str(row['Operador']).strip(),
+                        'id': operator_id,
+                        'nome': operator_name,
                         'eficiencia': valor
                     })
                 print(f"Processados {len(result['eficiencia_energetica'])} registros de eficiência energética")
@@ -457,14 +533,17 @@ class ExcelProcessor:
                     if not is_valid_id(row['Operador']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, 'Horas', "horas")
+                    # Separar ID e nome do operador
+                    operator_id, operator_name = process_operator_id(row['Operador'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, 'Horas', "horas")
                     if valor is None:
                         continue
                     
                     result['hora_elevador'].append({
-                        'id': str(row['Operador']).strip(),
-                        'nome': str(row['Operador']).strip(),
+                        'id': operator_id,
+                        'nome': operator_name,
                         'horas': valor
                     })
                 print(f"Processados {len(result['hora_elevador'])} registros de hora elevador")
@@ -478,14 +557,17 @@ class ExcelProcessor:
                     if not is_valid_id(row['Operador']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, 'Porcentagem', "porcentagem")
+                    # Separar ID e nome do operador
+                    operator_id, operator_name = process_operator_id(row['Operador'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, 'Porcentagem', "porcentagem")
                     if valor is None:
                         continue
                     
                     result['motor_ocioso'].append({
-                        'id': str(row['Operador']).strip(),
-                        'nome': str(row['Operador']).strip(),
+                        'id': operator_id,
+                        'nome': operator_name,
                         'percentual': valor
                     })
                 print(f"Processados {len(result['motor_ocioso'])} registros de motor ocioso")
@@ -501,14 +583,17 @@ class ExcelProcessor:
                     if not is_valid_id(row['Operador']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, porc_col, "porcentagem")
+                    # Separar ID e nome do operador
+                    operator_id, operator_name = process_operator_id(row['Operador'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, porc_col, "porcentagem")
                     if valor is None:
                         continue
                     
                     result['uso_gps'].append({
-                        'id': str(row['Operador']).strip(),
-                        'nome': str(row['Operador']).strip(),
+                        'id': operator_id,
+                        'nome': operator_name,
                         'porcentagem': valor
                     })
                 print(f"Processados {len(result['uso_gps'])} registros de uso GPS")
@@ -522,13 +607,16 @@ class ExcelProcessor:
                     if not is_valid_id(row['Frota']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, 'TDH', "decimal")
+                    # Limpar valor de frota
+                    frota_limpa = clean_frota_value(row['Frota'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, 'TDH', "decimal")
                     if valor is None:
                         continue
                     
                     result['tdh'].append({
-                        'frota': str(row['Frota']).strip(),
+                        'frota': frota_limpa,
                         'valor': valor
                     })
                 print(f"Processados {len(result['tdh'])} registros de TDH")
@@ -542,13 +630,16 @@ class ExcelProcessor:
                     if not is_valid_id(row['Frota']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, 'Diesel', "decimal")
+                    # Limpar valor de frota
+                    frota_limpa = clean_frota_value(row['Frota'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, 'Diesel', "decimal")
                     if valor is None:
                         continue
                     
                     result['diesel'].append({
-                        'frota': str(row['Frota']).strip(),
+                        'frota': frota_limpa,
                         'valor': valor
                     })
                 print(f"Processados {len(result['diesel'])} registros de consumo de diesel")
@@ -562,13 +653,16 @@ class ExcelProcessor:
                     if not is_valid_id(row['Frota']):
                         continue
                     
-                    # Converter o valor
-                    valor = convert_value(row, 'Impureza', "porcentagem")
+                    # Limpar valor de frota
+                    frota_limpa = clean_frota_value(row['Frota'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, 'Impureza', "porcentagem")
                     if valor is None:
                         continue
                     
                     result['impureza_vegetal'].append({
-                        'frota': str(row['Frota']).strip(),
+                        'frota': frota_limpa,
                         'valor': valor
                     })
                 print(f"Processados {len(result['impureza_vegetal'])} registros de impureza vegetal")
@@ -737,17 +831,29 @@ class ExcelProcessor:
             'area_stats': area_stats.to_dict()
         })
         
-        return geo_data
+        return geo_data 
 
     def is_valid_id(self, id_value):
-        """Valida o ID (não aceitar "0-0" ou outros valores inválidos)"""
+        """
+        Verifica se o ID é válido (não está vazio e não é um valor inválido como '0-0')
+        Também trata IDs no formato 'ID - Nome' extraindo apenas o ID para validação
+        """
         if id_value is None or pd.isna(id_value):
             return False
         
         id_str = str(id_value).strip()
         
+        # Se estiver no formato "ID - Nome", extrair apenas o ID
+        if " - " in id_str:
+            id_str = id_str.split(" - ")[0].strip()
+        
         # Verificar se está vazio ou é inválido
         if not id_str or id_str == "0-0" or id_str == "-" or id_str == "0":
             return False
         
+        # Se for um número com decimal (ex: 7041.0), é válido
+        if re.match(r'^\d+\.\d+$', id_str):
+            return True
+        
+        # Qualquer outro valor não vazio é válido
         return True 

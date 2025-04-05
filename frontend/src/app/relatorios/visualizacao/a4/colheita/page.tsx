@@ -146,23 +146,23 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
 
   const fetchReportData = useCallback(async () => {
-    if (!reportId) {
+          if (!reportId) {
       console.error('❌ ID do relatório não fornecido');
       setError('ID do relatório não fornecido');
-      setLoading(false);
-      return;
-    }
+            setLoading(false);
+            return;
+          }
 
-    try {
+          try {
       console.log('📊 Buscando dados do relatório:', reportId);
 
       const { data: reportData, error } = await supabase
-        .from('relatorios_diarios')
-        .select('*')
-        .eq('id', reportId)
-        .single();
+              .from('relatorios_diarios')
+              .select('*')
+              .eq('id', reportId)
+              .single();
 
-      if (error) {
+            if (error) {
         throw error;
       }
 
@@ -180,50 +180,50 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       // Processar os dados do relatório
       setReportData(reportData);
       setNomeFrente(reportData.frente || '');
-      setLoading(false);
+            setLoading(false);
 
-      // Configurar subscription para atualizações em tempo real
+            // Configurar subscription para atualizações em tempo real
       const newSubscription = supabase
-        .channel('relatorios_changes')
-        .on(
-          'postgres_changes',
-          {
+              .channel('relatorios_changes')
+              .on(
+                'postgres_changes',
+                {
             event: 'UPDATE',
-            schema: 'public',
-            table: 'relatorios_diarios',
-            filter: `id=eq.${reportId}`
-          },
-          async (payload) => {
+                  schema: 'public',
+                  table: 'relatorios_diarios',
+                  filter: `id=eq.${reportId}`
+                },
+                async (payload) => {
             console.log('📊 Atualização recebida:', payload);
             const { data: updatedReport, error: updateError } = await supabase
-              .from('relatorios_diarios')
-              .select('*')
-              .eq('id', reportId)
-              .single();
+                    .from('relatorios_diarios')
+                    .select('*')
+                    .eq('id', reportId)
+                    .single();
 
             if (!updateError && updatedReport) {
-              console.log('✅ Dados atualizados com sucesso');
-              setReportData(updatedReport);
+                    console.log('✅ Dados atualizados com sucesso');
+                    setReportData(updatedReport);
               setNomeFrente(updatedReport.frente || '');
-            }
-          }
-        )
-        .subscribe();
+                  }
+                }
+              )
+              .subscribe();
 
       setSubscription(newSubscription);
 
-    } catch (error) {
-      console.error('❌ Erro ao buscar dados do relatório:', error);
+          } catch (error) {
+            console.error('❌ Erro ao buscar dados do relatório:', error);
       setError(error instanceof Error ? error.message : 'Erro ao buscar dados do relatório');
-      setLoading(false);
-    }
+            setLoading(false);
+          }
   }, [reportId]);
 
   useEffect(() => {
-    fetchReportData();
+        fetchReportData();
 
-    return () => {
-      if (subscription) {
+        return () => {
+          if (subscription) {
         subscription.unsubscribe();
       }
     };
@@ -233,7 +233,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const finalData: DadosProcessados = useMemo(() => {
     if (!reportData?.dados) {
       console.log('❌ Sem dados do relatório');
-      return {
+                return {
         tdh: [],
         diesel: [],
         impureza_vegetal: [],
@@ -261,7 +261,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     console.log('📊 Dados de disponibilidade processados:', data);
     return data;
   }, [finalData]);
-
+  
   const finalDataEficiencia = useMemo(() => {
     if (!Array.isArray(finalData?.eficiencia_energetica)) {
       console.log('❌ Dados de eficiência inválidos ou ausentes');
@@ -273,7 +273,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     console.log('📊 Dados de eficiência processados:', data);
     return data;
   }, [finalData]);
-
+  
   const finalDataHorasElevador = useMemo(() => {
     if (!Array.isArray(finalData?.hora_elevador)) {
       console.log('❌ Dados de horas elevador inválidos ou ausentes');
@@ -285,7 +285,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     console.log('📊 Dados de horas elevador processados:', data);
     return data;
   }, [finalData]);
-
+  
   const finalDataMotorOcioso = useMemo(() => {
     if (!Array.isArray(finalData?.motor_ocioso)) {
       console.log('❌ Dados de motor ocioso inválidos ou ausentes');
@@ -297,7 +297,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     console.log('📊 Dados de motor ocioso processados:', data);
     return data;
   }, [finalData]);
-
+  
   const finalDataUsoGPS = useMemo(() => {
     if (!Array.isArray(finalData?.uso_gps)) {
       console.log('❌ Dados de uso GPS inválidos ou ausentes');
@@ -621,25 +621,25 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
     return {
       tdh: {
-        data: finalData.tdh || [],
+      data: finalData.tdh || [],
         meta: reportData?.metas?.tdh || configManager.getMetas('colheita_diario').tdh,
-        media: calcularMedia(finalData.tdh, 'valor')
+      media: calcularMedia(finalData.tdh, 'valor')
       },
       diesel: {
-        data: finalData.diesel || [],
+      data: finalData.diesel || [],
         meta: reportData?.metas?.diesel || configManager.getMetas('colheita_diario').diesel,
-        media: calcularMedia(finalData.diesel, 'valor')
+      media: calcularMedia(finalData.diesel, 'valor')
       },
       impurezaVegetal: {
-        data: finalData.impureza_vegetal || [],
+      data: finalData.impureza_vegetal || [],
         meta: reportData?.metas?.impurezaVegetal || configManager.getMetas('colheita_diario').impureza_vegetal,
-        media: calcularMedia(finalData.impureza_vegetal, 'valor')
+      media: calcularMedia(finalData.impureza_vegetal, 'valor')
       },
       disponibilidadeMecanica: {
         data: finalDataDisponibilidade,
         meta: reportData?.metas?.disponibilidadeMecanica || configManager.getMetas('colheita_diario').disponibilidadeMecanica,
         media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
-        acimaMeta: {
+      acimaMeta: {
           quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', reportData?.metas?.disponibilidadeMecanica || configManager.getMetas('colheita_diario').disponibilidadeMecanica),
           total: finalDataDisponibilidade.length,
           percentual: (contarItensMeta(finalDataDisponibilidade, 'disponibilidade', reportData?.metas?.disponibilidadeMecanica || configManager.getMetas('colheita_diario').disponibilidadeMecanica) / 
@@ -650,7 +650,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         data: finalDataEficiencia,
         meta: reportData?.metas?.eficienciaEnergetica || configManager.getMetas('colheita_diario').eficienciaEnergetica,
         media: calcularMedia(finalDataEficiencia, 'eficiencia'),
-        acimaMeta: {
+      acimaMeta: {
           quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', reportData?.metas?.eficienciaEnergetica || configManager.getMetas('colheita_diario').eficienciaEnergetica),
           total: finalDataEficiencia.length,
           percentual: (contarItensMeta(finalDataEficiencia, 'eficiencia', reportData?.metas?.eficienciaEnergetica || configManager.getMetas('colheita_diario').eficienciaEnergetica) / 
@@ -661,7 +661,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         data: finalDataHorasElevador,
         meta: reportData?.metas?.horaElevador || configManager.getMetas('colheita_diario').horaElevador,
         media: calcularMedia(finalDataHorasElevador, 'horas'),
-        acimaMeta: {
+      acimaMeta: {
           quantidade: contarItensMeta(finalDataHorasElevador, 'horas', reportData?.metas?.horaElevador || configManager.getMetas('colheita_diario').horaElevador),
           total: finalDataHorasElevador.length,
           percentual: (contarItensMeta(finalDataHorasElevador, 'horas', reportData?.metas?.horaElevador || configManager.getMetas('colheita_diario').horaElevador) / 
@@ -672,7 +672,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         data: finalDataMotorOcioso,
         meta: reportData?.metas?.motorOcioso || configManager.getMetas('colheita_diario').motorOcioso,
         media: calcularMedia(finalDataMotorOcioso, 'percentual'),
-        acimaMeta: {
+      acimaMeta: {
           quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', reportData?.metas?.motorOcioso || configManager.getMetas('colheita_diario').motorOcioso, false),
           total: finalDataMotorOcioso.length,
           percentual: (contarItensMeta(finalDataMotorOcioso, 'percentual', reportData?.metas?.motorOcioso || configManager.getMetas('colheita_diario').motorOcioso, false) / 
@@ -683,7 +683,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         data: finalDataUsoGPS,
         meta: reportData?.metas?.usoGPS || configManager.getMetas('colheita_diario').usoGPS,
         media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
-        acimaMeta: {
+      acimaMeta: {
           quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', reportData?.metas?.usoGPS || configManager.getMetas('colheita_diario').usoGPS),
           total: finalDataUsoGPS.length,
           percentual: (contarItensMeta(finalDataUsoGPS, 'porcentagem', reportData?.metas?.usoGPS || configManager.getMetas('colheita_diario').usoGPS) / 
@@ -742,78 +742,78 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             <Flex flex="1" direction="column" justify="space-between">
               {/* Disponibilidade Mecânica */}
               {secoes.disponibilidadeMecanica && (
-                <Box flex="1" mb={3}>
-                  <SectionTitle title="Disponibilidade Mecânica" centered={true} />
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={3}
-                    h="calc(100% - 25px)"
-                  >
+              <Box flex="1" mb={3}>
+                <SectionTitle title="Disponibilidade Mecânica" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
                     {finalDataDisponibilidade.length > 0 ? (
-                      <GraficoDisponibilidadeMecanicaColheita 
-                        data={finalDataDisponibilidade} 
+                  <GraficoDisponibilidadeMecanicaColheita 
+                    data={finalDataDisponibilidade} 
                         meta={resumoData.disponibilidadeMecanica.meta || 0} 
-                      />
+                  />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de disponibilidade mecânica</Text>
                       </Center>
                     )}
-                  </Box>
                 </Box>
+              </Box>
               )}
               
               {/* Eficiência Energética */}
               {secoes.eficienciaEnergetica && (
-                <Box flex="1" mb={3}>
-                  <SectionTitle title="Eficiência Energética" centered={true} />
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={2}
-                    h="calc(100% - 25px)"
-                  >
+              <Box flex="1" mb={3}>
+                <SectionTitle title="Eficiência Energética" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 25px)"
+                >
                     {finalDataEficiencia.length > 0 ? (
-                      <GraficoEficienciaEnergetica 
-                        data={finalDataEficiencia} 
+                  <GraficoEficienciaEnergetica 
+                    data={finalDataEficiencia} 
                         meta={resumoData.eficienciaEnergetica.meta || 0} 
-                      />
+                  />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de eficiência energética</Text>
                       </Center>
                     )}
-                  </Box>
                 </Box>
+              </Box>
               )}
               
               {/* Motor Ocioso */}
               {secoes.motorOcioso && (
                 <Box flex="1" mb={3}>
-                  <SectionTitle title="Motor Ocioso" centered={true} />
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
+                <SectionTitle title="Motor Ocioso" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
                     p={2}
-                    h="calc(100% - 25px)"
-                  >
+                  h="calc(100% - 25px)"
+                >
                     {finalDataMotorOcioso.length > 0 ? (
-                      <GraficoMotorOciosoColheita 
-                        data={finalDataMotorOcioso} 
+                  <GraficoMotorOciosoColheita 
+                    data={finalDataMotorOcioso} 
                         meta={resumoData.motorOcioso.meta} 
                         inverterMeta={true}
-                      />
+                  />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de motor ocioso</Text>
                       </Center>
                     )}
-                  </Box>
                 </Box>
+              </Box>
               )}
             </Flex>
           </Box>
@@ -827,52 +827,52 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             <Flex flex="1" direction="column" justify="space-between">
               {/* Horas Elevador */}
               {secoes.horaElevador && (
-                <Box flex="1" mb={3}>
-                  <SectionTitle title="Horas Elevador" centered={true} />
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={2}
-                    h="calc(100% - 25px)"
-                  >
+              <Box flex="1" mb={3}>
+                <SectionTitle title="Horas Elevador" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 25px)"
+                >
                     {finalDataHorasElevador.length > 0 ? (
-                      <GraficoHorasElevador 
-                        data={finalDataHorasElevador} 
+                  <GraficoHorasElevador 
+                    data={finalDataHorasElevador} 
                         meta={resumoData.horaElevador.meta || 0} 
-                      />
+                  />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de hora elevador</Text>
                       </Center>
                     )}
-                  </Box>
                 </Box>
+              </Box>
               )}
               
               {/* Uso GPS */}
               {secoes.usoGPS && (
-                <Box flex="1">
-                  <SectionTitle title="Uso GPS" centered={true} />
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={2}
-                    h="calc(100% - 25px)"
-                  >
+              <Box flex="1">
+                <SectionTitle title="Uso GPS" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 25px)"
+                >
                     {finalDataUsoGPS.length > 0 ? (
-                      <GraficoUsoGPS 
-                        data={finalDataUsoGPS} 
+                  <GraficoUsoGPS 
+                    data={finalDataUsoGPS} 
                         meta={resumoData.usoGPS.meta} 
-                      />
+                  />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de uso GPS</Text>
                       </Center>
                     )}
-                  </Box>
                 </Box>
+              </Box>
               )}
             </Flex>
           </Box>
@@ -963,11 +963,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   dados={{
                     eficiencia_energetica: finalDataEficiencia,
                     motor_ocioso: finalDataMotorOcioso,
-                    falta_apontamento: finalDataHorasElevador.map(item => ({
-                      id: item.id || '',
-                      nome: item.nome || '',
-                      percentual: item.horas || 0
-                    })),
+                    hora_elevador: finalDataHorasElevador,
                     uso_gps: finalDataUsoGPS.map(item => ({
                       id: item.id || '',
                       nome: item.nome || '',

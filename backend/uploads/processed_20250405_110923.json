@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-20",
+    "frente": "frente2",
+    "generated_at": "2025-04-05T11:09:23.119496",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034.0",
+      "disponibilidade": 1.0
+    },
+    {
+      "frota": "6086.0",
+      "disponibilidade": 99.99999999999999
+    },
+    {
+      "frota": "6096.0",
+      "disponibilidade": 88.8146271154919
+    },
+    {
+      "frota": "0.0",
+      "disponibilidade": 0.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "eficiencia": 51.76483687785326
+    },
+    {
+      "id": "108096 - EDMILSON DOS SANTOS SILVA",
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "eficiencia": 55.837372947615506
+    },
+    {
+      "id": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "eficiencia": 64.89602838277321
+    },
+    {
+      "id": "1331013 - GILVAN CIRIACO DA SILVA",
+      "nome": "1331013 - GILVAN CIRIACO DA SILVA",
+      "eficiencia": 58.84198095800409
+    },
+    {
+      "id": "133481 - RUAN PIETRO SILVA DOS SANTOS",
+      "nome": "133481 - RUAN PIETRO SILVA DOS SANTOS",
+      "eficiencia": 70.28482357942455
+    },
+    {
+      "id": "1331012 - CLAUDIO CAMPOS DA SILVA",
+      "nome": "1331012 - CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 58.288385472852
+    },
+    {
+      "id": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "eficiencia": 13.938926313915212
+    },
+    {
+      "id": "579965 - JOSE EDVALDO DA SILVA",
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "eficiencia": 18.50825963624226
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 2.4004015880983403
+    },
+    {
+      "id": "108096 - EDMILSON DOS SANTOS SILVA",
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "percentual": 16.169302104391758
+    },
+    {
+      "id": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "percentual": 0.0
+    },
+    {
+      "id": "1331013 - GILVAN CIRIACO DA SILVA",
+      "nome": "1331013 - GILVAN CIRIACO DA SILVA",
+      "percentual": 68.13562453806759
+    },
+    {
+      "id": "133481 - RUAN PIETRO SILVA DOS SANTOS",
+      "nome": "133481 - RUAN PIETRO SILVA DOS SANTOS",
+      "percentual": 3.211497515968706
+    },
+    {
+      "id": "1331012 - CLAUDIO CAMPOS DA SILVA",
+      "nome": "1331012 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 98.43937575030026
+    },
+    {
+      "id": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 3.8924705023719794
+    },
+    {
+      "id": "579965 - JOSE EDVALDO DA SILVA",
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "percentual": 5.355776587605229
+    }
+  ],
+  "uso_gps": []
+}

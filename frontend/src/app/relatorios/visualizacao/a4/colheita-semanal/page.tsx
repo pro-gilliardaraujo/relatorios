@@ -1127,11 +1127,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               <TabelaOperadores dados={{
                 eficiencia_energetica: reportData ? reportData.dados.eficiencia_energetica : dadosExemplo.eficiencia_energetica,
                 motor_ocioso: reportData ? reportData.dados.motor_ocioso : dadosExemplo.motor_ocioso,
-                falta_apontamento: (reportData ? reportData.dados.hora_elevador : dadosExemplo.hora_elevador).map((item: any) => ({
-                  id: item.id,
-                  nome: item.nome,
-                  percentual: item.horas
-                })),
+                hora_elevador: reportData ? reportData.dados.hora_elevador : dadosExemplo.hora_elevador,
                 uso_gps: reportData ? reportData.dados.uso_gps : dadosExemplo.uso_gps
               }} tipo="colheita_semanal" />
             </Box>

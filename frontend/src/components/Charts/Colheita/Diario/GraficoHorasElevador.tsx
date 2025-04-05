@@ -115,7 +115,7 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
               borderRadius="sm"
             >
               {/* Primeira linha: ID e nome do operador */}
-              <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id} - ${item.nome}`} mb={0.5} color="black">
+              <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={item.nome} mb={0.5} color="black">
                 {item.id} - {item.nome}
               </Text>
               

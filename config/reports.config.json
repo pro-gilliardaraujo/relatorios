@@ -30,11 +30,11 @@
         "5_Uso GPS"
       ],
       "colunas_excel": {
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
-        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
-        "hora_elevador": ["Operador", "Horas", "horas"],
-        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "hora_elevador": ["Operador", "Horas", "texto", "horas"],
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -83,14 +83,14 @@
         "8_Uso GPS"
       ],
       "colunas_excel": {
-        "tdh": ["Frota", "TDH", "decimal"],
-        "diesel": ["Frota", "Diesel", "decimal"],
-        "impureza_vegetal": ["Frota", "Impureza", "porcentagem"],
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
-        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
-        "hora_elevador": ["Operador", "Horas", "horas"],
-        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
+        "tdh": ["Frota", "TDH", "texto", "decimal"],
+        "diesel": ["Frota", "Diesel", "texto", "decimal"],
+        "impureza_vegetal": ["Frota", "Impureza", "texto", "porcentagem"],
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "hora_elevador": ["Operador", "Horas", "texto", "horas"],
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -130,11 +130,11 @@
         "5_Uso GPS"
       ],
       "colunas_excel": {
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
-        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
-        "falta_apontamento": ["Operador", "Porcentagem", "porcentagem"],
-        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "falta_apontamento": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -180,13 +180,13 @@
         "7_Uso GPS"
       ],
       "colunas_excel": {
-        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "porcentagem"],
-        "tdh": ["Frota", "TDH", "decimal"],
-        "diesel": ["Frota", "Diesel", "decimal"],
-        "eficiencia_energetica": ["Operador", "Eficiência", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "porcentagem"],
-        "falta_apontamento": ["Operador", "Porcentagem", "porcentagem"],
-        "uso_gps": ["Operador", "Porcentagem", "porcentagem"]
+        "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
+        "tdh": ["Frota", "TDH", "texto", "decimal"],
+        "diesel": ["Frota", "Diesel", "texto", "decimal"],
+        "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "falta_apontamento": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
       },
       "componentes": {
         "mostrarImageUpload": true,

@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-04",
+    "frente": "frente3",
+    "generated_at": "2025-04-05T17:48:57.968905",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "disponibilidade": 98.26578219243102
+    },
+    {
+      "frota": "7042.0",
+      "disponibilidade": 93.30630682805351
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "nome": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "eficiencia": 55.59573658165211
+    },
+    {
+      "id": "9999 - TROCA DE TURNO",
+      "nome": "9999 - TROCA DE TURNO",
+      "eficiencia": 54.61946902654865
+    },
+    {
+      "id": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "nome": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "eficiencia": 67.48684617765396
+    },
+    {
+      "id": "61829 - LAILSON ANTONIO DA SILVA",
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "eficiencia": 70.53571428571429
+    },
+    {
+      "id": "919777 - JOAO OSMAR DA SILVA",
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "eficiencia": 67.60817307692302
+    },
+    {
+      "id": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "eficiencia": 57.62008381689224
+    },
+    {
+      "id": "855523 - RODRIGO FABIANO DA SILVA",
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "eficiencia": 60.52867383512543
+    },
+    {
+      "id": "1 - SEM OPERADOR",
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "nome": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "horas": 2.4341666666666644
+    },
+    {
+      "id": "9999 - TROCA DE TURNO",
+      "nome": "9999 - TROCA DE TURNO",
+      "horas": 0.8572222222222223
+    },
+    {
+      "id": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "nome": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "horas": 3.6341666666666628
+    },
+    {
+      "id": "61829 - LAILSON ANTONIO DA SILVA",
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "horas": 3.4672222222222224
+    },
+    {
+      "id": "919777 - JOAO OSMAR DA SILVA",
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "horas": 4.0624999999999964
+    },
+    {
+      "id": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "horas": 3.971944444444444
+    },
+    {
+      "id": "855523 - RODRIGO FABIANO DA SILVA",
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "horas": 0.7505555555555554
+    },
+    {
+      "id": "1 - SEM OPERADOR",
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.0
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "nome": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "percentual": 20.936429387133654
+    },
+    {
+      "id": "9999 - TROCA DE TURNO",
+      "nome": "9999 - TROCA DE TURNO",
+      "percentual": 26.938053097345122
+    },
+    {
+      "id": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "nome": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "percentual": 20.92747343443725
+    },
+    {
+      "id": "61829 - LAILSON ANTONIO DA SILVA",
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "percentual": 16.93037974683544
+    },
+    {
+      "id": "919777 - JOAO OSMAR DA SILVA",
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "percentual": 17.201368343195274
+    },
+    {
+      "id": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "percentual": 12.713571889103786
+    },
+    {
+      "id": "855523 - RODRIGO FABIANO DA SILVA",
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "percentual": 16.89068100358423
+    },
+    {
+      "id": "1 - SEM OPERADOR",
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 1.0
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "nome": "1292260 - JOSE AILSON DE ARAUJO DIAS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "9999 - TROCA DE TURNO",
+      "nome": "9999 - TROCA DE TURNO",
+      "porcentagem": 34.60455592526234
+    },
+    {
+      "id": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "nome": "898238 - REGINALDO MARCOS DOS SANTOS",
+      "porcentagem": 93.24183976261128
+    },
+    {
+      "id": "61829 - LAILSON ANTONIO DA SILVA",
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "porcentagem": 66.87541936926861
+    },
+    {
+      "id": "919777 - JOAO OSMAR DA SILVA",
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "porcentagem": 86.83766233766235
+    },
+    {
+      "id": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "porcentagem": 92.17349033164098
+    },
+    {
+      "id": "855523 - RODRIGO FABIANO DA SILVA",
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "porcentagem": 98.40895698291102
+    },
+    {
+      "id": "1 - SEM OPERADOR",
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    }
+  ]
+}
