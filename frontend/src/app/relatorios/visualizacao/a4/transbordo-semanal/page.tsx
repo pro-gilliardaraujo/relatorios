@@ -496,6 +496,25 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
       </Heading>
   );
 
+  // Adicionar no início da função principal, após a declaração de variáveis iniciais
+  // Verificar configuração para mostrar ou esconder componentes
+  const secoes = useMemo(() => {
+    // Obter configurações de seções para o tipo de relatório
+    const tipoRelatorio = reportData?.metadata?.type || 'transbordo_semanal';
+    const configSections = configManager.getTipoRelatorio(tipoRelatorio)?.secoes || {
+      tdh: true,
+      diesel: true,
+      disponibilidadeMecanica: true,
+      eficienciaEnergetica: true,
+      motorOcioso: true,
+      faltaApontamento: true,
+      usoGPS: false
+    };
+    
+    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
+    return configSections;
+  }, [reportData?.metadata?.type]);
+
   // Dados processados para os gráficos
   const dadosProcessados = useMemo(() => {
     try {
@@ -861,40 +880,54 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
               {/* TDH */}
-              <Box flex="1" mb={2}>
-                <SectionTitle title="Consumo de TDH" />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 30px)"
-                  overflow="hidden"
-                >
-                  <GraficoTDH
-                    data={dadosProcessados.tdh}
-                    meta={configManager.getMetas('transbordo_semanal').tdh}
-                  />
+              {secoes.tdh && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="TDH" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {dadosProcessados.tdh.length > 0 ? (
+                      <GraficoTDH 
+                        data={dadosProcessados.tdh} 
+                        meta={configManager.getMetas('transbordo_semanal').tdh} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de TDH</Text>
+                      </Center>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              )}
               
               {/* Diesel */}
-              <Box flex="1">
-                <SectionTitle title="Consumo de Diesel" />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 30px)"
-                  overflow="hidden"
-                >
-                  <GraficoDiesel 
-                    data={dadosProcessados.diesel}
-                    meta={configManager.getMetas('transbordo_semanal').diesel}
-                  />
+              {secoes.diesel && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Diesel" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {dadosProcessados.diesel.length > 0 ? (
+                      <GraficoDiesel 
+                        data={dadosProcessados.diesel} 
+                        meta={configManager.getMetas('transbordo_semanal').diesel} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de diesel</Text>
+                      </Center>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              )}
             </Box>
           </Box>
         </A4Colheita>
@@ -988,30 +1021,32 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         </A4Colheita>
               
         {/* Quarta Página - Uso GPS */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
-            <Box flex="1" display="flex" flexDirection="column">
-              {/* Uso GPS */}
-              <Box flex="1">
-                <SectionTitle title="Uso GPS" />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 30px)"
-                  overflow="hidden"
-                >
-                  <GraficoUsoGPS 
-                    data={dadosProcessados.uso_gps}
-                    meta={configManager.getMetas('transbordo_semanal').usoGPS}
-                  />
+        {secoes.usoGPS && (
+          <A4Colheita>
+            <Box h="100%" display="flex" flexDirection="column">
+              <PageHeader />
+              <Box flex="1" display="flex" flexDirection="column">
+                {/* Uso GPS */}
+                <Box flex="1">
+                  <SectionTitle title="Uso GPS" />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 30px)"
+                    overflow="hidden"
+                  >
+                    <GraficoUsoGPS 
+                      data={dadosProcessados.uso_gps}
+                      meta={configManager.getMetas('transbordo_semanal').usoGPS}
+                    />
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
-        </A4Colheita>
+          </A4Colheita>
+        )}
         
         {/* Quinta Página - Resumo */}
         <A4Colheita isLastPage={true}>

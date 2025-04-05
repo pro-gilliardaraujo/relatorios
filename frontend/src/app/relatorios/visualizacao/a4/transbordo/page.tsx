@@ -614,6 +614,22 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     };
   }, [reportData]);
 
+  // Verificar configuração para mostrar ou esconder componentes
+  const secoes = useMemo(() => {
+    // Obter configurações de seções para o tipo de relatório
+    const tipoRelatorio = reportData?.metadata?.type || 'transbordo_diario';
+    const configSections = configManager.getTipoRelatorio(tipoRelatorio)?.secoes || {
+      disponibilidadeMecanica: true,
+      eficienciaEnergetica: true,
+      motorOcioso: true,
+      faltaApontamento: true,
+      usoGPS: false
+    };
+    
+    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
+    return configSections;
+  }, [reportData?.metadata?.type]);
+
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
     return (
@@ -688,7 +704,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               <PageHeader />
               <Box flex="1" display="flex" flexDirection="column">
                 {/* Disponibilidade Mecânica */}
-                {processedData.disponibilidade_mecanica.length > 0 && (
+                {secoes.disponibilidadeMecanica && (
                   <Box flex="1" mb={2}>
                     <SectionTitle title="Disponibilidade Mecânica" />
                     <Box 
@@ -708,7 +724,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                 )}
                 
                 {/* Eficiência Energética */}
-                {processedData.eficiencia_energetica.length > 0 && (
+                {secoes.eficienciaEnergetica && (
                   <Box flex="1">
                     <SectionTitle title="Eficiência Energética" />
                     <Box 
@@ -738,7 +754,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               <PageHeader />
               <Box flex="1" display="flex" flexDirection="column">
                 {/* Motor Ocioso */}
-                {processedData.motor_ocioso.length > 0 && (
+                {secoes.motorOcioso && (
                   <Box flex="1" mb={2}>
                     <SectionTitle title="Motor Ocioso" />
                     <Box 
@@ -758,7 +774,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                 )}
 
                 {/* Falta de Apontamento */}
-                {processedData.falta_apontamento.length > 0 && (
+                {secoes.faltaApontamento && (
                   <Box flex="1">
                     <SectionTitle title="Falta de Apontamento" />
                     <Box 
@@ -782,7 +798,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         )}
               
         {/* Terceira Página - Uso GPS */}
-        {processedData.uso_gps.length > 0 && (
+        {secoes.usoGPS && (
           <A4Colheita>
             <Box h="100%" display="flex" flexDirection="column">
               <PageHeader />

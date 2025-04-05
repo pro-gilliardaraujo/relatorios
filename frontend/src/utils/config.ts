@@ -223,6 +223,9 @@ export interface TipoRelatorio {
   nome: string;
   frentes: Frente[];
   metas: Meta;
+  secoes?: {
+    [key: string]: boolean;
+  };
   planilhas_excel: string[];
   colunas_excel: {
     [key: string]: string[];

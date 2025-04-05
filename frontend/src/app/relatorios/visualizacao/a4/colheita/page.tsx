@@ -353,6 +353,23 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     }
   }, [loading, isModoTemplate, reportId, finalDataDisponibilidade, finalDataEficiencia, finalDataHorasElevador, finalDataMotorOcioso, finalDataUsoGPS]);
 
+  // Adicionar no início da função principal, após a declaração de variáveis iniciais
+  // Verificar configuração para mostrar ou esconder componentes
+  const secoes = useMemo(() => {
+    // Obter configurações de seções para o tipo de relatório
+    const tipoRelatorio = reportData?.metadata?.type || 'colheita_diario';
+    const configSections = configManager.getTipoRelatorio(tipoRelatorio)?.secoes || {
+      disponibilidadeMecanica: true,
+      eficienciaEnergetica: true,
+      motorOcioso: true,
+      horaElevador: true,
+      usoGPS: true
+    };
+    
+    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
+    return configSections;
+  }, [reportData?.metadata?.type]);
+
   // FUNÇÕES
   // Função para imprimir o relatório
   const handlePrint = async () => {
@@ -724,74 +741,80 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             
             <Flex flex="1" direction="column" justify="space-between">
               {/* Disponibilidade Mecânica */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Disponibilidade Mecânica" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
-                  {finalDataDisponibilidade.length > 0 ? (
-                    <GraficoDisponibilidadeMecanicaColheita 
-                      data={finalDataDisponibilidade} 
-                      meta={resumoData.disponibilidadeMecanica.meta || 0} 
-                    />
-                  ) : (
-                    <Center h="100%">
-                      <Text>Sem dados de disponibilidade mecânica</Text>
-                    </Center>
-                  )}
+              {secoes.disponibilidadeMecanica && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Disponibilidade Mecânica" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={3}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataDisponibilidade.length > 0 ? (
+                      <GraficoDisponibilidadeMecanicaColheita 
+                        data={finalDataDisponibilidade} 
+                        meta={resumoData.disponibilidadeMecanica.meta || 0} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de disponibilidade mecânica</Text>
+                      </Center>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              )}
               
               {/* Eficiência Energética */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Eficiência Energética" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                  {finalDataEficiencia.length > 0 ? (
-                    <GraficoEficienciaEnergetica 
-                      data={finalDataEficiencia} 
-                      meta={resumoData.eficienciaEnergetica.meta || 0} 
-                    />
-                  ) : (
-                    <Center h="100%">
-                      <Text>Sem dados de eficiência energética</Text>
-                    </Center>
-                  )}
+              {secoes.eficienciaEnergetica && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Eficiência Energética" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataEficiencia.length > 0 ? (
+                      <GraficoEficienciaEnergetica 
+                        data={finalDataEficiencia} 
+                        meta={resumoData.eficienciaEnergetica.meta || 0} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de eficiência energética</Text>
+                      </Center>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              )}
               
               {/* Motor Ocioso */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Motor Ocioso" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                  {finalDataMotorOcioso.length > 0 ? (
-                    <GraficoMotorOciosoColheita 
-                      data={finalDataMotorOcioso} 
-                      meta={resumoData.motorOcioso.meta} 
-                      inverterMeta={true}
-                    />
-                  ) : (
-                    <Center h="100%">
-                      <Text>Sem dados de motor ocioso</Text>
-                    </Center>
-                  )}
+              {secoes.motorOcioso && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Motor Ocioso" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataMotorOcioso.length > 0 ? (
+                      <GraficoMotorOciosoColheita 
+                        data={finalDataMotorOcioso} 
+                        meta={resumoData.motorOcioso.meta} 
+                        inverterMeta={true}
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de motor ocioso</Text>
+                      </Center>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              )}
             </Flex>
           </Box>
         </A4Colheita>
@@ -803,44 +826,54 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             
             <Flex flex="1" direction="column" justify="space-between">
               {/* Horas Elevador */}
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Horas Elevador" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                  <GraficoHorasElevador 
-                    data={finalDataHorasElevador} 
-                    meta={resumoData.horaElevador.meta || 0} 
-                  />
+              {secoes.horaElevador && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Horas Elevador" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataHorasElevador.length > 0 ? (
+                      <GraficoHorasElevador 
+                        data={finalDataHorasElevador} 
+                        meta={resumoData.horaElevador.meta || 0} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de hora elevador</Text>
+                      </Center>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              )}
               
               {/* Uso GPS */}
-              <Box flex="1">
-                <SectionTitle title="Uso GPS" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                  {finalDataUsoGPS.length > 0 ? (
-                    <GraficoUsoGPS 
-                      data={finalDataUsoGPS} 
-                      meta={resumoData.usoGPS.meta} 
-                    />
-                  ) : (
-                    <Center h="100%">
-                      <Text>Sem dados de uso GPS</Text>
-                    </Center>
-                  )}
+              {secoes.usoGPS && (
+                <Box flex="1">
+                  <SectionTitle title="Uso GPS" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataUsoGPS.length > 0 ? (
+                      <GraficoUsoGPS 
+                        data={finalDataUsoGPS} 
+                        meta={resumoData.usoGPS.meta} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de uso GPS</Text>
+                      </Center>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
+              )}
             </Flex>
           </Box>
         </A4Colheita>

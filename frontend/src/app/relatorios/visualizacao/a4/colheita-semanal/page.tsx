@@ -170,6 +170,25 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const LOGO_HEIGHT = "50px";
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
 
+  // Verificar configuração para mostrar ou esconder componentes
+  const secoes = useMemo(() => {
+    // Obter configurações de seções para o tipo de relatório
+    const tipoRelatorio = reportData?.metadata?.type || 'colheita_semanal';
+    const configSections = configManager.getTipoRelatorio(tipoRelatorio)?.secoes || {
+      tdh: true,
+      diesel: true,
+      impurezaVegetal: true,
+      disponibilidadeMecanica: true,
+      eficienciaEnergetica: true,
+      motorOcioso: true,
+      horaElevador: true,
+      usoGPS: true
+    };
+    
+    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
+    return configSections;
+  }, [reportData?.metadata?.type]);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -829,167 +848,173 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       }}
     >
       {/* Página 1 - TDH, Diesel, Disponibilidade e Impureza */}
-      <A4Colheita>
-        <Box h="100%" display="flex" flexDirection="column" bg="white" sx={{ '@media print': { breakInside: 'avoid !important', m: '0 !important', p: '0 !important' } }}>
-          <PageHeader showDate={true} />
-          
-          <Flex flex="1" direction="column" justify="space-between">
-            {/* TDH */}
-            <Box flex="1" mb={3}>
-              <SectionTitle title="TDH" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={2}
-                h="calc(100% - 25px)"
-              >
-                <GraficoTDH 
-                  data={finalDataTDH} 
-                  meta={configManager.getMetas('colheita_semanal').tdh} 
-                />
-              </Box>
-            </Box>
+      {secoes.tdh && (
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white" sx={{ '@media print': { breakInside: 'avoid !important', m: '0 !important', p: '0 !important' } }}>
+            <PageHeader showDate={true} />
             
-            {/* Diesel */}
-            <Box flex="1" mb={3}>
-              <SectionTitle title="Consumo de Diesel" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={3}
-                h="calc(100% - 25px)"
-              >
-                <GraficoDiesel 
-                  data={finalDataDiesel} 
-                  meta={configManager.getMetas('colheita_semanal').diesel} 
-                />
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* TDH */}
+              <Box flex="1" mb={3}>
+                <SectionTitle title="TDH" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoTDH 
+                    data={finalDataTDH} 
+                    meta={configManager.getMetas('colheita_semanal').tdh} 
+                  />
+                </Box>
               </Box>
-            </Box>
+              
+              {/* Diesel */}
+              <Box flex="1" mb={3}>
+                <SectionTitle title="Consumo de Diesel" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoDiesel 
+                    data={finalDataDiesel} 
+                    meta={configManager.getMetas('colheita_semanal').diesel} 
+                  />
+                </Box>
+              </Box>
 
-            {/* Disponibilidade Mecânica */}
-            <Box flex="1" mb={3}>
-              <SectionTitle title="Disponibilidade Mecânica" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={3}
-                h="calc(100% - 25px)"
-              >
-                <GraficoDisponibilidadeMecanicaColheita 
-                  data={finalDataDisponibilidade} 
-                  meta={configManager.getMetas('colheita_semanal').disponibilidadeMecanica} 
-                />
+              {/* Disponibilidade Mecânica */}
+              <Box flex="1" mb={3}>
+                <SectionTitle title="Disponibilidade Mecânica" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoDisponibilidadeMecanicaColheita 
+                    data={finalDataDisponibilidade} 
+                    meta={configManager.getMetas('colheita_semanal').disponibilidadeMecanica} 
+                  />
+                </Box>
               </Box>
-            </Box>
-            
-            {/* Impureza Vegetal */}
-            <Box flex="1">
-              <SectionTitle title="Impureza Vegetal" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={3}
-                h="calc(100% - 25px)"
-              >
-                <GraficoImpurezaVegetal 
-                  data={finalDataImpureza} 
-                  meta={configManager.getMetas('colheita_semanal').impureza_vegetal} 
-                />
+              
+              {/* Impureza Vegetal */}
+              <Box flex="1">
+                <SectionTitle title="Impureza Vegetal" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoImpurezaVegetal 
+                    data={finalDataImpureza} 
+                    meta={configManager.getMetas('colheita_semanal').impureza_vegetal} 
+                  />
+                </Box>
               </Box>
-            </Box>
-          </Flex>
-        </Box>
-      </A4Colheita>
+            </Flex>
+          </Box>
+        </A4Colheita>
+      )}
       
       {/* Página 2 - Eficiência Energética e Horas Elevador */}
-      <A4Colheita>
-        <Box h="100%" display="flex" flexDirection="column" bg="white">
-          <PageHeader showDate={false} />
-          
-          <Flex flex="1" direction="column" justify="space-between">
-            {/* Eficiência Energética */}
-            <Box flex="1" mb={6}>
-              <SectionTitle title="Eficiência Energética" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={3}
-                h="calc(100% - 25px)"
-              >
-                <GraficoEficienciaEnergetica 
-                  data={finalDataEficiencia} 
-                  meta={configManager.getMetas('colheita_semanal').eficienciaEnergetica} 
-                />
-              </Box>
-            </Box>
+      {secoes.eficienciaEnergetica && (
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader showDate={false} />
             
-            {/* Horas Elevador */}
-            <Box flex="1">
-              <SectionTitle title="Horas Elevador" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={3}
-                h="calc(100% - 25px)"
-              >
-                <GraficoHorasElevador 
-                  data={finalDataHorasElevador} 
-                  meta={configManager.getMetas('colheita_semanal').horaElevador} 
-                />
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Eficiência Energética */}
+              <Box flex="1" mb={6}>
+                <SectionTitle title="Eficiência Energética" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoEficienciaEnergetica 
+                    data={finalDataEficiencia} 
+                    meta={configManager.getMetas('colheita_semanal').eficienciaEnergetica} 
+                  />
+                </Box>
               </Box>
-            </Box>
-          </Flex>
-        </Box>
-      </A4Colheita>
+              
+              {/* Horas Elevador */}
+              <Box flex="1">
+                <SectionTitle title="Horas Elevador" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoHorasElevador 
+                    data={finalDataHorasElevador} 
+                    meta={configManager.getMetas('colheita_semanal').horaElevador} 
+                  />
+                </Box>
+              </Box>
+            </Flex>
+          </Box>
+        </A4Colheita>
+      )}
       
       {/* Página 3 - Motor Ocioso e Uso GPS */}
-      <A4Colheita>
-        <Box h="100%" display="flex" flexDirection="column" bg="white">
-          <PageHeader showDate={false} />
-          
-          <Flex flex="1" direction="column" justify="space-between">
-            {/* Motor Ocioso */}
-            <Box flex="1" mb={6}>
-              <SectionTitle title="Motor Ocioso" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={3}
-                h="calc(100% - 25px)"
-              >
-                <GraficoMotorOciosoColheita 
-                  data={finalDataMotorOcioso} 
-                  meta={configManager.getMetas('colheita_semanal').motorOcioso} 
-                />
-              </Box>
-            </Box>
+      {secoes.motorOcioso && (
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader showDate={false} />
             
-            {/* Uso GPS */}
-            <Box flex="1">
-              <SectionTitle title="Uso GPS" centered={true} />
-              <Box 
-                border="1px solid"
-                borderColor="black"
-                borderRadius="md"
-                p={3}
-                h="calc(100% - 25px)"
-              >
-                <GraficoUsoGPS 
-                  data={finalDataUsoGPS} 
-                  meta={reportData?.metas?.usoGPS || configManager.getMetas('colheita_semanal').usoGPS} 
-                />
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Motor Ocioso */}
+              <Box flex="1" mb={6}>
+                <SectionTitle title="Motor Ocioso" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoMotorOciosoColheita 
+                    data={finalDataMotorOcioso} 
+                    meta={configManager.getMetas('colheita_semanal').motorOcioso} 
+                  />
+                </Box>
               </Box>
-            </Box>
-          </Flex>
-        </Box>
-      </A4Colheita>
+              
+              {/* Uso GPS */}
+              <Box flex="1">
+                <SectionTitle title="Uso GPS" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={3}
+                  h="calc(100% - 25px)"
+                >
+                  <GraficoUsoGPS 
+                    data={finalDataUsoGPS} 
+                    meta={reportData?.metas?.usoGPS || configManager.getMetas('colheita_semanal').usoGPS} 
+                  />
+                </Box>
+              </Box>
+            </Flex>
+          </Box>
+        </A4Colheita>
+      )}
       
       {/* Página 4 - Resumo */}
       <A4Colheita isLastPage={true}>
