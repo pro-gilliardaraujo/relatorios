@@ -313,8 +313,22 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // Função auxiliar para processar operador no formato "ID - NOME"
     const processarOperador = (operador: any) => {
       if (!operador || operador === 0) return null;
-      const match = String(operador).match(/^(\d+)\s*-\s*(.+)$/);
-      return match ? { id: match[1], nome: match[2].trim() } : null;
+      
+      const operadorStr = String(operador).trim();
+      
+      // Pular se for TROCA DE TURNO
+      if (operadorStr === 'TROCA DE TURNO' || operadorStr === '9999 - TROCA DE TURNO') {
+        return null;
+      }
+      
+      // Se tiver o formato "ID - Nome"
+      if (operadorStr.includes(' - ')) {
+        const [id, nome] = operadorStr.split(' - ', 2);
+        return { id, nome: nome.trim() };
+      }
+      
+      // Se for apenas um nome
+      return { id: operadorStr, nome: operadorStr };
     };
 
     // Função auxiliar para converter número

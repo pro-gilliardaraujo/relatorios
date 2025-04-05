@@ -1,0 +1,112 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-04",
+    "frente": "frente1",
+    "generated_at": "2025-04-05T18:55:48.806618",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032",
+      "disponibilidade": 80.00812394823886
+    },
+    {
+      "frota": "7038",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 78.5415056737301
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "eficiencia": 74.62881495738246
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 75.05360972122944
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "horas": 5.364166666666669
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "horas": 6.031666666666672
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 0.005833333333333334
+    },
+    {
+      "id": "1331016",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 0.0
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 8.903078862813688
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "percentual": 11.84355237833378
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 38.52751965689779
+    },
+    {
+      "id": "1331016",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 0.0
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "porcentagem": 15.568914068243728
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "1331016",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 0.0
+    }
+  ]
+}

@@ -315,8 +315,30 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
 
   // Funções utilitárias para processamento de dados
       const processarOperador = (operador: any) => {
-    if (!operador || !operador.nome) return 'Não informado';
-    return operador.nome;
+        // Se vier vazio, 0 ou nulo, retornar null
+        if (!operador || operador === 0) return null;
+        
+        try {
+          // Garantir que temos uma string
+          const operadorStr = String(operador).trim();
+          
+          // Pular se for TROCA DE TURNO
+          if (operadorStr === 'TROCA DE TURNO' || operadorStr === '9999 - TROCA DE TURNO') {
+            return null;
+          }
+          
+          // Se tiver o formato "ID - Nome"
+          if (operadorStr.includes(' - ')) {
+            const [id, nome] = operadorStr.split(' - ', 2);
+            return { id, nome };
+          }
+          
+          // Se for apenas um nome
+          return { id: operadorStr, nome: operadorStr };
+        } catch (erro) {
+          console.error('Erro ao processar operador:', operador, erro);
+          return null;
+        }
       };
 
       const converterNumero = (valor: any) => {

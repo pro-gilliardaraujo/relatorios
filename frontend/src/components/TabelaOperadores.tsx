@@ -111,7 +111,6 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
   ].forEach(item => {
     if (item && item.nome && 
         item.nome !== 'TROCA DE TURNO' && 
-        item.nome !== 'SEM OPERADOR' && 
         !operadoresVistos.has(item.nome)) {
       operadoresVistos.add(item.nome);
       todosOperadores.push({

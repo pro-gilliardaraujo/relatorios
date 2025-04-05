@@ -458,6 +458,10 @@ class ExcelProcessor:
                 
                 id_str = str(id_value).strip()
                 
+                # Filtrar explicitamente "TROCA DE TURNO"
+                if "TROCA DE TURNO" in id_str:
+                    return False
+                
                 # Se estiver no formato "ID - Nome", extrair apenas o ID
                 if " - " in id_str:
                     id_str = id_str.split(" - ")[0].strip()
@@ -842,6 +846,10 @@ class ExcelProcessor:
             return False
         
         id_str = str(id_value).strip()
+        
+        # Filtrar explicitamente "TROCA DE TURNO"
+        if "TROCA DE TURNO" in id_str:
+            return False
         
         # Se estiver no formato "ID - Nome", extrair apenas o ID
         if " - " in id_str:

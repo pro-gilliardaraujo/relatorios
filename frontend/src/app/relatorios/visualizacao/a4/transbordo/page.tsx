@@ -117,7 +117,7 @@ function verificarFormatoDados(dados: any) {
       chave: 'eficiencia_energetica', 
       validar: (item: any) => {
         // Ignorar itens sem operador ou com operador inválido
-        if (!item.nome || item.nome === '0' || item.nome === 'SEM OPERADOR' || item.nome === 'TROCA DE TURNO') {
+        if (!item.nome || item.nome === '0' || item.nome === 'TROCA DE TURNO') {
           return false;
         }
         return item.eficiencia !== undefined;
@@ -126,7 +126,7 @@ function verificarFormatoDados(dados: any) {
     { 
       chave: 'motor_ocioso', 
       validar: (item: any) => {
-        if (!item.nome || item.nome === '0' || item.nome === 'SEM OPERADOR' || item.nome === 'TROCA DE TURNO') {
+        if (!item.nome || item.nome === '0' || item.nome === 'TROCA DE TURNO') {
           return false;
         }
         return item.percentual !== undefined;
@@ -135,7 +135,7 @@ function verificarFormatoDados(dados: any) {
     { 
       chave: 'falta_apontamento', 
       validar: (item: any) => {
-        if (!item.nome || item.nome === '0' || item.nome === 'SEM OPERADOR' || item.nome === 'TROCA DE TURNO') {
+        if (!item.nome || item.nome === '0' || item.nome === 'TROCA DE TURNO') {
           return false;
         }
         return item.percentual !== undefined;
@@ -144,7 +144,7 @@ function verificarFormatoDados(dados: any) {
     { 
       chave: 'uso_gps', 
       validar: (item: any) => {
-        if (!item.nome || item.nome === '0' || item.nome === 'SEM OPERADOR' || item.nome === 'TROCA DE TURNO') {
+        if (!item.nome || item.nome === '0' || item.nome === 'TROCA DE TURNO') {
           return false;
         }
         return item.porcentagem !== undefined;
@@ -458,11 +458,11 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     }
 
     try {
-      // Filtrar itens válidos e remover 'TROCA DE TURNO' e 'SEM OPERADOR'
+      // Filtrar itens válidos e remover 'TROCA DE TURNO'
       const itensValidos = dados.filter((item) => 
         item && 
         typeof item[propriedade] === 'number' && 
-        (!item.nome || (item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR')));
+        (!item.nome || (item.nome !== 'TROCA DE TURNO')));
       
       if (itensValidos.length === 0) {
         console.log(`⚠️ Sem itens válidos para ${propriedade}`);
@@ -589,14 +589,14 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           };
         }),
       eficiencia_energetica: (dados.eficiencia_energetica || [])
-        .filter(item => item && item.nome && !['0', 'SEM OPERADOR', 'TROCA DE TURNO'].includes(item.nome))
+        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
         .map(item => ({
           id: item.id,
           nome: item.nome,
           eficiencia: Number(Number(item.eficiencia).toFixed(2))
         })),
       motor_ocioso: (dados.motor_ocioso || [])
-        .filter(item => item && item.nome && !['0', 'SEM OPERADOR', 'TROCA DE TURNO'].includes(item.nome))
+        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
         .map(item => ({
           id: item.id,
           nome: item.nome,
@@ -604,14 +604,14 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         }))
         .sort((a, b) => b.percentual - a.percentual),
       falta_apontamento: (dados.falta_apontamento || [])
-        .filter(item => item && item.nome && !['0', 'SEM OPERADOR', 'TROCA DE TURNO'].includes(item.nome))
+        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
         .map(item => ({
           id: item.id,
           nome: item.nome,
           percentual: Number(Number(item.percentual).toFixed(2))
         })),
       uso_gps: (dados.uso_gps || dados.gps || []) // Tenta uso_gps primeiro, depois gps, ou array vazio
-        .filter(item => item && item.nome && !['0', 'SEM OPERADOR', 'TROCA DE TURNO'].includes(item.nome))
+        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
         .map(item => ({
           id: item.id,
           nome: item.nome,
