@@ -188,7 +188,7 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
   return (
     <Box
       border="2px dashed"
-      borderColor={isDragging ? "gray.400" : "gray.300"}
+      borderColor={isDragging ? "black" : "gray.600"}
       borderRadius="md"
       p={4}
       textAlign="center"
@@ -198,7 +198,7 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
       onDragLeave={handleDragLeave}
       cursor="pointer"
       transition="all 0.2s"
-      _hover={{ borderColor: "gray.400", bg: "gray.50" }}
+      _hover={{ borderColor: "black", bg: "gray.50" }}
       onClick={() => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -210,7 +210,7 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
         input.click();
       }}
     >
-      <Text color="gray.500">
+      <Text color="black" fontWeight="medium">
         {file ? file.name : "Arraste um arquivo Excel ou clique para selecionar"}
       </Text>
     </Box>
@@ -222,7 +222,7 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
   if (!preview) {
     return (
       <Box textAlign="center" py={4}>
-        <Text color="black">
+        <Text color="black" fontWeight="medium">
           Selecione um arquivo Excel ou CSV para visualizar os dados
         </Text>
       </Box>
@@ -260,13 +260,14 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
       h="100%"
       maxH="180px"
       position="relative"
+      bg="white"
     >
       {/* Abas de navegação entre planilhas */}
       {sheets.length > 1 && (
         <Tabs variant="soft-rounded" colorScheme="gray" size="sm" mb={2} onChange={(index) => setSelectedSheet(sheets[index])}>
           <TabList overflowX="auto" whiteSpace="nowrap" py={1}>
             {sheets.map((sheet, index) => (
-              <Tab key={index} fontSize="xs" fontWeight="medium">
+              <Tab key={index} fontSize="xs" fontWeight="medium" color="black" _selected={{ color: "black", bg: "gray.100" }}>
                 {sheet}
               </Tab>
             ))}
@@ -297,15 +298,15 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
           <Thead position="sticky" top={0} bg="white" zIndex={1}>
             <Tr>
               {headers.map((header, index) => (
-                <Th key={index} color="black">{header}</Th>
+                <Th key={index} color="black" bg="white" borderColor="black">{header}</Th>
               ))}
             </Tr>
           </Thead>
           <Tbody>
             {rows.map((row, rowIndex) => (
-              <Tr key={rowIndex}>
+              <Tr key={rowIndex} bg="white">
                 {row.map((cell, cellIndex) => (
-                  <Td key={cellIndex} color="black">
+                  <Td key={cellIndex} color="black" borderColor="black">
                     {formatValue(cell)}
                   </Td>
                 ))}

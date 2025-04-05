@@ -36,9 +36,9 @@ export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
+  const [isTeste, setIsTeste] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isTeste, setIsTeste] = useState(false);
 
   // Carregar configurações
   useEffect(() => {
@@ -465,7 +465,7 @@ export default function ReportsPage() {
               w={{ base: "100%", md: "auto" }}
             >
               <Box w={{ base: "100%", sm: "200px" }}>
-                <Select 
+                <Select
                   placeholder={isConfigLoaded ? "Tipo de Relatório" : "Carregando..."}
                   size="md"
                   bg="white"
@@ -473,10 +473,11 @@ export default function ReportsPage() {
                   value={reportType}
                   onChange={(e) => {
                     setReportType(e.target.value);
-                    setSelectedFrente(''); // Resetar frente ao mudar tipo
+                    setSelectedFrente('');
                   }}
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor="black"
+                  _hover={{ borderColor: "black" }}
+                  _focus={{ borderColor: "black", boxShadow: "none" }}
                   isDisabled={!isConfigLoaded}
                   sx={{
                     option: {
@@ -488,7 +489,7 @@ export default function ReportsPage() {
                   {tiposRelatorio.map(tipo => {
                     const config = configManager.getTipoRelatorio(tipo);
                     return (
-                      <option key={tipo} value={tipo}>
+                      <option key={tipo} value={tipo} style={{ backgroundColor: "white", color: "black" }}>
                         {config?.nome || tipo}
                       </option>
                     );
@@ -503,11 +504,12 @@ export default function ReportsPage() {
                   size="md"
                   bg="white"
                   color="black"
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor="black"
+                  _hover={{ borderColor: "black" }}
+                  _focus={{ borderColor: "black", boxShadow: "none" }}
                   sx={{
                     '&::-webkit-calendar-picker-indicator': {
-                      filter: 'invert(1)'
+                      filter: 'invert(0)'
                     },
                     '&': {
                       color: 'black !important'
@@ -529,8 +531,9 @@ export default function ReportsPage() {
                   color="black"
                   value={selectedFrente}
                   onChange={(e) => setSelectedFrente(e.target.value)}
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor="black"
+                  _hover={{ borderColor: "black" }}
+                  _focus={{ borderColor: "black", boxShadow: "none" }}
                   isDisabled={!reportType || !isConfigLoaded}
                   sx={{
                     option: {
@@ -540,7 +543,7 @@ export default function ReportsPage() {
                   }}
                 >
                   {frentesDisponiveis.map(frente => (
-                    <option key={frente.id} value={frente.id}>
+                    <option key={frente.id} value={frente.id} style={{ backgroundColor: "white", color: "black" }}>
                       {frente.nome}
                     </option>
                   ))}
@@ -564,8 +567,11 @@ export default function ReportsPage() {
                 isChecked={isTeste}
                 onChange={(e) => setIsTeste(e.target.checked)}
                 colorScheme="gray"
+                borderColor="black"
+                iconColor="black"
+                _hover={{ borderColor: "black" }}
               >
-                Teste
+                <Text color="black" fontWeight="medium">Teste</Text>
               </Checkbox>
               <Button
                 bg="black"
@@ -585,6 +591,7 @@ export default function ReportsPage() {
                 w={{ base: "100%", md: "auto" }}
                 color="black"
                 borderColor="black"
+                bg="white"
                 _hover={{ bg: 'gray.50' }}
               >
                 Visualizar Relatórios
@@ -601,7 +608,7 @@ export default function ReportsPage() {
               bg="white"
               borderRadius="md"
               border="1px"
-              borderColor="gray.300"
+              borderColor="black"
               h="220px"
               minH="220px"
               maxH="220px"
@@ -609,7 +616,7 @@ export default function ReportsPage() {
               <Flex 
                 p={2}
                 borderBottom="1px" 
-                borderColor="gray.300"
+                borderColor="black"
                 justify="space-between"
                 align="center"
                 bg="white"
@@ -625,8 +632,9 @@ export default function ReportsPage() {
                     onChange={(e) => handleExcelFonteChange(e.target.value)}
                     bg="white"
                     color="black"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: "gray.400" }}
+                    borderColor="black"
+                    _hover={{ borderColor: "black" }}
+                    _focus={{ borderColor: "black", boxShadow: "none" }}
                     sx={{
                       option: {
                         bg: 'white',
@@ -634,9 +642,9 @@ export default function ReportsPage() {
                       }
                     }}
                   >
-                    <option value="">Não Informar</option>
+                    <option value="" style={{ backgroundColor: "white", color: "black" }}>Não Informar</option>
                     {fontesExcel.map(fonte => (
-                      <option key={fonte.id} value={fonte.id}>
+                      <option key={fonte.id} value={fonte.id} style={{ backgroundColor: "white", color: "black" }}>
                         {fonte.nome}
                       </option>
                     ))}
@@ -653,14 +661,14 @@ export default function ReportsPage() {
               bg="white"
               borderRadius="md"
               border="1px"
-              borderColor="gray.300"
+              borderColor="black"
               flex="1"
               overflow="auto"
             >
               <Flex 
                 p={2}
                 borderBottom="1px" 
-                borderColor="gray.300"
+                borderColor="black"
                 justify="space-between"
                 align="center"
                 bg="white"
