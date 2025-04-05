@@ -1,0 +1,340 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-04",
+    "frente": "frente1",
+    "generated_at": "2025-04-05T08:19:04.121114",
+    "equipment_ids": null
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 0.8000812394823875
+    },
+    {
+      "frota": "0.0",
+      "disponibilidade": NaN
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 0.7854150567372988
+    },
+    {
+      "id": "784911 - PAULIANO DOS SANTOS",
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 0.7462881495738343
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "eficiencia": NaN
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "horas": 0.22350694444444485
+    },
+    {
+      "id": "784911 - PAULIANO DOS SANTOS",
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 0.251319444444448
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "horas": 0.0
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 0.0
+    },
+    {
+      "id": "784911 - PAULIANO DOS SANTOS",
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 6.487047528425529e-05
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": 0.0
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": NaN
+    },
+    {
+      "id": "0",
+      "nome": "0",
+      "percentual": 0.0
+    }
+  ]
+}

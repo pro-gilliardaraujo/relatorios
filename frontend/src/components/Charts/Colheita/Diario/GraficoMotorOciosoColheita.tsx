@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
 
@@ -15,84 +15,102 @@ interface MotorOciosoProps {
   exibirCards?: boolean;
 }
 
-// Valores padrão para cores e tolerâncias
-const DEFAULT_COLORS = {
-  meta_atingida: '#48BB78',
-  proximo_meta: '#90EE90',
-  alerta: '#ECC94B',
-  critico: '#E53E3E'
-};
-
-const DEFAULT_TOLERANCES = {
-  proximo_meta: 5,
-  alerta: 15
-};
-
-// Valores padrão para formatação
-const DEFAULT_FORMATTING = {
-  decimal: {
-    casas: 4,
-    separador: "."
-  },
-  porcentagem: {
-    casas: 2,
-    separador: "."
-  },
-  horas: {
-    formato: "Xh00m"
-  }
-};
-
 export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({ 
   data = [],
   meta = configManager.getMetas('colheita_diario').motorOcioso,
   inverterMeta = true,
   exibirCards = false
 }) => {
-  // Verificar se há dados válidos
-  const dadosValidos = Array.isArray(data) && data.length > 0 && 
-    data.some(item => item && item.nome && typeof item.percentual === 'number');
+  // Log ao montar o componente
+  useEffect(() => {
+    console.log('🔍 GraficoMotorOciosoColheita montado com:');
+    console.log('- 📊 data:', Array.isArray(data) ? `Array com ${data.length} itens` : 'Não é um array');
+    console.log('- 🎯 meta:', meta);
+    console.log('- 🎯 meta default do config:', configManager.getMetas('colheita_diario').motorOcioso);
+    console.log('- 🔄 inverterMeta:', inverterMeta);
+    
+    if (Array.isArray(data) && data.length > 0) {
+      console.log('- 📋 Primeiro item:', data[0]);
+    }
+  }, [data, meta, inverterMeta]);
   
-  // Log para diagnóstico detalhado
-  console.log('📊 GraficoMotorOciosoColheita recebeu dados:', 
-    Array.isArray(data) ? `${data.length} itens` : 'não é array',
-    dadosValidos ? 'válidos' : 'inválidos');
+  // Verificar se há dados válidos e filtrar dados inválidos
+  const dadosValidos = Array.isArray(data) ? data.filter(item => 
+    item && 
+    item.nome && 
+    typeof item.percentual === 'number' && 
+    !isNaN(item.percentual)
+  ) : [];
   
-  if (Array.isArray(data) && data.length > 0) {
-    console.log('📊 Amostra de dados motor ocioso:', data.slice(0, 2));
-  } else {
-    console.log('📊 Dados motor ocioso vazios ou não são um array');
+  // Log para diagnóstico
+  console.log('📊 GraficoMotorOciosoColheita dados válidos:', dadosValidos.length);
+  console.log('📊 Meta passada para o gráfico:', meta);
+  
+  if (dadosValidos.length > 0) {
+    console.log('📊 Amostra de dados válidos:', dadosValidos.slice(0, 2));
   }
   
-  // Definir dados padrão para motor ocioso
+  // Definir dados padrão para motor ocioso somente se não houver dados válidos
   const defaultData: MotorOciosoData[] = [
     { id: '1', nome: 'SEM OPERADOR', percentual: 4.5 },
     { id: '2', nome: 'OPERADOR 2', percentual: 3.8 },
     { id: '3', nome: 'OPERADOR 3', percentual: 3.2 }
   ];
   
-  // Usar dados padrão se não houver dados válidos
-  const dadosFinais = dadosValidos ? data : defaultData;
+  // Usar dados padrão SE e SOMENTE SE não houver dados válidos
+  const dadosFinais = dadosValidos.length > 0 ? dadosValidos : defaultData;
   
-  // Obter configurações de cores e tolerâncias com fallback para valores padrão
-  const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
-  const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
-  const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
+  if (dadosValidos.length === 0 && Array.isArray(data) && data.length > 0) {
+    console.log('⚠️ Dados recebidos mas todos foram filtrados como inválidos:', data);
+  }
+  
+  // Obter configurações de cores do configManager
+  const cores = configManager.getGraficosConfig()?.cores || {
+    meta_atingida: '#48BB78',
+    proximo_meta: '#90EE90',
+    alerta: '#ECC94B',
+    critico: '#E53E3E'
+  };
+  
+  // Obter tolerâncias do configManager
+  const tolerancias = configManager.getGraficosConfig()?.tolerancias || {
+    proximo_meta: 7,
+    alerta: 14,
+    critico: 15
+  };
+  
+  // Obter formatação do configManager
+  const formatacao = configManager.getGraficosConfig()?.formatacao || {
+    decimal: {
+      casas: 4,
+      separador: "."
+    },
+    porcentagem: {
+      casas: 2,
+      separador: "."
+    },
+    horas: {
+      formato: "Xh00m"
+    }
+  };
+  
+  console.log('📊 Configurações do gráfico:', { cores, tolerancias, formatacao });
 
   // Calcula a média de porcentagem
   const mediaPercentual = dadosFinais.reduce((acc, item) => acc + (item?.percentual || 0), 0) / dadosFinais.length;
   
-  // Encontra o valor máximo para definir a escala (considerando o limite máximo de 100%)
-  const maxPercentual = Math.min(Math.max(...dadosFinais.map(item => item?.percentual || 0), meta * 2), 100);
+  // Sempre usar um valor máximo para escala em gráficos de motor ocioso (normalmente valores baixos)
+  const maxValueForScale = 15;
   
-  // Para "menor melhor", usamos o maior valor como referência para a escala
-  const valorReferencia = Math.max(maxPercentual, meta * 2); // Aumentar para garantir visibilidade
-  
-  // Função de escala que garante que nunca ultrapasse 100%
-  const scalePercentage = (percentual: number) => Math.min((percentual / valorReferencia) * 100, 100);
-  
+  // Função de escala para garantir proporcionalidade
+  const scalePercentage = (percentual: number) => {
+    const scaledValue = (percentual / maxValueForScale) * 100;
+    return Math.min(scaledValue, 100);
+  };
+
   // Calcula onde ficará a linha de meta na escala relativa
-  const metaScaled = (meta / valorReferencia) * 100;
+  const metaScaled = (meta / maxValueForScale) * 100;
+  console.log('📊 Meta escalada para o gráfico:', metaScaled, '% (meta original:', meta, ')');
 
   // Ordenar corretamente dependendo se é menor melhor (ordenar do menor para o maior)
   // ou maior melhor (ordenar do maior para o menor)
@@ -138,7 +156,7 @@ export const GraficoMotorOciosoColheita: React.FC<MotorOciosoProps> = ({
                 </Text>
                 
                 <Flex direction="row" align="center">
-                  <Box flex="1" h="13px" position="relative" mr={2} maxW="calc(100% - 40px)">
+                  <Box flex="1" h="13px" position="relative" mr={2} maxW="calc(100% - 40px)" bg="gray.100">
                     <Flex 
                       position="absolute" 
                       bg={barColor}

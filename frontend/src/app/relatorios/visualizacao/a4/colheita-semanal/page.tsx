@@ -983,7 +983,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               >
                 <GraficoUsoGPS 
                   data={finalDataUsoGPS} 
-                  meta={configManager.getMetas('colheita_semanal').usoGPS} 
+                  meta={reportData?.metas?.usoGPS || configManager.getMetas('colheita_semanal').usoGPS} 
                 />
               </Box>
             </Box>

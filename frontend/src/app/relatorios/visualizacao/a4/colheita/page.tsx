@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel } from '@chakra-ui/react';
 import A4Colheita from '@/components/Layout/A4Colheita';
 import { useReportStore } from '@/store/useReportStore';
@@ -17,70 +17,6 @@ import RelatorioColheitaDiarioResumo from '@/components/RelatorioColheitaDiarioR
 import IndicatorCard from '@/components/IndicatorCard';
 import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
-
-// Dados de exemplo para visualização offline
-const dadosExemplo: DadosProcessados = {
-  tdh: [
-    { frota: '7041', valor: 0.0100 },
-    { frota: '7042', valor: 0.0098 }
-  ],
-  diesel: [
-    { frota: '7041', valor: 0.0800 },
-    { frota: '7042', valor: 0.0780 }
-  ],
-  impureza_vegetal: [
-    { frota: '7041', valor: 65.00 },
-    { frota: '7042', valor: 63.50 }
-  ],
-  disponibilidade_mecanica: [
-    { frota: '7041', disponibilidade: 94.49 },
-    { frota: '7042', disponibilidade: 92.82 }
-  ],
-  eficiencia_energetica: [
-    { id: '1', nome: 'SEM OPERADOR', eficiencia: 39 },
-    { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', eficiencia: 59 },
-    { id: '9999', nome: 'TROCA DE TURNO', eficiencia: 53 },
-    { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', eficiencia: 60 },
-    { id: '11', nome: 'NAO CADASTRADO', eficiencia: 62 },
-    { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', eficiencia: 38 },
-    { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', eficiencia: 38 },
-    { id: '357887', nome: 'EVERTON TIAGO MARQUES', eficiencia: 55 },
-    { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', eficiencia: 31 }
-  ],
-  hora_elevador: [
-    { id: '1', nome: 'SEM OPERADOR', horas: 2.42 },
-    { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', horas: 7.42 },
-    { id: '9999', nome: 'TROCA DE TURNO', horas: 7.59 },
-    { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', horas: 6.33 },
-    { id: '11', nome: 'NAO CADASTRADO', horas: 6.26 },
-    { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', horas: 4.54 },
-    { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', horas: 4.62 },
-    { id: '357887', nome: 'EVERTON TIAGO MARQUES', horas: 5.10 },
-    { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', horas: 0.42 }
-  ],
-  motor_ocioso: [
-    { id: '1', nome: 'SEM OPERADOR', percentual: 28.1 },
-    { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', percentual: 25.1 },
-    { id: '9999', nome: 'TROCA DE TURNO', percentual: 29.9 },
-    { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', percentual: 22.0 },
-    { id: '11', nome: 'NAO CADASTRADO', percentual: 19.4 },
-    { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', percentual: 40.1 },
-    { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', percentual: 31.5 },
-    { id: '357887', nome: 'EVERTON TIAGO MARQUES', percentual: 32.0 },
-    { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', percentual: 36.8 }
-  ],
-  uso_gps: [
-    { id: '1', nome: 'SEM OPERADOR', porcentagem: 0.0 },
-    { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', porcentagem: 0.0 },
-    { id: '9999', nome: 'TROCA DE TURNO', porcentagem: 0.0 },
-    { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', porcentagem: 0.0 },
-    { id: '11', nome: 'NAO CADASTRADO', porcentagem: 0.0 },
-    { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', porcentagem: 2.3 },
-    { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', porcentagem: 1.7 },
-    { id: '357887', nome: 'EVERTON TIAGO MARQUES', porcentagem: 0.0 },
-    { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', porcentagem: 0.0 }
-  ]
-};
 
 interface ColheitaA4Props {
   data?: any;
@@ -125,7 +61,7 @@ interface DadosProcessados {
   }>;
 }
 
-// Função utilitária para verificar formato de dados
+// Função para verificar formato de dados
 const verificarFormatoDados = (dados: any) => {
   if (!dados) return false;
   
@@ -189,8 +125,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [useExampleData, setUseExampleData] = useState<boolean>(false);
   const [nomeFrente, setNomeFrente] = useState<string>('');
+  const [subscription, setSubscription] = useState<any>(null);
   
   // Função para formatar a data no padrão brasileiro
   const formatarData = (data: string) => {
@@ -209,477 +145,188 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const LOGO_HEIGHT = "50px";
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Recarrega as configurações antes de carregar os dados
-        await configManager.reloadConfig();
-        
-        let subscription: any = null;
+  const fetchReportData = useCallback(async () => {
+    if (!reportId) {
+      console.error('❌ ID do relatório não fornecido');
+      setError('ID do relatório não fornecido');
+      setLoading(false);
+      return;
+    }
 
-        const fetchReportData = async () => {
-          // Se não tiver ID, apenas mostrar o layout com dados de exemplo
-          if (!reportId) {
-            console.log('📋 Modo de visualização offline - usando dados de exemplo');
-            setLoading(false);
-            setUseExampleData(true);
-            return;
-          }
+    try {
+      console.log('📊 Buscando dados do relatório:', reportId);
 
-          try {
-            console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
-            const { data: report, error } = await supabase
+      const { data: reportData, error } = await supabase
+        .from('relatorios_diarios')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      if (!reportData) {
+        throw new Error('Relatório não encontrado');
+      }
+
+      console.log('📊 Dados do relatório:', reportData);
+
+      // Verificar se temos dados válidos
+      if (!reportData.dados || Object.keys(reportData.dados).length === 0) {
+        throw new Error('Dados do relatório estão vazios');
+      }
+
+      // Processar os dados do relatório
+      setReportData(reportData);
+      setNomeFrente(reportData.frente || '');
+      setLoading(false);
+
+      // Configurar subscription para atualizações em tempo real
+      const newSubscription = supabase
+        .channel('relatorios_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'relatorios_diarios',
+            filter: `id=eq.${reportId}`
+          },
+          async (payload) => {
+            console.log('📊 Atualização recebida:', payload);
+            const { data: updatedReport, error: updateError } = await supabase
               .from('relatorios_diarios')
               .select('*')
               .eq('id', reportId)
               .single();
 
-            if (error) {
-              console.error('❌ Erro ao buscar dados:', error);
-              setError(`Erro ao buscar dados: ${error.message}`);
-              setLoading(false);
-              setUseExampleData(true);
-              return;
+            if (!updateError && updatedReport) {
+              console.log('✅ Dados atualizados com sucesso');
+              setReportData(updatedReport);
+              setNomeFrente(updatedReport.frente || '');
             }
-
-            if (!report) {
-              console.error('❌ Relatório não encontrado');
-              setError('Relatório não encontrado');
-              setLoading(false);
-              setUseExampleData(true);
-              return;
-            }
-
-            console.log('✅ Dados carregados com sucesso:', {
-              tipo: report.tipo,
-              frente: report.frente,
-              status: report.status,
-              dados: report.dados ? 'Presentes' : 'Ausentes'
-            });
-
-            // Log detalhado dos dados
-            if (report.dados) {
-              console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
-            }
-
-            setReportData(report);
-            setNomeFrente(report.frente || ''); // Atualiza o nome da frente
-            setLoading(false);
-            setUseExampleData(false);
-
-            // Configurar subscription para atualizações em tempo real
-            subscription = supabase
-              .channel('relatorios_changes')
-              .on(
-                'postgres_changes',
-                {
-                  event: '*', // Escutar todos os eventos (INSERT, UPDATE, DELETE)
-                  schema: 'public',
-                  table: 'relatorios_diarios',
-                  filter: `id=eq.${reportId}`
-                },
-                async (payload) => {
-                  console.log('🔄 Atualização detectada:', payload);
-                  
-                  // Buscar dados atualizados
-                  const { data: updatedReport, error: refreshError } = await supabase
-                    .from('relatorios_diarios')
-                    .select('*')
-                    .eq('id', reportId)
-                    .single();
-
-                  if (refreshError) {
-                    console.error('❌ Erro ao atualizar dados:', refreshError);
-                    return;
-                  }
-
-                  if (updatedReport) {
-                    console.log('✅ Dados atualizados com sucesso');
-                    setReportData(updatedReport);
-                    setNomeFrente(updatedReport.frente || ''); // Atualiza o nome da frente quando houver atualização
-                  }
-                }
-              )
-              .subscribe();
-
-          } catch (error) {
-            console.error('❌ Erro ao buscar dados do relatório:', error);
-            setError(`Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-            setLoading(false);
-            setUseExampleData(true);
           }
-        };
+        )
+        .subscribe();
 
-        fetchReportData();
+      setSubscription(newSubscription);
 
-        // Cleanup: remover subscription quando o componente for desmontado
-        return () => {
-          if (subscription) {
-            supabase.removeChannel(subscription);
-          }
-        };
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
+    } catch (error) {
+      console.error('❌ Erro ao buscar dados do relatório:', error);
+      setError(error instanceof Error ? error.message : 'Erro ao buscar dados do relatório');
+      setLoading(false);
+    }
+  }, [reportId]);
+
+  useEffect(() => {
+    fetchReportData();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
       }
     };
-
-    loadData();
-  }, [searchParams?.get('id')]);
+  }, [fetchReportData, subscription]);
 
   // PREPARAÇÃO DE DADOS
   const finalData: DadosProcessados = useMemo(() => {
-    if (!useExampleData && reportData?.dados) {
-      console.log('📊 DADOS BRUTOS DO RELATÓRIO:', reportData);
-      
-      // Normalizar estrutura do objeto dados para lidar com diferentes formatos
-      const dadosNormalizados = { ...reportData.dados };
-      
-      // Verificar e corrigir nomes de propriedades que podem estar em CamelCase
-      if (!dadosNormalizados.disponibilidade_mecanica && dadosNormalizados.disponibilidadeMecanica) {
-        dadosNormalizados.disponibilidade_mecanica = dadosNormalizados.disponibilidadeMecanica;
-      }
-      
-      if (!dadosNormalizados.eficiencia_energetica && dadosNormalizados.eficienciaEnergetica) {
-        dadosNormalizados.eficiencia_energetica = dadosNormalizados.eficienciaEnergetica;
-      }
-      
-      if (!dadosNormalizados.hora_elevador && dadosNormalizados.horaElevador) {
-        dadosNormalizados.hora_elevador = dadosNormalizados.horaElevador;
-      }
-      
-      if (!dadosNormalizados.motor_ocioso && dadosNormalizados.motorOcioso) {
-        dadosNormalizados.motor_ocioso = dadosNormalizados.motorOcioso;
-      }
-      
-      if (!dadosNormalizados.uso_gps && dadosNormalizados.usoGPS) {
-        dadosNormalizados.uso_gps = dadosNormalizados.usoGPS;
-      }
-      
-      // Função auxiliar para processar operador no formato "ID - NOME"
-      const processarOperador = (operador: any) => {
-        if (!operador || operador === 0) return null;
-        const match = String(operador).match(/^(\d+)\s*-\s*(.+)$/);
-        return match ? { id: match[1], nome: match[2].trim() } : { id: '0', nome: String(operador).trim() };
+    if (!reportData?.dados) {
+      console.log('❌ Sem dados do relatório');
+      return {
+        tdh: [],
+        diesel: [],
+        impureza_vegetal: [],
+        disponibilidade_mecanica: [],
+        eficiencia_energetica: [],
+        hora_elevador: [],
+        motor_ocioso: [],
+        uso_gps: []
       };
-
-      // Função auxiliar para converter número
-      const converterNumero = (valor: any) => {
-        if (valor === undefined || valor === null) return 0;
-        if (typeof valor === 'number') return valor;
-        if (typeof valor === 'string') {
-          // Remove qualquer % e converte para número
-          return parseFloat(valor.replace('%', ''));
-        }
-        return 0;
-      };
-
-      // Função auxiliar para processar porcentagem
-      const processarPorcentagem = (valor: any) => {
-        const numero = converterNumero(valor);
-        // Se o número já for uma porcentagem (>1), retorna como está, senão multiplica por 100
-        return numero > 1 ? numero : numero * 100; 
-      };
-
-      // Log para depuração
-      console.log('🔍 Estrutura dos dados recebidos:', Object.keys(reportData.dados));
-      
-      // Garantir que os dados estejam no formato correto
-      const dadosProcessados: DadosProcessados = {
-        tdh: Array.isArray(dadosNormalizados.tdh) 
-          ? dadosNormalizados.tdh
-              .filter((item: any) => item && (item.Frota || item.frota))
-              .map((item: any) => ({
-                frota: String(item.Frota || item.frota || ''),
-                valor: converterNumero(item.TDH || item.tdh || item.Valor || item.valor || 0)
-              }))
-          : [],
-        diesel: Array.isArray(dadosNormalizados.diesel) 
-          ? dadosNormalizados.diesel
-              .filter((item: any) => item && (item.Frota || item.frota))
-              .map((item: any) => ({
-                frota: String(item.Frota || item.frota || ''),
-                valor: converterNumero(item.Consumo || item.consumo || item.Diesel || item.diesel || item.Valor || item.valor || 0)
-              }))
-          : [],
-        impureza_vegetal: Array.isArray(dadosNormalizados.impureza_vegetal) 
-          ? dadosNormalizados.impureza_vegetal
-              .filter((item: any) => item && (item.Frota || item.frota))
-              .map((item: any) => ({
-                frota: String(item.Frota || item.frota || ''),
-                valor: converterNumero(item.Impureza || item.impureza || item.Valor || item.valor || 0)
-              }))
-          : [],
-        disponibilidade_mecanica: Array.isArray(dadosNormalizados.disponibilidade_mecanica) 
-          ? dadosNormalizados.disponibilidade_mecanica
-              .filter((item: any) => item && (item.Frota || item.frota))
-              .map((item: any) => ({
-                frota: String(item.Frota || item.frota || ''),
-                disponibilidade: processarPorcentagem(item.Disponibilidade || item.disponibilidade || item.Valor || item.valor || 0)
-              }))
-          : [],
-        eficiencia_energetica: Array.isArray(dadosNormalizados.eficiencia_energetica)
-          ? dadosNormalizados.eficiencia_energetica
-              .filter((item: any) => item && (item.Operador || item.operador || item.Nome || item.nome))
-              .map((item: any) => {
-                const operadorValue = item.Operador || item.operador || item.Nome || item.nome;
-                const operador = processarOperador(operadorValue);
-                if (!operador) return null;
-                
-                // Log detalhado para verificar os valores
-                console.log(`📊 Processando eficiência para ${operador.nome}:`, {
-                  eficienciaEnergetica: item["Eficiência Energética"] || item["eficiência energética"],
-                  eficiencia: item["Eficiência"] || item["eficiência"],
-                  valor: item.Valor || item.valor
-                });
-                
-                // Tentar extrair o valor de várias propriedades possíveis
-                let eficienciaBruta = 
-                  item["Eficiência Energética"] !== undefined ? item["Eficiência Energética"] :
-                  item["eficiência energética"] !== undefined ? item["eficiência energética"] :
-                  item["Eficiência"] !== undefined ? item["Eficiência"] :
-                  item["eficiência"] !== undefined ? item["eficiência"] :
-                  item.Eficiencia !== undefined ? item.Eficiencia :
-                  item.eficiencia !== undefined ? item.eficiencia :
-                  item.Valor !== undefined ? item.Valor :
-                  item.valor !== undefined ? item.valor : 0;
-                
-                // Se o valor for uma string com "%", remover
-                if (typeof eficienciaBruta === 'string' && eficienciaBruta.includes('%')) {
-                  eficienciaBruta = eficienciaBruta.replace('%', '');
-                }
-                
-                // Converter para número
-                let eficiencia = converterNumero(eficienciaBruta);
-                
-                // Normalizar o valor
-                eficiencia = processarPorcentagem(eficiencia);
-                
-                // Garantir que o valor não seja NaN ou inválido
-                if (isNaN(eficiencia) || eficiencia === null || eficiencia === undefined) {
-                  eficiencia = 0;
-                }
-                
-                console.log(`📊 Valor final de eficiência para ${operador.nome}: ${eficiencia}`);
-                
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  eficiencia
-                };
-              })
-              .filter((item: any) => item !== null)
-              .sort((a: any, b: any) => b.eficiencia - a.eficiencia)
-          : [],
-        hora_elevador: Array.isArray(dadosNormalizados.hora_elevador)
-          ? dadosNormalizados.hora_elevador
-              .filter((item: any) => item && (item.Operador || item.operador || item.Nome || item.nome))
-              .map((item: any) => {
-                const operadorValue = item.Operador || item.operador || item.Nome || item.nome;
-                const operador = processarOperador(operadorValue);
-                if (!operador) return null;
-                
-                // Log detalhado para verificar os valores
-                console.log(`📊 Processando horas elevador para ${operador.nome}:`, {
-                  horas: item.Horas || item.horas,
-                  horasElevador: item["Horas Elevador"] || item["horas elevador"],
-                  elevador: item.Elevador || item.elevador,
-                  valor: item.Valor || item.valor
-                });
-                
-                // Tentar extrair o valor de várias propriedades possíveis
-                let horasBruta = 
-                  item.Horas !== undefined ? item.Horas :
-                  item.horas !== undefined ? item.horas :
-                  item["Horas Elevador"] !== undefined ? item["Horas Elevador"] :
-                  item["horas elevador"] !== undefined ? item["horas elevador"] :
-                  item.Elevador !== undefined ? item.Elevador :
-                  item.elevador !== undefined ? item.elevador :
-                  item.Valor !== undefined ? item.Valor :
-                  item.valor !== undefined ? item.valor : 0;
-                
-                // Converter para número
-                let horas = converterNumero(horasBruta);
-                
-                // Garantir que o valor não seja NaN ou inválido
-                if (isNaN(horas) || horas === null || horas === undefined) {
-                  horas = 0;
-                }
-                
-                console.log(`📊 Valor final de horas elevador para ${operador.nome}: ${horas}`);
-                
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  horas
-                };
-              })
-              .filter((item: any) => item !== null)
-          : [],
-        motor_ocioso: Array.isArray(dadosNormalizados.motor_ocioso)
-          ? dadosNormalizados.motor_ocioso
-              .filter((item: any) => item && (item.Operador || item.operador || item.Nome || item.nome))
-              .map((item: any) => {
-                const operadorValue = item.Operador || item.operador || item.Nome || item.nome;
-                const operador = processarOperador(operadorValue);
-                if (!operador) return null;
-                
-                // Log detalhado para verificar os valores
-                console.log(`📊 Processando motor ocioso para ${operador.nome}:`, {
-                  porcentagemOciosa: item["Porcentagem Ociosa"] || item["porcentagem ociosa"],
-                  porcentagem: item["Porcentagem"] || item["porcentagem"],
-                  valor: item.Valor || item.valor
-                });
-                
-                // Tentar extrair o valor de várias propriedades possíveis
-                let percentualBruto = 
-                  item["Porcentagem Ociosa"] !== undefined ? item["Porcentagem Ociosa"] :
-                  item["porcentagem ociosa"] !== undefined ? item["porcentagem ociosa"] :
-                  item["Porcentagem"] !== undefined ? item["Porcentagem"] :
-                  item["porcentagem"] !== undefined ? item["porcentagem"] :
-                  item["Motor Ocioso"] !== undefined ? item["Motor Ocioso"] :
-                  item["motor ocioso"] !== undefined ? item["motor ocioso"] :
-                  item["Ocioso"] !== undefined ? item["Ocioso"] :
-                  item["ocioso"] !== undefined ? item["ocioso"] :
-                  item.Valor !== undefined ? item.Valor :
-                  item.valor !== undefined ? item.valor : 0;
-                
-                // Se o valor for uma string com "%", remover
-                if (typeof percentualBruto === 'string' && percentualBruto.includes('%')) {
-                  percentualBruto = percentualBruto.replace('%', '');
-                }
-                
-                // Converter para número
-                let percentual = converterNumero(percentualBruto);
-                
-                // Normalizar o valor
-                percentual = processarPorcentagem(percentual);
-                
-                // Garantir que o valor não seja NaN ou inválido
-                if (isNaN(percentual) || percentual === null || percentual === undefined) {
-                  percentual = 0;
-                }
-                
-                console.log(`📊 Valor final de motor ocioso para ${operador.nome}: ${percentual}`);
-                
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  percentual
-                };
-              })
-              .filter((item: any) => item !== null)
-          : [],
-        uso_gps: Array.isArray(dadosNormalizados.uso_gps)
-          ? dadosNormalizados.uso_gps
-              .filter((item: any) => item && (item.Operador || item.operador || item.Nome || item.nome))
-              .map((item: any) => {
-                const operadorValue = item.Operador || item.operador || item.Nome || item.nome;
-                const operador = processarOperador(operadorValue);
-                if (!operador) return null;
-                
-                // Log detalhado para verificar os valores
-                console.log(`📊 Processando uso GPS para ${operador.nome}:`, {
-                  porcentagemUso: item["Porcentagem Uso"] || item["porcentagem uso"],
-                  porcentagem: item["Porcentagem"] || item["porcentagem"],
-                  uso: item["Uso"] || item["uso"],
-                  valor: item.Valor || item.valor
-                });
-                
-                // Tentar extrair o valor de várias propriedades possíveis
-                let porcentagemBruta = 
-                  item["Porcentagem Uso"] !== undefined ? item["Porcentagem Uso"] :
-                  item["porcentagem uso"] !== undefined ? item["porcentagem uso"] :
-                  item["Porcentagem"] !== undefined ? item["Porcentagem"] :
-                  item["porcentagem"] !== undefined ? item["porcentagem"] :
-                  item["Uso GPS"] !== undefined ? item["Uso GPS"] :
-                  item["uso gps"] !== undefined ? item["uso gps"] :
-                  item["Uso"] !== undefined ? item["Uso"] :
-                  item["uso"] !== undefined ? item["uso"] :
-                  item.Valor !== undefined ? item.Valor :
-                  item.valor !== undefined ? item.valor : 0;
-                
-                // Se o valor for uma string com "%", remover
-                if (typeof porcentagemBruta === 'string' && porcentagemBruta.includes('%')) {
-                  porcentagemBruta = porcentagemBruta.replace('%', '');
-                }
-                
-                // Converter para número
-                let porcentagem = converterNumero(porcentagemBruta);
-                
-                // Normalizar o valor
-                porcentagem = processarPorcentagem(porcentagem);
-                
-                // Garantir que o valor não seja NaN ou inválido
-                if (isNaN(porcentagem) || porcentagem === null || porcentagem === undefined) {
-                  porcentagem = 0;
-                }
-                
-                console.log(`📊 Valor final de uso GPS para ${operador.nome}: ${porcentagem}`);
-                
-                return {
-                  id: operador.id,
-                  nome: operador.nome,
-                  porcentagem
-                };
-              })
-              .filter((item: any) => item !== null)
-          : []
-      };
-
-      // Log detalhado após processamento
-      console.log('📊 DADOS APÓS PROCESSAMENTO:', {
-        tdh: dadosProcessados.tdh.length,
-        diesel: dadosProcessados.diesel.length,
-        impurezaVegetal: dadosProcessados.impureza_vegetal.length,
-        disponibilidade: dadosProcessados.disponibilidade_mecanica.length,
-        eficiencia: dadosProcessados.eficiencia_energetica.length,
-        motorOcioso: dadosProcessados.motor_ocioso.length,
-        horasElevador: dadosProcessados.hora_elevador.length,
-        usoGPS: dadosProcessados.uso_gps.length
-      });
-      
-      console.log('📊 Exemplo de dados de disponibilidade mecânica:', 
-        dadosProcessados.disponibilidade_mecanica.slice(0, 2));
-      console.log('📊 Exemplo de dados de eficiência energética:', 
-        dadosProcessados.eficiencia_energetica.slice(0, 2));
-
-      return dadosProcessados;
     }
 
-    console.log('📊 Usando dados de exemplo');
-    return dadosExemplo;
-  }, [useExampleData, reportData]);
+    console.log('📊 Dados brutos do relatório:', reportData.dados);
+    return reportData.dados;
+  }, [reportData]);
 
-  // Preparar os arrays de dados
+  // Preparar os arrays de dados com validação estrita
   const finalDataDisponibilidade = useMemo(() => {
-    const data = Array.isArray(finalData.disponibilidade_mecanica) ? finalData.disponibilidade_mecanica : [];
-    console.log('📊 Dados de disponibilidade processados:', JSON.stringify(data, null, 2));
+    if (!Array.isArray(finalData?.disponibilidade_mecanica)) {
+      console.log('❌ Dados de disponibilidade inválidos ou ausentes');
+      return [];
+    }
+    const data = finalData.disponibilidade_mecanica.filter(item => 
+      item && item.frota && item.disponibilidade !== undefined && item.disponibilidade !== null
+    );
+    console.log('📊 Dados de disponibilidade processados:', data);
     return data;
   }, [finalData]);
-  
+
   const finalDataEficiencia = useMemo(() => {
-    const data = Array.isArray(finalData.eficiencia_energetica) ? finalData.eficiencia_energetica : [];
-    console.log('📊 Dados de eficiência processados:', JSON.stringify(data, null, 2));
+    if (!Array.isArray(finalData?.eficiencia_energetica)) {
+      console.log('❌ Dados de eficiência inválidos ou ausentes');
+      return [];
+    }
+    const data = finalData.eficiencia_energetica.filter(item => 
+      item && item.nome && item.eficiencia !== undefined && item.eficiencia !== null
+    );
+    console.log('📊 Dados de eficiência processados:', data);
     return data;
   }, [finalData]);
-  
+
   const finalDataHorasElevador = useMemo(() => {
-    const data = Array.isArray(finalData.hora_elevador) ? finalData.hora_elevador : [];
-    console.log('📊 Dados de horas elevador processados:', JSON.stringify(data, null, 2));
+    if (!Array.isArray(finalData?.hora_elevador)) {
+      console.log('❌ Dados de horas elevador inválidos ou ausentes');
+      return [];
+    }
+    const data = finalData.hora_elevador.filter(item => 
+      item && item.nome && item.horas !== undefined && item.horas !== null
+    );
+    console.log('📊 Dados de horas elevador processados:', data);
     return data;
   }, [finalData]);
-  
+
   const finalDataMotorOcioso = useMemo(() => {
-    const data = Array.isArray(finalData.motor_ocioso) ? finalData.motor_ocioso : [];
-    console.log('📊 Dados de motor ocioso processados:', JSON.stringify(data, null, 2));
+    if (!Array.isArray(finalData?.motor_ocioso)) {
+      console.log('❌ Dados de motor ocioso inválidos ou ausentes');
+      return [];
+    }
+    const data = finalData.motor_ocioso.filter(item => 
+      item && item.nome && item.percentual !== undefined && item.percentual !== null
+    );
+    console.log('📊 Dados de motor ocioso processados:', data);
     return data;
   }, [finalData]);
-  
+
   const finalDataUsoGPS = useMemo(() => {
-    const data = Array.isArray(finalData.uso_gps) ? finalData.uso_gps : [];
-    console.log('📊 Dados de uso GPS processados:', JSON.stringify(data, null, 2));
+    if (!Array.isArray(finalData?.uso_gps)) {
+      console.log('❌ Dados de uso GPS inválidos ou ausentes');
+      return [];
+    }
+    const data = finalData.uso_gps.filter(item => 
+      item && item.nome && item.porcentagem !== undefined && item.porcentagem !== null
+    );
+    console.log('📊 Dados de uso GPS processados:', data);
     return data;
   }, [finalData]);
+
+  // Obter metas do relatório ou usar fallback do configManager
+  const metas = useMemo(() => {
+    const defaultMetas = configManager.getMetas('colheita_diario');
+    if (!reportData?.metas) {
+      console.log('⚠️ Usando metas padrão do configManager');
+      return defaultMetas;
+    }
+    
+    console.log('✅ Usando metas do relatório:', reportData.metas);
+    return {
+      disponibilidadeMecanica: reportData.metas.disponibilidadeMecanica ?? defaultMetas.disponibilidadeMecanica,
+      eficienciaEnergetica: reportData.metas.eficienciaEnergetica ?? defaultMetas.eficienciaEnergetica,
+      horaElevador: reportData.metas.horaElevador ?? defaultMetas.horaElevador,
+      motorOcioso: reportData.metas.motorOcioso ?? defaultMetas.motorOcioso,
+      usoGPS: reportData.metas.usoGPS ?? defaultMetas.usoGPS
+    };
+  }, [reportData?.metas]);
 
   // Verificar se estamos no modo de visualização ou no modo de relatório específico
   const isModoTemplate = !reportId;
@@ -690,7 +337,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       console.log('===== DETALHES DO RELATÓRIO =====');
       console.log('📊 Modo:', isModoTemplate ? 'Template/Layout' : 'Relatório Específico');
       console.log('📊 ID do relatório:', reportId || 'Nenhum');
-      console.log('📊 Usando dados de exemplo:', useExampleData);
       console.log('📊 Disponibilidade:', finalDataDisponibilidade.length, 'itens');
       console.log('📊 Eficiência:', finalDataEficiencia.length, 'itens');
       console.log('📊 Horas elevador:', finalDataHorasElevador.length, 'itens');
@@ -705,7 +351,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
       }
     }
-  }, [loading, isModoTemplate, reportId, useExampleData, finalDataDisponibilidade, finalDataEficiencia, finalDataHorasElevador, finalDataMotorOcioso, finalDataUsoGPS]);
+  }, [loading, isModoTemplate, reportId, finalDataDisponibilidade, finalDataEficiencia, finalDataHorasElevador, finalDataMotorOcioso, finalDataUsoGPS]);
 
   // FUNÇÕES
   // Função para imprimir o relatório
@@ -724,38 +370,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // Verificação inicial mais robusta
     if (!array || !Array.isArray(array) || array.length === 0) {
       console.log(`📊 calcularMedia: Array vazio ou inválido para propriedade "${propriedade}"`);
-      
-      // Para cada propriedade, retornar um valor padrão base nos dadosExemplo
-      if (propriedade === 'eficiencia' && dadosExemplo.eficiencia_energetica.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.eficiencia_energetica.reduce((acc, item) => acc + (item.eficiencia || 0), 0);
-        return soma / dadosExemplo.eficiencia_energetica.length;
-      }
-      
-      if (propriedade === 'disponibilidade' && dadosExemplo.disponibilidade_mecanica.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.disponibilidade_mecanica.reduce((acc, item) => acc + (item.disponibilidade || 0), 0);
-        return soma / dadosExemplo.disponibilidade_mecanica.length;
-      }
-      
-      if (propriedade === 'horas' && dadosExemplo.hora_elevador.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.hora_elevador.reduce((acc, item) => acc + (item.horas || 0), 0);
-        return soma / dadosExemplo.hora_elevador.length;
-      }
-      
-      if (propriedade === 'percentual' && dadosExemplo.motor_ocioso.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.motor_ocioso.reduce((acc, item) => acc + (item.percentual || 0), 0);
-        return soma / dadosExemplo.motor_ocioso.length;
-      }
-      
-      if (propriedade === 'porcentagem' && dadosExemplo.uso_gps.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.uso_gps.reduce((acc, item) => acc + (item.porcentagem || 0), 0);
-        return soma / dadosExemplo.uso_gps.length;
-      }
-      
       return 0;
     }
     
@@ -800,38 +414,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) {
       console.log(`📊 calcularMedia: Nenhum item válido para "${propriedade}" após filtragem`);
-      
-      // Para cada propriedade, retornar um valor padrão base nos dadosExemplo
-      if (propriedade === 'eficiencia' && dadosExemplo.eficiencia_energetica.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.eficiencia_energetica.reduce((acc, item) => acc + (item.eficiencia || 0), 0);
-        return soma / dadosExemplo.eficiencia_energetica.length;
-      }
-      
-      if (propriedade === 'disponibilidade' && dadosExemplo.disponibilidade_mecanica.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.disponibilidade_mecanica.reduce((acc, item) => acc + (item.disponibilidade || 0), 0);
-        return soma / dadosExemplo.disponibilidade_mecanica.length;
-      }
-      
-      if (propriedade === 'horas' && dadosExemplo.hora_elevador.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.hora_elevador.reduce((acc, item) => acc + (item.horas || 0), 0);
-        return soma / dadosExemplo.hora_elevador.length;
-      }
-      
-      if (propriedade === 'percentual' && dadosExemplo.motor_ocioso.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.motor_ocioso.reduce((acc, item) => acc + (item.percentual || 0), 0);
-        return soma / dadosExemplo.motor_ocioso.length;
-      }
-      
-      if (propriedade === 'porcentagem' && dadosExemplo.uso_gps.length > 0) {
-        // Calcular média dos valores de exemplo
-        const soma = dadosExemplo.uso_gps.reduce((acc, item) => acc + (item.porcentagem || 0), 0);
-        return soma / dadosExemplo.uso_gps.length;
-      }
-      
       return 0;
     }
     
@@ -948,185 +530,155 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // Preparar dados do resumo
   const resumoData = useMemo(() => {
     console.log('📊 Preparando dados para cards de resumo...');
-    console.log('📊 finalData:', JSON.stringify(finalData, null, 2));
-    console.log('📊 finalDataDisponibilidade:', finalDataDisponibilidade.length, 'itens');
-    console.log('📊 finalDataEficiencia:', finalDataEficiencia.length, 'itens');
-    console.log('📊 finalDataHorasElevador:', finalDataHorasElevador.length, 'itens');
-    console.log('📊 finalDataMotorOcioso:', finalDataMotorOcioso.length, 'itens');
-    console.log('📊 finalDataUsoGPS:', finalDataUsoGPS.length, 'itens');
+    console.log('📊 Metas recebidas do backend:', reportData?.metas);
+    console.log('📊 Metas do configManager:', configManager.getMetas('colheita_diario'));
+    
+    // Verificar se temos dados válidos
+    if (!finalData || !reportData?.dados) {
+      console.log('❌ Sem dados válidos para o resumo');
+      return {
+        tdh: { data: [], meta: 0, media: 0 },
+        diesel: { data: [], meta: 0, media: 0 },
+        impurezaVegetal: { data: [], meta: 0, media: 0 },
+        disponibilidadeMecanica: { 
+          data: [], 
+          meta: 0, 
+          media: 0,
+          acimaMeta: { quantidade: 0, total: 0, percentual: 0 }
+        },
+        eficienciaEnergetica: {
+          data: [],
+          meta: 0,
+          media: 0,
+          acimaMeta: { quantidade: 0, total: 0, percentual: 0 }
+        },
+        horaElevador: {
+          data: [],
+          meta: 0,
+          media: 0,
+          acimaMeta: { quantidade: 0, total: 0, percentual: 0 }
+        },
+        motorOcioso: {
+          data: [],
+          meta: 0,
+          media: 0,
+          acimaMeta: { quantidade: 0, total: 0, percentual: 0 }
+        },
+        usoGPS: {
+          data: [],
+          meta: 0,
+          media: 0,
+          acimaMeta: { quantidade: 0, total: 0, percentual: 0 }
+        },
+        frotas: [],
+        operadores: []
+      };
+    }
 
-    // Verificar se os arrays têm conteúdo
-    const temDadosDisponibilidade = finalDataDisponibilidade.length > 0;
-    const temDadosEficiencia = finalDataEficiencia.length > 0;
-    const temDadosHorasElevador = finalDataHorasElevador.length > 0;
-    const temDadosMotorOcioso = finalDataMotorOcioso.length > 0;
-    const temDadosUsoGPS = finalDataUsoGPS.length > 0;
+    // Preparar dados das frotas com validação estrita
+    const frotas = (finalData.tdh || [])
+      .filter(item => item && item.frota && item.valor !== undefined)
+      .map(item => ({
+        id: item.frota,
+        tdh: item.valor,
+        diesel: finalData.diesel?.find(d => d.frota === item.frota)?.valor || 0,
+        disponibilidade: finalData.disponibilidade_mecanica?.find(d => d.frota === item.frota)?.disponibilidade || 0,
+        impureza: finalData.impureza_vegetal?.find(d => d.frota === item.frota)?.valor || 0
+      }));
 
-    console.log('📊 Tem dados disponíveis:', {
-      disponibilidade: temDadosDisponibilidade,
-      eficiencia: temDadosEficiencia,
-      horasElevador: temDadosHorasElevador,
-      motorOcioso: temDadosMotorOcioso,
-      usoGPS: temDadosUsoGPS
+    // Preparar dados dos operadores com validação estrita
+    const operadores = (finalDataEficiencia || [])
+      .filter(item => item && item.nome)
+      .map(item => ({
+        id: item.nome,
+        eficiencia: item.eficiencia || 0,
+        horasElevador: finalDataHorasElevador.find(h => h.nome === item.nome)?.horas || 0,
+        motorOcioso: finalDataMotorOcioso.find(m => m.nome === item.nome)?.percentual || 0,
+        usoGPS: finalDataUsoGPS.find(g => g.nome === item.nome)?.porcentagem || 0
+      }));
+
+    console.log('📊 Dados processados:', {
+      frotas: frotas.length,
+      operadores: operadores.length
     });
 
-    const tdh = {
-      data: finalData.tdh || [],
-      meta: configManager.getMetas('colheita_diario').tdh,
-      media: calcularMedia(finalData.tdh, 'valor')
-    };
-
-    const diesel = {
-      data: finalData.diesel || [],
-      meta: configManager.getMetas('colheita_diario').diesel,
-      media: calcularMedia(finalData.diesel, 'valor')
-    };
-
-    const impurezaVegetal = {
-      data: finalData.impureza_vegetal || [],
-      meta: configManager.getMetas('colheita_diario').impureza_vegetal,
-      media: calcularMedia(finalData.impureza_vegetal, 'valor')
-    };
-
-    // Garantir que os dados de disponibilidade estejam presentes
-    const disponibilidadeMecanica = {
-      data: temDadosDisponibilidade ? finalDataDisponibilidade : dadosExemplo.disponibilidade_mecanica,
-      meta: configManager.getMetas('colheita_diario').disponibilidadeMecanica,
-      media: temDadosDisponibilidade ? 
-        calcularMedia(finalDataDisponibilidade, 'disponibilidade') : 
-        calcularMedia(dadosExemplo.disponibilidade_mecanica, 'disponibilidade'),
-      acimaMeta: {
-        quantidade: temDadosDisponibilidade ? 
-          contarItensMeta(finalDataDisponibilidade, 'disponibilidade', configManager.getMetas('colheita_diario').disponibilidadeMecanica) :
-          contarItensMeta(dadosExemplo.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('colheita_diario').disponibilidadeMecanica),
-        total: temDadosDisponibilidade ? finalDataDisponibilidade.length : dadosExemplo.disponibilidade_mecanica.length,
-        percentual: temDadosDisponibilidade ? 
-          (contarItensMeta(finalDataDisponibilidade, 'disponibilidade', configManager.getMetas('colheita_diario').disponibilidadeMecanica) / 
-            (finalDataDisponibilidade.length || 1)) * 100 :
-          (contarItensMeta(dadosExemplo.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('colheita_diario').disponibilidadeMecanica) / 
-            (dadosExemplo.disponibilidade_mecanica.length || 1)) * 100
-      }
-    };
-
-    // Garantir que os dados de eficiência energética estejam presentes
-    const eficienciaEnergetica = {
-      data: temDadosEficiencia ? finalDataEficiencia : dadosExemplo.eficiencia_energetica,
-      meta: configManager.getMetas('colheita_diario').eficienciaEnergetica,
-      media: temDadosEficiencia ? 
-        calcularMedia(finalDataEficiencia, 'eficiencia') : 
-        calcularMedia(dadosExemplo.eficiencia_energetica, 'eficiencia'),
-      acimaMeta: {
-        quantidade: temDadosEficiencia ? 
-          contarItensMeta(finalDataEficiencia, 'eficiencia', configManager.getMetas('colheita_diario').eficienciaEnergetica) :
-          contarItensMeta(dadosExemplo.eficiencia_energetica, 'eficiencia', configManager.getMetas('colheita_diario').eficienciaEnergetica),
-        total: temDadosEficiencia ? finalDataEficiencia.length : dadosExemplo.eficiencia_energetica.length,
-        percentual: temDadosEficiencia ? 
-          (contarItensMeta(finalDataEficiencia, 'eficiencia', configManager.getMetas('colheita_diario').eficienciaEnergetica) / 
-            (finalDataEficiencia.length || 1)) * 100 :
-          (contarItensMeta(dadosExemplo.eficiencia_energetica, 'eficiencia', configManager.getMetas('colheita_diario').eficienciaEnergetica) / 
-            (dadosExemplo.eficiencia_energetica.length || 1)) * 100
-      }
-    };
-
-    // Garantir que os dados de horas elevador estejam presentes
-    const horaElevador = {
-      data: temDadosHorasElevador ? finalDataHorasElevador : dadosExemplo.hora_elevador,
-      meta: configManager.getMetas('colheita_diario').horaElevador,
-      media: temDadosHorasElevador ? 
-        calcularMedia(finalDataHorasElevador, 'horas') : 
-        calcularMedia(dadosExemplo.hora_elevador, 'horas'),
-      acimaMeta: {
-        quantidade: temDadosHorasElevador ? 
-          contarItensMeta(finalDataHorasElevador, 'horas', configManager.getMetas('colheita_diario').horaElevador) :
-          contarItensMeta(dadosExemplo.hora_elevador, 'horas', configManager.getMetas('colheita_diario').horaElevador),
-        total: temDadosHorasElevador ? finalDataHorasElevador.length : dadosExemplo.hora_elevador.length,
-        percentual: temDadosHorasElevador ? 
-          (contarItensMeta(finalDataHorasElevador, 'horas', configManager.getMetas('colheita_diario').horaElevador) / 
-            (finalDataHorasElevador.length || 1)) * 100 :
-          (contarItensMeta(dadosExemplo.hora_elevador, 'horas', configManager.getMetas('colheita_diario').horaElevador) / 
-            (dadosExemplo.hora_elevador.length || 1)) * 100
-      }
-    };
-
-    // Garantir que os dados de motor ocioso estejam presentes
-    const motorOcioso = {
-      data: temDadosMotorOcioso ? finalDataMotorOcioso : dadosExemplo.motor_ocioso,
-      meta: configManager.getMetas('colheita_diario').motorOcioso,
-      media: temDadosMotorOcioso ? 
-        calcularMedia(finalDataMotorOcioso, 'percentual') : 
-        calcularMedia(dadosExemplo.motor_ocioso, 'percentual'),
-      acimaMeta: {
-        quantidade: temDadosMotorOcioso ? 
-          contarItensMeta(finalDataMotorOcioso, 'percentual', configManager.getMetas('colheita_diario').motorOcioso, false) :
-          contarItensMeta(dadosExemplo.motor_ocioso, 'percentual', configManager.getMetas('colheita_diario').motorOcioso, false),
-        total: temDadosMotorOcioso ? finalDataMotorOcioso.length : dadosExemplo.motor_ocioso.length,
-        percentual: temDadosMotorOcioso ? 
-          (contarItensMeta(finalDataMotorOcioso, 'percentual', configManager.getMetas('colheita_diario').motorOcioso, false) / 
-            (finalDataMotorOcioso.length || 1)) * 100 :
-          (contarItensMeta(dadosExemplo.motor_ocioso, 'percentual', configManager.getMetas('colheita_diario').motorOcioso, false) / 
-            (dadosExemplo.motor_ocioso.length || 1)) * 100
-      }
-    };
-
-    // Garantir que os dados de uso GPS estejam presentes
-    const usoGPS = {
-      data: temDadosUsoGPS ? finalDataUsoGPS : dadosExemplo.uso_gps,
-      meta: configManager.getMetas('colheita_diario').usoGPS,
-      media: temDadosUsoGPS ? 
-        calcularMedia(finalDataUsoGPS, 'porcentagem') : 
-        calcularMedia(dadosExemplo.uso_gps, 'porcentagem'),
-      acimaMeta: {
-        quantidade: temDadosUsoGPS ? 
-          contarItensMeta(finalDataUsoGPS, 'porcentagem', configManager.getMetas('colheita_diario').usoGPS) :
-          contarItensMeta(dadosExemplo.uso_gps, 'porcentagem', configManager.getMetas('colheita_diario').usoGPS),
-        total: temDadosUsoGPS ? finalDataUsoGPS.length : dadosExemplo.uso_gps.length,
-        percentual: temDadosUsoGPS ? 
-          (contarItensMeta(finalDataUsoGPS, 'porcentagem', configManager.getMetas('colheita_diario').usoGPS) / 
-            (finalDataUsoGPS.length || 1)) * 100 :
-          (contarItensMeta(dadosExemplo.uso_gps, 'porcentagem', configManager.getMetas('colheita_diario').usoGPS) / 
-            (dadosExemplo.uso_gps.length || 1)) * 100
-      }
-    };
-
-    // Log para verificar os dados processados dos cards
-    console.log('📊 Dados de disponibilidadeMecanica:', JSON.stringify(disponibilidadeMecanica, null, 2));
-    console.log('📊 Dados de eficienciaEnergetica:', JSON.stringify(eficienciaEnergetica, null, 2));
-    console.log('📊 Dados de horaElevador:', JSON.stringify(horaElevador, null, 2));
-    console.log('📊 Dados de motorOcioso:', JSON.stringify(motorOcioso, null, 2));
-    console.log('📊 Dados de usoGPS:', JSON.stringify(usoGPS, null, 2));
-
-    // Preparar dados das frotas
-    const frotas = (finalData.tdh || []).map((item: any) => ({
-      id: item.frota || '',
-      tdh: item.valor || 0,
-      diesel: (finalData.diesel || []).find((d: any) => d.frota === item.frota)?.valor || 0,
-      disponibilidade: finalDataDisponibilidade.find((d: any) => d.frota === item.frota)?.disponibilidade || 0,
-      impureza: (finalData.impureza_vegetal || []).find((d: any) => d.frota === item.frota)?.valor || 0
-    }));
-
-    // Preparar dados dos operadores
-    const operadores = finalDataEficiencia.map((item: any) => ({
-      id: item.nome || '',
-      eficiencia: item.eficiencia || 0,
-      horasElevador: finalDataHorasElevador.find((h: any) => h.nome === item.nome)?.horas || 0,
-      motorOcioso: finalDataMotorOcioso.find((m: any) => m.nome === item.nome)?.percentual || 0,
-      usoGPS: finalDataUsoGPS.find((g: any) => g.nome === item.nome)?.porcentagem || 0
-    }));
-
     return {
-      tdh,
-      diesel,
-      impurezaVegetal,
-      disponibilidadeMecanica,
-      eficienciaEnergetica,
-      horaElevador,
-      motorOcioso,
-      usoGPS,
+      tdh: {
+        data: finalData.tdh || [],
+        meta: reportData?.metas?.tdh || configManager.getMetas('colheita_diario').tdh,
+        media: calcularMedia(finalData.tdh, 'valor')
+      },
+      diesel: {
+        data: finalData.diesel || [],
+        meta: reportData?.metas?.diesel || configManager.getMetas('colheita_diario').diesel,
+        media: calcularMedia(finalData.diesel, 'valor')
+      },
+      impurezaVegetal: {
+        data: finalData.impureza_vegetal || [],
+        meta: reportData?.metas?.impurezaVegetal || configManager.getMetas('colheita_diario').impureza_vegetal,
+        media: calcularMedia(finalData.impureza_vegetal, 'valor')
+      },
+      disponibilidadeMecanica: {
+        data: finalDataDisponibilidade,
+        meta: reportData?.metas?.disponibilidadeMecanica || configManager.getMetas('colheita_diario').disponibilidadeMecanica,
+        media: calcularMedia(finalDataDisponibilidade, 'disponibilidade'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataDisponibilidade, 'disponibilidade', reportData?.metas?.disponibilidadeMecanica || configManager.getMetas('colheita_diario').disponibilidadeMecanica),
+          total: finalDataDisponibilidade.length,
+          percentual: (contarItensMeta(finalDataDisponibilidade, 'disponibilidade', reportData?.metas?.disponibilidadeMecanica || configManager.getMetas('colheita_diario').disponibilidadeMecanica) / 
+            (finalDataDisponibilidade.length || 1)) * 100
+        }
+      },
+      eficienciaEnergetica: {
+        data: finalDataEficiencia,
+        meta: reportData?.metas?.eficienciaEnergetica || configManager.getMetas('colheita_diario').eficienciaEnergetica,
+        media: calcularMedia(finalDataEficiencia, 'eficiencia'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataEficiencia, 'eficiencia', reportData?.metas?.eficienciaEnergetica || configManager.getMetas('colheita_diario').eficienciaEnergetica),
+          total: finalDataEficiencia.length,
+          percentual: (contarItensMeta(finalDataEficiencia, 'eficiencia', reportData?.metas?.eficienciaEnergetica || configManager.getMetas('colheita_diario').eficienciaEnergetica) / 
+            (finalDataEficiencia.length || 1)) * 100
+        }
+      },
+      horaElevador: {
+        data: finalDataHorasElevador,
+        meta: reportData?.metas?.horaElevador || configManager.getMetas('colheita_diario').horaElevador,
+        media: calcularMedia(finalDataHorasElevador, 'horas'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataHorasElevador, 'horas', reportData?.metas?.horaElevador || configManager.getMetas('colheita_diario').horaElevador),
+          total: finalDataHorasElevador.length,
+          percentual: (contarItensMeta(finalDataHorasElevador, 'horas', reportData?.metas?.horaElevador || configManager.getMetas('colheita_diario').horaElevador) / 
+            (finalDataHorasElevador.length || 1)) * 100
+        }
+      },
+      motorOcioso: {
+        data: finalDataMotorOcioso,
+        meta: reportData?.metas?.motorOcioso || configManager.getMetas('colheita_diario').motorOcioso,
+        media: calcularMedia(finalDataMotorOcioso, 'percentual'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataMotorOcioso, 'percentual', reportData?.metas?.motorOcioso || configManager.getMetas('colheita_diario').motorOcioso, false),
+          total: finalDataMotorOcioso.length,
+          percentual: (contarItensMeta(finalDataMotorOcioso, 'percentual', reportData?.metas?.motorOcioso || configManager.getMetas('colheita_diario').motorOcioso, false) / 
+            (finalDataMotorOcioso.length || 1)) * 100
+        }
+      },
+      usoGPS: {
+        data: finalDataUsoGPS,
+        meta: reportData?.metas?.usoGPS || configManager.getMetas('colheita_diario').usoGPS,
+        media: calcularMedia(finalDataUsoGPS, 'porcentagem'),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalDataUsoGPS, 'porcentagem', reportData?.metas?.usoGPS || configManager.getMetas('colheita_diario').usoGPS),
+          total: finalDataUsoGPS.length,
+          percentual: (contarItensMeta(finalDataUsoGPS, 'porcentagem', reportData?.metas?.usoGPS || configManager.getMetas('colheita_diario').usoGPS) / 
+            (finalDataUsoGPS.length || 1)) * 100
+        }
+      },
       frotas,
       operadores
     };
   }, [
     finalData,
+    reportData,
     finalDataDisponibilidade,
     finalDataEficiencia,
     finalDataHorasElevador,
@@ -1134,6 +686,18 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     finalDataUsoGPS,
     configManager
   ]);
+
+  // Adicionar log durante a renderização para verificar quais metas estão sendo passadas para os componentes
+  useEffect(() => {
+    if (resumoData) {
+      console.log('📊 VALORES DE METAS UTILIZADAS:');
+      console.log('- Disponibilidade Mecânica:', resumoData.disponibilidadeMecanica.meta);
+      console.log('- Eficiência Energética:', resumoData.eficienciaEnergetica.meta);
+      console.log('- Motor Ocioso:', resumoData.motorOcioso.meta);
+      console.log('- Hora Elevador:', resumoData.horaElevador.meta);
+      console.log('- Uso GPS:', resumoData.usoGPS.meta);
+    }
+  }, [resumoData]);
 
   // RENDERIZAÇÃO CONDICIONAL
   // Se estiver carregando, mostrar indicador de loading
@@ -1169,10 +733,16 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={3}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoDisponibilidadeMecanicaColheita 
-                    data={finalDataDisponibilidade} 
-                    meta={configManager.getMetas('colheita_diario').disponibilidadeMecanica} 
-                  />
+                  {finalDataDisponibilidade.length > 0 ? (
+                    <GraficoDisponibilidadeMecanicaColheita 
+                      data={finalDataDisponibilidade} 
+                      meta={resumoData.disponibilidadeMecanica.meta || 0} 
+                    />
+                  ) : (
+                    <Center h="100%">
+                      <Text>Sem dados de disponibilidade mecânica</Text>
+                    </Center>
+                  )}
                 </Box>
               </Box>
               
@@ -1186,28 +756,40 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={2}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoEficienciaEnergetica 
-                    data={finalDataEficiencia} 
-                    meta={configManager.getMetas('colheita_diario').eficienciaEnergetica} 
-                  />
+                  {finalDataEficiencia.length > 0 ? (
+                    <GraficoEficienciaEnergetica 
+                      data={finalDataEficiencia} 
+                      meta={resumoData.eficienciaEnergetica.meta || 0} 
+                    />
+                  ) : (
+                    <Center h="100%">
+                      <Text>Sem dados de eficiência energética</Text>
+                    </Center>
+                  )}
                 </Box>
               </Box>
               
               {/* Motor Ocioso */}
-              <Box flex="1">
+              <Box flex="1" mb={3}>
                 <SectionTitle title="Motor Ocioso" centered={true} />
                 <Box 
                   border="1px solid"
                   borderColor="black"
                   borderRadius="md"
-                  p={3}
+                  p={2}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoMotorOciosoColheita 
-                    data={finalDataMotorOcioso} 
-                    meta={configManager.getMetas('colheita_diario').motorOcioso} 
-                    inverterMeta 
-                  />
+                  {finalDataMotorOcioso.length > 0 ? (
+                    <GraficoMotorOciosoColheita 
+                      data={finalDataMotorOcioso} 
+                      meta={resumoData.motorOcioso.meta} 
+                      inverterMeta={true}
+                    />
+                  ) : (
+                    <Center h="100%">
+                      <Text>Sem dados de motor ocioso</Text>
+                    </Center>
+                  )}
                 </Box>
               </Box>
             </Flex>
@@ -1232,7 +814,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 >
                   <GraficoHorasElevador 
                     data={finalDataHorasElevador} 
-                    meta={configManager.getMetas('colheita_diario').horaElevador} 
+                    meta={resumoData.horaElevador.meta || 0} 
                   />
                 </Box>
               </Box>
@@ -1247,10 +829,16 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   p={2}
                   h="calc(100% - 25px)"
                 >
-                  <GraficoUsoGPS 
-                    data={finalDataUsoGPS} 
-                    meta={configManager.getMetas('colheita_diario').usoGPS} 
-                  />
+                  {finalDataUsoGPS.length > 0 ? (
+                    <GraficoUsoGPS 
+                      data={finalDataUsoGPS} 
+                      meta={resumoData.usoGPS.meta} 
+                    />
+                  ) : (
+                    <Center h="100%">
+                      <Text>Sem dados de uso GPS</Text>
+                    </Center>
+                  )}
                 </Box>
               </Box>
             </Flex>
@@ -1338,24 +926,23 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 </SimpleGrid>
 
                 {/* Tabela de operadores */}
-                <TabelaOperadores dados={{
-                  eficiencia_energetica: finalData.eficiencia_energetica && finalData.eficiencia_energetica.length > 0 ? 
-                    finalData.eficiencia_energetica : dadosExemplo.eficiencia_energetica,
-                  motor_ocioso: finalData.motor_ocioso && finalData.motor_ocioso.length > 0 ? 
-                    finalData.motor_ocioso : dadosExemplo.motor_ocioso,
-                  falta_apontamento: (finalData.hora_elevador && finalData.hora_elevador.length > 0 ? 
-                    finalData.hora_elevador : dadosExemplo.hora_elevador).map(item => ({
+                <TabelaOperadores 
+                  dados={{
+                    eficiencia_energetica: finalDataEficiencia,
+                    motor_ocioso: finalDataMotorOcioso,
+                    falta_apontamento: finalDataHorasElevador.map(item => ({
                       id: item.id || '',
                       nome: item.nome || '',
                       percentual: item.horas || 0
                     })),
-                  uso_gps: (finalData.uso_gps && finalData.uso_gps.length > 0 ? 
-                    finalData.uso_gps : dadosExemplo.uso_gps).map(item => ({
+                    uso_gps: finalDataUsoGPS.map(item => ({
                       id: item.id || '',
                       nome: item.nome || '',
                       porcentagem: item.porcentagem || 0
                     }))
-                }} tipo="colheita_diario" />
+                  }} 
+                  tipo="colheita_diario"
+                />
               </Box>
             </Box>
           </Box>

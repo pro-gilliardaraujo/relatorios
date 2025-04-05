@@ -11,7 +11,13 @@ const defaultConfig = {
         { id: "frente3", nome: "Frente 3 - Alexandrita" },
         { id: "frente4", nome: "Frente 4 - Zirleno" }
       ],
-      metas: {},
+      metas: {
+        disponibilidadeMecanica: 90,
+        eficienciaEnergetica: 70,
+        motorOcioso: 4,
+        horaElevador: 5,
+        usoGPS: 90
+      },
       planilhas_excel: [
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
@@ -20,6 +26,50 @@ const defaultConfig = {
         "5_Uso GPS"
       ],
       colunas_excel: {
+        disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
+        eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
+        motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
+        hora_elevador: ["Operador", "Horas", "horas"],
+        uso_gps: ["Operador", "Porcentagem", "porcentagem"]
+      },
+      componentes: {
+        mostrarImageUpload: true,
+        mostrarExcelUpload: true,
+        mostrarMapas: false
+      }
+    },
+    colheita_semanal: {
+      nome: "Colheita - Semanal",
+      frentes: [
+        { id: "frente1", nome: "Frente 1 - BP Ituiutaba" },
+        { id: "frente2", nome: "Frente 2 - CMAA Canápolis" },
+        { id: "frente3", nome: "Frente 3 - Alexandrita" },
+        { id: "frente4", nome: "Frente 4 - Zirleno" }
+      ],
+      metas: {
+        tdh: 0.0124,
+        diesel: 0.718,
+        impureza_vegetal: 64,
+        disponibilidadeMecanica: 90,
+        eficienciaEnergetica: 70,
+        motorOcioso: 4,
+        horaElevador: 5,
+        usoGPS: 90
+      },
+      planilhas_excel: [
+        "1_TDH",
+        "2_Consumo Diesel",
+        "3_Disponibilidade Mecânica",
+        "4_Impureza Vegetal",
+        "5_Eficiência Energética",
+        "6_Hora Elevador",
+        "7_Motor Ocioso",
+        "8_Uso GPS"
+      ],
+      colunas_excel: {
+        tdh: ["Frota", "TDH", "decimal"],
+        diesel: ["Frota", "Diesel", "decimal"],
+        impureza_vegetal: ["Frota", "Impureza", "porcentagem"],
         disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
         eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
         motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
@@ -66,6 +116,47 @@ const defaultConfig = {
         mostrarExcelUpload: true,
         mostrarMapas: false
       }
+    },
+    transbordo_semanal: {
+      nome: "Transbordo - Semanal",
+      frentes: [
+        { id: "frente1", nome: "Frente 1 - BP Ituiutaba" },
+        { id: "frente2", nome: "Frente 2 - CMAA Canápolis" },
+        { id: "frente3", nome: "Frente 3 - Alexandrita" },
+        { id: "frente4", nome: "Frente 4 - Zirleno" }
+      ],
+      metas: {
+        tdh: 0.019,
+        diesel: 9,        
+        disponibilidadeMecanica: 90,
+        eficienciaEnergetica: 65,
+        motorOcioso: 6,
+        faltaApontamento: 10,
+        usoGPS: 90
+      },
+      planilhas_excel: [
+        "1_Disponibilidade Mecânica",
+        "2_TDH",
+        "3_Diesel",
+        "4_Eficiência Energética",
+        "5_Motor Ocioso",
+        "6_Falta de Apontamento",
+        "7_Uso GPS"
+      ],
+      colunas_excel: {
+        disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
+        tdh: ["Frota", "TDH", "decimal"],
+        diesel: ["Frota", "Diesel", "decimal"],
+        eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
+        motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
+        falta_apontamento: ["Operador", "Porcentagem", "porcentagem"],
+        uso_gps: ["Operador", "Porcentagem", "porcentagem"]
+      },
+      componentes: {
+        mostrarImageUpload: true,
+        mostrarExcelUpload: true,
+        mostrarMapas: false
+      }
     }
   },
   fontes: {
@@ -84,6 +175,32 @@ const defaultConfig = {
     paginacao: 10,
     atualizacaoAutomatica: false,
     intervaloAtualizacao: 3600
+  },
+  graficos: {
+    cores: {
+      meta_atingida: "#48BB78",
+      proximo_meta: "#90EE90",
+      alerta: "#ECC94B",
+      critico: "#E53E3E"
+    },
+    tolerancias: {
+      proximo_meta: 7,
+      alerta: 14,
+      critico: 15
+    },
+    formatacao: {
+      decimal: {
+        casas: 4,
+        separador: "."
+      },
+      porcentagem: {
+        casas: 2,
+        separador: "."
+      },
+      horas: {
+        formato: "Xh00m"
+      }
+    }
   }
 };
 
@@ -205,6 +322,10 @@ export class ConfigManager {
 
   public getDefaults() {
     return this.getConfig().defaults || defaultConfig.defaults;
+  }
+
+  public getGraficosConfig() {
+    return this.getConfig().graficos || defaultConfig.graficos;
   }
 }
 

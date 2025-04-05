@@ -1,0 +1,73 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-04",
+    "frente": "frente1",
+    "generated_at": "2025-04-05T09:09:49.722277",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032",
+      "disponibilidade": 80.00812394823875
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 78.54150567372989
+    },
+    {
+      "id": "784911 - PAULIANO DOS SANTOS",
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 74.62881495738343
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "horas": 0.22350694444444485
+    },
+    {
+      "id": "784911 - PAULIANO DOS SANTOS",
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 0.251319444444448
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 8.903078862813262
+    },
+    {
+      "id": "784911 - PAULIANO DOS SANTOS",
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 11.843552378334289
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "784911 - PAULIANO DOS SANTOS",
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 0.6487047528425529
+    }
+  ]
+}

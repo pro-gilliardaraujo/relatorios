@@ -15,6 +15,7 @@ interface PreviewData {
   rows: string[][];
   processedData: { [key: string]: any[] };
   previewRows: number;
+  rawFile: File;
 }
 
 export default function ReportsPage() {
@@ -134,9 +135,9 @@ export default function ReportsPage() {
       setIsLoading(true);
       
       // Verificar dados do excel
-      if (!previewData || !previewData.processedData || Object.keys(previewData.processedData).length === 0) {
+      if (!previewData) {
         toast({
-          title: "Sem dados do Excel",
+          title: "Sem arquivo Excel",
           description: "Por favor, faça o upload de um arquivo Excel.",
           status: "error",
           duration: 3000,
@@ -146,216 +147,62 @@ export default function ReportsPage() {
         return;
       }
       
-      // Log detalhado dos dados do Excel para debug
-      console.log("📊 DADOS DO EXCEL PARA ENVIO:", previewData.processedData);
-      
-      // Dados que serão enviados ao backend
-      let dadosParaEnvio = {...previewData.processedData};
-      
-      // Verificar se o tipo de relatório é transbordo e fazer verificações específicas
-      if (reportType === 'transbordo_diario' || reportType === 'transbordo_semanal') {
-        console.log("🔍 Verificando dados para relatório de transbordo");
-        
-        // Obter planilhas e colunas esperadas da configuração
-        const config = configManager.getTipoRelatorio(reportType);
-        if (!config) {
-          throw new Error(`Configuração não encontrada para ${reportType}`);
-        }
-        
-        console.log("📋 Planilhas esperadas:", config.planilhas_excel);
-        console.log("📋 Colunas esperadas:", config.colunas_excel);
-        
-        const planilhasEncontradas = Object.keys(previewData.processedData);
-        console.log("📋 Planilhas encontradas:", planilhasEncontradas);
-        
-        // Checar se temos pelo menos algumas das planilhas necessárias
-        const planilhasEsperadas = config.planilhas_excel.map(p => p.toLowerCase());
-        const planilhasEncontradasLower = Object.keys(previewData.processedData).map(p => p.toLowerCase());
-        
-        console.log("📋 Planilhas esperadas:", planilhasEsperadas);
-        console.log("📋 Planilhas encontradas:", planilhasEncontradasLower);
-        
-        // Verificar correspondências aproximadas
-        const correspondencias = planilhasEncontradasLower.map(encontrada => {
-          const match = planilhasEsperadas.find(esperada => 
-            encontrada.includes(esperada.replace(/[0-9_]/g, '')) || 
-            esperada.includes(encontrada.replace(/[0-9_]/g, ''))
-          );
-          return {
-            encontrada,
-            correspondeA: match
-          };
+      // Obter o arquivo para enviar ao backend
+      const rawFile = (previewData as any).rawFile;
+      if (!rawFile) {
+        toast({
+          title: "Arquivo inválido",
+          description: "O arquivo Excel não foi carregado corretamente. Por favor, tente novamente.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
         });
-        
-        console.log("📋 Correspondências encontradas:", correspondencias);
-        
-        const temPlanilhasValidas = correspondencias.some(c => c.correspondeA);
-        
-        if (!temPlanilhasValidas) {
-          console.error("❌ Nenhuma planilha esperada encontrada no Excel");
-          toast({
-            title: "Formato de Excel inválido",
-            description: `Planilhas esperadas: ${config.planilhas_excel.join(', ')}\nPlanilhas encontradas: ${Object.keys(previewData.processedData).join(', ')}`,
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-          setIsLoading(false);
-          return;
-        }
-        
-        // Preparar estrutura de dados para o relatório
-        const dadosProcessados: Record<string, any[]> = {};
-        
-        // Criar um mapeamento entre os nomes das planilhas e os tipos de dados
-        const planilhaParaTipo = config.planilhas_excel.reduce((acc, planilha, index) => {
-          const tipo = Object.keys(config.colunas_excel)[index];
-          acc[planilha.toLowerCase()] = tipo;
-          return acc;
-        }, {} as Record<string, string>);
-
-        console.log("📋 Mapeamento planilha -> tipo:", planilhaParaTipo);
-
-        // Para cada planilha encontrada, tentar processar os dados
-        for (const planilhaOriginal of Object.keys(previewData.processedData)) {
-          const planilhaLower = planilhaOriginal.toLowerCase();
-          
-          // Encontrar o tipo correspondente usando correspondência aproximada
-          const tipoCorrespondente = Object.entries(planilhaParaTipo).find(([nomePlanilha, tipo]) => {
-            const planilhaSemNumeros = nomePlanilha.replace(/[0-9_]/g, '').trim();
-            const encontradaSemNumeros = planilhaLower.replace(/[0-9_]/g, '').trim();
-            return planilhaSemNumeros.includes(encontradaSemNumeros) || 
-                   encontradaSemNumeros.includes(planilhaSemNumeros);
-          });
-
-          if (tipoCorrespondente) {
-            const [nomePlanilha, tipo] = tipoCorrespondente;
-            console.log(`✅ Planilha "${planilhaOriginal}" corresponde ao tipo "${tipo}"`);
-            
-            const dadosPlanilha = previewData.processedData[planilhaOriginal];
-            if (dadosPlanilha && Array.isArray(dadosPlanilha) && dadosPlanilha.length > 0) {
-              // Processar os dados conforme as colunas esperadas
-              const colunasEsperadas = config.colunas_excel[tipo];
-              
-              dadosProcessados[tipo] = dadosPlanilha.map(item => {
-                // Encontrar a coluna correta para cada campo esperado
-                const processedItem: any = {};
-                
-                // Processar colunas conforme o tipo
-                if (tipo === 'disponibilidade_mecanica') {
-                  const frotaCol = Object.keys(item).find(k => k.toLowerCase().includes('frota'));
-                  const dispCol = Object.keys(item).find(k => k.toLowerCase().includes('disponibilidade'));
-                  
-                  if (frotaCol && dispCol) {
-                    const valorDisp = item[dispCol];
-                    let disponibilidade: number;
-
-                    // Trata diferentes formatos de número
-                    if (typeof valorDisp === 'number') {
-                      disponibilidade = valorDisp <= 1 ? valorDisp * 100 : valorDisp;
-                    } else {
-                      // Remove % e converte para número
-                      disponibilidade = Number(String(valorDisp).replace('%', ''));
-                    }
-
-                    processedItem.frota = String(item[frotaCol]);
-                    processedItem.disponibilidade = disponibilidade;
-                    console.log(`Processando disponibilidade: Original=${valorDisp}, Convertido=${disponibilidade}`);
-                  }
-                } else {
-                  // Para outros tipos (eficiencia, motor_ocioso, etc)
-                  const operadorCol = Object.keys(item).find(k => k.toLowerCase().includes('operador'));
-                  const valorCol = Object.keys(item).find(k => 
-                    k.toLowerCase().includes('eficiência') ||
-                    k.toLowerCase().includes('porcentagem') ||
-                    k.toLowerCase().includes('percentual') ||
-                    k.toLowerCase().includes('uso') ||
-                    k.toLowerCase().includes('ociosa')
-                  );
-                  
-                  if (operadorCol && valorCol) {
-                    const operador = String(item[operadorCol]);
-                    // Trata diferentes formatos de operador (com ou sem ID)
-                    let id, nome;
-                    if (operador.includes('-')) {
-                      [id, nome] = operador.split('-').map(s => s.trim());
-                    } else {
-                      id = operador;
-                      nome = operador;
-                    }
-                    
-                    processedItem.id = id;
-                    processedItem.nome = nome;
-
-                    const valorOriginal = item[valorCol];
-                    let valorProcessado: number;
-
-                    // Trata diferentes formatos de número
-                    if (typeof valorOriginal === 'number') {
-                      valorProcessado = valorOriginal <= 1 ? valorOriginal * 100 : valorOriginal;
-                    } else {
-                      // Remove % e converte para número
-                      valorProcessado = Number(String(valorOriginal).replace('%', ''));
-                    }
-                    
-                    if (tipo === 'eficiencia_energetica') {
-                      processedItem.eficiencia = valorProcessado;
-                    } else if (tipo === 'uso_gps') {
-                      processedItem.porcentagem = valorProcessado;
-                    } else {
-                      processedItem.percentual = valorProcessado;
-                    }
-
-                    console.log(`Processando ${tipo}: Original=${valorOriginal}, Convertido=${valorProcessado}`);
-                  }
-                }
-                
-                return processedItem;
-              }).filter(item => Object.keys(item).length > 0);
-              
-              console.log(`✅ Processados ${dadosProcessados[tipo].length} registros para ${tipo}`);
-            }
-          }
-        }
-
-        // Verificar se temos dados suficientes
-        const tiposEncontrados = Object.keys(dadosProcessados).filter(tipo => 
-          dadosProcessados[tipo] && dadosProcessados[tipo].length > 0
-        );
-
-        console.log("📊 Tipos de dados encontrados:", tiposEncontrados);
-        
-        if (tiposEncontrados.length === 0) {
-          console.error("❌ Nenhum dado processado encontrado");
-          toast({
-            title: "Dados insuficientes",
-            description: `Não foi possível encontrar nenhum dos tipos de dados esperados: ${Object.keys(config.colunas_excel).join(', ')}`,
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-          });
-          setIsLoading(false);
-          return;
-        }
-        
-        console.log("📊 DADOS PROCESSADOS FINAL:", dadosProcessados);
-        
-        // Usar os dados processados para o relatório
-        dadosParaEnvio = dadosProcessados;
+        setIsLoading(false);
+        return;
       }
       
-      // Criar objeto do relatório para enviar ao backend
+      // Log para debug
+      console.log("📊 Enviando arquivo Excel para o backend");
+      
+      // Criar FormData para envio do arquivo
+      const formData = new FormData();
+      formData.append('file', rawFile);
+      formData.append('report_type', reportType);
+      formData.append('report_date', selectedDate);
+      formData.append('frente', selectedFrente);
+      formData.append('is_teste', isTeste.toString());
+      
+      // Enviar para o backend (via API route do Next.js)
+      const response = await fetch(`/api/reports/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Erro ao processar o arquivo no backend');
+      }
+      
+      const result = await response.json();
+      
+      if (!result || !result.data) {
+        throw new Error('Resposta inválida do backend');
+      }
+      
+      console.log("✅ Dados processados pelo backend:", result);
+      
+      // Criar objeto do relatório para salvar no Supabase
       const reportData = {
         tipo: reportType,
         data: selectedDate,
         frente: selectedFrente,
-        dados: dadosParaEnvio,
-        status: 'rascunho',
+        dados: result.data,
+        status: 'concluido',
         created_at: new Date().toISOString(),
         is_teste: isTeste
       };
       
-      console.log("📤 Enviando dados do relatório para o Supabase:", reportData);
+      console.log("📤 Salvando relatório processado no Supabase");
       
       let { data: reportResult, error } = reportType.includes('semanal') 
         ? await supabase.from('relatorios_semanais').insert([reportData]).select().single()
@@ -384,7 +231,7 @@ export default function ReportsPage() {
         isClosable: true,
       });
       
-      // Redirecionar para visualização
+      // Determinar URL com base no tipo de relatório
       let viewUrl = '';
       
       // Determinar URL com base no tipo de relatório
@@ -398,7 +245,8 @@ export default function ReportsPage() {
         viewUrl = `/relatorios/visualizacao/a4/transbordo-semanal?id=${reportResult.id}`;
       }
       
-      router.push(viewUrl);
+      // Abrir em nova aba em vez de redirecionar
+      window.open(viewUrl, '_blank');
       
       setIsLoading(false);
       setReportGenerated(true);

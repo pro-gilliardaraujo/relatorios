@@ -18,6 +18,7 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Spinner,
 } from '@chakra-ui/react';
 import { FiUpload } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
@@ -29,6 +30,7 @@ interface PreviewData {
   rows: any[][];
   processedData: { [key: string]: any[] };
   previewRows: number;
+  rawFile?: File;
 }
 
 interface ExcelUploadProps {
@@ -40,6 +42,7 @@ interface ExcelUploadProps {
 export default function ExcelUpload({ onPreviewData, isEnabled = false, selectedReportType }: ExcelUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
 
   const handleFile = useCallback(async (file: File) => {
@@ -65,8 +68,10 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
 
     try {
       setFile(file);
+      setIsLoading(true);
       
-      // Ler o arquivo como ArrayBuffer
+      // Geração de pré-visualização para mostrar ao usuário
+      // Isso é apenas para UI, o processamento real será feito no backend
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: 'array' });
       
@@ -104,7 +109,7 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
         });
       }
 
-      // Processar apenas as planilhas de interesse
+      // Processar apenas as planilhas de interesse para preview
       const processedData: { [key: string]: any[] } = {};
       let totalRecords = 0;
 
@@ -140,11 +145,12 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
           headers,
           rows,
           processedData,
-          previewRows
+          previewRows,
+          rawFile: file
         });
 
         toast({
-          title: "Arquivo processado com sucesso",
+          title: "Arquivo carregado com sucesso",
           description: `${totalRecords} registros encontrados em ${foundSheets.length} planilhas`,
           status: "success",
           duration: 3000,
@@ -162,6 +168,8 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
       });
       setFile(null);
       onPreviewData?.(null);
+    } finally {
+      setIsLoading(false);
     }
   }, [onPreviewData, toast, isEnabled, selectedReportType]);
 
@@ -200,6 +208,7 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
       transition="all 0.2s"
       _hover={{ borderColor: "black", bg: "gray.50" }}
       onClick={() => {
+        if (isLoading) return;
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.xlsx,.csv';
@@ -210,9 +219,13 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
         input.click();
       }}
     >
-      <Text color="black" fontWeight="medium">
-        {file ? file.name : "Arraste um arquivo Excel ou clique para selecionar"}
-      </Text>
+      {isLoading ? (
+        <Spinner size="md" color="black" />
+      ) : (
+        <Text color="black" fontWeight="medium">
+          {file ? file.name : "Arraste um arquivo Excel ou clique para selecionar"}
+        </Text>
+      )}
     </Box>
   );
 }

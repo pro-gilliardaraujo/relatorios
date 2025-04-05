@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Query
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Form
 from typing import List, Optional
 from datetime import date, datetime, timedelta
 from ...processors.excel_processor import ExcelProcessor
@@ -14,11 +14,11 @@ report_processor = ReportProcessor()
 @router.post("/upload")
 async def upload_file(
     file: UploadFile = File(...),
-    report_type: str = Query(..., description="Tipo do relatório (plantio, colheita, cav)"),
-    report_date: date = Query(..., description="Data do relatório"),
-    frente: str = Query(..., description="Frente de trabalho"),
-    equipment_ids: Optional[List[str]] = Query(None, description="IDs dos equipamentos"),
-    save_processed: bool = Query(False, description="Salvar dados processados para uso futuro")
+    report_type: str = Form(..., description="Tipo do relatório (plantio, colheita, cav)"),
+    report_date: date = Form(..., description="Data do relatório"),
+    frente: str = Form(..., description="Frente de trabalho"),
+    equipment_ids: Optional[List[str]] = Form(None, description="IDs dos equipamentos"),
+    save_processed: bool = Form(False, description="Salvar dados processados para uso futuro")
 ):
     """
     Upload e processamento de arquivo Excel/CSV
@@ -28,7 +28,7 @@ async def upload_file(
         await excel_processor.validate_file(file)
         
         # Processar arquivo
-        processed_data = await excel_processor.process_file(file)
+        processed_data = await excel_processor.process_file(file, report_type=report_type)
         
         # Gerar relatório
         report = await report_processor.generate_report(
