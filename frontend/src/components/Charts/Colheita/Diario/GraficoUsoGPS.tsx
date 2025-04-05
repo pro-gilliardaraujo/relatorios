@@ -32,23 +32,36 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
   meta = META_USO_GPS,
   exibirCards = false
 }) => {
-  // Calcula a média de uso do GPS
-  const mediaUsoGPS = data.reduce((acc, item) => acc + item.porcentagem, 0) / data.length;
+  // Verificar se há dados válidos
+  const dadosValidos = Array.isArray(data) && data.length > 0 && 
+    data.some(item => item && item.nome && typeof item.porcentagem === 'number');
   
-  // Encontra o valor máximo para definir a escala
-  const maxPorcentagem = Math.max(...data.map(item => item.porcentagem));
+  // Log para diagnóstico
+  console.log('📊 GraficoUsoGPS recebeu dados:', 
+    Array.isArray(data) ? `${data.length} itens` : 'não é array',
+    dadosValidos ? 'válidos' : 'inválidos');
   
-  // Para "maior melhor", usamos o maior valor como referência para a escala
-  const valorReferencia = Math.max(maxPorcentagem, meta * 1.2); // Garante que a meta fique visível
+  if (Array.isArray(data) && data.length > 0) {
+    console.log('📊 Amostra de dados:', data.slice(0, 2));
+  }
+  
+  // Usar dados padrão se não houver dados válidos
+  const dadosFinais = dadosValidos ? data : defaultData;
+  
+  // Calcular a média de porcentagem
+  const mediaPorcentagem = dadosFinais.reduce((acc, item) => acc + (item?.porcentagem || 0), 0) / dadosFinais.length;
+  
+  // Encontrar o valor máximo para definir a escala (considerando o limite máximo de 100%)
+  const maxPorcentagem = Math.min(Math.max(...dadosFinais.map(item => item?.porcentagem || 0), meta * 1.2), 100);
   
   // Função de escala que garante que nunca ultrapasse 100%
-  const scalePercentage = (porcentagem: number) => Math.min((porcentagem / valorReferencia) * 100, 100);
+  const scalePercentage = (porcentagem: number) => Math.min((porcentagem / maxPorcentagem) * 100, 100);
   
   // Calcula onde ficará a linha de meta na escala relativa
-  const metaScaled = (meta / valorReferencia) * 100;
+  const metaScaled = (meta / maxPorcentagem) * 100;
 
   // Ordena por porcentagem (do maior para o menor)
-  const sortedData = [...data].sort((a, b) => b.porcentagem - a.porcentagem);
+  const sortedData = [...dadosFinais].sort((a, b) => b.porcentagem - a.porcentagem);
   
   // Define as cores com base no valor da porcentagem (maior melhor)
   const getBarColor = (value: number) => {
@@ -73,7 +86,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
   };
 
   const metaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
-  const mediaCardColor = getCardBgColor(getBarColor(mediaUsoGPS));
+  const mediaCardColor = getCardBgColor(getBarColor(mediaPorcentagem));
 
   return (
     <Box h="100%">      

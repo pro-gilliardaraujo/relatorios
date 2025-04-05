@@ -98,8 +98,19 @@ export default function IndicatorCard({
 
   // Formatar valor de acordo com o tipo de unidade (preservando precisão)
   const formatValue = (val: number): string => {
-    // Log para debug
-    console.log(`📊 Formatando valor (${unitType}): ${val}`);
+    // Log detalhado para debug
+    console.log(`📊 Formatando valor (${unitType}) para '${title}':`, {
+      valor: val,
+      tipo: typeof val,
+      isNaN: isNaN(val),
+      isUndefined: val === undefined
+    });
+    
+    // Garantir valor válido
+    if (val === undefined || val === null || isNaN(val)) {
+      console.warn(`⚠️ Valor inválido passado para IndicatorCard '${title}':`, val);
+      val = 0;
+    }
     
     if (unitType === 'porcentagem') {
       // Formatação para porcentagem com 2 casas decimais sem arredondamento
@@ -153,8 +164,19 @@ export default function IndicatorCard({
 
   // Formatar meta de acordo com o tipo de unidade (preservando precisão)
   const formatMeta = (val: number): string => {
-    // Log para debug
-    console.log(`📊 Formatando meta (${unitType}): ${val}`);
+    // Log detalhado para debug
+    console.log(`📊 Formatando meta (${unitType}) para '${title}':`, {
+      valor: val,
+      tipo: typeof val,
+      isNaN: isNaN(val),
+      isUndefined: val === undefined
+    });
+    
+    // Garantir valor válido
+    if (val === undefined || val === null || isNaN(val)) {
+      console.warn(`⚠️ Meta inválida passada para IndicatorCard '${title}':`, val);
+      val = 0;
+    }
     
     if (unitType === 'porcentagem') {
       // Formatação para porcentagem com 2 casas decimais sem arredondamento
@@ -211,7 +233,7 @@ export default function IndicatorCard({
       <Text fontSize="sm" fontWeight="bold" mb={1} color="black" textAlign="center" w="100%">{title}</Text>
       <Flex direction="row" align="center" justify="space-between">
         <VStack spacing={0} align="center">
-          <Text fontSize="md" fontWeight="bold" color={cores.meta_atingida}>{formatValue(meta)}</Text>
+          <Text fontSize="md" fontWeight="bold" color={cores.meta_atingida}>{formatMeta(meta)}</Text>
           <Text fontSize="10px" color="gray.500">Meta</Text>
         </VStack>
         {metaText && (

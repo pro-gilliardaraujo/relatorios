@@ -35,11 +35,27 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
   meta = META_EFICIENCIA_ENERGETICA,
   exibirCards = false
 }) => {
+  // Verificar se há dados válidos
+  const dadosValidos = Array.isArray(data) && data.length > 0 && 
+    data.some(item => item && item.nome && typeof item.eficiencia === 'number' && item.eficiencia > 0);
+  
+  // Log para diagnóstico
+  console.log('📊 GraficoEficienciaEnergetica recebeu dados:', 
+    Array.isArray(data) ? `${data.length} itens` : 'não é array',
+    dadosValidos ? 'válidos' : 'inválidos');
+  
+  if (Array.isArray(data) && data.length > 0) {
+    console.log('📊 Amostra de dados:', data.slice(0, 2));
+  }
+  
+  // Usar dados padrão se não houver dados válidos
+  const dadosFinais = dadosValidos ? data : defaultData;
+  
   // Calcula a média de eficiência
-  const mediaEficiencia = data.reduce((acc, item) => acc + item.eficiencia, 0) / data.length;
+  const mediaEficiencia = dadosFinais.reduce((acc, item) => acc + (item?.eficiencia || 0), 0) / dadosFinais.length;
   
   // Encontra o valor máximo para definir a escala
-  const maxEficiencia = Math.max(...data.map(item => item.eficiencia));
+  const maxEficiencia = Math.max(...dadosFinais.map(item => item?.eficiencia || 0));
   
   // Para "maior melhor", usamos o maior valor como referência para a escala
   const valorReferencia = Math.max(maxEficiencia, meta * 1.2); // Garante que a meta fique visível
@@ -51,7 +67,7 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
   const metaScaled = (meta / valorReferencia) * 100;
 
   // Ordena por eficiência (do maior para o menor)
-  const sortedData = [...data].sort((a, b) => b.eficiencia - a.eficiencia);
+  const sortedData = [...dadosFinais].sort((a, b) => b.eficiencia - a.eficiencia);
   
   // Define as cores com base no valor da eficiência (maior melhor)
   const getBarColor = (value: number) => {

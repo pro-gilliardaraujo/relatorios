@@ -31,6 +31,15 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
   const dadosValidos = Array.isArray(data) && data.length > 0 && 
     data.some(item => item && typeof item.disponibilidade === 'number' && item.disponibilidade > 0);
   
+  // Log para diagnóstico
+  console.log('📊 GraficoDisponibilidadeMecanicaColheita recebeu dados:', 
+    Array.isArray(data) ? `${data.length} itens` : 'não é array', 
+    dadosValidos ? 'válidos' : 'inválidos');
+  
+  if (Array.isArray(data) && data.length > 0) {
+    console.log('📊 Amostra de dados:', data.slice(0, 2));
+  }
+  
   // Usar dados padrão se não houver dados válidos
   const dadosFinais = dadosValidos ? data : defaultData;
   

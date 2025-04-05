@@ -32,11 +32,27 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
   meta = META_HORAS_ELEVADOR,
   exibirCards = false
 }) => {
-  // Calcula a média de horas
-  const mediaHoras = data.reduce((acc, item) => acc + item.horas, 0) / data.length;
+  // Verificar se há dados válidos
+  const dadosValidos = Array.isArray(data) && data.length > 0 && 
+    data.some(item => item && item.nome && typeof item.horas === 'number' && item.horas > 0);
   
-  // Encontra o valor máximo para definir a escala
-  const maxHoras = Math.max(...data.map(item => item.horas));
+  // Log para diagnóstico
+  console.log('📊 GraficoHorasElevador recebeu dados:', 
+    Array.isArray(data) ? `${data.length} itens` : 'não é array',
+    dadosValidos ? 'válidos' : 'inválidos');
+  
+  if (Array.isArray(data) && data.length > 0) {
+    console.log('📊 Amostra de dados:', data.slice(0, 2));
+  }
+  
+  // Usar dados padrão se não houver dados válidos
+  const dadosFinais = dadosValidos ? data : defaultData;
+  
+  // Calcular a média de horas de elevador
+  const mediaHoras = dadosFinais.reduce((acc, item) => acc + (item?.horas || 0), 0) / dadosFinais.length;
+  
+  // Encontrar o valor máximo para definir a escala
+  const maxHoras = Math.max(...dadosFinais.map(item => item?.horas || 0));
   
   // Para "maior melhor", usamos o maior valor como referência para a escala
   const valorReferencia = Math.max(maxHoras, meta * 1.2); // Garante que a meta fique visível
@@ -48,7 +64,7 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
   const metaScaled = (meta / valorReferencia) * 100;
 
   // Ordena por horas (do maior para o menor)
-  const sortedData = [...data].sort((a, b) => b.horas - a.horas);
+  const sortedData = [...dadosFinais].sort((a, b) => b.horas - a.horas);
   
   // Define as cores com base no valor das horas (maior melhor)
   const getBarColor = (value: number) => {
