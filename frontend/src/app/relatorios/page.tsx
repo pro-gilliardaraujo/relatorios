@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure, Checkbox } from '@chakra-ui/react';
 import { FiEye } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
@@ -36,6 +36,7 @@ export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
+  const [isTeste, setIsTeste] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -350,7 +351,8 @@ export default function ReportsPage() {
         frente: selectedFrente,
         dados: dadosParaEnvio,
         status: 'rascunho',
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        is_teste: isTeste
       };
       
       console.log("📤 Enviando dados do relatório para o Supabase:", reportData);
@@ -446,18 +448,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <Flex h="100vh" overflow="hidden">
-      {/* Sidebar */}
-      <Box
-        w="250px"
-        bg="white"
-        borderRight="1px"
-        borderColor="gray.200"
-        display={{ base: 'none', lg: 'block' }}
-      >
-        <Text color="gray.600" p={2} fontSize="sm">Menu</Text>
-      </Box>
-
+    <Box h="100vh" overflow="hidden">
       {/* Conteúdo Principal */}
       <Box flex="1" bg="white">
         {/* Header */}
@@ -516,16 +507,7 @@ export default function ReportsPage() {
                   _hover={{ borderColor: "gray.400" }}
                   sx={{
                     '&::-webkit-calendar-picker-indicator': {
-                      filter: 'invert(1)'
-                    },
-                    '&': {
-                      color: 'black !important'
-                    },
-                    '&::placeholder': {
-                      color: 'black'
-                    },
-                    '&:focus': {
-                      color: 'black !important'
+                      filter: 'invert(0)'
                     }
                   }}
                 />
@@ -567,21 +549,27 @@ export default function ReportsPage() {
               gap={2} 
               direction={{ base: "column", sm: "row" }}
               w={{ base: "100%", md: "auto" }}
+              align="center"
             >
-              <Button
+              <Checkbox
+                isChecked={isTeste}
+                onChange={(e) => setIsTeste(e.target.checked)}
                 colorScheme="gray"
-                variant="outline"
+              >
+                Teste
+              </Checkbox>
+              <Button
+                bg="black"
+                color="white"
                 size="md"
                 onClick={handleGenerateReport}
                 w={{ base: "100%", md: "auto" }}
-                borderColor="gray.300"
-                _hover={{ bg: 'gray.50' }}
+                _hover={{ bg: 'gray.800' }}
               >
                 Gerar Relatório
               </Button>
               <Button
                 leftIcon={<FiEye />}
-                colorScheme="blue"
                 variant="outline"
                 size="md"
                 onClick={handleViewReport}
@@ -683,6 +671,6 @@ export default function ReportsPage() {
           </Flex>
         </Box>
       </Box>
-    </Flex>
+    </Box>
   );
 } 
