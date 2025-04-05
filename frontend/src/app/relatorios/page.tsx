@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure, Checkbox } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure } from '@chakra-ui/react';
 import { FiEye } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
@@ -36,7 +36,6 @@ export default function ReportsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
-  const [isTeste, setIsTeste] = useState(false);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -351,8 +350,7 @@ export default function ReportsPage() {
         frente: selectedFrente,
         dados: dadosParaEnvio,
         status: 'rascunho',
-        created_at: new Date().toISOString(),
-        is_teste: isTeste
+        created_at: new Date().toISOString()
       };
       
       console.log("📤 Enviando dados do relatório para o Supabase:", reportData);
@@ -507,7 +505,16 @@ export default function ReportsPage() {
                   _hover={{ borderColor: "gray.400" }}
                   sx={{
                     '&::-webkit-calendar-picker-indicator': {
-                      filter: 'invert(0)'
+                      filter: 'invert(1)'
+                    },
+                    '&': {
+                      color: 'black !important'
+                    },
+                    '&::placeholder': {
+                      color: 'black'
+                    },
+                    '&:focus': {
+                      color: 'black !important'
                     }
                   }}
                 />
@@ -549,27 +556,21 @@ export default function ReportsPage() {
               gap={2} 
               direction={{ base: "column", sm: "row" }}
               w={{ base: "100%", md: "auto" }}
-              align="center"
             >
-              <Checkbox
-                isChecked={isTeste}
-                onChange={(e) => setIsTeste(e.target.checked)}
-                colorScheme="gray"
-              >
-                Teste
-              </Checkbox>
               <Button
-                bg="black"
-                color="white"
+                colorScheme="gray"
+                variant="outline"
                 size="md"
                 onClick={handleGenerateReport}
                 w={{ base: "100%", md: "auto" }}
-                _hover={{ bg: 'gray.800' }}
+                borderColor="gray.300"
+                _hover={{ bg: 'gray.50' }}
               >
                 Gerar Relatório
               </Button>
               <Button
                 leftIcon={<FiEye />}
+                colorScheme="blue"
                 variant="outline"
                 size="md"
                 onClick={handleViewReport}
