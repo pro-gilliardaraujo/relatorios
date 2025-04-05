@@ -24,13 +24,21 @@ import {
   ModalContent,
   ModalBody,
   Progress,
+  IconButton,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
 } from '@chakra-ui/react';
-import { FiEye, FiFileText } from 'react-icons/fi';
+import { FiEye, FiFileText, FiTrash2 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { configManager } from '@/utils/config';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import React from 'react';
 
 export default function ListaRelatorios() {
   const [relatorios, setRelatorios] = useState<any[]>([]);
@@ -38,10 +46,12 @@ export default function ListaRelatorios() {
   const [tipoFiltro, setTipoFiltro] = useState('todos');
   const [frenteFiltro, setFrenteFiltro] = useState('todas');
   const [dataFiltro, setDataFiltro] = useState('');
+  const [relatorioParaExcluir, setRelatorioParaExcluir] = useState<string | null>(null);
   const router = useRouter();
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [progress, setProgress] = useState(0);
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
 
   // Obter tipos de relatório e frentes das configurações
   const tiposRelatorio = configManager.getTiposRelatorio();
@@ -337,148 +347,217 @@ export default function ListaRelatorios() {
     }
   };
 
-  const limparFiltros = () => {
-    setTipoFiltro('todos');
-    setFrenteFiltro('todas');
-    setDataFiltro('');
+  const excluirRelatorio = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('relatorios_diarios')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Sucesso',
+        description: 'Relatório excluído com sucesso',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      carregarRelatorios();
+    } catch (error) {
+      console.error('Erro ao excluir relatório:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível excluir o relatório',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
-    <Box p={4} bg="white" minH="100vh">
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg" color="black">Relatórios</Heading>
-      </Flex>
+    <Box p={6} bg="white">
+      <Stack spacing={6}>
+        {/* Cabeçalho */}
+        <Heading size="lg" mb={2} color="black">Lista de Relatórios</Heading>
 
-      {/* Filtros */}
-      <Stack spacing={4} mb={6} direction={{ base: "column", md: "row" }}>
-        <Select
-          w={{ base: "100%", md: "200px" }}
-          value={tipoFiltro}
-          onChange={(e) => setTipoFiltro(e.target.value)}
-          bg="white"
-          color="black"
-          borderColor="gray.300"
-          _hover={{ borderColor: "gray.400" }}
-        >
-          <option value="todos">Todos os tipos</option>
-          {tiposRelatorio.map(tipo => {
-            const config = configManager.getTipoRelatorio(tipo);
-            return (
-              <option key={tipo} value={tipo}>
-                {config?.nome || tipo}
+        {/* Filtros */}
+        <Flex gap={4} wrap="wrap">
+          <Select
+            placeholder="Tipo de Relatório"
+            value={tipoFiltro}
+            onChange={(e) => setTipoFiltro(e.target.value)}
+            w={{ base: "100%", md: "200px" }}
+            bg="white"
+            color="black"
+            borderColor="gray.300"
+          >
+            <option value="todos">Todos</option>
+            {tiposRelatorio.map(tipo => {
+              const config = configManager.getTipoRelatorio(tipo);
+              return (
+                <option key={tipo} value={tipo}>
+                  {config?.nome || tipo}
+                </option>
+              );
+            })}
+          </Select>
+
+          <Select
+            placeholder="Frente"
+            value={frenteFiltro}
+            onChange={(e) => setFrenteFiltro(e.target.value)}
+            w={{ base: "100%", md: "200px" }}
+            bg="white"
+            color="black"
+            borderColor="gray.300"
+          >
+            <option value="todas">Todas</option>
+            {frentesDisponiveis.map(frente => (
+              <option key={frente.id} value={frente.id}>
+                {frente.nome}
               </option>
-            );
-          })}
-        </Select>
+            ))}
+          </Select>
 
-        <Select
-          w={{ base: "100%", md: "200px" }}
-          value={frenteFiltro}
-          onChange={(e) => setFrenteFiltro(e.target.value)}
-          bg="white"
-          color="black"
-          borderColor="gray.300"
-          _hover={{ borderColor: "gray.400" }}
-        >
-          <option value="todas">Todas as frentes</option>
-          {frentesDisponiveis.map(frente => (
-            <option key={frente.id} value={frente.id}>
-              {frente.nome}
-            </option>
-          ))}
-        </Select>
+          <Input
+            type="date"
+            value={dataFiltro}
+            onChange={(e) => setDataFiltro(e.target.value)}
+            w={{ base: "100%", md: "200px" }}
+            bg="white"
+            color="black"
+            borderColor="gray.300"
+          />
 
-        <Input
-          type="date"
-          value={dataFiltro}
-          onChange={(e) => setDataFiltro(e.target.value)}
-          w={{ base: "100%", md: "200px" }}
-          bg="white"
-          color="black"
-          borderColor="gray.300"
-          _hover={{ borderColor: "gray.400" }}
-        />
-
-        <Button
-          onClick={limparFiltros}
-          w={{ base: "100%", md: "auto" }}
-          variant="outline"
-          borderColor="gray.300"
-          color="black"
-          _hover={{ bg: 'gray.50' }}
-        >
-          Limpar Filtros
-        </Button>
-      </Stack>
-
-      {loading ? (
-        <Flex justify="center" align="center" h="200px">
-          <Spinner size="xl" color="black" />
+          <Button
+            onClick={() => {
+              setTipoFiltro('todos');
+              setFrenteFiltro('todas');
+              setDataFiltro('');
+            }}
+            variant="outline"
+            color="black"
+            borderColor="gray.300"
+            w={{ base: "100%", md: "auto" }}
+            _hover={{ bg: 'gray.50' }}
+          >
+            Limpar Filtros
+          </Button>
         </Flex>
-      ) : relatorios.length === 0 ? (
-        <Text textAlign="center" color="black">Nenhum relatório encontrado</Text>
-      ) : (
-        <Box overflowX="auto" borderWidth="1px" borderColor="gray.200" borderRadius="md">
+
+        {/* Tabela */}
+        <Box overflowX="auto" borderRadius="lg" borderWidth="1px" borderColor="gray.300">
           <Table variant="simple">
-            <Thead bg="gray.50">
+            <Thead bg="white">
               <Tr>
-                <Th color="black">ID</Th>
-                <Th color="black">Tipo</Th>
-                <Th color="black">Data</Th>
-                <Th color="black">Status</Th>
-                <Th color="black">Frente</Th>
-                <Th color="black">Ações</Th>
+                <Th py={4} color="black">Data</Th>
+                <Th py={4} color="black">Tipo</Th>
+                <Th py={4} color="black">Frente</Th>
+                <Th py={4} color="black">Status</Th>
+                <Th py={4} textAlign="right" color="black">Ações</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {relatorios.map((relatorio) => (
-                <Tr key={relatorio.id} _hover={{ bg: 'gray.50' }}>
-                  <Td color="black">{relatorio.id.substring(0, 8)}</Td>
-                  <Td color="black" textTransform="capitalize">
-                    {configManager.getTipoRelatorio(relatorio.tipo)?.nome || relatorio.tipo}
-                  </Td>
-                  <Td color="black">
-                    {relatorio.data.split('-').reverse().join('/')}
-                  </Td>
-                  <Td color="black" textTransform="capitalize">{relatorio.status}</Td>
-                  <Td color="black">
-                    {configManager.getFrentes(relatorio.tipo)
-                      .find(f => f.id === relatorio.frente)?.nome || relatorio.frente || '-'}
-                  </Td>
-                  <Td>
-                    <Flex gap={2}>
-                      <Button
-                        leftIcon={<FiEye />}
-                        variant="outline"
-                        colorScheme="gray"
-                        size="sm"
-                        onClick={() => visualizarRelatorio(relatorio.id, relatorio.tipo)}
-                        color="black"
-                        borderColor="gray.300"
-                        _hover={{ bg: 'gray.50' }}
-                      >
-                        Visualizar
-                      </Button>
-                      <Button
-                        leftIcon={<FiFileText />}
-                        variant="outline"
-                        colorScheme="gray"
-                        size="sm"
-                        onClick={() => gerarPDF(relatorio.id, relatorio.tipo)}
-                        color="black"
-                        borderColor="gray.300"
-                        _hover={{ bg: 'gray.50' }}
-                      >
-                        PDF
-                      </Button>
-                    </Flex>
+              {loading ? (
+                <Tr>
+                  <Td colSpan={5} textAlign="center" py={8}>
+                    <Spinner color="black" />
                   </Td>
                 </Tr>
-              ))}
+              ) : relatorios.length === 0 ? (
+                <Tr>
+                  <Td colSpan={5} textAlign="center" py={8} color="black">
+                    Nenhum relatório encontrado
+                  </Td>
+                </Tr>
+              ) : (
+                relatorios.map((relatorio) => (
+                  <Tr key={relatorio.id} _hover={{ bg: 'gray.50' }}>
+                    <Td py={4} color="black">{new Date(relatorio.data).toLocaleDateString()}</Td>
+                    <Td py={4} color="black">{configManager.getTipoRelatorio(relatorio.tipo)?.nome || relatorio.tipo}</Td>
+                    <Td py={4} color="black">
+                      {configManager.getFrentes(relatorio.tipo).find(f => f.id === relatorio.frente)?.nome || relatorio.frente}
+                    </Td>
+                    <Td py={4} color="black">{relatorio.status}</Td>
+                    <Td py={4}>
+                      <Flex justify="flex-end" gap={2}>
+                        <IconButton
+                          aria-label="Visualizar relatório"
+                          icon={<FiEye />}
+                          onClick={() => {
+                            // Remover sufixo _diario do tipo
+                            const tipoNormalizado = relatorio.tipo.replace('_diario', '');
+                            const url = `/relatorios/visualizacao/a4/${tipoNormalizado}?id=${relatorio.id}`;
+                            window.open(url, '_blank');
+                          }}
+                          variant="ghost"
+                          color="gray.600"
+                          _hover={{ bg: 'gray.50' }}
+                        />
+                        <IconButton
+                          aria-label="Excluir relatório"
+                          icon={<FiTrash2 />}
+                          onClick={() => setRelatorioParaExcluir(relatorio.id)}
+                          variant="ghost"
+                          color="red.500"
+                          _hover={{ bg: 'red.50' }}
+                        />
+                      </Flex>
+                    </Td>
+                  </Tr>
+                ))
+              )}
             </Tbody>
           </Table>
         </Box>
-      )}
+      </Stack>
+
+      {/* Dialog de confirmação de exclusão */}
+      <AlertDialog
+        isOpen={!!relatorioParaExcluir}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setRelatorioParaExcluir(null)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent bg="white">
+            <AlertDialogHeader fontSize="lg" fontWeight="bold" color="black">
+              Excluir Relatório
+            </AlertDialogHeader>
+
+            <AlertDialogBody color="black">
+              Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button 
+                ref={cancelRef} 
+                onClick={() => setRelatorioParaExcluir(null)}
+                variant="outline"
+                color="black"
+                borderColor="gray.300"
+                _hover={{ bg: 'gray.50' }}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                colorScheme="red"
+                onClick={() => {
+                  if (relatorioParaExcluir) {
+                    excluirRelatorio(relatorioParaExcluir);
+                    setRelatorioParaExcluir(null);
+                  }
+                }} 
+                ml={3}
+              >
+                Excluir
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
 
       {/* Modal de Progresso */}
       <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false} isCentered>
@@ -487,7 +566,7 @@ export default function ListaRelatorios() {
           <ModalBody p={6}>
             <Text mb={4} textAlign="center" color="black">Gerando PDF...</Text>
             <Progress value={progress} size="sm" colorScheme="gray" borderRadius="full" />
-            <Text mt={2} fontSize="sm" color="gray.600" textAlign="center">
+            <Text mt={2} fontSize="sm" color="black" textAlign="center">
               {progress < 30 && "Preparando..."}
               {progress >= 30 && progress < 90 && "Processando páginas..."}
               {progress >= 90 && "Finalizando..."}

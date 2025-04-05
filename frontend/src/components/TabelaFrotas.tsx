@@ -133,19 +133,44 @@ export default function TabelaFrotas({
     // Log para debug
     console.log("📊 Dados originais (Frotas):", JSON.stringify(dados));
     console.log("📊 Dados completos:", JSON.stringify(dadosCompletos));
+    console.log("📊 Dados adicionais:", JSON.stringify(dadosAdicionais));
 
-    // Adicionar dados de TDH, Diesel, Impureza se disponíveis
+    // Adicionar dados de TDH, Diesel, Impureza de dadosCompletos se disponíveis
     if (dadosCompletos) {
+      console.log("📊 Processando dados completos...");
       dadosFinal = dadosFinal.map(item => {
+        // Buscar valores correspondentes nos dadosCompletos
         const tdh = dadosCompletos.tdh?.find(t => t.frota === item.frota)?.valor;
         const diesel = dadosCompletos.diesel?.find(d => d.frota === item.frota)?.valor;
         const impureza = dadosCompletos.impureza_vegetal?.find(i => i.frota === item.frota)?.valor;
 
+        // Log detalhado para depuração
+        console.log(`📊 Frotas: ${item.frota}, TDH (completos): ${tdh}, Diesel (completos): ${diesel}, Impureza: ${impureza}`);
+
         return {
           ...item,
-          tdh,
-          diesel,
-          impureza
+          tdh: tdh !== undefined ? tdh : item.tdh,
+          diesel: diesel !== undefined ? diesel : item.diesel,
+          impureza: impureza !== undefined ? impureza : item.impureza
+        };
+      });
+    }
+    
+    // Adicionar dados de TDH, Diesel de dadosAdicionais (segunda fonte)
+    if (dadosAdicionais) {
+      console.log("📊 Processando dados adicionais...");
+      dadosFinal = dadosFinal.map(item => {
+        // Buscar valores correspondentes nos dadosAdicionais
+        const tdh = dadosAdicionais.tdh?.find(t => t.frota === item.frota)?.valor;
+        const diesel = dadosAdicionais.diesel?.find(d => d.frota === item.frota)?.valor;
+
+        // Log detalhado para depuração
+        console.log(`📊 Frotas: ${item.frota}, TDH (adicionais): ${tdh}, Diesel (adicionais): ${diesel}`);
+
+        return {
+          ...item,
+          tdh: tdh !== undefined ? tdh : item.tdh,
+          diesel: diesel !== undefined ? diesel : item.diesel
         };
       });
     }
@@ -153,7 +178,7 @@ export default function TabelaFrotas({
     // Log dos dados finais para debug
     console.log("📊 Dados combinados (finais):", JSON.stringify(dadosFinal));
     return dadosFinal;
-  }, [dados, dadosCompletos]);
+  }, [dados, dadosCompletos, dadosAdicionais]);
 
   return (
     <Box 

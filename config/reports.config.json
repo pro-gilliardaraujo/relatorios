@@ -15,6 +15,13 @@
         "horaElevador": 5,
         "usoGPS": 90
       },
+      "secoes": {
+        "disponibilidadeMecanica": true,
+        "eficienciaEnergetica": true,
+        "motorOcioso": true,
+        "horaElevador": true,
+        "usoGPS": true
+      },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
@@ -54,6 +61,16 @@
           "motorOcioso": 4,
           "horaElevador": 5,
           "usoGPS": 90
+      },
+      "secoes": {
+        "tdh": true,
+        "diesel": true,
+        "impurezaVegetal": true,
+        "disponibilidadeMecanica": true,
+        "eficienciaEnergetica": true,
+        "motorOcioso": true,
+        "horaElevador": true,
+        "usoGPS": true
       },
       "planilhas_excel": [
         "1_TDH",
@@ -98,8 +115,15 @@
         "faltaApontamento": 10,
         "usoGPS": 90
       },
+      "secoes": {
+        "disponibilidadeMecanica": true,
+        "eficienciaEnergetica": true,
+        "motorOcioso": true,
+        "faltaApontamento": true,
+        "usoGPS": false
+      },
       "planilhas_excel": [
-        "1_Disponibilidade",
+        "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
         "3_Motor Ocioso",
         "4_Falta de Apontamento",
@@ -136,6 +160,15 @@
         "motorOcioso": 6,
         "faltaApontamento": 10,
         "usoGPS": 90
+      },
+      "secoes": {
+        "tdh": true,
+        "diesel": true,
+        "disponibilidadeMecanica": true,
+        "eficienciaEnergetica": true,
+        "motorOcioso": true,
+        "faltaApontamento": true,
+        "usoGPS": false
       },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",
@@ -182,5 +215,46 @@
     "paginacao": 10,
     "atualizacaoAutomatica": false,
     "intervaloAtualizacao": 3600
+  },
+
+  "graficos": {
+    "cores": {
+      "meta_atingida": "#48BB78",
+      "proximo_meta": "#90EE90",
+      "alerta": "#ECC94B",
+      "critico": "#E53E3E"
+    },
+    "tolerancias": {
+      "proximo_meta": 7,
+      "alerta": 14,
+      "critico": 15
+    },
+    "diferencas_meta": {
+      "normal": {
+        "meta_atingida": ">=",
+        "proximo_meta": -7,
+        "alerta": -14,
+        "critico": "<-14"
+      },
+      "invertido": {
+        "meta_atingida": "<=",
+        "proximo_meta": 7,
+        "alerta": 14,
+        "critico": ">14"
+      }
+    },
+    "formatacao": {
+      "decimal": {
+        "casas": 4,
+        "separador": "."
+      },
+      "porcentagem": {
+        "casas": 2,
+        "separador": "."
+      },
+      "horas": {
+        "formato": "Xh00m"
+      }
+    }
   }
 } 

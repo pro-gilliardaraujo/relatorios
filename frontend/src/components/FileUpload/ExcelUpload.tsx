@@ -22,6 +22,7 @@ import {
 import { FiUpload } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import { configManager } from '@/utils/config';
+import React from 'react';
 
 interface PreviewData {
   headers: string[];
@@ -187,17 +188,17 @@ export default function ExcelUpload({ onPreviewData, isEnabled = false, selected
   return (
     <Box
       border="2px dashed"
-      borderColor={isDragging ? "blue.500" : "gray.300"}
+      borderColor={isDragging ? "gray.400" : "gray.300"}
       borderRadius="md"
       p={4}
       textAlign="center"
-      bg={isDragging ? "blue.50" : "white"}
+      bg={isDragging ? "gray.50" : "white"}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       cursor="pointer"
       transition="all 0.2s"
-      _hover={{ borderColor: "blue.500", bg: "blue.50" }}
+      _hover={{ borderColor: "gray.400", bg: "gray.50" }}
       onClick={() => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -229,6 +230,21 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
   }
 
   const { processedData, previewRows } = preview;
+  const [selectedSheet, setSelectedSheet] = React.useState<string>(Object.keys(processedData)[0]);
+
+  // Obter as planilhas encontradas
+  const sheets = Object.keys(processedData);
+
+  // Obter os dados da planilha selecionada
+  const sheetData = processedData[selectedSheet] || [];
+
+  // Obter cabeçalhos da planilha atual
+  const headers = sheetData.length > 0 ? Object.keys(sheetData[0]) : [];
+
+  // Preparar linhas para exibição
+  const rows = sheetData.slice(0, previewRows).map(row => 
+    headers.map(header => row[header])
+  );
 
   // Função para formatar valores numéricos
   const formatValue = (value: any): string => {
@@ -245,9 +261,22 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
       maxH="180px"
       position="relative"
     >
+      {/* Abas de navegação entre planilhas */}
+      {sheets.length > 1 && (
+        <Tabs variant="soft-rounded" colorScheme="gray" size="sm" mb={2} onChange={(index) => setSelectedSheet(sheets[index])}>
+          <TabList overflowX="auto" whiteSpace="nowrap" py={1}>
+            {sheets.map((sheet, index) => (
+              <Tab key={index} fontSize="xs" fontWeight="medium">
+                {sheet}
+              </Tab>
+            ))}
+          </TabList>
+        </Tabs>
+      )}
+      
       <Box 
         overflowY="auto" 
-        h="100%"
+        h={sheets.length > 1 ? "calc(100% - 30px)" : "100%"}
         css={{
           '&::-webkit-scrollbar': {
             width: '8px',
@@ -267,13 +296,13 @@ export function ExcelPreview({ preview }: { preview: PreviewData | null }) {
         <Table size="sm" variant="simple">
           <Thead position="sticky" top={0} bg="white" zIndex={1}>
             <Tr>
-              {preview.headers.map((header, index) => (
+              {headers.map((header, index) => (
                 <Th key={index} color="black">{header}</Th>
               ))}
             </Tr>
           </Thead>
           <Tbody>
-            {preview.rows.map((row, rowIndex) => (
+            {rows.map((row, rowIndex) => (
               <Tr key={rowIndex}>
                 {row.map((cell, cellIndex) => (
                   <Td key={cellIndex} color="black">

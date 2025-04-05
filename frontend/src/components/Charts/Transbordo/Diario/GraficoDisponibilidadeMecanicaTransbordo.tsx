@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
 
 interface DisponibilidadeData {
   frota: string;
@@ -14,23 +15,50 @@ interface DisponibilidadeMecanicaProps {
   exibirCards?: boolean;
 }
 
-// Dados de exemplo para o caso de não serem fornecidos
-const defaultData: DisponibilidadeData[] = [
-  { frota: '7041', disponibilidade: 94.49 },
-  { frota: '7042', disponibilidade: 92.82 }
-];
+// Valores padrão para cores e tolerâncias
+const DEFAULT_COLORS = {
+  meta_atingida: '#48BB78',
+  proximo_meta: '#98FB98',
+  alerta: '#ECC94B',
+  critico: '#E53E3E'
+};
+
+const DEFAULT_TOLERANCES = {
+  proximo_meta: 5,
+  alerta: 15
+};
+
+// Valores padrão para formatação
+const DEFAULT_FORMATTING = {
+  decimal: {
+    casas: 4,
+    separador: "."
+  },
+  porcentagem: {
+    casas: 2,
+    separador: "."
+  },
+  horas: {
+    formato: "Xh00m"
+  }
+};
 
 export const GraficoDisponibilidadeMecanicaTransbordo: React.FC<DisponibilidadeMecanicaProps> = ({ 
-  data = defaultData,
-  meta = 0,
+  data = [],
+  meta = configManager.getMetas('transbordo_diario').disponibilidadeMecanica,
   exibirCards = false
 }) => {
+  // Obter configurações de cores e tolerâncias com fallback para valores padrão
+  const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
+  const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
+  const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
+  
   // Verificar se há dados válidos
   const dadosValidos = Array.isArray(data) && data.length > 0 && 
     data.some(item => item && typeof item.disponibilidade === 'number' && item.disponibilidade > 0);
   
   // Usar dados padrão se não houver dados válidos
-  const dadosFinais = dadosValidos ? data : defaultData;
+  const dadosFinais = dadosValidos ? data : [];
   
   // Calcula a média de disponibilidade
   const mediaDisponibilidade = dadosFinais.reduce((acc, item) => acc + (item?.disponibilidade || 0), 0) / dadosFinais.length;
@@ -40,31 +68,12 @@ export const GraficoDisponibilidadeMecanicaTransbordo: React.FC<DisponibilidadeM
   
   // Define as cores com base no valor da disponibilidade
   const getBarColor = (value: number) => {
-    if (value >= meta) return '#48BB78'; // verde para acima da meta (90%)
-    if (value >= 80) return '#9AE6B4'; // verde claro para valores entre 80% e meta
-    
-    // Gradiente de amarelo para vermelho para valores abaixo de 80%
-    const percentage = Math.max(0, value) / 80; // 0 = vermelho, 1 = amarelo
-    const r = 255;
-    const g = Math.round(255 * percentage);
-    const b = 0;
-    
-    return `rgb(${r}, ${g}, ${b})`;
-  };
+    const diferenca = ((value - meta) / meta) * 100;
 
-  // Define cores dos cards com transparência (0.3 para 30% de opacidade)
-  const getCardBgColor = (color: string) => {
-    if (color.startsWith('#')) {
-      // Conversão simplificada de hex para rgba
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, 0.3)`;
-    } else if (color.startsWith('rgb')) {
-      // Se já for rgb, apenas adiciona alpha
-      return color.replace('rgb', 'rgba').replace(')', ', 0.3)');
-    }
-    return color;
+    if (value >= meta) return cores.meta_atingida;
+    if (diferenca >= -tolerancias.proximo_meta) return cores.proximo_meta;
+    if (diferenca >= -tolerancias.alerta) return cores.alerta;
+    return cores.critico;
   };
 
   // Formata o valor de porcentagem com vírgula em vez de ponto (pt-BR)
@@ -72,54 +81,54 @@ export const GraficoDisponibilidadeMecanicaTransbordo: React.FC<DisponibilidadeM
     if (valor === undefined || valor === null) {
       return '0,00%';
     }
-    return valor.toFixed(2).replace('.', ',') + '%';
+    return valor.toFixed(formatacao.porcentagem.casas).replace('.', ',') + '%';
   };
-
-  const metaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
-  const mediaCardColor = getCardBgColor(getBarColor(mediaDisponibilidade));
 
   return (
     <Box h="100%">
       <VStack spacing={1} align="stretch" h="100%" justify="center">
-        {sortedData.map((item, index) => (
-          <Box key={index} w="100%">
-            <Flex justify="space-between" mb={1}>
-              <Text fontSize="11px" fontWeight="bold" color="black">Frota {item?.frota || `-`}</Text>
-              <Text fontSize="11px" fontWeight="bold" color={item?.disponibilidade >= 95 ? "green.500" : item?.disponibilidade >= 76 ? "yellow.500" : "red.500"}>
-                {formatarPorcentagem(item?.disponibilidade || 0)}
-              </Text>
-            </Flex>
-            <Box position="relative" w="100%">
-              {/* Barra de fundo */}
-              <Flex w="100%" h="20px" bg="gray.100" borderRadius="md" overflow="hidden">
-                <Box
-                  h="100%"
-                  w={`${item?.disponibilidade || 0}%`} 
-                  bg={getBarColor(item?.disponibilidade || 0)}
-                  borderRadius="md 0 0 md"
-                />
+        {sortedData.map((item, index) => {
+          const barColor = getBarColor(item?.disponibilidade || 0);
+          return (
+            <Box key={index} w="100%">
+              <Flex justify="space-between" mb={1}>
+                <Text fontSize="11px" fontWeight="bold" color="black">Frota {item?.frota || `-`}</Text>
+                <Text fontSize="11px" fontWeight="bold" color={barColor}>
+                  {formatarPorcentagem(item?.disponibilidade || 0)}
+                </Text>
               </Flex>
-              
-              {/* Linha vertical indicando a meta de disponibilidade mecânica (90%) */}
-              <Box 
-                position="absolute"
-                top="0" 
-                left={`${meta}%`} 
-                h="23px"
-                w="2px"
-                bg="black"
-                zIndex="2"
-              />
+              <Box position="relative" w="100%">
+                {/* Barra de fundo */}
+                <Flex w="100%" h="20px" bg="gray.100" borderRadius="md" overflow="hidden">
+                  <Box
+                    h="100%"
+                    w={`${item?.disponibilidade || 0}%`} 
+                    bg={barColor}
+                    borderRadius="md 0 0 md"
+                  />
+                </Flex>
+                
+                {/* Linha vertical indicando a meta */}
+                <Box 
+                  position="absolute"
+                  top="0" 
+                  left={`${meta}%`} 
+                  h="23px"
+                  w="2px"
+                  bg="rgba(0,0,0,0.7)"
+                  zIndex="2"
+                />
+              </Box>
+              <Flex mt={1} justify="space-between">
+                <Text fontSize="9px" color="gray.500">0%</Text>
+                <Text fontSize="9px" color="gray.500">
+                  Meta: {meta}%
+                </Text>
+                <Text fontSize="9px" color="gray.500">100%</Text>
+              </Flex>
             </Box>
-            <Flex mt={1} justify="space-between">
-              <Text fontSize="9px" color="gray.500">0%</Text>
-              <Text fontSize="9px" color="gray.500">
-                Meta: {meta}%
-              </Text>
-              <Text fontSize="9px" color="gray.500">100%</Text>
-            </Flex>
-          </Box>
-        ))}
+          );
+        })}
       </VStack>
     </Box>
   );

@@ -4,8 +4,8 @@ import ImagePaste from './ImagePaste';
 
 export default function FileUploadContainer() {
   return (
-    <Box p={4}>
-      <Tabs variant="enclosed" colorScheme="blue">
+    <Box>
+      <Tabs variant="enclosed" colorScheme="gray">
         <TabList>
           <Tab>Upload de Excel/CSV</Tab>
           <Tab>Imagens</Tab>

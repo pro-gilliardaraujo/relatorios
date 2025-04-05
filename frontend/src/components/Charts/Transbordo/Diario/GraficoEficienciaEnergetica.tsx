@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
 
 interface EficienciaData {
   id: string;
@@ -14,6 +15,34 @@ interface EficienciaEnergeticaProps {
   meta?: number;
   exibirCards?: boolean;
 }
+
+// Valores padrão para cores e tolerâncias
+const DEFAULT_COLORS = {
+  meta_atingida: '#48BB78',
+  proximo_meta: '#90EE90',
+  alerta: '#ECC94B',
+  critico: '#E53E3E'
+};
+
+const DEFAULT_TOLERANCES = {
+  proximo_meta: 5,
+  alerta: 15
+};
+
+// Valores padrão para formatação
+const DEFAULT_FORMATTING = {
+  decimal: {
+    casas: 4,
+    separador: "."
+  },
+  porcentagem: {
+    casas: 2,
+    separador: "."
+  },
+  horas: {
+    formato: "Xh00m"
+  }
+};
 
 // Dados de exemplo para o caso de não serem fornecidos
 const defaultData: EficienciaData[] = [
@@ -30,9 +59,14 @@ const defaultData: EficienciaData[] = [
 
 export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = ({ 
   data = defaultData,
-  meta = 0,
+  meta = configManager.getMetas('transbordo_diario').eficienciaEnergetica,
   exibirCards = false
 }) => {
+  // Obter configurações de cores e tolerâncias com fallback para valores padrão
+  const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
+  const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
+  const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
+
   // Calcula a média de eficiência
   const mediaEficiencia = data.reduce((acc, item) => acc + item.eficiencia, 0) / data.length;
   
@@ -53,9 +87,12 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
   
   // Define as cores com base no valor da eficiência (maior melhor)
   const getBarColor = (value: number) => {
-    if (value >= meta) return "green.500"; // verde para bom (acima ou igual à meta de 65%)
-    if (value >= meta * 0.8) return "yellow.500"; // amarelo para médio (até 20% abaixo da meta)
-    return "red.500"; // vermelho para ruim (abaixo de 80% da meta)
+    const diferenca = ((value - meta) / meta) * 100;
+
+    if (value >= meta) return cores.meta_atingida;
+    if (diferenca >= -tolerancias.proximo_meta) return cores.proximo_meta;
+    if (diferenca >= -tolerancias.alerta) return cores.alerta;
+    return cores.critico;
   };
 
   // Define cores dos cards com transparência (0.3 para 30% de opacidade)
@@ -73,7 +110,7 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
     return color;
   };
 
-  const metaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
+  const metaCardColor = getCardBgColor(cores.meta_atingida);
   const mediaCardColor = getCardBgColor(getBarColor(mediaEficiencia));
 
   return (
@@ -117,8 +154,8 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
                     zIndex="2"
                   />
                 </Box>
-                <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={item.eficiencia >= 60 ? "green.500" : item.eficiencia >= 48 ? "yellow.500" : "red.500"}>
-                  {item.eficiencia !== undefined ? item.eficiencia : "0"}%
+                <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={getBarColor(item.eficiencia)}>
+                  {item.eficiencia.toFixed(formatacao.porcentagem.casas)}%
                 </Text>
               </Flex>
             </Box>

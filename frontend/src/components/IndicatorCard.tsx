@@ -1,4 +1,33 @@
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
+
+// Valores padrão para cores e tolerâncias
+const DEFAULT_COLORS = {
+  meta_atingida: '#48BB78',
+  proximo_meta: '#98FB98',
+  alerta: '#ECC94B',
+  critico: '#E53E3E'
+};
+
+const DEFAULT_TOLERANCES = {
+  proximo_meta: 5,
+  alerta: 15
+};
+
+// Valores padrão para formatação
+const DEFAULT_FORMATTING = {
+  decimal: {
+    casas: 4,
+    separador: "."
+  },
+  porcentagem: {
+    casas: 2,
+    separador: "."
+  },
+  horas: {
+    formato: "Xh00m"
+  }
+};
 
 interface IndicatorCardProps {
   title: string;
@@ -21,8 +50,46 @@ export default function IndicatorCard({
   unitType = 'porcentagem',
   acimaMeta
 }: IndicatorCardProps) {
-  // Determinar se está acima da meta
-  const isAboveTarget = isInverted ? value <= meta : value >= meta;
+  // Obter configurações de cores e tolerâncias com fallback para valores padrão
+  const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
+  const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
+  const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
+  const diferencas = configManager.getConfig()?.graficos?.diferencas_meta || {
+    normal: {
+      meta_atingida: ">=",
+      proximo_meta: -5,
+      alerta: -15,
+      critico: "<-15"
+    },
+    invertido: {
+      meta_atingida: "<=",
+      proximo_meta: 5,
+      alerta: 15,
+      critico: ">15"
+    }
+  };
+
+  // Determinar se está dentro da meta
+  const isWithinTarget = isInverted ? value <= meta : value >= meta;
+
+  // Determinar a cor baseada na diferença percentual
+  const getValueColor = () => {
+    const diferenca = ((value - meta) / meta) * 100;
+    const diferencaAbs = Math.abs(diferenca);
+    const config = isInverted ? diferencas.invertido : diferencas.normal;
+
+    if (isInverted) {
+      if (value <= meta) return cores.meta_atingida;
+      if (diferenca <= config.proximo_meta) return cores.proximo_meta;
+      if (diferenca <= config.alerta) return cores.alerta;
+      return cores.critico;
+    } else {
+      if (value >= meta) return cores.meta_atingida;
+      if (diferencaAbs <= config.proximo_meta) return cores.proximo_meta;
+      if (diferencaAbs <= config.alerta) return cores.alerta;
+      return cores.critico;
+    }
+  };
 
   // Texto de atingimento da meta
   const metaText = acimaMeta ? 
@@ -144,13 +211,13 @@ export default function IndicatorCard({
       <Text fontSize="sm" fontWeight="bold" mb={1} color="black" textAlign="center" w="100%">{title}</Text>
       <Flex direction="row" align="center" justify="space-between">
         <VStack spacing={0} align="center">
-          <Text fontSize="md" fontWeight="bold" color="green.500">{formatMeta(meta)}</Text>
+          <Text fontSize="md" fontWeight="bold" color={cores.meta_atingida}>{formatValue(meta)}</Text>
           <Text fontSize="10px" color="gray.500">Meta</Text>
         </VStack>
         {metaText && (
           <Text 
             fontSize="xs" 
-            color={isAboveTarget ? "green.500" : "red.500"} 
+            color={isWithinTarget ? cores.meta_atingida : cores.critico} 
             textAlign="center"
             mx={2}
             flex={1}
@@ -159,7 +226,7 @@ export default function IndicatorCard({
           </Text>
         )}
         <VStack spacing={0} align="center">
-          <Text fontSize="md" fontWeight="bold" color={isAboveTarget ? "green.500" : "red.500"}>{formatValue(value)}</Text>
+          <Text fontSize="md" fontWeight="bold" color={getValueColor()}>{formatValue(value)}</Text>
           <Text fontSize="10px" color="gray.500">Média</Text>
         </VStack>
       </Flex>

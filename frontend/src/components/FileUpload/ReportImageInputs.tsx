@@ -57,8 +57,26 @@ const reportSections: Record<string, ImageSection[]> = {
 
 export default function ReportImageInputs({ reportType, frente, fonte }: ReportImageInputsProps) {
   const [sections, setSections] = useState<ImageSection[]>([]);
+  const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const { addImage, removeImage, images, updateImageFonte } = useReportStore();
   const fontesImagens = configManager.getFontesImagens();
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        if (!configManager.isLoaded()) {
+          await configManager.reloadConfig();
+        }
+        setIsConfigLoaded(true);
+      } catch (error) {
+        console.error('Erro ao carregar configurações:', error);
+        // Mesmo com erro, vamos usar as configurações padrão
+        setIsConfigLoaded(true);
+      }
+    };
+    
+    loadConfig();
+  }, []);
 
   useEffect(() => {
     if (reportType) {
@@ -168,6 +186,16 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
     // Atualizar a fonte no store global
     updateImageFonte(sectionId, newFonte);
   };
+
+  if (!isConfigLoaded) {
+    return (
+      <Box textAlign="center" py={8}>
+        <Text color="black">
+          Carregando configurações...
+        </Text>
+      </Box>
+    );
+  }
 
   if (!reportType) {
     return (

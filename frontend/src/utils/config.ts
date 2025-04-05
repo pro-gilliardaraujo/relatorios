@@ -134,108 +134,69 @@ export interface Config {
   };
 }
 
-class ConfigManager {
+export class ConfigManager {
+  private config: any = defaultConfig;  // Inicializa com defaultConfig em vez de null
   private static instance: ConfigManager;
-  private config: Config;
-  private configLoaded: boolean = false;
 
-  private constructor() {
-    this.config = defaultConfig;
-    this.loadConfig();
-  }
+  private constructor() {}
 
-  private async loadConfig() {
-    console.log('Iniciando carregamento das configurações...');
-    try {
-      // Verificar se estamos no servidor ou no cliente
-      const isServer = typeof window === 'undefined';
-      
-      let config;
-      
-      if (isServer) {
-        // No servidor, usamos o caminho do sistema de arquivos
-        console.log('Carregando configuração no ambiente do servidor...');
-        // Apenas usamos o fallback no servidor, sem tentar carregar o arquivo
-        config = defaultConfig;
-      } else {
-        // No cliente, podemos usar fetch normalmente
-        console.log('Carregando configuração no ambiente do cliente...');
-        const response = await fetch('/config/reports.config.json', { 
-          cache: 'no-store' // Desabilitar cache para garantir conteúdo atualizado
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        config = await response.json();
-      }
-      
-      this.config = config;
-      this.configLoaded = true;
-      
-      // Log detalhado das configurações carregadas
-      console.log('✅ Configurações carregadas com sucesso!');
-      console.log('📊 Tipos de relatório disponíveis:', Object.keys(config.tiposRelatorio));
-      
-      // Verificar se cada tipo de relatório tem as planilhas configuradas
-      Object.entries(config.tiposRelatorio).forEach(([tipo, tipoConfig]: [string, any]) => {
-        console.log(`📌 ${tipo} - ${tipoConfig.nome}:`);
-        console.log(`   - Frentes: ${tipoConfig.frentes.length}`);
-        console.log(`   - Planilhas Excel: ${tipoConfig.planilhas_excel?.join(', ') || 'Não configurado'}`);
-      });
-    } catch (error) {
-      console.warn('⚠️ Erro ao carregar configurações:', error);
-      console.log('⚠️ Usando configurações padrão');
-      this.config = defaultConfig;
-      this.configLoaded = true; // Marcando como carregado mesmo com erro
-      
-      // Log das configurações padrão sendo usadas
-      console.log('📊 Tipos de relatório padrão:', Object.keys(defaultConfig.tiposRelatorio));
-    }
-  }
-
-  public static getInstance(): ConfigManager {
+  static getInstance(): ConfigManager {
     if (!ConfigManager.instance) {
       ConfigManager.instance = new ConfigManager();
     }
     return ConfigManager.instance;
   }
 
-  public async reloadConfig(): Promise<void> {
-    await this.loadConfig();
+  async reloadConfig() {
+    try {
+      const response = await fetch('/config/reports.config.json');
+      this.config = await response.json();
+      console.log('✅ Configurações carregadas com sucesso');
+    } catch (error) {
+      console.error('❌ Erro ao carregar configurações:', error);
+      console.log('⚠️ Usando configurações padrão');
+      this.config = defaultConfig;
+    }
   }
 
-  public isLoaded(): boolean {
-    return this.configLoaded;
+  isLoaded(): boolean {
+    return this.config !== null && this.config !== undefined;
+  }
+
+  getConfig(): any {
+    if (!this.config) {
+      console.warn('⚠️ Configurações não carregadas, usando configuração padrão');
+      return defaultConfig;
+    }
+    return this.config;
   }
 
   public getTiposRelatorio(): string[] {
-    return Object.keys(this.config.tiposRelatorio);
+    return Object.keys(this.getConfig().tiposRelatorio);
   }
 
   public getTipoRelatorio(tipo: string): TipoRelatorio | undefined {
-    return this.config.tiposRelatorio[tipo];
+    return this.getConfig().tiposRelatorio[tipo];
   }
 
   public getFrentes(tipo: string): Frente[] {
-    return this.config.tiposRelatorio[tipo]?.frentes || [];
+    return this.getConfig().tiposRelatorio[tipo]?.frentes || [];
   }
 
   public getMetas(tipo: string): Meta {
-    return this.config.tiposRelatorio[tipo]?.metas || {};
+    return this.getConfig().tiposRelatorio[tipo]?.metas || {};
   }
 
   public getFontesExcel(): Fonte[] {
-    return this.config.fontes.excel || [];
+    return this.getConfig().fontes?.excel || defaultConfig.fontes.excel;
   }
 
   public getFontesImagens(): Fonte[] {
-    return this.config.fontes.imagens || [];
+    return this.getConfig().fontes?.imagens || defaultConfig.fontes.imagens;
   }
 
   public getComponentesConfig(tipo: string): Componentes {
-    return this.config.tiposRelatorio[tipo]?.componentes || {
+    return this.getConfig().tiposRelatorio[tipo]?.componentes || {
       mostrarImageUpload: false,
       mostrarExcelUpload: false,
       mostrarMapas: false
@@ -243,7 +204,7 @@ class ConfigManager {
   }
 
   public getDefaults() {
-    return this.config.defaults;
+    return this.getConfig().defaults || defaultConfig.defaults;
   }
 }
 

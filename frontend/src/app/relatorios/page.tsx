@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useReportStore } from '@/store/useReportStore';
 import { useRouter } from 'next/navigation';
 import { configManager } from '@/utils/config';
+import { supabase } from '@/lib/supabase';
 
 interface PreviewData {
   headers: string[];
@@ -94,135 +95,320 @@ export default function ReportsPage() {
     ));
   }, [previewData, reportType, selectedDate, selectedFrente, excelFonte, imagemFonte]);
 
+  // Função de manipulação do upload do Excel
+  const handleExcelPreviewData = (previewData: PreviewData | null) => {
+    console.log("📊 Excel Preview:", previewData);
+    
+    if (previewData) {
+      setPreviewData(previewData);
+      
+      // Log detalhado dos dados organizados por planilha
+      console.log("📋 DETALHES DOS DADOS EXCEL POR PLANILHA:");
+      Object.keys(previewData.processedData).forEach(sheet => {
+        const data = previewData.processedData[sheet];
+        console.log(`📄 ${sheet}: ${data.length} registros`);
+        if (data.length > 0) {
+          console.log(`  Exemplo: ${JSON.stringify(data[0])}`);
+          console.log(`  Colunas: ${Object.keys(data[0]).join(', ')}`);
+        }
+      });
+    } else {
+      setPreviewData(null);
+    }
+  };
+
   const handleGenerateReport = async () => {
-    // Verificar se os campos obrigatórios estão preenchidos
-    if (!reportType || !selectedDate) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Selecione o tipo de relatório e a data",
-        status: "warning",
-        duration: 3000,
-      });
-      return;
-    }
-
-    if (!selectedFrente) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Selecione a frente para o relatório",
-        status: "warning",
-        duration: 3000,
-      });
-      return;
-    }
-
-    // Verificar se há dados suficientes para o tipo de relatório selecionado
-    if (!previewData || !previewData.processedData) {
-      toast({
-        title: "Dados insuficientes",
-        description: "Faça o upload da planilha com os dados do relatório",
-        status: "warning",
-        duration: 3000,
-      });
-      return;
-    }
-
-    // Mostrar toast de processamento
-    toast({
-      title: "Processando",
-      description: "Salvando dados do relatório...",
-      status: "info",
-      duration: 3000,
-    });
-
-    setIsLoading(true);
-    console.log("Iniciando salvamento de dados de relatório...");
-
     try {
-      // Obter a configuração do tipo de relatório selecionado
-      const tipoRelatorioConfig = configManager.getTipoRelatorio(reportType);
-      if (!tipoRelatorioConfig) {
-        throw new Error(`Configuração para o tipo de relatório ${reportType} não encontrada`);
+      if (!reportType || !selectedDate || !selectedFrente) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Por favor, selecione o tipo de relatório, data e frente.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
       }
-
-      // Estruturar os dados processados de acordo com o tipo de relatório
-      const processedData: Record<string, any[]> = {};
       
-      // Mapear as planilhas encontradas para as chaves esperadas no processedData
-      if (tipoRelatorioConfig.planilhas_excel && previewData.processedData) {
-        tipoRelatorioConfig.planilhas_excel.forEach(planilha => {
-          if (previewData.processedData[planilha]) {
-            // Usar o nome da planilha como chave, removendo prefixos numéricos como "1_"
-            const chave = planilha.replace(/^\d+_/, '').toLowerCase().replace(/\s+/g, '_');
-            processedData[chave] = previewData.processedData[planilha] || [];
+      setIsLoading(true);
+      
+      // Verificar dados do excel
+      if (!previewData || !previewData.processedData || Object.keys(previewData.processedData).length === 0) {
+        toast({
+          title: "Sem dados do Excel",
+          description: "Por favor, faça o upload de um arquivo Excel.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Log detalhado dos dados do Excel para debug
+      console.log("📊 DADOS DO EXCEL PARA ENVIO:", previewData.processedData);
+      
+      // Dados que serão enviados ao backend
+      let dadosParaEnvio = {...previewData.processedData};
+      
+      // Verificar se o tipo de relatório é transbordo e fazer verificações específicas
+      if (reportType === 'transbordo_diario' || reportType === 'transbordo_semanal') {
+        console.log("🔍 Verificando dados para relatório de transbordo");
+        
+        // Obter planilhas e colunas esperadas da configuração
+        const config = configManager.getTipoRelatorio(reportType);
+        if (!config) {
+          throw new Error(`Configuração não encontrada para ${reportType}`);
+        }
+        
+        console.log("📋 Planilhas esperadas:", config.planilhas_excel);
+        console.log("📋 Colunas esperadas:", config.colunas_excel);
+        
+        const planilhasEncontradas = Object.keys(previewData.processedData);
+        console.log("📋 Planilhas encontradas:", planilhasEncontradas);
+        
+        // Checar se temos pelo menos algumas das planilhas necessárias
+        const planilhasEsperadas = config.planilhas_excel.map(p => p.toLowerCase());
+        const planilhasEncontradasLower = Object.keys(previewData.processedData).map(p => p.toLowerCase());
+        
+        console.log("📋 Planilhas esperadas:", planilhasEsperadas);
+        console.log("📋 Planilhas encontradas:", planilhasEncontradasLower);
+        
+        // Verificar correspondências aproximadas
+        const correspondencias = planilhasEncontradasLower.map(encontrada => {
+          const match = planilhasEsperadas.find(esperada => 
+            encontrada.includes(esperada.replace(/[0-9_]/g, '')) || 
+            esperada.includes(encontrada.replace(/[0-9_]/g, ''))
+          );
+          return {
+            encontrada,
+            correspondeA: match
+          };
+        });
+        
+        console.log("📋 Correspondências encontradas:", correspondencias);
+        
+        const temPlanilhasValidas = correspondencias.some(c => c.correspondeA);
+        
+        if (!temPlanilhasValidas) {
+          console.error("❌ Nenhuma planilha esperada encontrada no Excel");
+          toast({
+            title: "Formato de Excel inválido",
+            description: `Planilhas esperadas: ${config.planilhas_excel.join(', ')}\nPlanilhas encontradas: ${Object.keys(previewData.processedData).join(', ')}`,
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+          setIsLoading(false);
+          return;
+        }
+        
+        // Preparar estrutura de dados para o relatório
+        const dadosProcessados: Record<string, any[]> = {};
+        
+        // Criar um mapeamento entre os nomes das planilhas e os tipos de dados
+        const planilhaParaTipo = config.planilhas_excel.reduce((acc, planilha, index) => {
+          const tipo = Object.keys(config.colunas_excel)[index];
+          acc[planilha.toLowerCase()] = tipo;
+          return acc;
+        }, {} as Record<string, string>);
+
+        console.log("📋 Mapeamento planilha -> tipo:", planilhaParaTipo);
+
+        // Para cada planilha encontrada, tentar processar os dados
+        for (const planilhaOriginal of Object.keys(previewData.processedData)) {
+          const planilhaLower = planilhaOriginal.toLowerCase();
+          
+          // Encontrar o tipo correspondente usando correspondência aproximada
+          const tipoCorrespondente = Object.entries(planilhaParaTipo).find(([nomePlanilha, tipo]) => {
+            const planilhaSemNumeros = nomePlanilha.replace(/[0-9_]/g, '').trim();
+            const encontradaSemNumeros = planilhaLower.replace(/[0-9_]/g, '').trim();
+            return planilhaSemNumeros.includes(encontradaSemNumeros) || 
+                   encontradaSemNumeros.includes(planilhaSemNumeros);
+          });
+
+          if (tipoCorrespondente) {
+            const [nomePlanilha, tipo] = tipoCorrespondente;
+            console.log(`✅ Planilha "${planilhaOriginal}" corresponde ao tipo "${tipo}"`);
+            
+            const dadosPlanilha = previewData.processedData[planilhaOriginal];
+            if (dadosPlanilha && Array.isArray(dadosPlanilha) && dadosPlanilha.length > 0) {
+              // Processar os dados conforme as colunas esperadas
+              const colunasEsperadas = config.colunas_excel[tipo];
+              
+              dadosProcessados[tipo] = dadosPlanilha.map(item => {
+                // Encontrar a coluna correta para cada campo esperado
+                const processedItem: any = {};
+                
+                // Processar colunas conforme o tipo
+                if (tipo === 'disponibilidade_mecanica') {
+                  const frotaCol = Object.keys(item).find(k => k.toLowerCase().includes('frota'));
+                  const dispCol = Object.keys(item).find(k => k.toLowerCase().includes('disponibilidade'));
+                  
+                  if (frotaCol && dispCol) {
+                    const valorDisp = item[dispCol];
+                    let disponibilidade: number;
+
+                    // Trata diferentes formatos de número
+                    if (typeof valorDisp === 'number') {
+                      disponibilidade = valorDisp <= 1 ? valorDisp * 100 : valorDisp;
+                    } else {
+                      // Remove % e converte para número
+                      disponibilidade = Number(String(valorDisp).replace('%', ''));
+                    }
+
+                    processedItem.frota = String(item[frotaCol]);
+                    processedItem.disponibilidade = disponibilidade;
+                    console.log(`Processando disponibilidade: Original=${valorDisp}, Convertido=${disponibilidade}`);
+                  }
+                } else {
+                  // Para outros tipos (eficiencia, motor_ocioso, etc)
+                  const operadorCol = Object.keys(item).find(k => k.toLowerCase().includes('operador'));
+                  const valorCol = Object.keys(item).find(k => 
+                    k.toLowerCase().includes('eficiência') ||
+                    k.toLowerCase().includes('porcentagem') ||
+                    k.toLowerCase().includes('percentual') ||
+                    k.toLowerCase().includes('uso') ||
+                    k.toLowerCase().includes('ociosa')
+                  );
+                  
+                  if (operadorCol && valorCol) {
+                    const operador = String(item[operadorCol]);
+                    // Trata diferentes formatos de operador (com ou sem ID)
+                    let id, nome;
+                    if (operador.includes('-')) {
+                      [id, nome] = operador.split('-').map(s => s.trim());
+                    } else {
+                      id = operador;
+                      nome = operador;
+                    }
+                    
+                    processedItem.id = id;
+                    processedItem.nome = nome;
+
+                    const valorOriginal = item[valorCol];
+                    let valorProcessado: number;
+
+                    // Trata diferentes formatos de número
+                    if (typeof valorOriginal === 'number') {
+                      valorProcessado = valorOriginal <= 1 ? valorOriginal * 100 : valorOriginal;
+                    } else {
+                      // Remove % e converte para número
+                      valorProcessado = Number(String(valorOriginal).replace('%', ''));
+                    }
+                    
+                    if (tipo === 'eficiencia_energetica') {
+                      processedItem.eficiencia = valorProcessado;
+                    } else if (tipo === 'uso_gps') {
+                      processedItem.porcentagem = valorProcessado;
+                    } else {
+                      processedItem.percentual = valorProcessado;
+                    }
+
+                    console.log(`Processando ${tipo}: Original=${valorOriginal}, Convertido=${valorProcessado}`);
+                  }
+                }
+                
+                return processedItem;
+              }).filter(item => Object.keys(item).length > 0);
+              
+              console.log(`✅ Processados ${dadosProcessados[tipo].length} registros para ${tipo}`);
+            }
           }
-        });
+        }
+
+        // Verificar se temos dados suficientes
+        const tiposEncontrados = Object.keys(dadosProcessados).filter(tipo => 
+          dadosProcessados[tipo] && dadosProcessados[tipo].length > 0
+        );
+
+        console.log("📊 Tipos de dados encontrados:", tiposEncontrados);
+        
+        if (tiposEncontrados.length === 0) {
+          console.error("❌ Nenhum dado processado encontrado");
+          toast({
+            title: "Dados insuficientes",
+            description: `Não foi possível encontrar nenhum dos tipos de dados esperados: ${Object.keys(config.colunas_excel).join(', ')}`,
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log("📊 DADOS PROCESSADOS FINAL:", dadosProcessados);
+        
+        // Usar os dados processados para o relatório
+        dadosParaEnvio = dadosProcessados;
       }
       
-      console.log("Dados processados:", processedData);
-
-      // Enviar dados para a API
-      const response = await fetch('/api/reports/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          tipo: reportType,
-          data: selectedDate,
-          frente: selectedFrente,
-          dados: processedData,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        console.log("✅ Dados salvos com sucesso no Supabase:", result);
-        setReportGenerated(true);
-
-        // Mostrar toast de sucesso
+      // Criar objeto do relatório para enviar ao backend
+      const reportData = {
+        tipo: reportType,
+        data: selectedDate,
+        frente: selectedFrente,
+        dados: dadosParaEnvio,
+        status: 'rascunho',
+        created_at: new Date().toISOString()
+      };
+      
+      console.log("📤 Enviando dados do relatório para o Supabase:", reportData);
+      
+      let { data: reportResult, error } = reportType.includes('semanal') 
+        ? await supabase.from('relatorios_semanais').insert([reportData]).select().single()
+        : await supabase.from('relatorios_diarios').insert([reportData]).select().single();
+      
+      if (error) {
+        console.error("❌ Erro ao criar relatório:", error);
         toast({
-          title: "Sucesso!",
-          description: "O relatório está sendo aberto em nova guia",
-          status: "success",
-          duration: 5000,
-        });
-
-        // Construir o caminho do relatório
-        let reportPath = '';
-        if (reportType.includes('plantio')) {
-          reportPath = `/relatorios/visualizacao/a4/plantio?id=${result.id}`;
-        } else if (reportType.includes('colheita')) {
-          reportPath = `/relatorios/visualizacao/a4/colheita?id=${result.id}`;
-        } else if (reportType.includes('transbordo')) {
-          reportPath = `/relatorios/visualizacao/a4/transbordo?id=${result.id}`;
-        } else if (reportType.includes('cav')) {
-          reportPath = `/relatorios/visualizacao/a4/cav?id=${result.id}`;
-        }
-
-        // Abrir o relatório em uma nova guia
-        if (reportPath) {
-          window.open(reportPath, '_blank');
-        }
-      } else {
-        console.error("❌ Erro ao salvar dados:", result);
-        toast({
-          title: "Erro",
-          description: result.error || "Erro ao processar relatório",
+          title: "Erro ao gerar relatório",
+          description: error.message,
           status: "error",
           duration: 5000,
+          isClosable: true,
         });
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("❌ Erro ao processar relatório:", error);
+      
+      console.log("✅ Relatório criado com sucesso:", reportResult);
+      
       toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao processar o relatório",
+        title: "Relatório gerado com sucesso",
+        description: `Relatório de ID ${reportResult.id} criado.`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      
+      // Redirecionar para visualização
+      let viewUrl = '';
+      
+      // Determinar URL com base no tipo de relatório
+      if (reportType === 'colheita_diario') {
+        viewUrl = `/relatorios/visualizacao/a4/colheita?id=${reportResult.id}`;
+      } else if (reportType === 'colheita_semanal') {
+        viewUrl = `/relatorios/visualizacao/a4/colheita-semanal?id=${reportResult.id}`;
+      } else if (reportType === 'transbordo_diario') {
+        viewUrl = `/relatorios/visualizacao/a4/transbordo?id=${reportResult.id}`;
+      } else if (reportType === 'transbordo_semanal') {
+        viewUrl = `/relatorios/visualizacao/a4/transbordo-semanal?id=${reportResult.id}`;
+      }
+      
+      router.push(viewUrl);
+      
+      setIsLoading(false);
+      setReportGenerated(true);
+    } catch (error) {
+      console.error("❌ Erro ao gerar relatório:", error);
+      toast({
+        title: "Erro ao gerar relatório",
+        description: String(error),
         status: "error",
         duration: 5000,
+        isClosable: true,
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -264,10 +450,12 @@ export default function ReportsPage() {
       {/* Sidebar */}
       <Box
         w="250px"
-        bg="#2B79C2"
+        bg="white"
+        borderRight="1px"
+        borderColor="gray.200"
         display={{ base: 'none', lg: 'block' }}
       >
-        <Text color="white" p={2} fontSize="sm">Menu</Text>
+        <Text color="gray.600" p={2} fontSize="sm">Menu</Text>
       </Box>
 
       {/* Conteúdo Principal */}
@@ -326,6 +514,20 @@ export default function ReportsPage() {
                   color="black"
                   borderColor="gray.300"
                   _hover={{ borderColor: "gray.400" }}
+                  sx={{
+                    '&::-webkit-calendar-picker-indicator': {
+                      filter: 'invert(1)'
+                    },
+                    '&': {
+                      color: 'black !important'
+                    },
+                    '&::placeholder': {
+                      color: 'black'
+                    },
+                    '&:focus': {
+                      color: 'black !important'
+                    }
+                  }}
                 />
               </Box>
               <Box w={{ base: "100%", sm: "200px" }}>
@@ -355,7 +557,7 @@ export default function ReportsPage() {
               </Box>
               <Box w={{ base: "100%", sm: "auto" }}>
                 <ExcelUpload 
-                  onPreviewData={setPreviewData} 
+                  onPreviewData={handleExcelPreviewData} 
                   isEnabled={isUploadEnabled && isConfigLoaded}
                   selectedReportType={reportType}
                 />
@@ -368,12 +570,12 @@ export default function ReportsPage() {
             >
               <Button
                 colorScheme="gray"
-                bg="black"
-                color="white"
+                variant="outline"
                 size="md"
-                w={{ base: "100%", md: "auto" }}
                 onClick={handleGenerateReport}
-                _hover={{ bg: 'gray.800' }}
+                w={{ base: "100%", md: "auto" }}
+                borderColor="gray.300"
+                _hover={{ bg: 'gray.50' }}
               >
                 Gerar Relatório
               </Button>
@@ -388,7 +590,7 @@ export default function ReportsPage() {
                 borderColor="black"
                 _hover={{ bg: 'gray.50' }}
               >
-                Visualizar Relatório
+                Visualizar Relatórios
               </Button>
             </Flex>
           </Flex>

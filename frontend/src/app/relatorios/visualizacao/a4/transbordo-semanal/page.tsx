@@ -22,7 +22,7 @@ import TabelaFrotas from '@/components/TabelaFrotas';
 import { DateRangeDisplay } from '@/components/DateRangeDisplay';
 
 // Dados de exemplo para visualização offline
-const dadosExemplo: DadosProcessados = {
+const exemplosDados: DadosProcessados = {
   disponibilidade_mecanica: [
     { frota: '6031', disponibilidade: 89.00 },
     { frota: '6082', disponibilidade: 99.23 },
@@ -124,36 +124,51 @@ interface DadosProcessados {
   }>;
 }
 
-// Função utilitária para verificar formato de dados
+// Função de verificação de dados mais simples - verificamos apenas se os dados existem
 const verificarFormatoDados = (dados: any) => {
-  if (!dados) return false;
+  console.log("🔍 VERIFICANDO FORMATO DOS DADOS:", dados);
   
-  const temDisponibilidade = Array.isArray(dados.disponibilidade_mecanica) && 
-    dados.disponibilidade_mecanica.length > 0 &&
-    dados.disponibilidade_mecanica.some((item: any) => item && item.frota && item.disponibilidade !== undefined);
+  if (!dados) {
+    console.error("❌ Dados ausentes");
+    return false;
+  }
   
-  const temEficiencia = Array.isArray(dados.eficiencia_energetica) && 
-    dados.eficiencia_energetica.length > 0 &&
-    dados.eficiencia_energetica.some((item: any) => item && item.nome && item.eficiencia !== undefined);
+  // Log detalhado das propriedades nos dados
+  console.log("📊 Propriedades nos dados:", Object.keys(dados));
   
-  const temMotorOcioso = Array.isArray(dados.motor_ocioso) && 
-    dados.motor_ocioso.length > 0 &&
-    dados.motor_ocioso.some((item: any) => item && item.nome && item.percentual !== undefined);
+  // Verificamos se pelo menos alguns dos dados esperados existem
+  // Não exigimos todos, apenas alguns para considerarmos válido
+  const tiposDados = [
+    'disponibilidade_mecanica', 
+    'eficiencia_energetica', 
+    'motor_ocioso', 
+    'uso_gps', 
+    'falta_apontamento',
+    'tdh',
+    'diesel'
+  ];
   
-  const temUsoGPS = Array.isArray(dados.uso_gps) && 
-    dados.uso_gps.length > 0 &&
-    dados.uso_gps.some((item: any) => item && item.nome && item.porcentagem !== undefined);
+  // Verificar quantos tipos de dados estão presentes
+  const tiposPresentes = tiposDados.filter(tipo => 
+    dados[tipo] && Array.isArray(dados[tipo]) && dados[tipo].length > 0
+  );
   
-  const temTDH = Array.isArray(dados.tdh) && 
-    dados.tdh.length > 0 &&
-    dados.tdh.some((item: any) => item && item.frota && item.valor !== undefined);
+  console.log("✅ Tipos de dados presentes:", tiposPresentes);
+  console.log("📊 Total de tipos de dados presentes:", tiposPresentes.length);
   
-  const temDiesel = Array.isArray(dados.diesel) && 
-    dados.diesel.length > 0 &&
-    dados.diesel.some((item: any) => item && item.frota && item.valor !== undefined);
+  // Se temos pelo menos alguns dos tipos de dados, consideramos válido
+  const dadosValidos = tiposPresentes.length > 0;
   
-  // Verificar se pelo menos uma das seções tem dados
-  return temDisponibilidade || temEficiencia || temMotorOcioso || temUsoGPS || temTDH || temDiesel;
+  // Para cada tipo de dado presente, mostramos um exemplo
+  tiposPresentes.forEach(tipo => {
+    console.log(`📄 Exemplo de ${tipo}:`, dados[tipo][0]);
+  });
+  
+  if (!dadosValidos) {
+    console.error("❌ Formato de dados inválido");
+  }
+  
+  return dadosValidos;
 };
 
 export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) {
@@ -189,119 +204,114 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
 
   useEffect(() => {
+    // Recarregar configurações antes de buscar dados
+    const reloadConfig = async () => {
+      await configManager.reloadConfig();
+    };
+    
     const loadData = async () => {
       try {
-        // Recarrega as configurações antes de carregar os dados
-        await configManager.reloadConfig();
+        await reloadConfig();
+        setLoading(true);
+        console.log("🔄 Buscando relatório:", searchParams);
         
-        let subscription: any = null;
-
+        const reportId = searchParams.get('id');
+        console.log("📊 ID do relatório:", reportId);
+        
+        if (!reportId) {
+          console.log("⚠️ ID do relatório não fornecido, usando dados de exemplo");
+          setUseExampleData(true);
+          setLoading(false);
+          return;
+        }
+        
+        // Mostrar dados brutos do relatório para debugging
         const fetchReportData = async () => {
-          // Se não tiver ID, apenas mostrar o layout com dados de exemplo
-          if (!reportId) {
-            console.log('📋 Modo de visualização offline - usando dados de exemplo');
-            setLoading(false);
-            setUseExampleData(true);
-            return;
-          }
-
           try {
-            console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
-            const { data: report, error } = await supabase
+            // Buscar dados do relatório
+            const { data: reportData, error } = await supabase
               .from('relatorios_semanais')
               .select('*')
               .eq('id', reportId)
               .single();
-
+            
             if (error) {
-              console.error('❌ Erro ao buscar dados:', error);
-              setError(`Erro ao buscar dados: ${error.message}`);
-              setLoading(false);
-              setUseExampleData(true);
-              return;
-            }
-
-            if (!report) {
-              console.error('❌ Relatório não encontrado');
-              setError('Relatório não encontrado');
-              setLoading(false);
-              setUseExampleData(true);
-              return;
-            }
-
-            console.log('✅ Dados carregados com sucesso:', {
-              tipo: report.tipo,
-              frente: report.frente,
-              status: report.status,
-              dados: report.dados ? 'Presentes' : 'Ausentes'
-            });
-
-            // Log detalhado dos dados
-            if (report.dados) {
-              console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
-            }
-
-            setReportData(report);
-            setNomeFrente(report.frente || ''); // Atualiza o nome da frente
-            
-            // Definir datas de início e fim
-            if (report.start_date) {
-              setStartDate(new Date(report.start_date));
-            }
-            if (report.end_date) {
-              setEndDate(new Date(report.end_date));
+              throw error;
             }
             
-            setLoading(false);
-            setUseExampleData(false);
-
-            // Configurar subscription para atualizações em tempo real
-            subscription = supabase
-              .channel('relatorios_changes')
-              .on(
-                'postgres_changes',
-                {
-                  event: '*', // Escutar todos os eventos (INSERT, UPDATE, DELETE)
-                  schema: 'public',
-                  table: 'relatorios_semanais',
-                  filter: `id=eq.${reportId}`
-                },
-                (payload) => {
-                  console.log('🔄 Atualização em tempo real recebida:', payload);
-                  if (payload.eventType === 'DELETE') {
-                    setError('Este relatório foi excluído');
-                    return;
-                  }
-                  setReportData(payload.new);
+            if (!reportData) {
+              throw new Error('Relatório não encontrado');
+            }
+            
+            console.log("🔍 DADOS BRUTOS DO RELATÓRIO:", JSON.stringify(reportData, null, 2));
+            
+            // Exibir estrutura da árvore de dados para debug
+            console.log("📋 ESTRUTURA DE DADOS:");
+            console.log("- id:", reportData.id);
+            console.log("- tipo:", reportData.tipo);
+            console.log("- data:", reportData.data);
+            console.log("- frente:", reportData.frente);
+            
+            if (reportData.dados) {
+              console.log("- dados: ✓ Presente");
+              Object.keys(reportData.dados).forEach(key => {
+                const items = reportData.dados[key];
+                console.log(`  - ${key}: ${Array.isArray(items) ? items.length + ' itens' : 'não é array'}`);
+                
+                // Mostrar primeiro item de cada categoria, se disponível
+                if (Array.isArray(items) && items.length > 0) {
+                  console.log(`    Exemplo: ${JSON.stringify(items[0])}`);
                 }
-              )
+              });
+            } else {
+              console.log("- dados: ❌ Ausente");
+            }
+            
+            // Definir dados do relatório
+            setReportData(reportData);
+            
+            // SEMPRE usar dados reais quando temos um ID
+            if (reportId) {
+              console.log("✅ ID válido, NUNCA usar dados de exemplo");
+              setUseExampleData(false);
+            }
+            
+            // Assinatura para atualizações em tempo real
+            const subscription = supabase
+              .channel('report_updates')
+              .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'relatorios_semanais',
+                filter: `id=eq.${reportId}`,
+              }, (payload) => {
+                console.log('Relatório atualizado:', payload);
+                setReportData(payload.new as any);
+              })
               .subscribe();
-
+            
+            return () => {
+              subscription.unsubscribe();
+            };
           } catch (error) {
-            console.error('❌ Erro ao buscar dados:', error);
-            setError(`Erro ao buscar dados: ${error}`);
+            console.error('Erro ao buscar dados do relatório:', error);
+            setError('Erro ao buscar dados. Por favor, tente novamente.');
             setLoading(false);
-            setUseExampleData(true);
+            return null;
           }
         };
-
+        
         await fetchReportData();
-
-        return () => {
-          if (subscription) {
-            subscription.unsubscribe();
-          }
-        };
-      } catch (error) {
-        console.error('❌ Erro ao carregar dados:', error);
-        setError(`Erro ao carregar dados: ${error}`);
         setLoading(false);
-        setUseExampleData(true);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        setError('Erro ao carregar dados. Por favor, tente novamente.');
+        setLoading(false);
       }
     };
-
+    
     loadData();
-  }, [reportId]);
+  }, [searchParams]);
 
   // Funções utilitárias para processamento de dados
       const processarOperador = (operador: any) => {
@@ -421,6 +431,28 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
     }, 0);
   };
 
+  // Função auxiliar para encontrar o nome da coluna de forma mais flexível
+  const encontrarColuna = (objeto: any, nomesPossiveis: string[]): string | null => {
+    if (!objeto || typeof objeto !== 'object') return null;
+    
+    // Verificar matches exatos primeiro
+    for (const nome of nomesPossiveis) {
+      if (nome in objeto) return nome;
+    }
+    
+    // Se não encontrou match exato, tenta encontrar por substring
+    const chaves = Object.keys(objeto);
+    for (const nome of nomesPossiveis) {
+      const match = chaves.find(chave => 
+        chave.toLowerCase().includes(nome.toLowerCase()) || 
+        nome.toLowerCase().includes(chave.toLowerCase())
+      );
+      if (match) return match;
+    }
+    
+    return null;
+  };
+
   // Componentes de layout
   const PageHeader = ({ showDate = false }: { showDate?: boolean }) => {
     // Encontrar o nome completo da frente no config
@@ -465,20 +497,295 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   );
 
   // Dados processados para os gráficos
-  const dados = useMemo(() => {
-    if (useExampleData) {
-      console.log('📊 Usando dados de exemplo');
-      return dadosExemplo;
-    }
+  const dadosProcessados = useMemo(() => {
+    try {
+      console.log('📊 INICIANDO PROCESSAMENTO DE DADOS - TRANSBORDO SEMANAL', {
+        reportData,
+        temDados: reportData?.dados && Object.keys(reportData.dados).length > 0,
+        useExampleData
+      });
+      
+      // Se useExampleData estiver definido (e não tivermos um ID válido), use os dados de exemplo
+      if (useExampleData && !searchParams.get('id')) {
+        console.log('📊 Usando dados de exemplo (modo preview)');
+        return exemplosDados;
+      }
 
-    if (!reportData?.dados || !verificarFormatoDados(reportData.dados)) {
-      console.log('❌ Dados inválidos ou ausentes');
-      return dadosExemplo;
-    }
+      // Se não tivermos reportData ou seus dados, ou se o formato for inválido, use os dados de exemplo
+      if (!reportData?.dados || !verificarFormatoDados(reportData.dados)) {
+        console.warn("⚠️ Dados do relatório ausentes ou inválidos, verificando se há ID");
+        
+        // Se temos um ID de relatório mas não temos dados válidos, isso é um erro
+        if (reportId) {
+          console.error("❌ ERRO: Relatório com ID existe, mas sem dados válidos:", reportId);
+          setError('O relatório não contém dados válidos. Verifique o arquivo Excel enviado.');
+        }
+        
+        console.log("📊 Usando dados de exemplo (fallback)");
+        return exemplosDados;
+      }
+      
+      // A partir daqui, temos dados válidos do relatório, vamos processá-los:
+      console.log("✅ Processando dados reais do relatório");
+      
+      // Lendo configuração do relatório para saber os campos esperados
+      const configRelatorio = configManager.getTipoRelatorio('transbordo_semanal');
+      console.log('📊 Configuração do relatório:', configRelatorio);
+      
+      // Processar cada tipo de dado conforme a configuração
+      const dadosProcessados: DadosProcessados = {
+        disponibilidade_mecanica: [],
+        eficiencia_energetica: [],
+        motor_ocioso: [],
+        uso_gps: [],
+        falta_apontamento: [],
+        tdh: [],
+        diesel: []
+      };
 
-    console.log('📊 Usando dados do relatório');
-    return reportData.dados;
-  }, [reportData, useExampleData]);
+      // 1. Processar disponibilidade mecânica
+      if (Array.isArray(reportData.dados.disponibilidade_mecanica)) {
+        console.log('📊 Processando disponibilidade mecânica...');
+        
+        dadosProcessados.disponibilidade_mecanica = reportData.dados.disponibilidade_mecanica
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => {
+            // Localizar a coluna de Frota
+            const frotaKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'frota' || 
+              k.toLowerCase().includes('frota')
+            ) || 'Frota';
+            
+            // Localizar a coluna de Disponibilidade
+            const dispKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'disponibilidade' || 
+              k.toLowerCase().includes('disponibilidade') ||
+              k.toLowerCase().includes('disp')
+            ) || 'Disponibilidade';
+            
+            console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, Disp: ${dispKey}`);
+            
+            return {
+              frota: String(item[frotaKey] || ''),
+              disponibilidade: processarPorcentagem(item[dispKey])
+            };
+          })
+          .filter((item: any) => item.frota && item.disponibilidade !== undefined);
+      }
+
+      // 2. Processar eficiência energética
+      if (Array.isArray(reportData.dados.eficiencia_energetica)) {
+        console.log('📊 Processando eficiência energética...');
+        
+        dadosProcessados.eficiencia_energetica = reportData.dados.eficiencia_energetica
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => {
+            // Localizar a coluna de Operador
+            const operadorKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'operador' || 
+              k.toLowerCase().includes('operador')
+            ) || 'Operador';
+            
+            // Localizar a coluna de Eficiência
+            const eficienciaKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'eficiência' || 
+              k.toLowerCase().includes('eficiência') ||
+              k.toLowerCase().includes('eficiencia') ||
+              k.toLowerCase().includes('ef')
+            ) || 'Eficiência';
+            
+            const operador = processarOperador(item[operadorKey]);
+            
+            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Eficiência: ${eficienciaKey}`);
+            
+            if (!operador) return null;
+            
+            return {
+              id: operador.id,
+              nome: operador.nome,
+              eficiencia: processarPorcentagem(item[eficienciaKey])
+            };
+          })
+          .filter((item: any) => item !== null)
+          .sort((a: any, b: any) => b.eficiencia - a.eficiencia);
+      }
+
+      // 3. Processar motor ocioso
+      if (Array.isArray(reportData.dados.motor_ocioso)) {
+        console.log('📊 Processando motor ocioso...');
+        
+        dadosProcessados.motor_ocioso = reportData.dados.motor_ocioso
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => {
+            // Localizar a coluna de Operador
+            const operadorKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'operador' || 
+              k.toLowerCase().includes('operador')
+            ) || 'Operador';
+            
+            // Localizar a coluna de Porcentagem
+            const porcentagemKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'porcentagem' || 
+              k.toLowerCase().includes('porcentagem') ||
+              k.toLowerCase().includes('percentual') ||
+              k.toLowerCase().includes('ocioso')
+            ) || 'Porcentagem';
+            
+            const operador = processarOperador(item[operadorKey]);
+            
+            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Porcentagem: ${porcentagemKey}`);
+            
+            if (!operador) return null;
+            
+            return {
+              id: operador.id,
+              nome: operador.nome,
+              percentual: processarPorcentagem(item[porcentagemKey])
+            };
+          })
+          .filter((item: any) => item !== null);
+      }
+
+      // 4. Processar uso GPS
+      if (Array.isArray(reportData.dados.uso_gps)) {
+        console.log('📊 Processando uso GPS...');
+        
+        dadosProcessados.uso_gps = reportData.dados.uso_gps
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => {
+            // Localizar a coluna de Operador
+            const operadorKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'operador' || 
+              k.toLowerCase().includes('operador')
+            ) || 'Operador';
+            
+            // Localizar a coluna de Porcentagem
+            const porcentagemKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'porcentagem' || 
+              k.toLowerCase().includes('porcentagem') ||
+              k.toLowerCase().includes('percentual') ||
+              k.toLowerCase().includes('gps')
+            ) || 'Porcentagem';
+            
+            const operador = processarOperador(item[operadorKey]);
+            
+            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Porcentagem: ${porcentagemKey}`);
+            
+            if (!operador) return null;
+            
+            return {
+              id: operador.id,
+              nome: operador.nome,
+              porcentagem: processarPorcentagem(item[porcentagemKey])
+            };
+          })
+          .filter((item: any) => item !== null);
+      }
+
+      // 5. Processar falta apontamento
+      if (Array.isArray(reportData.dados.falta_apontamento)) {
+        console.log('📊 Processando falta apontamento...');
+        
+        dadosProcessados.falta_apontamento = reportData.dados.falta_apontamento
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => {
+            // Localizar a coluna de Operador
+            const operadorKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'operador' || 
+              k.toLowerCase().includes('operador')
+            ) || 'Operador';
+            
+            // Localizar a coluna de Porcentagem
+            const porcentagemKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'porcentagem' || 
+              k.toLowerCase().includes('porcentagem') ||
+              k.toLowerCase().includes('percentual') ||
+              k.toLowerCase().includes('falta')
+            ) || 'Porcentagem';
+            
+            const operador = processarOperador(item[operadorKey]);
+            
+            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Porcentagem: ${porcentagemKey}`);
+            
+            if (!operador) return null;
+            
+            return {
+              id: operador.id,
+              nome: operador.nome,
+              percentual: processarPorcentagem(item[porcentagemKey])
+            };
+          })
+          .filter((item: any) => item !== null);
+      }
+
+      // 6. Processar TDH
+      if (Array.isArray(reportData.dados.tdh)) {
+        console.log('📊 Processando TDH...');
+        
+        dadosProcessados.tdh = reportData.dados.tdh
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => {
+            // Localizar a coluna de Frota
+            const frotaKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'frota' || 
+              k.toLowerCase().includes('frota')
+            ) || 'Frota';
+            
+            // Localizar a coluna de TDH
+            const tdhKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'tdh' || 
+              k.toLowerCase().includes('tdh') ||
+              k.toLowerCase().includes('consumo tdh')
+            ) || 'TDH';
+            
+            console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, TDH: ${tdhKey}`);
+            
+            return {
+              frota: String(item[frotaKey] || ''),
+              valor: converterNumero(item[tdhKey])
+            };
+          })
+          .filter((item: any) => item.frota && item.valor !== undefined);
+      }
+
+      // 7. Processar Diesel
+      if (Array.isArray(reportData.dados.diesel)) {
+        console.log('📊 Processando Diesel...');
+        
+        dadosProcessados.diesel = reportData.dados.diesel
+          .filter((item: any) => item && typeof item === 'object')
+          .map((item: any) => {
+            // Localizar a coluna de Frota
+            const frotaKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'frota' || 
+              k.toLowerCase().includes('frota')
+            ) || 'Frota';
+            
+            // Localizar a coluna de Diesel
+            const dieselKey = Object.keys(item).find(k => 
+              k.toLowerCase() === 'diesel' || 
+              k.toLowerCase().includes('diesel') ||
+              k.toLowerCase().includes('consumo')
+            ) || 'Diesel';
+            
+            console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, Diesel: ${dieselKey}`);
+            
+            return {
+              frota: String(item[frotaKey] || ''),
+              valor: converterNumero(item[dieselKey])
+            };
+          })
+          .filter((item: any) => item.frota && item.valor !== undefined);
+      }
+
+      console.log('📊 DADOS FINAIS APÓS PROCESSAMENTO:', dadosProcessados);
+      return dadosProcessados;
+    } catch (error) {
+      console.error('❌ ERRO NO PROCESSAMENTO DE DADOS:', error);
+      // Em caso de erro, usar dados de exemplo
+      return exemplosDados;
+    }
+  }, [reportData, useExampleData, searchParams]);
 
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
@@ -565,7 +872,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoTDH
-                    data={dados.tdh}
+                    data={dadosProcessados.tdh}
                     meta={configManager.getMetas('transbordo_semanal').tdh}
                   />
                 </Box>
@@ -583,7 +890,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoDiesel 
-                    data={dados.diesel}
+                    data={dadosProcessados.diesel}
                     meta={configManager.getMetas('transbordo_semanal').diesel}
                   />
                 </Box>
@@ -609,7 +916,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoDisponibilidadeMecanicaTransbordo
-                    data={dados.disponibilidade_mecanica}
+                    data={dadosProcessados.disponibilidade_mecanica}
                     meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
                   />
                 </Box>
@@ -627,7 +934,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoEficienciaEnergetica 
-                    data={dados.eficiencia_energetica}
+                    data={dadosProcessados.eficiencia_energetica}
                     meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
                   />
                 </Box>
@@ -653,7 +960,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoMotorOciosoTransbordo
-                    data={dados.motor_ocioso}
+                    data={dadosProcessados.motor_ocioso}
                     meta={configManager.getMetas('transbordo_semanal').motorOcioso}
                   />
                 </Box>
@@ -671,7 +978,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoFaltaApontamentoTransbordo
-                    data={dados.falta_apontamento}
+                    data={dadosProcessados.falta_apontamento}
                     meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
                   />
                 </Box>
@@ -697,7 +1004,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoUsoGPS 
-                    data={dados.uso_gps}
+                    data={dadosProcessados.uso_gps}
                     meta={configManager.getMetas('transbordo_semanal').usoGPS}
                   />
                 </Box>
@@ -731,37 +1038,37 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title="Consumo de TDH"
-                    value={calcularMedia(dados.tdh, 'valor')}
+                    value={calcularMedia(dadosProcessados.tdh, 'valor')}
                     meta={configManager.getMetas('transbordo_semanal').tdh}
                     unitType="decimal"
                     isInverted={true}
                     acimaMeta={{
-                      quantidade: contarItensMeta(dados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false),
-                      total: dados.tdh.length,
-                      percentual: (contarItensMeta(dados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false) / dados.tdh.length) * 100
+                      quantidade: contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false),
+                      total: dadosProcessados.tdh.length,
+                      percentual: (contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false) / dadosProcessados.tdh.length) * 100
                     }}
                   />
                   <IndicatorCard
                     title="Consumo de Diesel"
-                    value={calcularMedia(dados.diesel, 'valor')}
+                    value={calcularMedia(dadosProcessados.diesel, 'valor')}
                     meta={configManager.getMetas('transbordo_semanal').diesel}
                     unitType="decimal"
                     isInverted={true}
                     acimaMeta={{
-                      quantidade: contarItensMeta(dados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false),
-                      total: dados.diesel.length,
-                      percentual: (contarItensMeta(dados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false) / dados.diesel.length) * 100
+                      quantidade: contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false),
+                      total: dadosProcessados.diesel.length,
+                      percentual: (contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false) / dadosProcessados.diesel.length) * 100
                     }}
                   />
                   <IndicatorCard
                     title="Disponibilidade Mecânica"
-                    value={calcularMedia(dados.disponibilidade_mecanica, 'disponibilidade')}
+                    value={calcularMedia(dadosProcessados.disponibilidade_mecanica, 'disponibilidade')}
                     meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
                     unitType="porcentagem"
                     acimaMeta={{
-                      quantidade: contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica),
-                      total: dados.disponibilidade_mecanica.length,
-                      percentual: (contarItensMeta(dados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica) / dados.disponibilidade_mecanica.length) * 100
+                      quantidade: contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica),
+                      total: dadosProcessados.disponibilidade_mecanica.length,
+                      percentual: (contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica) / dadosProcessados.disponibilidade_mecanica.length) * 100
                     }}
                   />
                 </SimpleGrid>
@@ -769,7 +1076,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 {/* Tabela de Frotas */}
                 <Box mb={2}>
                   <TabelaFrotas 
-                    dados={dados.disponibilidade_mecanica
+                    dados={dadosProcessados.disponibilidade_mecanica
                       .filter((item: { frota: string }) => item.frota !== '0')
                       .map((item: { frota: string; disponibilidade: number }) => ({
                         frota: item.frota,
@@ -778,8 +1085,8 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                     }
                     tipo="transbordo_semanal"
                     dadosCompletos={{
-                      tdh: dados.tdh,
-                      diesel: dados.diesel
+                      tdh: dadosProcessados.tdh,
+                      diesel: dadosProcessados.diesel
                     }}
                   />
                 </Box>
@@ -793,55 +1100,55 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title="Eficiência Energética"
-                    value={calcularMedia(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia')}
+                    value={calcularMedia(dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia')}
                     meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
                     unitType="porcentagem"
                     acimaMeta={{
-                      quantidade: contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
-                      total: dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / dados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                      quantidade: contarItensMeta(dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
+                      total: dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
                     }}
                   />
                   <IndicatorCard
                     title="Motor Ocioso"
-                    value={calcularMedia(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
+                    value={calcularMedia(dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
                     meta={configManager.getMetas('transbordo_semanal').motorOcioso}
                     isInverted={true}
                     unitType="porcentagem"
                     acimaMeta={{
-                      quantidade: contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso, false),
-                      total: dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso, false) / dados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                      quantidade: contarItensMeta(dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso, false),
+                      total: dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso, false) / dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
                     }}
                   />
                   <IndicatorCard
                     title="Falta de Apontamento"
-                    value={calcularMedia(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
+                    value={calcularMedia(dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
                     meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
                     isInverted={true}
                     unitType="porcentagem"
                     acimaMeta={{
-                      quantidade: contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento, false),
-                      total: dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento, false) / dados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                      quantidade: contarItensMeta(dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento, false),
+                      total: dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento, false) / dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
                     }}
                   />
                   <IndicatorCard
                     title="Uso GPS"
-                    value={calcularMedia(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem')}
+                    value={calcularMedia(dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem')}
                     meta={configManager.getMetas('transbordo_semanal').usoGPS}
                     unitType="porcentagem"
                     acimaMeta={{
-                      quantidade: contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS),
-                      total: dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS) / dados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
+                      quantidade: contarItensMeta(dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS),
+                      total: dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
+                      percentual: (contarItensMeta(dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS) / dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
                     }}
                   />
                 </SimpleGrid>
 
                 {/* Tabela de Operadores */}
                 <Box>
-                  <TabelaOperadores dados={dados} tipo="transbordo_semanal" />
+                  <TabelaOperadores dados={dadosProcessados} tipo="transbordo_semanal" />
                 </Box>
               </Box>
             </Box>
