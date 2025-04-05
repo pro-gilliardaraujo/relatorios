@@ -11,8 +11,9 @@ interface TabelaOperadoresProps {
   dados: {
     eficiencia_energetica: OperadorData[];
     motor_ocioso: Array<{ id: string; nome: string; percentual: number }>;
-    falta_apontamento: Array<{ id: string; nome: string; percentual: number }>;
+    falta_apontamento?: Array<{ id: string; nome: string; percentual: number }>;
     uso_gps: Array<{ id: string; nome: string; porcentagem: number }>;
+    hora_elevador?: Array<{ id: string; nome: string; horas: number }>;
   };
   tipo?: string;
 }
@@ -60,17 +61,34 @@ const formatHoras = (val: number): string => {
 export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: TabelaOperadoresProps) {
   // Log para depuração
   console.log('📊 TabelaOperadores recebeu dados:', {
+    tipo: tipo,
     eficiencia_energetica: dados.eficiencia_energetica?.length || 0,
     motor_ocioso: dados.motor_ocioso?.length || 0,
     falta_apontamento: dados.falta_apontamento?.length || 0,
-    uso_gps: dados.uso_gps?.length || 0
+    uso_gps: dados.uso_gps?.length || 0,
+    hora_elevador: dados.hora_elevador?.length || 0
   });
   
-  // Verificar se os dados de eficiência existem
-  if ((!dados.eficiencia_energetica || !Array.isArray(dados.eficiencia_energetica) || dados.eficiencia_energetica.length === 0) &&
-      (!dados.motor_ocioso || !Array.isArray(dados.motor_ocioso) || dados.motor_ocioso.length === 0) &&
-      (!dados.falta_apontamento || !Array.isArray(dados.falta_apontamento) || dados.falta_apontamento.length === 0) &&
-      (!dados.uso_gps || !Array.isArray(dados.uso_gps) || dados.uso_gps.length === 0)) {
+  // Definir quais colunas mostrar baseado no tipo de relatório
+  const mostrarColunas = {
+    eficiencia: true, // Mostrar em todos os tipos
+    motorOcioso: true, // Mostrar em todos os tipos
+    horaElevador: tipo.startsWith('colheita_'), // Apenas para relatórios de colheita
+    usoGPS: true, // Configurável via secoes
+    faltaApontamento: tipo.startsWith('transbordo_') // Apenas para relatórios de transbordo
+  };
+  
+  console.log('📊 Configuração de colunas para tabela:', mostrarColunas);
+  
+  // Verificar se os dados necessários existem
+  const temDados = 
+    (Array.isArray(dados.eficiencia_energetica) && dados.eficiencia_energetica.length > 0) ||
+    (Array.isArray(dados.motor_ocioso) && dados.motor_ocioso.length > 0) ||
+    (Array.isArray(dados.falta_apontamento) && dados.falta_apontamento.length > 0) ||
+    (Array.isArray(dados.uso_gps) && dados.uso_gps.length > 0) ||
+    (Array.isArray(dados.hora_elevador) && dados.hora_elevador.length > 0);
+  
+  if (!temDados) {
     console.log('📊 Todos os dados de operadores estão ausentes ou vazios');
     return (
       <Box p={4} textAlign="center" fontSize="sm" color="gray.500">
@@ -88,7 +106,8 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
     ...(Array.isArray(dados.eficiencia_energetica) ? dados.eficiencia_energetica : []),
     ...(Array.isArray(dados.motor_ocioso) ? dados.motor_ocioso : []),
     ...(Array.isArray(dados.falta_apontamento) ? dados.falta_apontamento : []),
-    ...(Array.isArray(dados.uso_gps) ? dados.uso_gps : [])
+    ...(Array.isArray(dados.uso_gps) ? dados.uso_gps : []),
+    ...(Array.isArray(dados.hora_elevador) ? dados.hora_elevador : [])
   ].forEach(item => {
     if (item && item.nome && 
         item.nome !== 'TROCA DE TURNO' && 
@@ -118,20 +137,24 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
   const metaMotorOcioso = metas.motorOcioso || 25;
   const metaHorasElevador = metas.horaElevador || 5;
   const metaUsoGPS = metas.usoGPS || 90;
+  const metaFaltaApontamento = metas.faltaApontamento || 15;
 
   // Valores intermediários (85% do valor meta)
   const metaEficienciaIntermediaria = metaEficiencia * 0.8;
   const metaMotorOciosoIntermediaria = metaMotorOcioso * 1.2;
   const metaHorasElevadorIntermediaria = metaHorasElevador * 0.8;
   const metaUsoGPSIntermediaria = metaUsoGPS * 0.85;
+  const metaFaltaApontamentoIntermediaria = metaFaltaApontamento * 1.2;
 
   // Função auxiliar para procurar operador por ID ou nome
   const encontrarValorOperador = (
-    array: Array<any>, 
+    array: Array<any> | undefined, 
     operadorId: string, 
     operadorNome: string, 
     campoValor: string
   ) => {
+    if (!array) return 0;
+    
     // Tentar encontrar pelo ID exato
     const itemPorId = array?.find((m: any) => m.id === operadorId);
     if (itemPorId) {
@@ -163,18 +186,31 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
             <Box as="th" p={2} textAlign="left" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
               Operador
             </Box>
-            <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
-              Eficiência
-            </Box>
-            <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
-              Motor Ocioso
-            </Box>
-            <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
-              Horas Elevador
-            </Box>
-            <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
-              Uso GPS
-            </Box>
+            {mostrarColunas.eficiencia && (
+              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+                Eficiência
+              </Box>
+            )}
+            {mostrarColunas.motorOcioso && (
+              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+                Motor Ocioso
+              </Box>
+            )}
+            {mostrarColunas.horaElevador && (
+              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+                Horas Elevador
+              </Box>
+            )}
+            {mostrarColunas.faltaApontamento && (
+              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+                Falta Apontamento
+              </Box>
+            )}
+            {mostrarColunas.usoGPS && (
+              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+                Uso GPS
+              </Box>
+            )}
           </Box>
         </Box>
         <Box as="tbody">
@@ -195,9 +231,16 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
               );
               
               const horasElevador = encontrarValorOperador(
-                dados.falta_apontamento, 
+                dados.hora_elevador, 
                 item.id, 
                 item.nome, 
+                'horas'
+              );
+              
+              const faltaApontamento = encontrarValorOperador(
+                dados.falta_apontamento,
+                item.id,
+                item.nome,
                 'percentual'
               );
               
@@ -217,53 +260,79 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
                   <Box as="td" p={2} borderBottom="1px solid" borderColor="black" color="black" fontWeight="medium">
                     {item.nome}
                   </Box>
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={eficiencia >= metaEficiencia ? "green.600" : eficiencia >= metaEficienciaIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatPercentage(eficiencia)}
-                  </Box>
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={motorOcioso <= metaMotorOcioso ? "green.600" : motorOcioso <= metaMotorOciosoIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatPercentage(motorOcioso)}
-                  </Box>
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={horasElevador >= metaHorasElevador ? "green.600" : horasElevador >= metaHorasElevadorIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatHoras(horasElevador)}
-                  </Box>
-                  <Box 
-                    as="td" 
-                    p={2} 
-                    textAlign="center" 
-                    borderBottom="1px solid" 
-                    borderColor="black" 
-                    color={usoGPS >= metaUsoGPS ? "green.600" : usoGPS >= metaUsoGPSIntermediaria ? "orange.500" : "red.600"}
-                    fontWeight="bold"
-                  >
-                    {formatPercentage(usoGPS)}
-                  </Box>
+                  
+                  {mostrarColunas.eficiencia && (
+                    <Box 
+                      as="td" 
+                      p={2} 
+                      textAlign="center" 
+                      borderBottom="1px solid" 
+                      borderColor="black" 
+                      color={eficiencia >= metaEficiencia ? "green.600" : eficiencia >= metaEficienciaIntermediaria ? "orange.500" : "red.600"}
+                      fontWeight="bold"
+                    >
+                      {formatPercentage(eficiencia)}
+                    </Box>
+                  )}
+                  
+                  {mostrarColunas.motorOcioso && (
+                    <Box 
+                      as="td" 
+                      p={2} 
+                      textAlign="center" 
+                      borderBottom="1px solid" 
+                      borderColor="black" 
+                      color={motorOcioso <= metaMotorOcioso ? "green.600" : motorOcioso <= metaMotorOciosoIntermediaria ? "orange.500" : "red.600"}
+                      fontWeight="bold"
+                    >
+                      {formatPercentage(motorOcioso)}
+                    </Box>
+                  )}
+                  
+                  {mostrarColunas.horaElevador && (
+                    <Box 
+                      as="td" 
+                      p={2} 
+                      textAlign="center" 
+                      borderBottom="1px solid" 
+                      borderColor="black" 
+                      color={horasElevador <= metaHorasElevador ? "green.600" : horasElevador <= metaHorasElevadorIntermediaria ? "orange.500" : "red.600"}
+                      fontWeight="bold"
+                    >
+                      {formatHoras(horasElevador)}
+                    </Box>
+                  )}
+                  
+                  {mostrarColunas.faltaApontamento && (
+                    <Box 
+                      as="td" 
+                      p={2} 
+                      textAlign="center" 
+                      borderBottom="1px solid" 
+                      borderColor="black" 
+                      color={faltaApontamento <= metaFaltaApontamento ? "green.600" : faltaApontamento <= metaFaltaApontamentoIntermediaria ? "orange.500" : "red.600"}
+                      fontWeight="bold"
+                    >
+                      {formatPercentage(faltaApontamento)}
+                    </Box>
+                  )}
+                  
+                  {mostrarColunas.usoGPS && (
+                    <Box 
+                      as="td" 
+                      p={2} 
+                      textAlign="center" 
+                      borderBottom="1px solid" 
+                      borderColor="black" 
+                      color={usoGPS >= metaUsoGPS ? "green.600" : usoGPS >= metaUsoGPSIntermediaria ? "orange.500" : "red.600"}
+                      fontWeight="bold"
+                    >
+                      {formatPercentage(usoGPS)}
+                    </Box>
+                  )}
                 </Box>
               );
-          })}
+            })}
         </Box>
       </Box>
     </Box>
