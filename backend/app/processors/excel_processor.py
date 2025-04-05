@@ -163,10 +163,18 @@ class ExcelProcessor:
             sheet_name_clean = sheet_name.lower().strip()
             name_lower = sheet_name_clean
             
+            # Log para depuração do nome da planilha
+            print(f"  - Analisando planilha: '{sheet_name}', nome limpo: '{name_lower}'")
+            
             # Verificar PRIMEIRO por "Uso GPS" com alta prioridade
             if "uso gps" in name_lower or "5_uso gps" in name_lower:
                 print(f"  - Identificado como 'uso_gps' pelo nome da planilha: {sheet_name}")
                 return "uso_gps"
+            
+            # Verificação prioritária para "Falta de Apontamento"
+            if "falta de apontamento" in name_lower or "falta apontamento" in name_lower or "4_falta" in name_lower:
+                print(f"  - Identificado como 'falta_apontamento' pelo nome da planilha: {sheet_name}")
+                return "falta_apontamento"
             
             # Verificar por configuração de colunas
             for sheet_type, cols in column_config.items():

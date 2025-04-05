@@ -16,6 +16,7 @@ interface TabelaOperadoresProps {
     hora_elevador?: Array<{ id: string; nome: string; horas: number }>;
   };
   tipo?: string;
+  mostrarUsoGPS?: boolean;
 }
 
 // Função para formatar percentagens com 2 casas sem arredondamento
@@ -58,10 +59,11 @@ const formatHoras = (val: number): string => {
   return `${hours}h${minutes.toString().padStart(2, '0')}m`;
 };
 
-export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: TabelaOperadoresProps) {
+export default function TabelaOperadores({ dados, tipo = 'colheita_diario', mostrarUsoGPS = true }: TabelaOperadoresProps) {
   // Log para depuração
   console.log('📊 TabelaOperadores recebeu dados:', {
     tipo: tipo,
+    mostrarUsoGPS: mostrarUsoGPS,
     eficiencia_energetica: dados.eficiencia_energetica?.length || 0,
     motor_ocioso: dados.motor_ocioso?.length || 0,
     falta_apontamento: dados.falta_apontamento?.length || 0,
@@ -74,7 +76,7 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
     eficiencia: true, // Mostrar em todos os tipos
     motorOcioso: true, // Mostrar em todos os tipos
     horaElevador: tipo.startsWith('colheita_'), // Apenas para relatórios de colheita
-    usoGPS: true, // Configurável via secoes
+    usoGPS: mostrarUsoGPS, // Usar o valor da prop
     faltaApontamento: tipo.startsWith('transbordo_') // Apenas para relatórios de transbordo
   };
   
@@ -111,6 +113,7 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario' }: Ta
   ].forEach(item => {
     if (item && item.nome && 
         item.nome !== 'TROCA DE TURNO' && 
+        item.nome !== 'SEM OPERADOR' &&
         !operadoresVistos.has(item.nome)) {
       operadoresVistos.add(item.nome);
       todosOperadores.push({

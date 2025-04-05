@@ -1162,7 +1162,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
                   Operadores
                 </Text>
-                <SimpleGrid columns={secoes.faltaApontamento ? 3 : 2} spacing={3} w="100%" mb={2}>
+                <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   {dadosProcessados.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
                     <IndicatorCard
                       title="Eficiência Energética"
@@ -1208,7 +1208,11 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
 
                 {/* Tabela de Operadores */}
                 <Box>
-                  <TabelaOperadores dados={dadosProcessados} tipo="transbordo_semanal" />
+                  <TabelaOperadores 
+                    dados={dadosProcessados} 
+                    tipo="transbordo_semanal" 
+                    mostrarUsoGPS={secoes.usoGPS}
+                  />
                 </Box>
               </Box>
             </Box>

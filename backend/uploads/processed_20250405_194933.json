@@ -1,0 +1,161 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-04",
+    "frente": "frente1",
+    "generated_at": "2025-04-05T19:49:33.148739",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034",
+      "disponibilidade": 89.98297685083321
+    },
+    {
+      "frota": "6086",
+      "disponibilidade": 99.28994219921002
+    },
+    {
+      "frota": "6096",
+      "disponibilidade": 98.21136892832733
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "126986",
+      "nome": "DIOGO JOSE DOS SANTOS SILVA",
+      "eficiencia": 60.08830973022453
+    },
+    {
+      "id": "327574",
+      "nome": "GILVAN CIRIACO DA SILVA",
+      "eficiencia": 48.593936500358105
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "1331012",
+      "nome": "CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 62.952034584505576
+    },
+    {
+      "id": "795183",
+      "nome": "CREGINALDO BATISTA DE ARAUJO",
+      "eficiencia": 63.16767712528208
+    },
+    {
+      "id": "1331003",
+      "nome": "ALAILSON SILVA DOS SANTOS",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "267399",
+      "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "eficiencia": 50.37134643028273
+    },
+    {
+      "id": "579965",
+      "nome": "JOSE EDVALDO DA SILVA",
+      "eficiencia": 37.185227786221915
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "126986",
+      "nome": "DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 17.683485003500124
+    },
+    {
+      "id": "327574",
+      "nome": "GILVAN CIRIACO DA SILVA",
+      "percentual": 45.82955359274293
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 21.847690387016222
+    },
+    {
+      "id": "1331012",
+      "nome": "CLAUDIO CAMPOS DA SILVA",
+      "percentual": 18.307829547793897
+    },
+    {
+      "id": "795183",
+      "nome": "CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 23.87042527769177
+    },
+    {
+      "id": "1331003",
+      "nome": "ALAILSON SILVA DOS SANTOS",
+      "percentual": 22.190201729106633
+    },
+    {
+      "id": "267399",
+      "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 16.41111643507428
+    },
+    {
+      "id": "579965",
+      "nome": "JOSE EDVALDO DA SILVA",
+      "percentual": 28.722836133590775
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": "126986",
+      "nome": "DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 1.9197418834442461
+    },
+    {
+      "id": "327574",
+      "nome": "GILVAN CIRIACO DA SILVA",
+      "percentual": 3.213870141959467
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 41.79193586217196
+    },
+    {
+      "id": "1331012",
+      "nome": "CLAUDIO CAMPOS DA SILVA",
+      "percentual": 1.942921638181235
+    },
+    {
+      "id": "795183",
+      "nome": "CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 2.1437131063867287
+    },
+    {
+      "id": "1331003",
+      "nome": "ALAILSON SILVA DOS SANTOS",
+      "percentual": 0.0
+    },
+    {
+      "id": "267399",
+      "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 3.060387266163441
+    },
+    {
+      "id": "579965",
+      "nome": "JOSE EDVALDO DA SILVA",
+      "percentual": 5.667599965001303
+    }
+  ],
+  "uso_gps": []
+}
