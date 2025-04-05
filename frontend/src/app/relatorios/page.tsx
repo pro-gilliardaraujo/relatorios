@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure, Checkbox } from '@chakra-ui/react';
 import { FiEye } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
@@ -38,6 +38,7 @@ export default function ReportsPage() {
   const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isTeste, setIsTeste] = useState(false);
 
   // Carregar configurações
   useEffect(() => {
@@ -350,7 +351,8 @@ export default function ReportsPage() {
         frente: selectedFrente,
         dados: dadosParaEnvio,
         status: 'rascunho',
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        is_teste: isTeste
       };
       
       console.log("📤 Enviando dados do relatório para o Supabase:", reportData);
@@ -556,21 +558,27 @@ export default function ReportsPage() {
               gap={2} 
               direction={{ base: "column", sm: "row" }}
               w={{ base: "100%", md: "auto" }}
+              align="center"
             >
-              <Button
+              <Checkbox
+                isChecked={isTeste}
+                onChange={(e) => setIsTeste(e.target.checked)}
                 colorScheme="gray"
-                variant="outline"
+              >
+                Teste
+              </Checkbox>
+              <Button
+                bg="black"
+                color="white"
                 size="md"
                 onClick={handleGenerateReport}
                 w={{ base: "100%", md: "auto" }}
-                borderColor="gray.300"
-                _hover={{ bg: 'gray.50' }}
+                _hover={{ bg: 'gray.800' }}
               >
                 Gerar Relatório
               </Button>
               <Button
                 leftIcon={<FiEye />}
-                colorScheme="blue"
                 variant="outline"
                 size="md"
                 onClick={handleViewReport}
