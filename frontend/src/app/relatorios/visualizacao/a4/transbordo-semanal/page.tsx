@@ -502,13 +502,13 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
     // Obter configurações de seções para o tipo de relatório
     const tipoRelatorio = reportData?.metadata?.type || 'transbordo_semanal';
     const configSections = configManager.getTipoRelatorio(tipoRelatorio)?.secoes || {
+      disponibilidadeMecanica: true,
       tdh: true,
       diesel: true,
-      disponibilidadeMecanica: true,
       eficienciaEnergetica: true,
       motorOcioso: true,
       faltaApontamento: true,
-      usoGPS: false
+      usoGPS: false  // Para transbordo, o padrão para Uso GPS é false
     };
     
     console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
@@ -760,7 +760,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
             console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, TDH: ${tdhKey}`);
             
             return {
-              frota: String(item[frotaKey] || ''),
+              frota: processarFrota(item[frotaKey]),
               valor: converterNumero(item[tdhKey])
             };
           })
@@ -790,7 +790,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
             console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, Diesel: ${dieselKey}`);
             
             return {
-              frota: String(item[frotaKey] || ''),
+              frota: processarFrota(item[frotaKey]),
               valor: converterNumero(item[dieselKey])
             };
           })
@@ -805,6 +805,14 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
       return exemplosDados;
     }
   }, [reportData, useExampleData, searchParams]);
+
+  // Formatação dos dados de frota para remover decimais
+  const processarFrota = (frota: any) => {
+    if (!frota) return '';
+    // Remover qualquer decimal do número da frota
+    const frotaStr = String(frota).trim();
+    return frotaStr.includes('.') ? frotaStr.split('.')[0] : frotaStr;
+  };
 
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
@@ -1132,53 +1140,48 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
                   Operadores
                 </Text>
-                <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
-                  <IndicatorCard
-                    title="Eficiência Energética"
-                    value={calcularMedia(dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia')}
-                    meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
-                    unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
-                      total: dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / dadosProcessados.eficiencia_energetica.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
-                  />
-                  <IndicatorCard
-                    title="Motor Ocioso"
-                    value={calcularMedia(dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
-                    meta={configManager.getMetas('transbordo_semanal').motorOcioso}
-                    isInverted={true}
-                    unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso, false),
-                      total: dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso, false) / dadosProcessados.motor_ocioso.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
-                  />
-                  <IndicatorCard
-                    title="Falta de Apontamento"
-                    value={calcularMedia(dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual')}
-                    meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
-                    isInverted={true}
-                    unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento, false),
-                      total: dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento, false) / dadosProcessados.falta_apontamento.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
-                  />
-                  <IndicatorCard
-                    title="Uso GPS"
-                    value={calcularMedia(dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem')}
-                    meta={configManager.getMetas('transbordo_semanal').usoGPS}
-                    unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS),
-                      total: dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length,
-                      percentual: (contarItensMeta(dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR'), 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS) / dadosProcessados.uso_gps.filter((item: { nome: string }) => item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR').length) * 100
-                    }}
-                  />
+                <SimpleGrid columns={secoes.faltaApontamento ? 3 : 2} spacing={3} w="100%" mb={2}>
+                  {dadosProcessados.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
+                    <IndicatorCard
+                      title="Eficiência Energética"
+                      value={calcularMedia(dadosProcessados.eficiencia_energetica, 'eficiencia')}
+                      meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
+                      unitType="porcentagem"
+                      acimaMeta={{
+                        quantidade: contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
+                        total: dadosProcessados.eficiencia_energetica.length,
+                        percentual: (contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / dadosProcessados.eficiencia_energetica.length) * 100
+                      }}
+                    />
+                  )}
+                  {dadosProcessados.motor_ocioso.length > 0 && secoes.motorOcioso && (
+                    <IndicatorCard
+                      title="Motor Ocioso"
+                      value={calcularMedia(dadosProcessados.motor_ocioso, 'percentual')}
+                      meta={configManager.getMetas('transbordo_semanal').motorOcioso}
+                      unitType="porcentagem"
+                      isInverted={true}
+                      acimaMeta={{
+                        quantidade: contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso),
+                        total: dadosProcessados.motor_ocioso.length,
+                        percentual: (contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso) / dadosProcessados.motor_ocioso.length) * 100
+                      }}
+                    />
+                  )}
+                  {dadosProcessados.falta_apontamento.length > 0 && secoes.faltaApontamento && (
+                    <IndicatorCard
+                      title="Falta Apontamento"
+                      value={calcularMedia(dadosProcessados.falta_apontamento, 'percentual')}
+                      meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
+                      unitType="porcentagem"
+                      isInverted={true}
+                      acimaMeta={{
+                        quantidade: contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento),
+                        total: dadosProcessados.falta_apontamento.length,
+                        percentual: (contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento) / dadosProcessados.falta_apontamento.length) * 100
+                      }}
+                    />
+                  )}
                 </SimpleGrid>
 
                 {/* Tabela de Operadores */}

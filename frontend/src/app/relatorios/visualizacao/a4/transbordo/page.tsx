@@ -578,10 +578,16 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     return {
       disponibilidade_mecanica: (dados.disponibilidade_mecanica || [])
         .filter(item => item && item.frota && item.frota !== '0')
-        .map(item => ({
-          frota: String(item.frota),
-          disponibilidade: Number(Number(item.disponibilidade).toFixed(2))
-        })),
+        .map(item => {
+          // Remover qualquer decimal do número da frota
+          const frotaStr = String(item.frota).trim();
+          const frotaFormatada = frotaStr.includes('.') ? frotaStr.split('.')[0] : frotaStr;
+          
+          return {
+            frota: frotaFormatada,
+            disponibilidade: Number(Number(item.disponibilidade).toFixed(2))
+          };
+        }),
       eficiencia_energetica: (dados.eficiencia_energetica || [])
         .filter(item => item && item.nome && !['0', 'SEM OPERADOR', 'TROCA DE TURNO'].includes(item.nome))
         .map(item => ({
@@ -623,7 +629,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       eficienciaEnergetica: true,
       motorOcioso: true,
       faltaApontamento: true,
-      usoGPS: false
+      usoGPS: false  // Para transbordo, o padrão para Uso GPS é false
     };
     
     console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
@@ -861,13 +867,13 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               )}
 
               {/* Seção Operadores */}
-              {(processedData.eficiencia_energetica.length > 0 || processedData.motor_ocioso.length > 0) && (
+              {(processedData.eficiencia_energetica.length > 0 || processedData.motor_ocioso.length > 0 || processedData.falta_apontamento.length > 0) && (
                 <Box>
                   <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
                     Operadores
                   </Text>
-                  <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
-                    {processedData.eficiencia_energetica.length > 0 && (
+                  <SimpleGrid columns={secoes.faltaApontamento ? 3 : 2} spacing={3} w="100%" mb={2}>
+                    {processedData.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
                       <IndicatorCard
                         title="Eficiência Energética"
                         value={calcularIndicador(processedData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).valor}
@@ -876,7 +882,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                         acimaMeta={calcularIndicador(processedData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).acimaMeta}
                       />
                     )}
-                    {processedData.motor_ocioso.length > 0 && (
+                    {processedData.motor_ocioso.length > 0 && secoes.motorOcioso && (
                       <IndicatorCard
                         title="Motor Ocioso"
                         value={calcularIndicador(processedData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, true).valor}
@@ -884,6 +890,16 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                         unitType="porcentagem"
                         isInverted={true}
                         acimaMeta={calcularIndicador(processedData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, true).acimaMeta}
+                      />
+                    )}
+                    {processedData.falta_apontamento.length > 0 && secoes.faltaApontamento && (
+                      <IndicatorCard
+                        title="Falta Apontamento"
+                        value={calcularIndicador(processedData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, true).valor}
+                        meta={configManager.getMetas('transbordo_diario').faltaApontamento}
+                        unitType="porcentagem"
+                        isInverted={true}
+                        acimaMeta={calcularIndicador(processedData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, true).acimaMeta}
                       />
                     )}
                   </SimpleGrid>
