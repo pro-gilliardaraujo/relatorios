@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure, Checkbox } from '@chakra-ui/react';
-import { FiEye } from 'react-icons/fi';
+import { FiEye, FiRefreshCw } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
 import { useState, useEffect, useCallback } from 'react';
@@ -71,6 +71,30 @@ export default function ReportsPage() {
   const frentesDisponiveis = isConfigLoaded && reportType ? configManager.getFrentes(reportType) : [];
   const fontesExcel = isConfigLoaded ? configManager.getFontesExcel() : [];
   const fontesImagens = isConfigLoaded ? configManager.getFontesImagens() : [];
+
+  // Função para forçar o recarregamento das configurações
+  const handleReloadConfig = async () => {
+    try {
+      await configManager.reloadConfig();
+      setIsConfigLoaded(true);
+      toast({
+        title: "Configurações recarregadas",
+        description: "As configurações foram atualizadas com sucesso.",
+        status: "success",
+        duration: 3000,
+      });
+      // Forçar a atualização da página para aplicar as novas configurações
+      window.location.reload();
+    } catch (error) {
+      console.error('Erro ao recarregar configurações:', error);
+      toast({
+        title: "Erro ao recarregar configurações",
+        description: "Não foi possível atualizar as configurações.",
+        status: "error",
+        duration: 3000,
+      });
+    }
+  };
 
   // Configurando a data de ontem como padrão
   const yesterday = new Date();
@@ -243,6 +267,8 @@ export default function ReportsPage() {
         viewUrl = `/relatorios/visualizacao/a4/transbordo?id=${reportResult.id}`;
       } else if (reportType === 'transbordo_semanal') {
         viewUrl = `/relatorios/visualizacao/a4/transbordo-semanal?id=${reportResult.id}`;
+      } else if (reportType === 'drones_diario' || reportType === 'drones_semanal') {
+        viewUrl = `/relatorios/visualizacao/a4/drones?id=${reportResult.id}`;
       }
       
       // Abrir em nova aba em vez de redirecionar
@@ -344,6 +370,18 @@ export default function ReportsPage() {
                   })}
                 </Select>
               </Box>
+              <Button
+                size="md"
+                variant="outline"
+                onClick={handleReloadConfig}
+                borderColor="black"
+                color="black"
+                title="Recarregar configurações"
+                leftIcon={<FiRefreshCw />}
+                _hover={{ bg: 'gray.100' }}
+              >
+                Recarregar
+              </Button>
               <Box w={{ base: "100%", sm: "200px" }}>
                 <Input
                   type="date"
@@ -357,7 +395,15 @@ export default function ReportsPage() {
                   _focus={{ borderColor: "black", boxShadow: "none" }}
                   sx={{
                     '&::-webkit-calendar-picker-indicator': {
-                      filter: 'invert(0)'
+                      filter: 'invert(0) brightness(0) contrast(100%)',
+                      opacity: '1',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      borderRadius: '2px',
+                      borderColor: 'black',
+                      _hover: {
+                        backgroundColor: 'gray.100'
+                      }
                     },
                     '&': {
                       color: 'black !important'

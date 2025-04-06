@@ -157,6 +157,52 @@ const defaultConfig = {
         mostrarExcelUpload: true,
         mostrarMapas: false
       }
+    },
+    drones_diario: {
+      nome: "Drones - Diário",
+      frentes: [
+        { id: "ituiutaba", nome: "Aplicação Ituiutaba" },
+        { id: "alexandrita", nome: "Aplicação Alexandrita" }
+      ],
+      metas: {
+        hectaresAplicados: 80,
+        horasVoo: 4,
+        haHora: 18
+      },
+      planilhas_excel: [
+        "flight record"
+      ],
+      colunas_excel: {
+        flight_record: ["Flight time", "Day", "Sprayed area", "Flight duration(min:sec)", "Flight Duration (Decimal)"]
+      },
+      componentes: {
+        mostrarImageUpload: true,
+        mostrarExcelUpload: true,
+        mostrarMapas: true
+      }
+    },
+    drones_semanal: {
+      nome: "Drones - Semanal",
+      frentes: [
+        { id: "ituiutaba", nome: "Aplicação Ituiutaba" },
+        { id: "alexandrita", nome: "Aplicação Alexandrita" }
+      ],
+      metas: {
+        hectaresAplicados: 400,
+        horasVoo: 20,
+        haHora: 18
+      },
+      planilhas_excel: [
+        "flight record"
+      ],
+      colunas_excel: {
+        flight_record: ["Flight time", "Day", "Sprayed area", "Flight duration(min:sec)", "Flight Duration (Decimal)"]
+      },
+      componentes: {
+        mostrarImageUpload: true,
+        mostrarExcelUpload: true,
+        mostrarMapas: true
+      }
     }
   },
   fontes: {
@@ -174,7 +220,8 @@ const defaultConfig = {
     dataInicial: -1,
     paginacao: 10,
     atualizacaoAutomatica: false,
-    intervaloAtualizacao: 3600
+    intervaloAtualizacao: 3600,
+    visualizacaoPrevia: false
   },
   graficos: {
     cores: {
@@ -251,6 +298,7 @@ export interface Config {
     paginacao: number;
     atualizacaoAutomatica: boolean;
     intervaloAtualizacao: number;
+    visualizacaoPrevia?: boolean;
   };
 }
 
@@ -325,6 +373,10 @@ export class ConfigManager {
 
   public getDefaults() {
     return this.getConfig().defaults || defaultConfig.defaults;
+  }
+
+  public getVisualizacaoPrevia(): boolean {
+    return this.getConfig().defaults?.visualizacaoPrevia ?? false;
   }
 
   public getGraficosConfig() {

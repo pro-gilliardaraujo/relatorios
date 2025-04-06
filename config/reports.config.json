@@ -193,6 +193,64 @@
         "mostrarExcelUpload": true,
         "mostrarMapas": false
       }
+    },
+
+    "drones_diario": {
+      "nome": "Drones - Diário",
+      "frentes": [
+        { "id": "ituiutaba", "nome": "Aplicação Ituiutaba" },
+        { "id": "alexandrita", "nome": "Aplicação Alexandrita" }
+      ],
+      "metas": {
+        "hectaresAplicados": 0,
+        "horasVoo": 0,
+        "haHora": 0
+      },
+      "secoes": {
+        "dadosVoo": true,
+        "hectaresHoras": true,
+        "imagensMap": true
+      },
+      "planilhas_excel": [
+        "flight record"
+      ],
+      "colunas_excel": {
+        "flight_record": ["Flight time", "Day", "Sprayed area", "Flight duration(min:sec)", "Flight Duration (Decimal)"]
+      },
+      "componentes": {
+        "mostrarImageUpload": true,
+        "mostrarExcelUpload": true,
+        "mostrarMapas": true
+      }
+    },
+
+    "drones_semanal": {
+      "nome": "Drones - Semanal",
+      "frentes": [
+        { "id": "ituiutaba", "nome": "Aplicação Ituiutaba" },
+        { "id": "alexandrita", "nome": "Aplicação Alexandrita" }
+      ],
+      "metas": {
+        "hectaresAplicados": 400,
+        "horasVoo": 20,
+        "haHora": 18
+      },
+      "secoes": {
+        "dadosVoo": true,
+        "hectaresHoras": true,
+        "imagensMap": true
+      },
+      "planilhas_excel": [
+        "flight record"
+      ],
+      "colunas_excel": {
+        "flight_record": ["Flight time", "Day", "Sprayed area", "Flight duration(min:sec)", "Flight Duration (Decimal)"]
+      },
+      "componentes": {
+        "mostrarImageUpload": true,
+        "mostrarExcelUpload": true,
+        "mostrarMapas": true
+      }
     }
   },
 
@@ -214,7 +272,8 @@
     "dataInicial": -1,
     "paginacao": 10,
     "atualizacaoAutomatica": false,
-    "intervaloAtualizacao": 3600
+    "intervaloAtualizacao": 3600,
+    "visualizacaoPrevia": true
   },
 
   "graficos": {
