@@ -288,7 +288,7 @@ export default function ReportsPage() {
       const reportData = {
         tipo: reportType,
         data: isWeeklyReport ? startDate : selectedDate,
-        data_fim: isWeeklyReport ? endDate : null,
+        ...(isWeeklyReport ? { data_fim: endDate } : {}),
         frente: useFrentesCheckbox ? selectedFrentes.join(',') : selectedFrente,
         dados: result.data,
         status: 'concluido',
