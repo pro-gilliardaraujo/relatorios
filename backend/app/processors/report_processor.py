@@ -76,12 +76,20 @@ class ReportProcessor:
         report_type: str,
         report_date: date,
         frente: str,
-        equipment_ids: Optional[List[str]] = None
+        equipment_ids: Optional[List[str]] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None
     ) -> Dict[str, Any]:
         """
         Gera relatório final com base nos dados processados
+        Suporta relatórios diários (report_date) e semanais (start_date, end_date)
         """
         print(f"\n==== GERANDO RELATÓRIO TIPO: {report_type}, DATA: {report_date}, FRENTE: {frente} ====")
+        
+        # Log para relatórios semanais
+        is_weekly = 'semanal' in report_type and start_date and end_date
+        if is_weekly:
+            print(f"Relatório Semanal - Período: {start_date} a {end_date}")
         
         # Filtrar por equipamentos se especificado
         if equipment_ids:
@@ -93,14 +101,22 @@ class ReportProcessor:
         print(f"Metas para inclusão no relatório: {metas}")
         
         # Criar o relatório com metadados e metas
+        metadata = {
+            'type': report_type,
+            'date': report_date.isoformat() if isinstance(report_date, date) else report_date,
+            'frente': frente,
+            'generated_at': datetime.now().isoformat(),
+            'equipment_ids': equipment_ids
+        }
+        
+        # Adicionar metadados para relatórios semanais
+        if is_weekly:
+            metadata['is_weekly'] = True
+            metadata['start_date'] = start_date.isoformat() if isinstance(start_date, date) else start_date
+            metadata['end_date'] = end_date.isoformat() if isinstance(end_date, date) else end_date
+        
         report = {
-            'metadata': {
-                'type': report_type,
-                'date': report_date.isoformat() if isinstance(report_date, date) else report_date,
-                'frente': frente,
-                'generated_at': datetime.now().isoformat(),
-                'equipment_ids': equipment_ids
-            },
+            'metadata': metadata,
             'metas': metas  # Incluir as metas no relatório
         }
         
