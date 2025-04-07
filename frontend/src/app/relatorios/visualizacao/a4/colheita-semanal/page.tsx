@@ -203,7 +203,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
           try {
             const { data: report, error } = await supabase
-              .from('relatorios_diarios')
+              .from('relatorios_semanais')
               .select('*')
               .eq('id', reportId)
               .single();
