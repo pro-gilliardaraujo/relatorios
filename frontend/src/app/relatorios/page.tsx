@@ -15,7 +15,7 @@ interface PreviewData {
   rows: string[][];
   processedData: { [key: string]: any[] };
   previewRows: number;
-  rawFile: File;
+  rawFile?: File;
 }
 
 export default function ReportsPage() {
@@ -33,6 +33,8 @@ export default function ReportsPage() {
   const [previewData, setPreviewData] = useState<PreviewData | null>(null);
   const [reportType, setReportType] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [selectedFrente, setSelectedFrente] = useState<string>('');
   const [selectedFrentes, setSelectedFrentes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +69,9 @@ export default function ReportsPage() {
     loadConfigs();
   }, []);
 
+  // Verificar se é um relatório semanal
+  const isWeeklyReport = reportType ? reportType.includes('semanal') : false;
+  
   // Verificar se é o tipo de relatório comparativo
   const isComparativoRelatorio = reportType === 'comparativo_unidades_diario';
   
@@ -126,39 +131,44 @@ export default function ReportsPage() {
 
   const [isReportReady, setIsReportReady] = useState(false);
 
-  const isUploadEnabled = Boolean(reportType && selectedDate && selectedFrente);
+  // Atualizar a variável isUploadEnabled para considerar relatórios semanais
+  const isUploadEnabled = Boolean(
+    reportType && 
+    (isWeeklyReport ? (startDate && endDate) : selectedDate) && 
+    (useFrentesCheckbox ? selectedFrentes.length > 0 : selectedFrente)
+  );
 
   useEffect(() => {
     // Reseta o estado de geração do relatório quando qualquer dado muda
     setReportGenerated(false);
-  }, [previewData, reportType, selectedDate, selectedFrente]);
+  }, [previewData, reportType, selectedDate, startDate, endDate, selectedFrente]);
 
   useEffect(() => {
     setIsReportReady(Boolean(
       (!showExcelUpload || previewData) && 
       reportType && 
-      selectedDate && 
+      (isWeeklyReport ? (startDate && endDate) : selectedDate) && 
       (useFrentesCheckbox ? selectedFrentes.length > 0 : selectedFrente) && 
       (showExcelUpload ? excelFonte : true) && 
       imagemFonte
     ));
-  }, [previewData, reportType, selectedDate, selectedFrente, selectedFrentes, excelFonte, imagemFonte, useFrentesCheckbox, showExcelUpload]);
+  }, [previewData, reportType, selectedDate, startDate, endDate, selectedFrente, selectedFrentes, excelFonte, imagemFonte, useFrentesCheckbox, showExcelUpload, isWeeklyReport]);
 
   // Função de manipulação do upload do Excel
-  const handleExcelPreviewData = (previewData: PreviewData | null) => {
-    console.log("📊 Excel Preview:", previewData);
+  const handleExcelPreviewData = (data: PreviewData | null) => {
+    console.log("📊 Excel Preview:", data);
     
-    if (previewData) {
-      setPreviewData(previewData);
+    if (data) {
+      setPreviewData(data);
       
       // Log detalhado dos dados organizados por planilha
       console.log("📋 DETALHES DOS DADOS EXCEL POR PLANILHA:");
-      Object.keys(previewData.processedData).forEach(sheet => {
-        const data = previewData.processedData[sheet];
-        console.log(`📄 ${sheet}: ${data.length} registros`);
-        if (data.length > 0) {
-          console.log(`  Exemplo: ${JSON.stringify(data[0])}`);
-          console.log(`  Colunas: ${Object.keys(data[0]).join(', ')}`);
+      Object.keys(data.processedData).forEach(sheet => {
+        const sheetData = data.processedData[sheet];
+        console.log(`📄 ${sheet}: ${sheetData.length} registros`);
+        if (sheetData.length > 0) {
+          console.log(`  Exemplo: ${JSON.stringify(sheetData[0])}`);
+          console.log(`  Colunas: ${Object.keys(sheetData[0]).join(', ')}`);
         }
       });
     } else {
@@ -168,10 +178,25 @@ export default function ReportsPage() {
 
   const handleGenerateReport = async () => {
     try {
-      if (!reportType || !selectedDate || (!useFrentesCheckbox && !selectedFrente) || (useFrentesCheckbox && selectedFrentes.length === 0)) {
+      if (!reportType || 
+         (isWeeklyReport ? (!startDate || !endDate) : !selectedDate) || 
+         (!useFrentesCheckbox && !selectedFrente) || 
+         (useFrentesCheckbox && selectedFrentes.length === 0)) {
         toast({
           title: "Campos obrigatórios",
-          description: "Por favor, selecione o tipo de relatório, data e frente(s).",
+          description: "Por favor, selecione o tipo de relatório, data(s) e frente(s).",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+      
+      // Validar que a data de início é anterior à data de fim
+      if (isWeeklyReport && startDate > endDate) {
+        toast({
+          title: "Datas inválidas",
+          description: "A data de início deve ser anterior ou igual à data de fim.",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -217,7 +242,14 @@ export default function ReportsPage() {
         formData.append('file', rawFile);
       }
       formData.append('report_type', reportType);
-      formData.append('report_date', selectedDate);
+      
+      // Adicionar as datas apropriadas dependendo do tipo de relatório
+      if (isWeeklyReport) {
+        formData.append('start_date', startDate);
+        formData.append('end_date', endDate);
+      } else {
+        formData.append('report_date', selectedDate);
+      }
       
       // Adicionar frente(s) selecionada(s) dependendo do tipo de seleção
       if (useFrentesCheckbox) {
@@ -255,7 +287,8 @@ export default function ReportsPage() {
       // Criar objeto do relatório para salvar no Supabase
       const reportData = {
         tipo: reportType,
-        data: selectedDate,
+        data: isWeeklyReport ? startDate : selectedDate,
+        data_fim: isWeeklyReport ? endDate : null,
         frente: useFrentesCheckbox ? selectedFrentes.join(',') : selectedFrente,
         dados: result.data,
         status: 'concluido',
@@ -421,41 +454,119 @@ export default function ReportsPage() {
               >
                 Recarregar
               </Button>
-              <Box w={{ base: "100%", sm: "200px" }}>
-                <Input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  size="md"
-                  bg="white"
-                  color="black"
-                  borderColor="black"
-                  _hover={{ borderColor: "black" }}
-                  _focus={{ borderColor: "black", boxShadow: "none" }}
-                  sx={{
-                    '&::-webkit-calendar-picker-indicator': {
-                      filter: 'invert(0) brightness(0) contrast(100%)',
-                      opacity: '1',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      borderRadius: '2px',
-                      borderColor: 'black',
-                      _hover: {
-                        backgroundColor: 'gray.100'
+              {/* SELETOR DE DATA */}
+              {isWeeklyReport ? (
+                <Flex direction={{ base: "column", sm: "row" }} gap={2}>
+                  <Box w={{ base: "100%", sm: "200px" }}>
+                    <Text mb={1} fontWeight="bold" color="black">Data Início</Text>
+                    <Input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      size="md"
+                      bg="white"
+                      color="black"
+                      borderColor="black"
+                      _hover={{ borderColor: "black" }}
+                      _focus={{ borderColor: "black", boxShadow: "none" }}
+                      sx={{
+                        '&::-webkit-calendar-picker-indicator': {
+                          filter: 'invert(0) brightness(0) contrast(100%)',
+                          opacity: '1',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          borderRadius: '2px',
+                          borderColor: 'black',
+                          _hover: {
+                            backgroundColor: 'gray.100'
+                          }
+                        },
+                        '&': {
+                          color: 'black !important'
+                        },
+                        '&::placeholder': {
+                          color: 'black'
+                        },
+                        '&:focus': {
+                          color: 'black !important'
+                        }
+                      }}
+                    />
+                  </Box>
+                  <Box w={{ base: "100%", sm: "200px" }}>
+                    <Text mb={1} fontWeight="bold" color="black">Data Fim</Text>
+                    <Input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      size="md"
+                      bg="white"
+                      color="black"
+                      borderColor="black"
+                      _hover={{ borderColor: "black" }}
+                      _focus={{ borderColor: "black", boxShadow: "none" }}
+                      sx={{
+                        '&::-webkit-calendar-picker-indicator': {
+                          filter: 'invert(0) brightness(0) contrast(100%)',
+                          opacity: '1',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          borderRadius: '2px',
+                          borderColor: 'black',
+                          _hover: {
+                            backgroundColor: 'gray.100'
+                          }
+                        },
+                        '&': {
+                          color: 'black !important'
+                        },
+                        '&::placeholder': {
+                          color: 'black'
+                        },
+                        '&:focus': {
+                          color: 'black !important'
+                        }
+                      }}
+                    />
+                  </Box>
+                </Flex>
+              ) : (
+                <Box w={{ base: "100%", sm: "200px" }}>
+                  <Input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    size="md"
+                    bg="white"
+                    color="black"
+                    borderColor="black"
+                    _hover={{ borderColor: "black" }}
+                    _focus={{ borderColor: "black", boxShadow: "none" }}
+                    sx={{
+                      '&::-webkit-calendar-picker-indicator': {
+                        filter: 'invert(0) brightness(0) contrast(100%)',
+                        opacity: '1',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '2px',
+                        borderColor: 'black',
+                        _hover: {
+                          backgroundColor: 'gray.100'
+                        }
+                      },
+                      '&': {
+                        color: 'black !important'
+                      },
+                      '&::placeholder': {
+                        color: 'black'
+                      },
+                      '&:focus': {
+                        color: 'black !important'
                       }
-                    },
-                    '&': {
-                      color: 'black !important'
-                    },
-                    '&::placeholder': {
-                      color: 'black'
-                    },
-                    '&:focus': {
-                      color: 'black !important'
-                    }
-                  }}
-                />
-              </Box>
+                    }}
+                  />
+                </Box>
+              )}
               <Box w={{ base: "100%", sm: "200px" }}>
                 <Select 
                   placeholder={isConfigLoaded ? "Selecione a Frente" : "Carregando..."}
