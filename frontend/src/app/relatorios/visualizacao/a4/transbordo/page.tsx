@@ -219,13 +219,8 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       try {
         await reloadConfig();
         setLoading(true);
-        // console.log("🔄 Buscando relatório:", searchParams);
-        
-        const reportId = searchParams.get('id');
-        // console.log("📊 ID do relatório:", reportId);
         
         if (!reportId) {
-          // console.log("⚠️ ID do relatório não fornecido, usando dados de exemplo");
           setUseExampleData(true);
           setLoading(false);
           return;
@@ -249,40 +244,14 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               throw new Error('Relatório não encontrado');
             }
             
-            // console.log("🔍 DADOS BRUTOS DO RELATÓRIO:", JSON.stringify(reportData, null, 2));
-            
-            // Exibir estrutura da árvore de dados para debug
-            // console.log("📋 ESTRUTURA DE DADOS:");
-            // console.log("- id:", reportData.id);
-            // console.log("- tipo:", reportData.tipo);
-            // console.log("- data:", reportData.data);
-            // console.log("- frente:", reportData.frente);
-            
-            // if (reportData.dados) {
-            //   console.log("- dados: ✓ Presente");
-            //   Object.keys(reportData.dados).forEach(key => {
-            //     const items = reportData.dados[key];
-            //     console.log(`  - ${key}: ${Array.isArray(items) ? items.length + ' itens' : 'não é array'}`);
-                
-            //     // Mostrar primeiro item de cada categoria, se disponível
-            //     if (Array.isArray(items) && items.length > 0) {
-            //       console.log(`    Exemplo: ${JSON.stringify(items[0])}`);
-            //     }
-            //   });
-            // } else {
-            //   console.log("- dados: ❌ Ausente");
-            // }
-            
             // Definir dados do relatório
             setReportData(reportData);
+            setLoading(false);
             
             // SEMPRE usar dados reais quando temos um ID
             if (reportId) {
-              // console.log("✅ ID válido, NUNCA usar dados de exemplo");
               setUseExampleData(false);
             }
-            
-            // Subscription já está desativado
           } catch (error) {
             console.error('Erro ao buscar dados do relatório:', error);
             setError('Erro ao buscar dados. Por favor, tente novamente.');
@@ -292,7 +261,6 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         };
         
         await fetchReportData();
-        setLoading(false);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
         setError('Erro ao carregar dados. Por favor, tente novamente.');
@@ -301,7 +269,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     };
     
     loadData();
-  }, [searchParams]);
+  }, [reportId]);
 
   // Funções utilitárias para processamento de dados
       const processarOperador = (operador: any) => {

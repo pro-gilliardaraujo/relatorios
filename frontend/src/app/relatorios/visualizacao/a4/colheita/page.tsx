@@ -233,7 +233,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         subscription.unsubscribe();
       }
     };
-  }, [fetchReportData, subscription]);
+  }, [fetchReportData]);
 
   // PREPARAÇÃO DE DADOS
   const finalData: DadosProcessados = useMemo(() => {
@@ -332,11 +332,13 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const metas = useMemo(() => {
     const defaultMetas = configManager.getMetas('colheita_diario');
     if (!reportData?.metas) {
-      console.log('⚠️ Usando metas padrão do configManager');
+      // Removendo o log aqui
+      // console.log('⚠️ Usando metas padrão do configManager');
       return defaultMetas;
     }
     
-    console.log('✅ Usando metas do relatório:', reportData.metas);
+    // Removendo o log aqui
+    // console.log('✅ Usando metas do relatório:', reportData.metas);
     return {
       disponibilidadeMecanica: reportData.metas.disponibilidadeMecanica ?? defaultMetas.disponibilidadeMecanica,
       eficienciaEnergetica: reportData.metas.eficienciaEnergetica ?? defaultMetas.eficienciaEnergetica,
@@ -370,7 +372,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     //     console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
     //   }
     // }
-  }, [loading]); // Reduzindo dependências para evitar execuções desnecessárias
+  }, []); // Removendo completamente as dependências
 
   // Adicionar no início da função principal, após a declaração de variáveis iniciais
   // Verificar configuração para mostrar ou esconder componentes
@@ -385,7 +387,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       usoGPS: true
     };
     
-    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
+    // Removendo o log aqui
+    // console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
     return configSections;
   }, [reportData?.metadata?.type]);
 
@@ -452,7 +455,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) {
       // Reduzindo logs
-      // console.log(`�� calcularMedia: Nenhum item válido para "${propriedade}" após filtragem`);
+      // console.log(`📊 calcularMedia: Nenhum item válido para "${propriedade}" após filtragem`);
       return 0;
     }
     

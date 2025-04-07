@@ -185,7 +185,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       usoGPS: true
     };
     
-    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
+    // Comentando o log aqui
+    // console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
     return configSections;
   }, [reportData?.metadata?.type]);
 
@@ -296,7 +297,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         // Cleanup: remover subscription quando o componente for desmontado
         return () => {
           if (subscription) {
-            supabase.removeChannel(subscription);
+            subscription = null; // Removemos apenas a referência para evitar tentar usar o objeto
           }
         };
       } catch (error) {
@@ -305,7 +306,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     };
 
     loadData();
-  }, [searchParams?.get('id')]);
+  }, [reportId]); // Mudando de searchParams.get('id') para reportId direto
 
   // PREPARAÇÃO DE DADOS
   const finalData = useMemo(() => {
@@ -517,28 +518,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
   // Verificar se estamos no modo de visualização ou no modo de relatório específico
   const isModoTemplate = !reportId;
-
-  // Log para debug
-  useEffect(() => {
-    if (!loading) {
-      console.log('===== DETALHES DO RELATÓRIO =====');
-      console.log('📊 Modo:', isModoTemplate ? 'Template/Layout' : 'Relatório Específico');
-      console.log('📊 ID do relatório:', reportId || 'Nenhum');
-      console.log('📊 Disponibilidade:', finalDataDisponibilidade.length, 'itens');
-      console.log('📊 Eficiência:', finalDataEficiencia.length, 'itens');
-      console.log('📊 Horas elevador:', finalDataHorasElevador.length, 'itens');
-      console.log('📊 Motor ocioso:', finalDataMotorOcioso.length, 'itens');
-      console.log('📊 Uso GPS:', finalDataUsoGPS.length, 'itens');
-      
-      // Verificar primeiro item de cada seção para depuração
-      if (finalDataDisponibilidade.length > 0) {
-        console.log('📊 Exemplo Disponibilidade:', finalDataDisponibilidade[0]);
-      }
-      if (finalDataEficiencia.length > 0) {
-        console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
-      }
-    }
-  }, [loading, isModoTemplate, reportId, finalDataDisponibilidade, finalDataEficiencia, finalDataHorasElevador, finalDataMotorOcioso, finalDataUsoGPS]);
 
   // FUNÇÕES
   // Função para calcular média
