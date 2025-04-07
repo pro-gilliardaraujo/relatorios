@@ -47,9 +47,6 @@ const defaultConfig = {
         { id: "frente4", nome: "Frente 4 - Zirleno" }
       ],
       metas: {
-        tdh: 0.0124,
-        diesel: 0.718,
-        impureza_vegetal: 64,
         disponibilidadeMecanica: 90,
         eficienciaEnergetica: 70,
         motorOcioso: 4,
@@ -57,19 +54,13 @@ const defaultConfig = {
         usoGPS: 90
       },
       planilhas_excel: [
-        "1_TDH",
-        "2_Consumo Diesel",
-        "3_Disponibilidade Mecânica",
-        "4_Impureza Vegetal",
-        "5_Eficiência Energética",
-        "6_Hora Elevador",
-        "7_Motor Ocioso",
-        "8_Uso GPS"
+        "1_Disponibilidade Mecânica",
+        "2_Eficiência Energética",
+        "3_Hora Elevador",
+        "4_Motor Ocioso",
+        "5_Uso GPS"
       ],
       colunas_excel: {
-        tdh: ["Frota", "TDH", "decimal"],
-        diesel: ["Frota", "Diesel", "decimal"],
-        impureza_vegetal: ["Frota", "Impureza", "porcentagem"],
         disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
         eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
         motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
@@ -264,6 +255,7 @@ export interface Componentes {
   mostrarImageUpload: boolean;
   mostrarExcelUpload: boolean;
   mostrarMapas: boolean;
+  usarFrentesCheckbox?: boolean;
 }
 
 export interface TipoRelatorio {
