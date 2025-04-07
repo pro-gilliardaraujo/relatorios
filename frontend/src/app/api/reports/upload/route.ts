@@ -9,16 +9,11 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File;
     const reportType = formData.get('report_type') as string;
     const reportDate = formData.get('report_date') as string;
-    const startDate = formData.get('start_date') as string;
-    const endDate = formData.get('end_date') as string;
     const frente = formData.get('frente') as string;
     const isTeste = formData.get('is_teste') as string;
     
-    // Verificar se é um relatório semanal
-    const isWeeklyReport = reportType ? reportType.includes('semanal') : false;
-    
     // Validar dados
-    if (!reportType || !frente || (isWeeklyReport ? (!startDate || !endDate) : !reportDate) || !file) {
+    if (!file || !reportType || !reportDate || !frente) {
       return NextResponse.json({ 
         detail: 'Parâmetros obrigatórios não fornecidos' 
       }, { status: 400 });
@@ -31,18 +26,7 @@ export async function POST(request: NextRequest) {
     const backendFormData = new FormData();
     backendFormData.append('file', file);
     backendFormData.append('report_type', reportType);
-    
-    // Adicionar campos de data conforme o tipo de relatório
-    if (isWeeklyReport && startDate && endDate) {
-      // Para relatórios semanais, enviar data início e data fim
-      backendFormData.append('report_date', endDate); // Usar data fim como referência
-      // O backend ainda espera report_date, então enviamos a data fim como report_date
-      // em uma versão futura, o backend pode ser atualizado para aceitar start_date e end_date
-    } else {
-      // Para relatórios diários, enviar apenas a data do relatório
-      backendFormData.append('report_date', reportDate);
-    }
-    
+    backendFormData.append('report_date', reportDate);
     backendFormData.append('frente', frente);
     backendFormData.append('save_processed', 'true');
     
@@ -76,13 +60,6 @@ export async function POST(request: NextRequest) {
     
     // Retornar os dados processados do backend
     const result = await response.json();
-    
-    // Se for um relatório semanal, adicionar metadados de data início e fim
-    if (isWeeklyReport && result && result.data && result.data.metadata) {
-      result.data.metadata.startDate = startDate;
-      result.data.metadata.endDate = endDate;
-    }
-    
     console.log('✅ Dados processados pelo backend com sucesso');
     
     return NextResponse.json(result);
