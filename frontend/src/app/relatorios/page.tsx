@@ -457,6 +457,9 @@ export default function ReportsPage() {
               {/* SELETOR DE DATA */}
               {isWeeklyReport ? (
                 <Flex direction={{ base: "column", sm: "row" }} gap={2}>
+                  <Box w={{ base: "100%", sm: "auto" }}>
+                    <Text fontWeight="bold" color="black" mb={1}>Período Semanal</Text>
+                  </Box>
                   <Box w={{ base: "100%", sm: "200px" }}>
                     <Text mb={1} fontWeight="bold" color="black">Data Início</Text>
                     <Input
@@ -532,6 +535,7 @@ export default function ReportsPage() {
                 </Flex>
               ) : (
                 <Box w={{ base: "100%", sm: "200px" }}>
+                  <Text mb={1} fontWeight="bold" color="black">Data do Relatório</Text>
                   <Input
                     type="date"
                     value={selectedDate}
@@ -725,6 +729,12 @@ export default function ReportsPage() {
                       ? ` - ${selectedFrentes.length} Unidades Selecionadas` 
                       : selectedFrente 
                         ? ` - ${frentesDisponiveis.find(f => f.id === selectedFrente)?.nome}` 
+                        : ''
+                  }${
+                    isWeeklyReport && startDate && endDate
+                      ? ` - ${startDate.split('-').reverse().join('/')} a ${endDate.split('-').reverse().join('/')}`
+                      : selectedDate
+                        ? ` - ${selectedDate.split('-').reverse().join('/')}`
                         : ''
                   }`}
                 </Heading>
