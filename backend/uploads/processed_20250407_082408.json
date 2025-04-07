@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-06",
+    "frente": "frente3",
+    "generated_at": "2025-04-07T08:24:08.665473",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6088",
+      "disponibilidade": 99.99999999999999
+    },
+    {
+      "frota": "6087",
+      "disponibilidade": 99.99999999999997
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "367478",
+      "nome": "VALDEMAR ITALIANO",
+      "eficiencia": 56.54012845282228
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "eficiencia": 61.96465530966404
+    },
+    {
+      "id": "508581",
+      "nome": "ALFREDO FERREIRA DE QUEIROZ",
+      "eficiencia": 59.308593345081405
+    },
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 54.88090696026603
+    },
+    {
+      "id": "113310",
+      "nome": "VITOR SOARES FREITAS",
+      "eficiencia": 63.92902871776111
+    },
+    {
+      "id": "136455",
+      "nome": "RAFAEL ALEXANDRE DA SILVA",
+      "eficiencia": 60.386939521657446
+    },
+    {
+      "id": "612544",
+      "nome": "JOSENIAS SOARES NUNES",
+      "eficiencia": 41.69486190888346
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "eficiencia": 47.83959468502055
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "367478",
+      "nome": "VALDEMAR ITALIANO",
+      "percentual": 25.575687953631693
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 57.71276595744682
+    },
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "percentual": 22.146155070848625
+    },
+    {
+      "id": "508581",
+      "nome": "ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 23.307764071732194
+    },
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 15.392162206355309
+    },
+    {
+      "id": "113310",
+      "nome": "VITOR SOARES FREITAS",
+      "percentual": 20.139015913663858
+    },
+    {
+      "id": "136455",
+      "nome": "RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 24.43000050779469
+    },
+    {
+      "id": "612544",
+      "nome": "JOSENIAS SOARES NUNES",
+      "percentual": 12.298371232984499
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "percentual": 16.96300544880986
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": "367478",
+      "nome": "VALDEMAR ITALIANO",
+      "percentual": 1.281338981873743
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 1.0304112249052597
+    },
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "percentual": 2.059956456204995
+    },
+    {
+      "id": "508581",
+      "nome": "ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 1.9037800687285253
+    },
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 1.0401288417662067
+    },
+    {
+      "id": "113310",
+      "nome": "VITOR SOARES FREITAS",
+      "percentual": 1.0054844606947004
+    },
+    {
+      "id": "136455",
+      "nome": "RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 1.625706263648657
+    },
+    {
+      "id": "612544",
+      "nome": "JOSENIAS SOARES NUNES",
+      "percentual": 66.06250529347
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "percentual": 13.401315582412742
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": "704894",
+      "nome": "REINALDO QUEIROZ DE JESUS",
+      "percentual": 0.0
+    }
+  ],
+  "uso_gps": []
+}

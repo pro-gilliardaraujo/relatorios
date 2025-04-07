@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-05",
+    "frente": "frente3",
+    "generated_at": "2025-04-07T08:17:19.815831",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127",
+      "disponibilidade": 1.0000000000000002
+    },
+    {
+      "frota": "6088",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6087",
+      "disponibilidade": 87.86959642501563
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "eficiencia": 42.062430323299935
+    },
+    {
+      "id": "136455",
+      "nome": "RAFAEL ALEXANDRE DA SILVA",
+      "eficiencia": 62.55266853932585
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "eficiencia": 55.83194163663533
+    },
+    {
+      "id": "367478",
+      "nome": "VALDEMAR ITALIANO",
+      "eficiencia": 40.739636146734235
+    },
+    {
+      "id": "612544",
+      "nome": "JOSENIAS SOARES NUNES",
+      "eficiencia": 55.695102685624065
+    },
+    {
+      "id": "113310",
+      "nome": "VITOR SOARES FREITAS",
+      "eficiencia": 16.829812811265697
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 55.133870548479315
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "percentual": 44.05940594059406
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "percentual": 21.37123745819405
+    },
+    {
+      "id": "136455",
+      "nome": "RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 17.297226123595554
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "percentual": 23.49037531862533
+    },
+    {
+      "id": "367478",
+      "nome": "VALDEMAR ITALIANO",
+      "percentual": 24.008350730688914
+    },
+    {
+      "id": "612544",
+      "nome": "JOSENIAS SOARES NUNES",
+      "percentual": 16.05845181674567
+    },
+    {
+      "id": "113310",
+      "nome": "VITOR SOARES FREITAS",
+      "percentual": 10.389833419199736
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 89.15801614763552
+    },
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 23.628801663633983
+    },
+    {
+      "id": "127144",
+      "nome": "EDMAR BATISTA SILVA FILHO",
+      "percentual": 15.450126541598042
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "percentual": 9.037149355572408
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "percentual": 2.9788464716575827
+    },
+    {
+      "id": "136455",
+      "nome": "RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 1.5906717716672496
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "percentual": 5.004759464011138
+    },
+    {
+      "id": "367478",
+      "nome": "VALDEMAR ITALIANO",
+      "percentual": 2.6264800861140993
+    },
+    {
+      "id": "612544",
+      "nome": "JOSENIAS SOARES NUNES",
+      "percentual": 1.5398596455798477
+    },
+    {
+      "id": "113310",
+      "nome": "VITOR SOARES FREITAS",
+      "percentual": 1.4470964104491661
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 3.0984548175714006
+    },
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 2.8096624978584903
+    },
+    {
+      "id": "127144",
+      "nome": "EDMAR BATISTA SILVA FILHO",
+      "percentual": 2.678181023174465
+    }
+  ],
+  "uso_gps": []
+}

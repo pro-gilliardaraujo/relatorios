@@ -86,7 +86,7 @@ def processar_arquivo(caminho_txt, caminho_excel):
 
 if __name__ == "__main__":
     # Caminhos dos arquivos
-    caminho_txt = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\cdFrente01-0404.txt"
-    caminho_excel = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\cdFrente01-0404.xlsx"
+    caminho_txt = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\CDfrente1-0504.txt"
+    caminho_excel = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\CDfrente1-0504.xlsx"
     
     processar_arquivo(caminho_txt, caminho_excel)

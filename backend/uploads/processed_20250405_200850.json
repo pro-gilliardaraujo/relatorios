@@ -1,0 +1,191 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-04",
+    "frente": "frente3",
+    "generated_at": "2025-04-05T20:08:50.480886",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127",
+      "disponibilidade": 72.53747248278862
+    },
+    {
+      "frota": "6088",
+      "disponibilidade": 99.22996757758223
+    },
+    {
+      "frota": "6087",
+      "disponibilidade": 95.69503817236067
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 63.57848885910536
+    },
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "eficiencia": 52.018683560614186
+    },
+    {
+      "id": "704894",
+      "nome": "REINALDO QUEIROZ DE JESUS",
+      "eficiencia": 56.88654868119545
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 29.530386740331497
+    },
+    {
+      "id": "127144",
+      "nome": "EDMAR BATISTA SILVA FILHO",
+      "eficiencia": 52.23916264398031
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "eficiencia": 57.25371270570398
+    },
+    {
+      "id": "476835",
+      "nome": "JOSE MARIANO DE OLIVEIRA",
+      "eficiencia": 49.59432566209115
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "eficiencia": 41.38472519628839
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "eficiencia": 47.20447284345048
+    },
+    {
+      "id": "508581",
+      "nome": "ALFREDO FERREIRA DE QUEIROZ",
+      "eficiencia": 51.908055127120804
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 16.474004579214867
+    },
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "percentual": 32.22914205948675
+    },
+    {
+      "id": "704894",
+      "nome": "REINALDO QUEIROZ DE JESUS",
+      "percentual": 19.994149480766463
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 19.22651933701658
+    },
+    {
+      "id": "127144",
+      "nome": "EDMAR BATISTA SILVA FILHO",
+      "percentual": 25.651197247048742
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "percentual": 18.0662712393525
+    },
+    {
+      "id": "476835",
+      "nome": "JOSE MARIANO DE OLIVEIRA",
+      "percentual": 20.293922539164164
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "percentual": 23.740185581727342
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "percentual": 25.81324426372349
+    },
+    {
+      "id": "508581",
+      "nome": "ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 17.12025473904175
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": "426551",
+      "nome": "MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 1.7710440490442994
+    },
+    {
+      "id": "8555232",
+      "nome": "RONIVON CESAR DA SILVA",
+      "percentual": 1.0691850959469738
+    },
+    {
+      "id": "704894",
+      "nome": "REINALDO QUEIROZ DE JESUS",
+      "percentual": 2.4474902100391644
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 2.5629206232137913
+    },
+    {
+      "id": "127144",
+      "nome": "EDMAR BATISTA SILVA FILHO",
+      "percentual": 1.5881590319792596
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "percentual": 1.7153163764861823
+    },
+    {
+      "id": "476835",
+      "nome": "JOSE MARIANO DE OLIVEIRA",
+      "percentual": 1.714061409630147
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "percentual": 3.959917904141013
+    },
+    {
+      "id": "478414",
+      "nome": "MATHEUS SILVA MAIA",
+      "percentual": 6.147196542201946
+    },
+    {
+      "id": "508581",
+      "nome": "ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 3.1818511270566083
+    }
+  ],
+  "uso_gps": []
+}

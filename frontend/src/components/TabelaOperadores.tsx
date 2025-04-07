@@ -113,7 +113,6 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
   ].forEach(item => {
     if (item && item.nome && 
         item.nome !== 'TROCA DE TURNO' && 
-        item.nome !== 'SEM OPERADOR' &&
         !operadoresVistos.has(item.nome)) {
       operadoresVistos.add(item.nome);
       todosOperadores.push({
@@ -298,7 +297,7 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                       textAlign="center" 
                       borderBottom="1px solid" 
                       borderColor="black" 
-                      color={horasElevador <= metaHorasElevador ? "green.600" : horasElevador <= metaHorasElevadorIntermediaria ? "orange.500" : "red.600"}
+                      color={horasElevador >= metaHorasElevador ? "green.600" : horasElevador >= metaHorasElevadorIntermediaria ? "orange.500" : "red.600"}
                       fontWeight="bold"
                     >
                       {formatHoras(horasElevador)}

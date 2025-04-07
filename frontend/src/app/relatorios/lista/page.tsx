@@ -33,6 +33,17 @@ import { supabase } from '@/lib/supabase';
 import { configManager } from '@/utils/config';
 import React from 'react';
 
+// Função para formatar a data no padrão brasileiro
+const formatarData = (data: string) => {
+  if (!data) return '';
+  // Se o formato já for yyyy-mm-dd, converte para dd/mm/yyyy
+  if (data.includes('-')) {
+    const [ano, mes, dia] = data.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+  return data;
+};
+
 export default function ListaRelatorios() {
   const [relatorios, setRelatorios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -193,6 +204,18 @@ export default function ListaRelatorios() {
             borderColor="black"
             _hover={{ borderColor: "black" }}
             _focus={{ borderColor: "black", boxShadow: "none" }}
+            sx={{
+              '&::-webkit-calendar-picker-indicator': {
+                filter: 'invert(0) brightness(0) contrast(100%)',
+                opacity: '1',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '2px',
+                _hover: {
+                  backgroundColor: 'gray.100'
+                }
+              }
+            }}
           />
 
           <Checkbox
@@ -254,7 +277,9 @@ export default function ListaRelatorios() {
               ) : (
                 relatorios.map((relatorio) => (
                   <Tr key={relatorio.id} _hover={{ bg: 'gray.50' }} bg="white">
-                    <Td py={4} color="black" bg="white" borderColor="black">{new Date(relatorio.data).toLocaleDateString()}</Td>
+                    <Td py={4} color="black" bg="white" borderColor="black">
+                      {formatarData(relatorio.data)}
+                    </Td>
                     <Td py={4} color="black" bg="white" borderColor="black">{configManager.getTipoRelatorio(relatorio.tipo)?.nome || relatorio.tipo}</Td>
                     <Td py={4} color="black" bg="white" borderColor="black">
                       {configManager.getFrentes(relatorio.tipo).find(f => f.id === relatorio.frente)?.nome || relatorio.frente}

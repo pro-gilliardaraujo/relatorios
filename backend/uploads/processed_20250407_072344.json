@@ -1,0 +1,157 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-06",
+    "frente": "frente3",
+    "generated_at": "2025-04-07T07:23:44.683438",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "7042",
+      "disponibilidade": 90.80249557255797
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "eficiencia": 71.68615224733695
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "eficiencia": 21.60864345738296
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "eficiencia": 65.46006285900064
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "eficiencia": 64.35014678409384
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "eficiencia": 66.15712762175609
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "horas": 3.8322222222222155
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "horas": 0.05000000000000001
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "horas": 5.033333333333333
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "horas": 3.3488888888888875
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "horas": 4.1355555555555545
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "percentual": 14.845414393348946
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "percentual": 52.581032412965214
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "percentual": 13.539973266861724
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "percentual": 13.322658126501178
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 100.0
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "percentual": 11.74457874155705
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "porcentagem": 98.6829299941608
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "porcentagem": 86.04651162790698
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "porcentagem": 98.43861209964412
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "porcentagem": 100.0
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "porcentagem": 93.77138138492391
+    }
+  ]
+}
