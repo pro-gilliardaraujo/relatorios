@@ -17,15 +17,26 @@ async def upload_file(
     report_type: str = Form(..., description="Tipo do relatório (plantio, colheita, cav)"),
     report_date: date = Form(..., description="Data do relatório"),
     frente: str = Form(..., description="Frente de trabalho"),
+    start_date: Optional[date] = Form(None, description="Data inicial para relatórios semanais"),
+    end_date: Optional[date] = Form(None, description="Data final para relatórios semanais"),
     equipment_ids: Optional[List[str]] = Form(None, description="IDs dos equipamentos"),
-    save_processed: bool = Form(False, description="Salvar dados processados para uso futuro")
+    save_processed: bool = Form(False, description="Salvar dados processados para uso futuro"),
+    is_teste: bool = Form(False, description="Indica se é um processamento de teste")
 ):
     """
     Upload e processamento de arquivo Excel/CSV
+    Suporta tanto relatórios diários quanto semanais
     """
     try:
         # Validar arquivo
         await excel_processor.validate_file(file)
+        
+        # Determinar se é relatório semanal
+        is_weekly = report_type and 'semanal' in report_type and start_date and end_date
+        
+        # Log para debug
+        print(f"Processando relatório: {report_type} - {'Semanal' if is_weekly else 'Diário'}")
+        print(f"Data(s): {report_date} {f'(Período: {start_date} a {end_date})' if is_weekly else ''}")
         
         # Processar arquivo
         processed_data = await excel_processor.process_file(file, report_type=report_type)
@@ -36,7 +47,10 @@ async def upload_file(
             report_type=report_type,
             report_date=report_date,
             frente=frente,
-            equipment_ids=equipment_ids
+            equipment_ids=equipment_ids,
+            # Adicionar datas de início e fim para relatórios semanais
+            start_date=start_date if is_weekly else None, 
+            end_date=end_date if is_weekly else None
         )
         
         if save_processed:
