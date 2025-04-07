@@ -147,33 +147,28 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
 
   const fetchReportData = useCallback(async () => {
-          if (!reportId) {
+    if (!reportId) {
       console.error('❌ ID do relatório não fornecido');
       setError('ID do relatório não fornecido');
-            setLoading(false);
-            return;
-          }
+      setLoading(false);
+      return;
+    }
 
-          try {
-      // Reduzindo logs
-      // console.log('📊 Buscando dados do relatório:', reportId);
-
+    try {
+      // Buscando dados do relatório
       const { data: reportData, error } = await supabase
-              .from('relatorios_diarios')
-              .select('*')
-              .eq('id', reportId)
-              .single();
+        .from('relatorios_diarios')
+        .select('*')
+        .eq('id', reportId)
+        .single();
 
-            if (error) {
+      if (error) {
         throw error;
       }
 
       if (!reportData) {
         throw new Error('Relatório não encontrado');
       }
-
-      // Reduzindo logs
-      // console.log('📊 Dados do relatório:', reportData);
 
       // Verificar se temos dados válidos
       if (!reportData.dados || Object.keys(reportData.dados).length === 0) {
@@ -183,57 +178,20 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       // Processar os dados do relatório
       setReportData(reportData);
       setNomeFrente(reportData.frente || '');
-            setLoading(false);
+      setLoading(false);
 
-            // Desativado temporariamente para evitar atualizações constantes
-            /*
-            // Configurar subscription para atualizações em tempo real
-      const newSubscription = supabase
-              .channel('relatorios_changes')
-              .on(
-                'postgres_changes',
-                {
-            event: 'UPDATE',
-                  schema: 'public',
-                  table: 'relatorios_diarios',
-                  filter: `id=eq.${reportId}`
-                },
-                async (payload) => {
-            console.log('📊 Atualização recebida:', payload);
-            const { data: updatedReport, error: updateError } = await supabase
-                    .from('relatorios_diarios')
-                    .select('*')
-                    .eq('id', reportId)
-                    .single();
-
-            if (!updateError && updatedReport) {
-                    console.log('✅ Dados atualizados com sucesso');
-                    setReportData(updatedReport);
-              setNomeFrente(updatedReport.frente || '');
-                  }
-                }
-              )
-              .subscribe();
-
-      setSubscription(newSubscription);
-      */
-
-          } catch (error) {
-            console.error('❌ Erro ao buscar dados do relatório:', error);
+    } catch (error) {
+      console.error('❌ Erro ao buscar dados do relatório:', error);
       setError(error instanceof Error ? error.message : 'Erro ao buscar dados do relatório');
-            setLoading(false);
-          }
+      setLoading(false);
+    }
   }, [reportId]);
 
   useEffect(() => {
-        fetchReportData();
-
-        return () => {
-          if (subscription) {
-        subscription.unsubscribe();
-      }
-    };
-  }, [fetchReportData]);
+    // Carregar dados apenas uma vez quando o componente é montado
+    fetchReportData();
+    // Clean-up - não é necessário aqui pois não há mais subscription
+  }, [reportId]); // Usando reportId diretamente, não fetchReportData
 
   // PREPARAÇÃO DE DADOS
   const finalData: DadosProcessados = useMemo(() => {
@@ -638,11 +596,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         motorOcioso: finalDataMotorOcioso.find(m => m.nome === item.nome)?.percentual || 0,
         usoGPS: finalDataUsoGPS.find(g => g.nome === item.nome)?.porcentagem || 0
       }));
-
-    console.log('📊 Dados processados:', {
-      frotas: frotas.length,
-      operadores: operadores.length
-    });
 
     return {
       tdh: {

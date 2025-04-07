@@ -226,7 +226,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           return;
         }
         
-        // Mostrar dados brutos do relatório para debugging
+        // Função para buscar dados do relatório
         const fetchReportData = async () => {
           try {
             // Buscar dados do relatório
@@ -246,6 +246,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
             
             // Definir dados do relatório
             setReportData(reportData);
+            setNomeFrente(reportData.frente || '');
             setLoading(false);
             
             // SEMPRE usar dados reais quando temos um ID
@@ -256,7 +257,6 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
             console.error('Erro ao buscar dados do relatório:', error);
             setError('Erro ao buscar dados. Por favor, tente novamente.');
             setLoading(false);
-            return null;
           }
         };
         
@@ -269,6 +269,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     };
     
     loadData();
+    // Usar apenas reportId como dependência para evitar recálculos
   }, [reportId]);
 
   // Funções utilitárias para processamento de dados

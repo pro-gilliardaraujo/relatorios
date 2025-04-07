@@ -185,8 +185,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       usoGPS: true
     };
     
-    // Comentando o log aqui
-    // console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
     return configSections;
   }, [reportData?.metadata?.type]);
 
@@ -196,20 +194,14 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         // Recarrega as configurações antes de carregar os dados
         await configManager.reloadConfig();
         
-        let subscription: any = null;
-
         const fetchReportData = async () => {
           // Se não tiver ID, apenas mostrar o layout com dados de exemplo
           if (!reportId) {
-            // Reduzindo logs
-            // console.log('📋 Modo de visualização offline - usando dados de exemplo');
             setLoading(false);
             return;
           }
 
           try {
-            // Reduzindo logs
-            // console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
             const { data: report, error } = await supabase
               .from('relatorios_diarios')
               .select('*')
@@ -230,94 +222,30 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               return;
             }
 
-            // Reduzindo logs
-            // console.log('✅ Dados carregados com sucesso:', {
-            //   tipo: report.tipo,
-            //   frente: report.frente,
-            //   status: report.status,
-            //   dados: report.dados ? 'Presentes' : 'Ausentes'
-            // });
-
-            // Log detalhado dos dados
-            // if (report.dados) {
-            //   console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
-            // }
-
             setReportData(report);
             setNomeFrente(report.frente || ''); // Atualiza o nome da frente
             setLoading(false);
-
-            // Desativado temporariamente para evitar atualizações constantes
-            /*
-            // Configurar subscription para atualizações em tempo real
-            subscription = supabase
-              .channel('relatorios_changes')
-              .on(
-                'postgres_changes',
-                {
-                  event: '*', // Escutar todos os eventos (INSERT, UPDATE, DELETE)
-                  schema: 'public',
-                  table: 'relatorios_diarios',
-                  filter: `id=eq.${reportId}`
-                },
-                async (payload) => {
-                  console.log('🔄 Atualização detectada:', payload);
-                  
-                  // Buscar dados atualizados
-                  const { data: updatedReport, error: refreshError } = await supabase
-                    .from('relatorios_diarios')
-                    .select('*')
-                    .eq('id', reportId)
-                    .single();
-
-                  if (refreshError) {
-                    console.error('❌ Erro ao atualizar dados:', refreshError);
-                    return;
-                  }
-
-                  if (updatedReport) {
-                    console.log('✅ Dados atualizados com sucesso');
-                    setReportData(updatedReport);
-                    setNomeFrente(updatedReport.frente || ''); // Atualiza o nome da frente quando houver atualização
-                  }
-                }
-              )
-              .subscribe();
-            */
-
           } catch (error) {
-            console.error('❌ Erro ao buscar dados do relatório:', error);
-            setError(`Erro inesperado: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+            console.error('❌ Erro ao buscar dados:', error);
+            setError(`Erro ao buscar dados: ${error instanceof Error ? error.message : 'Desconhecido'}`);
             setLoading(false);
           }
         };
 
         fetchReportData();
-
-        // Cleanup: remover subscription quando o componente for desmontado
-        return () => {
-          if (subscription) {
-            subscription = null; // Removemos apenas a referência para evitar tentar usar o objeto
-          }
-        };
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
       }
     };
 
     loadData();
-  }, [reportId]); // Mudando de searchParams.get('id') para reportId direto
+  }, [reportId]); // Mudando para usar apenas reportId como dependência
 
   // PREPARAÇÃO DE DADOS
   const finalData = useMemo(() => {
     if (!reportData?.dados) {
-      // Reduzindo logs
-      // console.log('📊 Usando dados de exemplo');
       return dadosExemplo;
     }
-
-    // Reduzindo logs
-    // console.log('📊 DADOS BRUTOS DO RELATÓRIO:', reportData);
     
     // Função auxiliar para processar operador no formato "ID - NOME"
     const processarOperador = (operador: any) => {
@@ -446,73 +374,32 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         : []
     };
 
-    // Log detalhado após processamento
-    console.log('📊 DADOS APÓS PROCESSAMENTO:', {
-      tdh: dadosProcessados.tdh.map((d: { frota: string; valor: number }) => ({ 
-        frota: d.frota, 
-        valor: d.valor 
-      })),
-      diesel: dadosProcessados.diesel.map((d: { frota: string; valor: number }) => ({ 
-        frota: d.frota, 
-        valor: d.valor 
-      })),
-      impurezaVegetal: dadosProcessados.impureza_vegetal.map((d: { frota: string; valor: number }) => ({ 
-        frota: d.frota, 
-        valor: d.valor 
-      })),
-      disponibilidade: dadosProcessados.disponibilidade_mecanica.map((d: { frota: string; disponibilidade: number }) => ({ 
-        frota: d.frota, 
-        valor: d.disponibilidade 
-      })),
-      eficiencia: dadosProcessados.eficiencia_energetica.map((e: { nome: string; eficiencia: number }) => ({ 
-        nome: e.nome, 
-        valor: e.eficiencia 
-      })),
-      motorOcioso: dadosProcessados.motor_ocioso.map((m: { nome: string; percentual: number }) => ({ 
-        nome: m.nome, 
-        valor: m.percentual 
-      })),
-      horasElevador: dadosProcessados.hora_elevador.map((h: { nome: string; horas: number }) => ({ 
-        nome: h.nome, 
-        valor: h.horas 
-      })),
-      usoGPS: dadosProcessados.uso_gps.map((g: { nome: string; porcentagem: number }) => ({ 
-        nome: g.nome, 
-        valor: g.porcentagem 
-      }))
-    });
-
     return dadosProcessados;
   }, [reportData]);
 
   // Preparar os arrays de dados
   const finalDataDisponibilidade = useMemo(() => {
     const data = Array.isArray(finalData.disponibilidade_mecanica) ? finalData.disponibilidade_mecanica : [];
-    console.log('📊 Dados de disponibilidade processados:', JSON.stringify(data, null, 2));
     return data;
   }, [finalData]);
   
   const finalDataEficiencia = useMemo(() => {
     const data = Array.isArray(finalData.eficiencia_energetica) ? finalData.eficiencia_energetica : [];
-    console.log('📊 Dados de eficiência processados:', JSON.stringify(data, null, 2));
     return data;
   }, [finalData]);
   
   const finalDataHorasElevador = useMemo(() => {
     const data = Array.isArray(finalData.hora_elevador) ? finalData.hora_elevador : [];
-    console.log('📊 Dados de horas elevador processados:', JSON.stringify(data, null, 2));
     return data;
   }, [finalData]);
   
   const finalDataMotorOcioso = useMemo(() => {
     const data = Array.isArray(finalData.motor_ocioso) ? finalData.motor_ocioso : [];
-    console.log('📊 Dados de motor ocioso processados:', JSON.stringify(data, null, 2));
     return data;
   }, [finalData]);
   
   const finalDataUsoGPS = useMemo(() => {
     const data = Array.isArray(finalData.uso_gps) ? finalData.uso_gps : [];
-    console.log('📊 Dados de uso GPS processados:', JSON.stringify(data, null, 2));
     return data;
   }, [finalData]);
 
@@ -522,10 +409,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // FUNÇÕES
   // Função para calcular média
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
-    // Verificação inicial mais robusta
     if (!array || !Array.isArray(array) || array.length === 0) {
-      // Reduzindo logs
-      // console.log(`📊 calcularMedia: Array vazio ou inválido para propriedade "${propriedade}"`);
       return 0;
     }
     
