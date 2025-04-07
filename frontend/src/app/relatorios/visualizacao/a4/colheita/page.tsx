@@ -182,6 +182,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       setNomeFrente(reportData.frente || '');
             setLoading(false);
 
+            // Desativado temporariamente para evitar atualizações constantes
+            /*
             // Configurar subscription para atualizações em tempo real
       const newSubscription = supabase
               .channel('relatorios_changes')
@@ -211,6 +213,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               .subscribe();
 
       setSubscription(newSubscription);
+      */
 
           } catch (error) {
             console.error('❌ Erro ao buscar dados do relatório:', error);

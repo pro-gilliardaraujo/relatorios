@@ -282,23 +282,26 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               setUseExampleData(false);
             }
             
-            // Assinatura para atualizações em tempo real
+            // Código modificado para desabilitar atualizações constantes
+            /*
             const subscription = supabase
-              .channel('report_updates')
-              .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'relatorios_diarios',
-                filter: `id=eq.${reportId}`,
-              }, (payload) => {
-                console.log('Relatório atualizado:', payload);
-                setReportData(payload.new as any);
-              })
-              .subscribe();
-            
+            .channel('report_updates')
+            .on('postgres_changes', {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'relatorios_diarios',
+              filter: `id=eq.${reportId}`
+            },
+            async (payload) => {
+              console.log("Atualização recebida:", payload);
+              fetchReport();
+            })
+            .subscribe();
+
             return () => {
               subscription.unsubscribe();
             };
+            */
           } catch (error) {
             console.error('Erro ao buscar dados do relatório:', error);
             setError('Erro ao buscar dados. Por favor, tente novamente.');

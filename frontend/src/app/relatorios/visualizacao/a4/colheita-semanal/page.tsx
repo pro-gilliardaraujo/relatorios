@@ -243,6 +243,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             setNomeFrente(report.frente || ''); // Atualiza o nome da frente
             setLoading(false);
 
+            // Desativado temporariamente para evitar atualizações constantes
+            /*
             // Configurar subscription para atualizações em tempo real
             subscription = supabase
               .channel('relatorios_changes')
@@ -277,6 +279,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                 }
               )
               .subscribe();
+            */
 
           } catch (error) {
             console.error('❌ Erro ao buscar dados do relatório:', error);
@@ -524,7 +527,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       
       // Verificar primeiro item de cada seção para depuração
       if (finalDataDisponibilidade.length > 0) {
-        console.log('📊 Exemplo Disponibilidade:', finalDataDisponibilidade[0]);
+        console.log('�� Exemplo Disponibilidade:', finalDataDisponibilidade[0]);
       }
       if (finalDataEficiencia.length > 0) {
         console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
