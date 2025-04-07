@@ -200,13 +200,15 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         const fetchReportData = async () => {
           // Se não tiver ID, apenas mostrar o layout com dados de exemplo
           if (!reportId) {
-            console.log('📋 Modo de visualização offline - usando dados de exemplo');
+            // Reduzindo logs
+            // console.log('📋 Modo de visualização offline - usando dados de exemplo');
             setLoading(false);
             return;
           }
 
           try {
-            console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
+            // Reduzindo logs
+            // console.log(`📊 Buscando dados do relatório ID: ${reportId}`);
             const { data: report, error } = await supabase
               .from('relatorios_diarios')
               .select('*')
@@ -227,17 +229,18 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
               return;
             }
 
-            console.log('✅ Dados carregados com sucesso:', {
-              tipo: report.tipo,
-              frente: report.frente,
-              status: report.status,
-              dados: report.dados ? 'Presentes' : 'Ausentes'
-            });
+            // Reduzindo logs
+            // console.log('✅ Dados carregados com sucesso:', {
+            //   tipo: report.tipo,
+            //   frente: report.frente,
+            //   status: report.status,
+            //   dados: report.dados ? 'Presentes' : 'Ausentes'
+            // });
 
             // Log detalhado dos dados
-            if (report.dados) {
-              console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
-            }
+            // if (report.dados) {
+            //   console.log('📊 DADOS BRUTOS:', JSON.stringify(report.dados, null, 2));
+            // }
 
             setReportData(report);
             setNomeFrente(report.frente || ''); // Atualiza o nome da frente
@@ -307,11 +310,13 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // PREPARAÇÃO DE DADOS
   const finalData = useMemo(() => {
     if (!reportData?.dados) {
-      console.log('📊 Usando dados de exemplo');
+      // Reduzindo logs
+      // console.log('📊 Usando dados de exemplo');
       return dadosExemplo;
     }
 
-    console.log('📊 DADOS BRUTOS DO RELATÓRIO:', reportData);
+    // Reduzindo logs
+    // console.log('📊 DADOS BRUTOS DO RELATÓRIO:', reportData);
     
     // Função auxiliar para processar operador no formato "ID - NOME"
     const processarOperador = (operador: any) => {
@@ -527,7 +532,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       
       // Verificar primeiro item de cada seção para depuração
       if (finalDataDisponibilidade.length > 0) {
-        console.log('�� Exemplo Disponibilidade:', finalDataDisponibilidade[0]);
+        console.log('📊 Exemplo Disponibilidade:', finalDataDisponibilidade[0]);
       }
       if (finalDataEficiencia.length > 0) {
         console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
@@ -538,56 +543,54 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // FUNÇÕES
   // Função para calcular média
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
-    if (!array || array.length === 0) return 0;
+    // Verificação inicial mais robusta
+    if (!array || !Array.isArray(array) || array.length === 0) {
+      // Reduzindo logs
+      // console.log(`📊 calcularMedia: Array vazio ou inválido para propriedade "${propriedade}"`);
+      return 0;
+    }
     
-    // Log de entrada para debug
-    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens:`, 
-      array.map(item => ({
-        id: item.frota || item.nome || 'desconhecido',
-        valor: item[propriedade]
-      }))
-    );
-    
-    // Filtrar apenas itens que têm operador/frota preenchidos e valores válidos
+    // Filtrar apenas itens com valores válidos
     const itensFiltrados = array.filter(item => {
       if (!item) return false;
       
       // Verificação adicional para garantir que o valor existe e é válido
-      const valorExiste = item[propriedade] !== undefined && item[propriedade] !== null;
+      const valor = item[propriedade];
+      const valorExiste = valor !== undefined && valor !== null;
+      const valorValido = typeof valor === 'number' || (typeof valor === 'string' && !isNaN(parseFloat(valor)));
+      
+      if (!valorExiste || !valorValido) {
+        return false;
+      }
       
       // Para disponibilidade, verificar se tem frota
       if (propriedade === 'disponibilidade') {
-        return item.frota && item.frota.trim() !== '' && valorExiste;
+        return item.frota && item.frota.trim() !== '' && valorExiste && valorValido;
       }
       
       // Para valor (TDH, diesel, impureza)
       if (propriedade === 'valor') {
-        return item.frota && item.frota.trim() !== '' && valorExiste;
+        return item.frota && item.frota.trim() !== '' && valorExiste && valorValido;
       }
       
       // Para outros, verificar se tem nome de operador
-      return item.nome && item.nome.trim() !== '' && valorExiste;
+      return item.nome && item.nome.trim() !== '' && valorExiste && valorValido;
     });
     
-    // Log para depuração dos itens filtrados
-    console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
-    
     // Se não há itens válidos, retorna zero
-    if (itensFiltrados.length === 0) return 0;
+    if (itensFiltrados.length === 0) {
+      return 0;
+    }
     
     // Convertendo cada valor para número com cuidado para preservar valores pequenos
     const valores = itensFiltrados.map(item => {
       const valor = item[propriedade];
-      // Garantir que valores como "0.01" sejam preservados como 0.01 e não convertidos para 0
+      
+      // Garantir que valores sejam tratados corretamente
       if (typeof valor === 'string') {
-        return parseFloat(valor);
+        return parseFloat(valor.replace(',', '.').replace('%', ''));
       }
       return typeof valor === 'number' ? valor : 0;
-    });
-    
-    // Log individual de cada valor para debug
-    valores.forEach((valor, index) => {
-      console.log(`📊 Valor[${index}] para média de "${propriedade}": ${valor} (${typeof valor})`);
     });
     
     // Calculando a soma manualmente para garantir precisão com números pequenos
@@ -598,9 +601,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     
     // Calcular média com alta precisão
     const media = soma / valores.length;
-    
-    // Log para depuração da soma e média calculada
-    console.log(`📊 Soma para "${propriedade}": ${soma}, Itens: ${valores.length}, Média: ${media}`);
     
     // Retorna a média calculada sem arredondar
     return media;

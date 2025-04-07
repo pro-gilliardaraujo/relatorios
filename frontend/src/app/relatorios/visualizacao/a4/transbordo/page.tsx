@@ -103,7 +103,7 @@ interface DadosProcessados {
 
 // Função para verificar se os dados estão no formato esperado
 function verificarFormatoDados(dados: any) {
-  console.log("🔍 VERIFICANDO FORMATO DOS DADOS:", dados);
+  // console.log("🔍 VERIFICANDO FORMATO DOS DADOS:", dados);
   
   if (!dados) {
     console.error("❌ Dados ausentes");
@@ -156,25 +156,25 @@ function verificarFormatoDados(dados: any) {
   const dadosValidos = tiposDados.map(tipo => {
     const dados_tipo = dados[tipo.chave];
     if (!Array.isArray(dados_tipo)) {
-      console.log(`❌ ${tipo.chave}: Não é um array`);
+      // console.log(`❌ ${tipo.chave}: Não é um array`);
       return false;
     }
 
     // Filtrar itens válidos
     const itensValidos = dados_tipo.filter(tipo.validar);
-    console.log(`✅ ${tipo.chave}: ${itensValidos.length} itens válidos de ${dados_tipo.length} total`);
+    // console.log(`✅ ${tipo.chave}: ${itensValidos.length} itens válidos de ${dados_tipo.length} total`);
     
     // Mostrar exemplo de item válido se houver
-    if (itensValidos.length > 0) {
-      console.log(`📄 Exemplo de ${tipo.chave}:`, itensValidos[0]);
-    }
+    // if (itensValidos.length > 0) {
+    //   console.log(`📄 Exemplo de ${tipo.chave}:`, itensValidos[0]);
+    // }
 
     return itensValidos.length > 0;
   });
 
   // Se pelo menos alguns tipos de dados são válidos, considerar ok
   const temDadosValidos = dadosValidos.some(v => v);
-  console.log("📊 Resultado final:", temDadosValidos ? "✅ Dados válidos" : "❌ Dados inválidos");
+  // console.log("📊 Resultado final:", temDadosValidos ? "✅ Dados válidos" : "❌ Dados inválidos");
   
   return temDadosValidos;
 }
@@ -219,13 +219,13 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       try {
         await reloadConfig();
         setLoading(true);
-        console.log("🔄 Buscando relatório:", searchParams);
+        // console.log("🔄 Buscando relatório:", searchParams);
         
         const reportId = searchParams.get('id');
-        console.log("📊 ID do relatório:", reportId);
+        // console.log("📊 ID do relatório:", reportId);
         
         if (!reportId) {
-          console.log("⚠️ ID do relatório não fornecido, usando dados de exemplo");
+          // console.log("⚠️ ID do relatório não fornecido, usando dados de exemplo");
           setUseExampleData(true);
           setLoading(false);
           return;
@@ -249,59 +249,40 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               throw new Error('Relatório não encontrado');
             }
             
-            console.log("🔍 DADOS BRUTOS DO RELATÓRIO:", JSON.stringify(reportData, null, 2));
+            // console.log("🔍 DADOS BRUTOS DO RELATÓRIO:", JSON.stringify(reportData, null, 2));
             
             // Exibir estrutura da árvore de dados para debug
-            console.log("📋 ESTRUTURA DE DADOS:");
-            console.log("- id:", reportData.id);
-            console.log("- tipo:", reportData.tipo);
-            console.log("- data:", reportData.data);
-            console.log("- frente:", reportData.frente);
+            // console.log("📋 ESTRUTURA DE DADOS:");
+            // console.log("- id:", reportData.id);
+            // console.log("- tipo:", reportData.tipo);
+            // console.log("- data:", reportData.data);
+            // console.log("- frente:", reportData.frente);
             
-            if (reportData.dados) {
-              console.log("- dados: ✓ Presente");
-              Object.keys(reportData.dados).forEach(key => {
-                const items = reportData.dados[key];
-                console.log(`  - ${key}: ${Array.isArray(items) ? items.length + ' itens' : 'não é array'}`);
+            // if (reportData.dados) {
+            //   console.log("- dados: ✓ Presente");
+            //   Object.keys(reportData.dados).forEach(key => {
+            //     const items = reportData.dados[key];
+            //     console.log(`  - ${key}: ${Array.isArray(items) ? items.length + ' itens' : 'não é array'}`);
                 
-                // Mostrar primeiro item de cada categoria, se disponível
-                if (Array.isArray(items) && items.length > 0) {
-                  console.log(`    Exemplo: ${JSON.stringify(items[0])}`);
-                }
-              });
-            } else {
-              console.log("- dados: ❌ Ausente");
-            }
+            //     // Mostrar primeiro item de cada categoria, se disponível
+            //     if (Array.isArray(items) && items.length > 0) {
+            //       console.log(`    Exemplo: ${JSON.stringify(items[0])}`);
+            //     }
+            //   });
+            // } else {
+            //   console.log("- dados: ❌ Ausente");
+            // }
             
             // Definir dados do relatório
             setReportData(reportData);
             
             // SEMPRE usar dados reais quando temos um ID
             if (reportId) {
-              console.log("✅ ID válido, NUNCA usar dados de exemplo");
+              // console.log("✅ ID válido, NUNCA usar dados de exemplo");
               setUseExampleData(false);
             }
             
-            // Código modificado para desabilitar atualizações constantes
-            /*
-            const subscription = supabase
-            .channel('report_updates')
-            .on('postgres_changes', {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'relatorios_diarios',
-              filter: `id=eq.${reportId}`
-            },
-            async (payload) => {
-              console.log("Atualização recebida:", payload);
-              fetchReport();
-            })
-            .subscribe();
-
-            return () => {
-              subscription.unsubscribe();
-            };
-            */
+            // Subscription já está desativado
           } catch (error) {
             console.error('Erro ao buscar dados do relatório:', error);
             setError('Erro ao buscar dados. Por favor, tente novamente.');
@@ -352,12 +333,12 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     if (!array || array.length === 0) return 0;
     
     // Log de entrada para debug
-    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`, 
-      array.map(item => ({
-        id: item.frota || item.nome || 'desconhecido',
-        valor: item[propriedade]
-      }))
-    );
+    // console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`, 
+    //   array.map(item => ({
+    //     id: item.frota || item.nome || 'desconhecido',
+    //     valor: item[propriedade]
+    //   }))
+    // );
     
     // Filtrar apenas itens com valores válidos
     const itensFiltrados = array.filter(item => {
@@ -380,7 +361,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     });
     
     // Log para depuração dos itens filtrados
-    console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
+    // console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
     
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) return 0;
@@ -396,9 +377,9 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     });
     
     // Log individual de cada valor para debug
-    valores.forEach((valor, index) => {
-      console.log(`📊 Valor[${index}] para média de "${propriedade}": ${valor} (${typeof valor})`);
-    });
+    // valores.forEach((valor, index) => {
+    //   console.log(`📊 Valor[${index}] para média de "${propriedade}": ${valor} (${typeof valor})`);
+    // });
     
     // Calculando a soma manualmente para garantir precisão com números pequenos
     let soma = 0;
@@ -410,7 +391,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     const media = soma / valores.length;
     
     // Log para depuração da soma e média calculada
-    console.log(`📊 Soma para "${propriedade}": ${soma}, Itens: ${valores.length}, Média: ${media}`);
+    // console.log(`📊 Soma para "${propriedade}": ${soma}, Itens: ${valores.length}, Média: ${media}`);
     
     // Retorna a média calculada sem arredondar
     return media;
@@ -562,19 +543,19 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
 
   // Use reportData ou dados de exemplo
   const processedData = useMemo(() => {
-    console.log("🔄 PROCESSANDO DADOS DO RELATÓRIO", {
-      reportData, 
-      temDados: reportData?.dados && Object.keys(reportData.dados).length > 0
-    });
+    // console.log("🔄 PROCESSANDO DADOS DO RELATÓRIO", {
+    //   reportData, 
+    //   temDados: reportData?.dados && Object.keys(reportData.dados).length > 0
+    // });
 
     // Se não tivermos dados válidos, usar dados de exemplo
     if (!reportData?.dados || !verificarFormatoDados(reportData.dados)) {
-      console.log("📊 Usando dados de exemplo");
+      // console.log("📊 Usando dados de exemplo");
       return exemplosDados;
     }
     
     // A partir daqui, temos dados válidos do relatório
-    console.log("✅ Processando dados reais do relatório");
+    // console.log("✅ Processando dados reais do relatório");
     
     // Processar e formatar os dados
     const dados = reportData.dados;
@@ -635,7 +616,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       usoGPS: false  // Para transbordo, o padrão para Uso GPS é false
     };
     
-    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
+    // console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
     return configSections;
   }, [reportData?.metadata?.type]);
 

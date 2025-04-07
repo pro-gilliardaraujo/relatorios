@@ -61,11 +61,11 @@ interface DadosProcessados {
   }>;
 }
 
-// Função para verificar formato de dados
+// Função para verificar se os dados estão no formato esperado
 const verificarFormatoDados = (dados: any) => {
   if (!dados) return false;
   
-  // Verifica se pelo menos uma das propriedades esperadas existe e tem itens
+  // Verificar se pelo menos uma das propriedades esperadas existe e tem itens
   const temDisponibilidade = Array.isArray(dados.disponibilidade_mecanica) && 
     dados.disponibilidade_mecanica.length > 0;
   
@@ -97,18 +97,19 @@ const verificarFormatoDados = (dados: any) => {
   const temUsoGPSAlt = Array.isArray(dados.usoGPS) && 
     dados.usoGPS.length > 0;
   
-  console.log('Verificação de dados do relatório:', {
-    temDisponibilidade,
-    temEficiencia,
-    temHorasElevador,
-    temMotorOcioso,
-    temUsoGPS,
-    temDisponibilidadeAlt,
-    temEficienciaAlt,
-    temHorasElevadorAlt,
-    temMotorOciosoAlt,
-    temUsoGPSAlt
-  });
+  // Desabilitando log de depuração
+  // console.log('Verificação de dados do relatório:', {
+  //   temDisponibilidade,
+  //   temEficiencia,
+  //   temHorasElevador,
+  //   temMotorOcioso,
+  //   temUsoGPS,
+  //   temDisponibilidadeAlt,
+  //   temEficienciaAlt,
+  //   temHorasElevadorAlt,
+  //   temMotorOciosoAlt,
+  //   temUsoGPSAlt
+  // });
   
   // Verificar se pelo menos uma das seções tem dados
   return temDisponibilidade || temEficiencia || temHorasElevador || temMotorOcioso || temUsoGPS ||
@@ -154,7 +155,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
           }
 
           try {
-      console.log('📊 Buscando dados do relatório:', reportId);
+      // Reduzindo logs
+      // console.log('📊 Buscando dados do relatório:', reportId);
 
       const { data: reportData, error } = await supabase
               .from('relatorios_diarios')
@@ -170,7 +172,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         throw new Error('Relatório não encontrado');
       }
 
-      console.log('📊 Dados do relatório:', reportData);
+      // Reduzindo logs
+      // console.log('📊 Dados do relatório:', reportData);
 
       // Verificar se temos dados válidos
       if (!reportData.dados || Object.keys(reportData.dados).length === 0) {
@@ -235,7 +238,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // PREPARAÇÃO DE DADOS
   const finalData: DadosProcessados = useMemo(() => {
     if (!reportData?.dados) {
-      console.log('❌ Sem dados do relatório');
+      // Reduzindo logs
+      // console.log('❌ Sem dados do relatório');
                 return {
         tdh: [],
         diesel: [],
@@ -248,68 +252,79 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       };
     }
 
-    console.log('📊 Dados brutos do relatório:', reportData.dados);
+    // Reduzindo logs
+    // console.log('📊 Dados brutos do relatório:', reportData.dados);
     return reportData.dados;
   }, [reportData]);
 
   // Preparar os arrays de dados com validação estrita
   const finalDataDisponibilidade = useMemo(() => {
     if (!Array.isArray(finalData?.disponibilidade_mecanica)) {
-      console.log('❌ Dados de disponibilidade inválidos ou ausentes');
+      // Reduzindo logs
+      // console.log('❌ Dados de disponibilidade inválidos ou ausentes');
       return [];
     }
     const data = finalData.disponibilidade_mecanica.filter(item => 
       item && item.frota && item.disponibilidade !== undefined && item.disponibilidade !== null
     );
-    console.log('📊 Dados de disponibilidade processados:', data);
+    // Reduzindo logs
+    // console.log('📊 Dados de disponibilidade processados:', data);
     return data;
   }, [finalData]);
   
   const finalDataEficiencia = useMemo(() => {
     if (!Array.isArray(finalData?.eficiencia_energetica)) {
-      console.log('❌ Dados de eficiência inválidos ou ausentes');
+      // Reduzindo logs
+      // console.log('❌ Dados de eficiência inválidos ou ausentes');
       return [];
     }
     const data = finalData.eficiencia_energetica.filter(item => 
       item && item.nome && item.eficiencia !== undefined && item.eficiencia !== null
     );
-    console.log('📊 Dados de eficiência processados:', data);
+    // Reduzindo logs
+    // console.log('📊 Dados de eficiência processados:', data);
     return data;
   }, [finalData]);
   
   const finalDataHorasElevador = useMemo(() => {
     if (!Array.isArray(finalData?.hora_elevador)) {
-      console.log('❌ Dados de horas elevador inválidos ou ausentes');
+      // Reduzindo logs
+      // console.log('❌ Dados de horas elevador inválidos ou ausentes');
       return [];
     }
     const data = finalData.hora_elevador.filter(item => 
       item && item.nome && item.horas !== undefined && item.horas !== null
     );
-    console.log('📊 Dados de horas elevador processados:', data);
+    // Reduzindo logs
+    // console.log('📊 Dados de horas elevador processados:', data);
     return data;
   }, [finalData]);
   
   const finalDataMotorOcioso = useMemo(() => {
     if (!Array.isArray(finalData?.motor_ocioso)) {
-      console.log('❌ Dados de motor ocioso inválidos ou ausentes');
+      // Reduzindo logs
+      // console.log('❌ Dados de motor ocioso inválidos ou ausentes');
       return [];
     }
     const data = finalData.motor_ocioso.filter(item => 
       item && item.nome && item.percentual !== undefined && item.percentual !== null
     );
-    console.log('📊 Dados de motor ocioso processados:', data);
+    // Reduzindo logs
+    // console.log('📊 Dados de motor ocioso processados:', data);
     return data;
   }, [finalData]);
   
   const finalDataUsoGPS = useMemo(() => {
     if (!Array.isArray(finalData?.uso_gps)) {
-      console.log('❌ Dados de uso GPS inválidos ou ausentes');
+      // Reduzindo logs
+      // console.log('❌ Dados de uso GPS inválidos ou ausentes');
       return [];
     }
     const data = finalData.uso_gps.filter(item => 
       item && item.nome && item.porcentagem !== undefined && item.porcentagem !== null
     );
-    console.log('📊 Dados de uso GPS processados:', data);
+    // Reduzindo logs
+    // console.log('📊 Dados de uso GPS processados:', data);
     return data;
   }, [finalData]);
 
@@ -334,27 +349,28 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   // Verificar se estamos no modo de visualização ou no modo de relatório específico
   const isModoTemplate = !reportId;
 
-  // Log para debug
+  // Log para debug - Desativado para reduzir logs
   useEffect(() => {
-    if (!loading) {
-      console.log('===== DETALHES DO RELATÓRIO =====');
-      console.log('📊 Modo:', isModoTemplate ? 'Template/Layout' : 'Relatório Específico');
-      console.log('📊 ID do relatório:', reportId || 'Nenhum');
-      console.log('📊 Disponibilidade:', finalDataDisponibilidade.length, 'itens');
-      console.log('📊 Eficiência:', finalDataEficiencia.length, 'itens');
-      console.log('📊 Horas elevador:', finalDataHorasElevador.length, 'itens');
-      console.log('📊 Motor ocioso:', finalDataMotorOcioso.length, 'itens');
-      console.log('📊 Uso GPS:', finalDataUsoGPS.length, 'itens');
-      
-      // Verificar primeiro item de cada seção para depuração
-      if (finalDataDisponibilidade.length > 0) {
-        console.log('📊 Exemplo Disponibilidade:', finalDataDisponibilidade[0]);
-      }
-      if (finalDataEficiencia.length > 0) {
-        console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
-      }
-    }
-  }, [loading, isModoTemplate, reportId, finalDataDisponibilidade, finalDataEficiencia, finalDataHorasElevador, finalDataMotorOcioso, finalDataUsoGPS]);
+    // Log desativado para reduzir volume no console
+    // if (!loading) {
+    //   console.log('===== DETALHES DO RELATÓRIO =====');
+    //   console.log('📊 Modo:', isModoTemplate ? 'Template/Layout' : 'Relatório Específico');
+    //   console.log('📊 ID do relatório:', reportId || 'Nenhum');
+    //   console.log('📊 Disponibilidade:', finalDataDisponibilidade.length, 'itens');
+    //   console.log('📊 Eficiência:', finalDataEficiencia.length, 'itens');
+    //   console.log('📊 Horas elevador:', finalDataHorasElevador.length, 'itens');
+    //   console.log('📊 Motor ocioso:', finalDataMotorOcioso.length, 'itens');
+    //   console.log('📊 Uso GPS:', finalDataUsoGPS.length, 'itens');
+    //   
+    //   // Verificar primeiro item de cada seção para depuração
+    //   if (finalDataDisponibilidade.length > 0) {
+    //     console.log('📊 Exemplo Disponibilidade:', finalDataDisponibilidade[0]);
+    //   }
+    //   if (finalDataEficiencia.length > 0) {
+    //     console.log('📊 Exemplo Eficiência:', finalDataEficiencia[0]);
+    //   }
+    // }
+  }, [loading]); // Reduzindo dependências para evitar execuções desnecessárias
 
   // Adicionar no início da função principal, após a declaração de variáveis iniciais
   // Verificar configuração para mostrar ou esconder componentes
@@ -389,13 +405,14 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
     // Verificação inicial mais robusta
     if (!array || !Array.isArray(array) || array.length === 0) {
-      console.log(`📊 calcularMedia: Array vazio ou inválido para propriedade "${propriedade}"`);
+      // Reduzindo logs
+      // console.log(`📊 calcularMedia: Array vazio ou inválido para propriedade "${propriedade}"`);
       return 0;
     }
     
-    // Log de entrada para debug
-    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`);
-    console.log(`📊 Primeiro item do array:`, array[0]);
+    // Reduzindo logs
+    // console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`);
+    // console.log(`📊 Primeiro item do array:`, array[0]);
     
     // Filtrar apenas itens com valores válidos
     const itensFiltrados = array.filter(item => {
@@ -407,7 +424,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       const valorValido = typeof valor === 'number' || (typeof valor === 'string' && !isNaN(parseFloat(valor)));
       
       if (!valorExiste || !valorValido) {
-        console.log(`📊 calcularMedia: Item com valor inválido para "${propriedade}":`, item);
+        // Reduzindo logs
+        // console.log(`📊 calcularMedia: Item com valor inválido para "${propriedade}":`, item);
         return false;
       }
       
@@ -425,15 +443,16 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       return item.nome && item.nome.trim() !== '' && valorExiste && valorValido;
     });
     
-    // Log para depuração dos itens filtrados
-    console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
-    if (itensFiltrados.length > 0) {
-      console.log(`📊 Primeiro item filtrado:`, itensFiltrados[0]);
-    }
+    // Reduzindo logs
+    // console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
+    // if (itensFiltrados.length > 0) {
+    //   console.log(`📊 Primeiro item filtrado:`, itensFiltrados[0]);
+    // }
     
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) {
-      console.log(`📊 calcularMedia: Nenhum item válido para "${propriedade}" após filtragem`);
+      // Reduzindo logs
+      // console.log(`�� calcularMedia: Nenhum item válido para "${propriedade}" após filtragem`);
       return 0;
     }
     
@@ -457,8 +476,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // Calcular média com alta precisão
     const media = soma / valores.length;
     
-    // Log para depuração da soma e média calculada
-    console.log(`📊 Média final para "${propriedade}": ${media.toFixed(4)} (Soma: ${soma}, Itens: ${valores.length})`);
+    // Reduzindo logs
+    // console.log(`📊 Média final para "${propriedade}": ${media.toFixed(4)} (Soma: ${soma}, Itens: ${valores.length})`);
     
     // Retorna a média calculada sem arredondar
     return media;
@@ -709,15 +728,16 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
 
   // Adicionar log durante a renderização para verificar quais metas estão sendo passadas para os componentes
   useEffect(() => {
-    if (resumoData) {
-      console.log('📊 VALORES DE METAS UTILIZADAS:');
-      console.log('- Disponibilidade Mecânica:', resumoData.disponibilidadeMecanica.meta);
-      console.log('- Eficiência Energética:', resumoData.eficienciaEnergetica.meta);
-      console.log('- Motor Ocioso:', resumoData.motorOcioso.meta);
-      console.log('- Hora Elevador:', resumoData.horaElevador.meta);
-      console.log('- Uso GPS:', resumoData.usoGPS.meta);
-    }
-  }, [resumoData]);
+    // Log desativado para reduzir volume no console
+    // if (resumoData) {
+    //   console.log('📊 VALORES DE METAS UTILIZADAS:');
+    //   console.log('- Disponibilidade Mecânica:', resumoData.disponibilidadeMecanica.meta);
+    //   console.log('- Eficiência Energética:', resumoData.eficienciaEnergetica.meta);
+    //   console.log('- Motor Ocioso:', resumoData.motorOcioso.meta);
+    //   console.log('- Hora Elevador:', resumoData.horaElevador.meta);
+    //   console.log('- Uso GPS:', resumoData.usoGPS.meta);
+    // }
+  }, []); // Removendo dependência para executar apenas uma vez
 
   // RENDERIZAÇÃO CONDICIONAL
   // Se estiver carregando, mostrar indicador de loading
