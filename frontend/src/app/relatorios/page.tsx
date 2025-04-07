@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure, Checkbox } from '@chakra-ui/react';
+import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure, Checkbox, CheckboxGroup } from '@chakra-ui/react';
 import { FiEye, FiRefreshCw } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
@@ -34,6 +34,7 @@ export default function ReportsPage() {
   const [reportType, setReportType] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedFrente, setSelectedFrente] = useState<string>('');
+  const [selectedFrentes, setSelectedFrentes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [generatedReportId, setGeneratedReportId] = useState<string | null>(null);
@@ -66,11 +67,33 @@ export default function ReportsPage() {
     loadConfigs();
   }, []);
 
+  // Verificar se é o tipo de relatório comparativo
+  const isComparativoRelatorio = reportType === 'comparativo_unidades_diario';
+  
+  // Verificar se o upload de Excel está habilitado para este tipo de relatório
+  const showExcelUpload = reportType ? 
+    configManager.getTipoRelatorio(reportType)?.componentes?.mostrarExcelUpload !== false : 
+    true;
+  
   // Obter configurações apenas quando isConfigLoaded for true
   const tiposRelatorio = isConfigLoaded ? configManager.getTiposRelatorio() : [];
   const frentesDisponiveis = isConfigLoaded && reportType ? configManager.getFrentes(reportType) : [];
   const fontesExcel = isConfigLoaded ? configManager.getFontesExcel() : [];
   const fontesImagens = isConfigLoaded ? configManager.getFontesImagens() : [];
+
+  // Verificar se a seleção de frentes usa checkboxes
+  const useFrentesCheckbox = reportType ? 
+    configManager.getTipoRelatorio(reportType)?.componentes?.usarFrentesCheckbox === true : 
+    false;
+
+  // Função para lidar com a seleção de múltiplas frentes usando checkboxes
+  const handleFrentesCheckboxChange = (frenteId: string, isChecked: boolean) => {
+    if (isChecked) {
+      setSelectedFrentes(prev => [...prev, frenteId]);
+    } else {
+      setSelectedFrentes(prev => prev.filter(id => id !== frenteId));
+    }
+  };
 
   // Função para forçar o recarregamento das configurações
   const handleReloadConfig = async () => {
@@ -112,14 +135,14 @@ export default function ReportsPage() {
 
   useEffect(() => {
     setIsReportReady(Boolean(
-      previewData && 
+      (!showExcelUpload || previewData) && 
       reportType && 
       selectedDate && 
-      selectedFrente && 
-      excelFonte && 
+      (useFrentesCheckbox ? selectedFrentes.length > 0 : selectedFrente) && 
+      (showExcelUpload ? excelFonte : true) && 
       imagemFonte
     ));
-  }, [previewData, reportType, selectedDate, selectedFrente, excelFonte, imagemFonte]);
+  }, [previewData, reportType, selectedDate, selectedFrente, selectedFrentes, excelFonte, imagemFonte, useFrentesCheckbox, showExcelUpload]);
 
   // Função de manipulação do upload do Excel
   const handleExcelPreviewData = (previewData: PreviewData | null) => {
@@ -145,10 +168,10 @@ export default function ReportsPage() {
 
   const handleGenerateReport = async () => {
     try {
-      if (!reportType || !selectedDate || !selectedFrente) {
+      if (!reportType || !selectedDate || (!useFrentesCheckbox && !selectedFrente) || (useFrentesCheckbox && selectedFrentes.length === 0)) {
         toast({
           title: "Campos obrigatórios",
-          description: "Por favor, selecione o tipo de relatório, data e frente.",
+          description: "Por favor, selecione o tipo de relatório, data e frente(s).",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -158,8 +181,8 @@ export default function ReportsPage() {
       
       setIsLoading(true);
       
-      // Verificar dados do excel
-      if (!previewData) {
+      // Verificar dados do excel (apenas se o tipo de relatório requer Excel)
+      if (showExcelUpload && !previewData) {
         toast({
           title: "Sem arquivo Excel",
           description: "Por favor, faça o upload de um arquivo Excel.",
@@ -171,9 +194,9 @@ export default function ReportsPage() {
         return;
       }
       
-      // Obter o arquivo para enviar ao backend
-      const rawFile = (previewData as any).rawFile;
-      if (!rawFile) {
+      // Obter o arquivo para enviar ao backend (apenas se o tipo de relatório requer Excel)
+      const rawFile = showExcelUpload ? (previewData as any)?.rawFile : null;
+      if (showExcelUpload && !rawFile) {
         toast({
           title: "Arquivo inválido",
           description: "O arquivo Excel não foi carregado corretamente. Por favor, tente novamente.",
@@ -186,14 +209,28 @@ export default function ReportsPage() {
       }
       
       // Log para debug
-      console.log("📊 Enviando arquivo Excel para o backend");
+      console.log("📊 Gerando relatório", reportType);
       
       // Criar FormData para envio do arquivo
       const formData = new FormData();
-      formData.append('file', rawFile);
+      if (showExcelUpload && rawFile) {
+        formData.append('file', rawFile);
+      }
       formData.append('report_type', reportType);
       formData.append('report_date', selectedDate);
-      formData.append('frente', selectedFrente);
+      
+      // Adicionar frente(s) selecionada(s) dependendo do tipo de seleção
+      if (useFrentesCheckbox) {
+        // Para relatórios comparativos, enviar múltiplas frentes
+        selectedFrentes.forEach((frenteId, index) => {
+          formData.append(`frente_${index}`, frenteId);
+        });
+        formData.append('frentes_count', selectedFrentes.length.toString());
+      } else {
+        // Para relatórios regulares, enviar uma única frente
+        formData.append('frente', selectedFrente);
+      }
+      
       formData.append('is_teste', isTeste.toString());
       
       // Enviar para o backend (via API route do Next.js)
@@ -219,7 +256,7 @@ export default function ReportsPage() {
       const reportData = {
         tipo: reportType,
         data: selectedDate,
-        frente: selectedFrente,
+        frente: useFrentesCheckbox ? selectedFrentes.join(',') : selectedFrente,
         dados: result.data,
         status: 'concluido',
         created_at: new Date().toISOString(),
@@ -269,6 +306,8 @@ export default function ReportsPage() {
         viewUrl = `/relatorios/visualizacao/a4/transbordo-semanal?id=${reportResult.id}`;
       } else if (reportType === 'drones_diario' || reportType === 'drones_semanal') {
         viewUrl = `/relatorios/visualizacao/a4/drones?id=${reportResult.id}`;
+      } else if (reportType === 'comparativo_unidades_diario') {
+        viewUrl = `/relatorios/visualizacao/a4/comparativo-unidades?id=${reportResult.id}`;
       }
       
       // Abrir em nova aba em vez de redirecionar
@@ -498,57 +537,59 @@ export default function ReportsPage() {
         <Box p={2} h="calc(100vh - 65px)" overflow="auto" bg="white">
           <Flex direction="column" gap={2} h="100%">
             {/* Seção Superior - Upload Excel */}
-            <Box
-              bg="white"
-              borderRadius="md"
-              border="1px"
-              borderColor="black"
-              h="220px"
-              minH="220px"
-              maxH="220px"
-            >
-              <Flex 
-                p={2}
-                borderBottom="1px" 
-                borderColor="black"
-                justify="space-between"
-                align="center"
+            {showExcelUpload && (
+              <Box
                 bg="white"
+                borderRadius="md"
+                border="1px"
+                borderColor="black"
+                h="220px"
+                minH="220px"
+                maxH="220px"
               >
-                <Heading size="sm" color="black" textAlign="center" flex={1}>
-                  Dados do Excel
-                </Heading>
-                <Box w="200px">
-                  <Select
-                    size="xs"
-                    placeholder="Indique a fonte"
-                    value={excelFonte}
-                    onChange={(e) => handleExcelFonteChange(e.target.value)}
-                    bg="white"
-                    color="black"
-                    borderColor="black"
-                    _hover={{ borderColor: "black" }}
-                    _focus={{ borderColor: "black", boxShadow: "none" }}
-                    sx={{
-                      option: {
-                        bg: 'white',
-                        color: 'black'
-                      }
-                    }}
-                  >
-                    <option value="" style={{ backgroundColor: "white", color: "black" }}>Não Informar</option>
-                    {fontesExcel.map(fonte => (
-                      <option key={fonte.id} value={fonte.id} style={{ backgroundColor: "white", color: "black" }}>
-                        {fonte.nome}
-                      </option>
-                    ))}
-                  </Select>
+                <Flex 
+                  p={2}
+                  borderBottom="1px" 
+                  borderColor="black"
+                  justify="space-between"
+                  align="center"
+                  bg="white"
+                >
+                  <Heading size="sm" color="black" textAlign="center" flex={1}>
+                    Dados do Excel
+                  </Heading>
+                  <Box w="200px">
+                    <Select
+                      size="xs"
+                      placeholder="Indique a fonte"
+                      value={excelFonte}
+                      onChange={(e) => handleExcelFonteChange(e.target.value)}
+                      bg="white"
+                      color="black"
+                      borderColor="black"
+                      _hover={{ borderColor: "black" }}
+                      _focus={{ borderColor: "black", boxShadow: "none" }}
+                      sx={{
+                        option: {
+                          bg: 'white',
+                          color: 'black'
+                        }
+                      }}
+                    >
+                      <option value="" style={{ backgroundColor: "white", color: "black" }}>Não Informar</option>
+                      {fontesExcel.map(fonte => (
+                        <option key={fonte.id} value={fonte.id} style={{ backgroundColor: "white", color: "black" }}>
+                          {fonte.nome}
+                        </option>
+                      ))}
+                    </Select>
+                  </Box>
+                </Flex>
+                <Box p={2} h="calc(100% - 37px)" overflow="hidden">
+                  <ExcelPreview preview={previewData} />
                 </Box>
-              </Flex>
-              <Box p={2} h="calc(100% - 37px)" overflow="hidden">
-                <ExcelPreview preview={previewData} />
               </Box>
-            </Box>
+            )}
 
             {/* Seção Inferior - Imagens */}
             <Box
@@ -568,13 +609,19 @@ export default function ReportsPage() {
                 bg="white"
               >
                 <Heading size="sm" color="black" textAlign="center" w="100%">
-                  {`${reportType ? `Relatório de ${configManager.getTipoRelatorio(reportType)?.nome} Diário` : 'Relatório'}${selectedFrente ? ` - ${frentesDisponiveis.find(f => f.id === selectedFrente)?.nome}` : ''}`}
+                  {`${reportType ? `Relatório de ${configManager.getTipoRelatorio(reportType)?.nome}` : 'Relatório'}${
+                    useFrentesCheckbox 
+                      ? ` - ${selectedFrentes.length} Unidades Selecionadas` 
+                      : selectedFrente 
+                        ? ` - ${frentesDisponiveis.find(f => f.id === selectedFrente)?.nome}` 
+                        : ''
+                  }`}
                 </Heading>
               </Flex>
               <Box p={2}>
                 <ReportImageInputs 
                   reportType={reportType} 
-                  frente={selectedFrente}
+                  frente={useFrentesCheckbox ? selectedFrentes.join(',') : selectedFrente}
                   fonte={imagemFonte}
                 />
               </Box>
