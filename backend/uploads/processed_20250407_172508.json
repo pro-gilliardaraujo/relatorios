@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-06",
+    "frente": "frente1",
+    "generated_at": "2025-04-07T17:25:08.202939",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032",
+      "disponibilidade": 72.95860865263792
+    },
+    {
+      "frota": "7038",
+      "disponibilidade": 96.39310139756172
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 73.16987467301767
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "eficiencia": 73.34802033205747
+    },
+    {
+      "id": "133729",
+      "nome": "GILVAN FERNANDES DOS SANTOS",
+      "eficiencia": 67.59049385259969
+    },
+    {
+      "id": "1331016",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 62.086346044223106
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 2.9747619047619045
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "horas": 4.138611111111107
+    },
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "horas": 3.6697916666666677
+    },
+    {
+      "id": "133729",
+      "nome": "GILVAN FERNANDES DOS SANTOS",
+      "horas": 2.7334722222222214
+    },
+    {
+      "id": "1331016",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 1.9161111111111133
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 5.790028501151765
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "percentual": 15.509962954302129
+    },
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 12.28220546679346
+    },
+    {
+      "id": "133729",
+      "nome": "GILVAN FERNANDES DOS SANTOS",
+      "percentual": 20.217734734528463
+    },
+    {
+      "id": "1331016",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 24.004680327622914
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 12.017637662217638
+    },
+    {
+      "id": "784911",
+      "nome": "PAULIANO DOS SANTOS",
+      "porcentagem": 15.013468172581678
+    },
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 25.11908911351226
+    },
+    {
+      "id": "133729",
+      "nome": "GILVAN FERNANDES DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "1331016",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 69.9091394975948
+    }
+  ]
+}

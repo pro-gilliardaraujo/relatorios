@@ -297,9 +297,9 @@ export default function IndicatorCard({
   
   // Layout com meta/média no topo e texto embaixo (conforme exemplo)
   return (
-    <Box borderWidth="1px" borderColor="black" borderRadius="md" p={2} bg="white" h="110px" display="flex" flexDirection="column">
+    <Box borderWidth="1px" borderColor="black" borderRadius="md" p={2} bg="white" h="90px" display="flex" flexDirection="column">
       <Text fontSize="sm" fontWeight="bold" mb={1} color="black" textAlign="center" w="100%">{title}</Text>
-      <Flex direction="column" align="center" justify="flex-start" width="100%" flex="1">
+      <Flex direction="column" align="center" justify="space-between" width="100%" flex="1">
         <MetaValueDisplay />
         <SummaryText />
       </Flex>

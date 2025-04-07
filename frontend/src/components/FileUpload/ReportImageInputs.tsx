@@ -23,6 +23,7 @@ import {
   SimpleGrid,
   Icon,
   Tooltip,
+  useToast,
 } from '@chakra-ui/react';
 import { useReportStore } from '@/store/useReportStore';
 import { configManager } from '@/utils/config';
@@ -75,6 +76,19 @@ const reportSections: Record<string, ImageSection[]> = {
   ],
   // Nova seção para drones - inicialmente vazia, será gerenciada dinamicamente
   drones: [],
+  // Nova seção para relatório comparativo de unidades - inicialmente vazia, também gerenciada dinamicamente
+  comparativo_unidades_diario: [
+    { id: 'graficoDisponibilidadeColheita', label: 'Gráfico de Disponibilidade Mecânica (Colheita)', image: null, fonte: '' },
+    { id: 'graficoEficienciaColheita', label: 'Gráfico de Eficiência Operacional (Colheita)', image: null, fonte: '' },
+    { id: 'graficoMotorOciosoColheita', label: 'Gráfico de Motor Ocioso (Colheita)', image: null, fonte: '' },
+    { id: 'graficoHorasElevadorColheita', label: 'Gráfico de Horas Elevador (Colheita)', image: null, fonte: '' },
+    { id: 'graficoUsoGPSColheita', label: 'Gráfico de Uso GPS (Colheita)', image: null, fonte: '' },
+    { id: 'graficoDisponibilidadeTransbordo', label: 'Gráfico de Disponibilidade Mecânica (Transbordo)', image: null, fonte: '' },
+    { id: 'graficoEficienciaTransbordo', label: 'Gráfico de Eficiência Operacional (Transbordo)', image: null, fonte: '' },
+    { id: 'graficoMotorOciosoTransbordo', label: 'Gráfico de Motor Ocioso (Transbordo)', image: null, fonte: '' },
+    { id: 'graficoFaltaApontamentoTransbordo', label: 'Gráfico de Falta de Apontamento (Transbordo)', image: null, fonte: '' },
+    { id: 'graficoUsoGPSTransbordo', label: 'Gráfico de Uso GPS (Transbordo)', image: null, fonte: '' },
+  ],
 };
 
 // Layouts predefinidos para o relatório de drones
@@ -96,6 +110,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const { addImage, removeImage, images, updateImageFonte } = useReportStore();
   const fontesImagens = configManager.getFontesImagens();
+  const toast = useToast();
   
   // Estados para o relatório de drones
   const [totalImages, setTotalImages] = useState<number>(1);
@@ -656,34 +671,65 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
       if (item.type.indexOf('image') !== -1) {
         const file = item.getAsFile();
         if (file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const dataUrl = e.target?.result as string;
-            
-            // Atualizar a seção correta dependendo se é drone ou outro tipo
-            if (reportType === 'drones') {
-              setDynamicSections(dynamicSections.map(section => 
-                section.id === sectionId 
-                  ? { ...section, image: dataUrl }
-                  : section
-              ));
-            } else {
-              setSections(sections.map(section => 
-                section.id === sectionId 
-                  ? { ...section, image: dataUrl }
-                  : section
-              ));
-            }
-            
-            // Adicionar imagem ao store global com a fonte atual
-            addImage({
-              data: dataUrl,
-              containerId: sectionId,
-              fonte: fonte || ''
+          try {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const dataUrl = e.target?.result as string;
+              
+              // Atualizar a seção correta dependendo se é drone ou outro tipo
+              if (reportType === 'drones' || reportType === 'drones_diario' || reportType === 'drones_semanal') {
+                setDynamicSections(dynamicSections.map(section => 
+                  section.id === sectionId 
+                    ? { ...section, image: dataUrl }
+                    : section
+                ));
+              } else {
+                setSections(sections.map(section => 
+                  section.id === sectionId 
+                    ? { ...section, image: dataUrl }
+                    : section
+                ));
+              }
+              
+              // Adicionar imagem ao store global com a fonte atual
+              addImage({
+                data: dataUrl,
+                containerId: sectionId,
+                fonte: fonte || ''
+              });
+              
+              // Exibir toast de sucesso
+              toast({
+                title: "Imagem colada com sucesso",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+                position: "top-right"
+              });
+            };
+            reader.readAsDataURL(file);
+          } catch (error) {
+            console.error("Erro ao colar imagem:", error);
+            toast({
+              title: "Erro ao colar imagem",
+              description: "Não foi possível processar a imagem da área de transferência.",
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+              position: "top-right"
             });
-          };
-          reader.readAsDataURL(file);
+          }
         }
+      } else if (i === items.length - 1) {
+        // Se chegou ao último item e nenhum era imagem
+        toast({
+          title: "Nenhuma imagem encontrada",
+          description: "Não foi encontrada nenhuma imagem na área de transferência.",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right"
+        });
       }
     }
   };
@@ -694,33 +740,63 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
     
     const imageFile = files.find(file => file.type.startsWith('image/'));
     if (imageFile) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        
-        // Atualizar a seção correta dependendo se é drone ou outro tipo
-        if (reportType === 'drones') {
-          setDynamicSections(dynamicSections.map(section => 
-            section.id === sectionId 
-              ? { ...section, image: dataUrl }
-              : section
-          ));
-        } else {
-          setSections(sections.map(section => 
-            section.id === sectionId 
-              ? { ...section, image: dataUrl }
-              : section
-          ));
-        }
-        
-        // Adicionar imagem ao store global com a fonte atual
-        addImage({
-          data: dataUrl,
-          containerId: sectionId,
-          fonte: fonte || ''
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target?.result as string;
+          
+          // Atualizar a seção correta dependendo se é drone ou outro tipo
+          if (reportType === 'drones' || reportType === 'drones_diario' || reportType === 'drones_semanal') {
+            setDynamicSections(dynamicSections.map(section => 
+              section.id === sectionId 
+                ? { ...section, image: dataUrl }
+                : section
+            ));
+          } else {
+            setSections(sections.map(section => 
+              section.id === sectionId 
+                ? { ...section, image: dataUrl }
+                : section
+            ));
+          }
+          
+          // Adicionar imagem ao store global com a fonte atual
+          addImage({
+            data: dataUrl,
+            containerId: sectionId,
+            fonte: fonte || ''
+          });
+          
+          // Exibir toast de sucesso
+          toast({
+            title: "Imagem adicionada com sucesso",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+            position: "top-right"
+          });
+        };
+        reader.readAsDataURL(imageFile);
+      } catch (error) {
+        console.error("Erro ao processar imagem:", error);
+        toast({
+          title: "Erro ao adicionar imagem",
+          description: "Não foi possível processar a imagem arrastada.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top-right"
         });
-      };
-      reader.readAsDataURL(imageFile);
+      }
+    } else {
+      toast({
+        title: "Arquivo não suportado",
+        description: "Arraste apenas arquivos de imagem.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right"
+      });
     }
   };
 
@@ -738,7 +814,7 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
 
   const handleRemoveImage = (sectionId: string) => {
     // Remover de seções dinâmicas (drones) ou seções fixas
-    if (reportType === 'drones') {
+    if (reportType === 'drones' || reportType === 'drones_diario' || reportType === 'drones_semanal') {
       setDynamicSections(dynamicSections.map(section =>
         section.id === sectionId
           ? { ...section, image: null }
@@ -1095,6 +1171,16 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
     const currentPageImages = getCurrentPageImages();
     const currentPageLayout = pageLayouts.find(pl => pl.pageNumber === currentPage);
     
+    // Função para gerar ID para a imagem com base na posição e página atual
+    const getImageId = (position: number): string => {
+      // Calcular o índice inicial para a página atual
+      let startIndex = 0;
+      for (let i = 0; i < currentPage - 1; i++) {
+        startIndex += pageLayouts[i]?.imagesPerPage || 0;
+      }
+      return `droneImage${startIndex + position}`;
+    };
+    
     return (
       <Flex direction={{ base: "column", md: "row" }} w="100%" h="100%">
         {/* Área de seleção de layout - 20% da largura */}
@@ -1154,6 +1240,18 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                     justifyContent="center"
                     position="relative"
                     _hover={{ bg: "gray.50" }}
+                    tabIndex={0}
+                    role="button"
+                    onPaste={handlePaste(getImageId(1))}
+                    onDrop={handleDrop(getImageId(1))}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onKeyDown={(e) => {
+                      if (e.key === 'v' && e.ctrlKey) {
+                        handlePaste(getImageId(1))(e as unknown as React.ClipboardEvent);
+                      }
+                    }}
+                    cursor="pointer"
                   >
                     <VStack spacing={2}>
                       <Icon as={AiOutlinePlus} boxSize={6} color="gray.500" />
@@ -1185,6 +1283,18 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                         justifyContent="center"
                         position="relative"
                         _hover={{ bg: "gray.50" }}
+                        tabIndex={0}
+                        role="button"
+                        onPaste={handlePaste(getImageId(index + 1))}
+                        onDrop={handleDrop(getImageId(index + 1))}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onKeyDown={(e) => {
+                          if (e.key === 'v' && e.ctrlKey) {
+                            handlePaste(getImageId(index + 1))(e as unknown as React.ClipboardEvent);
+                          }
+                        }}
+                        cursor="pointer"
                       >
                         <VStack spacing={2}>
                           <Icon as={AiOutlinePlus} boxSize={6} color="gray.500" />
@@ -1220,6 +1330,18 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                             justifyContent="center"
                             position="relative"
                             _hover={{ bg: "gray.50" }}
+                            tabIndex={0}
+                            role="button"
+                            onPaste={handlePaste(getImageId(index + 1))}
+                            onDrop={handleDrop(getImageId(index + 1))}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onKeyDown={(e) => {
+                              if (e.key === 'v' && e.ctrlKey) {
+                                handlePaste(getImageId(index + 1))(e as unknown as React.ClipboardEvent);
+                              }
+                            }}
+                            cursor="pointer"
                           >
                             <VStack spacing={2}>
                               <Icon as={AiOutlinePlus} boxSize={6} color="gray.500" />
@@ -1248,6 +1370,18 @@ export default function ReportImageInputs({ reportType, frente, fonte }: ReportI
                         justifyContent="center"
                         position="relative"
                         _hover={{ bg: "gray.50" }}
+                        tabIndex={0}
+                        role="button"
+                        onPaste={handlePaste(getImageId(3))}
+                        onDrop={handleDrop(getImageId(3))}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onKeyDown={(e) => {
+                          if (e.key === 'v' && e.ctrlKey) {
+                            handlePaste(getImageId(3))(e as unknown as React.ClipboardEvent);
+                          }
+                        }}
+                        cursor="pointer"
                       >
                         <VStack spacing={2}>
                           <Icon as={AiOutlinePlus} boxSize={6} color="gray.500" />
