@@ -109,7 +109,20 @@ const defaultConfig = {
       }
     },
     transbordo_semanal: {
-      nome: 'Relatório Semanal de Transbordo',
+      nome: "Transbordo - Semanal",
+      frentes: [
+        { id: "frente1", nome: "Frente 4 - BP Ituiutaba" },
+        { id: "frente2", nome: "Frente 2 - CMAA Canápolis" },
+        { id: "frente3", nome: "Frente 3 - Alexandrita" },
+        { id: "frente4", nome: "Frente 4 - Zirleno" }
+      ],
+      metas: {
+        disponibilidadeMecanica: 90,
+        eficienciaEnergetica: 65,
+        motorOcioso: 6,
+        faltaApontamento: 10,
+        usoGPS: 90
+      },
       secoes: {
         disponibilidadeMecanica: true,
         eficienciaEnergetica: true,
@@ -117,27 +130,25 @@ const defaultConfig = {
         faltaApontamento: true,
         usoGPS: false
       },
-      metas: {
-        disponibilidadeMecanica: 90,
-        eficienciaEnergetica: 80,
-        motorOcioso: 20,
-        faltaApontamento: 10,
-        usoGPS: 95
-      },
       planilhas_excel: [
-        'disponibilidade_mecanica',
-        'eficiencia_energetica',
-        'motor_ocioso',
-        'falta_apontamento',
-        'uso_gps'
+        "1_Disponibilidade Mecânica",
+        "2_Eficiência Energética",
+        "3_Motor Ocioso",
+        "4_Falta de Apontamento",
+        "5_Uso GPS"
       ],
-      frentes: [
-        { id: 'FRENTE_01', nome: 'Frente 01' },
-        { id: 'FRENTE_02', nome: 'Frente 02' },
-        { id: 'FRENTE_03', nome: 'Frente 03' },
-        { id: 'FRENTE_04', nome: 'Frente 04' },
-        { id: 'FRENTE_05', nome: 'Frente 05' }
-      ]
+      colunas_excel: {
+        disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
+        eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
+        motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
+        falta_apontamento: ["Operador", "Porcentagem", "porcentagem"],
+        uso_gps: ["Operador", "Porcentagem", "porcentagem"]
+      },
+      componentes: {
+        mostrarImageUpload: true,
+        mostrarExcelUpload: true,
+        mostrarMapas: false
+      }
     },
     drones_diario: {
       nome: "Drones - Diário",
