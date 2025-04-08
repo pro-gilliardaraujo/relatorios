@@ -68,6 +68,20 @@ const exemplosDados: DadosProcessados = {
     { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', percentual: 14.99 },
     { id: '7', nome: 'VITOR SOARES FREITAS', percentual: 5.30 },
     { id: '8', nome: 'DANILO JESUS BRITO', percentual: 1.02 }
+  ],
+  exemplosOperadores: [
+    { id: '1', nome: 'JOAO BATISTA DA ROCHA', eficiencia: 50.39 },
+    { id: '2', nome: 'TROCA DE TURNO', eficiencia: 0.00 },
+    { id: '3', nome: 'LEONARDO RODRIGUES DE MENEZES', eficiencia: 56.66 },
+    { id: '4', nome: 'GERALDO BRITO DA SILVA', eficiencia: 49.92 },
+    { id: '5', nome: 'MANUEL RICARDO ALVES DOS SANTOS', eficiencia: 64.13 }
+  ],
+  exemplosFrotas: [
+    { frota: '6031', disponibilidade: 89.00 },
+    { frota: '6082', disponibilidade: 99.23 },
+    { frota: '6087', disponibilidade: 98.61 },
+    { frota: '6096', disponibilidade: 99.34 },
+    { frota: '0', disponibilidade: 0.00 }
   ]
 };
 
@@ -76,43 +90,106 @@ interface TransbordoSemanalA4Props {
 }
 
 interface DadosProcessados {
-  disponibilidade_mecanica: Array<{
-    frota: string;
-    disponibilidade: number;
-  }>;
-  eficiencia_energetica: Array<{
-    id: string;
-    nome: string;
-    eficiencia: number;
-  }>;
-  motor_ocioso: Array<{
-    id: string;
-    nome: string;
-    percentual: number;
-  }>;
-  uso_gps: Array<{
-    id: string;
-    nome: string;
-    porcentagem: number;
-  }>;
-  falta_apontamento: Array<{
-    id: string;
-    nome: string;
-    percentual: number;
-  }>;
+  disponibilidade_mecanica: Array<any>;
+  eficiencia_energetica: Array<any>;
+  motor_ocioso: Array<any>;
+  uso_gps: Array<any>;
+  falta_apontamento: Array<any>;
+  exemplosOperadores: Array<any>;
+  exemplosFrotas: Array<any>;
 }
 
-// Função de verificação de dados mais simples - verificamos apenas se os dados existem
-const verificarFormatoDados = (dados: any) => {
+// Função para normalizar dados recebidos do backend
+const normalizarDados = (dados: any) => {
+  console.log("🔄 NORMALIZANDO DADOS RECEBIDOS:", Object.keys(dados));
+  
+  // Cópia dos dados para não modificar o original
+  const dadosNormalizados = { ...dados };
+  
+  // Mapeamento de possíveis variações de nomes para o formato esperado
+  const mapeamentoChaves: Record<string, string> = {
+    // Disponibilidade Mecânica - variações
+    'disponibilidade_mecanica': 'disponibilidade_mecanica',
+    'disponidademecanica': 'disponibilidade_mecanica',
+    'disponibilidade-mecanica': 'disponibilidade_mecanica',
+    '1_disponibilidade_mecanica': 'disponibilidade_mecanica',
+    '1disponibilidade_mecanica': 'disponibilidade_mecanica',
+    'disponibilidade mecânica': 'disponibilidade_mecanica',
+    '1_disponibilidade mecânica': 'disponibilidade_mecanica',
+    
+    // Eficiência Energética - variações
+    'eficiencia_energetica': 'eficiencia_energetica',
+    'eficienciaenergetica': 'eficiencia_energetica',
+    'eficiencia-energetica': 'eficiencia_energetica',
+    '2_eficiencia_energetica': 'eficiencia_energetica',
+    '2eficiencia_energetica': 'eficiencia_energetica',
+    'eficiência energética': 'eficiencia_energetica',
+    '2_eficiência energética': 'eficiencia_energetica',
+    
+    // Motor Ocioso - variações
+    'motor_ocioso': 'motor_ocioso',
+    'motorocioso': 'motor_ocioso',
+    'motor-ocioso': 'motor_ocioso',
+    '3_motor_ocioso': 'motor_ocioso',
+    '3motor_ocioso': 'motor_ocioso',
+    'motor ocioso': 'motor_ocioso',
+    '3_motor ocioso': 'motor_ocioso',
+    
+    // Falta Apontamento - variações
+    'falta_apontamento': 'falta_apontamento',
+    'faltaapontamento': 'falta_apontamento',
+    'falta-apontamento': 'falta_apontamento',
+    '4_falta_apontamento': 'falta_apontamento',
+    '4falta_apontamento': 'falta_apontamento',
+    'falta de apontamento': 'falta_apontamento',
+    '4_falta de apontamento': 'falta_apontamento',
+    
+    // Uso GPS - variações
+    'uso_gps': 'uso_gps',
+    'usogps': 'uso_gps',
+    'uso-gps': 'uso_gps',
+    '5_uso_gps': 'uso_gps',
+    '5uso_gps': 'uso_gps',
+    'uso gps': 'uso_gps',
+    '5_uso gps': 'uso_gps',
+  };
+  
+  // Verificar cada chave no objeto original
+  Object.keys(dados).forEach(chaveOriginal => {
+    // Converter chave para minúsculas para comparação
+    const chaveLowerCase = chaveOriginal.toLowerCase();
+    
+    // Verificar se essa chave precisa ser normalizada
+    Object.keys(mapeamentoChaves).forEach(variacao => {
+      if (chaveLowerCase.includes(variacao.toLowerCase())) {
+        // Usar o valor normalizado e manter o dado original
+        const chaveNormalizada = mapeamentoChaves[variacao];
+        if (chaveNormalizada && chaveNormalizada !== chaveOriginal) {
+          console.log(`🔄 Normalizando: "${chaveOriginal}" -> "${chaveNormalizada}"`);
+          dadosNormalizados[chaveNormalizada] = dados[chaveOriginal];
+        }
+      }
+    });
+  });
+  
+  console.log("🔄 DADOS APÓS NORMALIZAÇÃO:", Object.keys(dadosNormalizados));
+  return dadosNormalizados;
+};
+
+// Função de verificação de dados mais robusta
+const verificarFormatoDados = (dados: any): { dadosValidos: boolean; dadosNormalizados: any } => {
   console.log("🔍 VERIFICANDO FORMATO DOS DADOS:", dados);
   
   if (!dados) {
     console.error("❌ Dados ausentes");
-    return false;
+    return { dadosValidos: false, dadosNormalizados: {} };
   }
   
+  // Normalizar dados antes da verificação
+  const dadosNormalizados = normalizarDados(dados);
+  
   // Log detalhado das propriedades nos dados
-  console.log("📊 Propriedades nos dados:", Object.keys(dados));
+  console.log("📊 Propriedades nos dados normalizados:", Object.keys(dadosNormalizados));
   
   // Verificamos se pelo menos alguns dos dados esperados existem
   // Não exigimos todos, apenas alguns para considerarmos válido
@@ -124,27 +201,38 @@ const verificarFormatoDados = (dados: any) => {
     'falta_apontamento'
   ];
   
-  // Verificar quantos tipos de dados estão presentes
+  // Verificar se qualquer propriedade nos dados contém as chaves que buscamos (busca parcial)
+  const chavesParciais = Object.keys(dadosNormalizados).filter(chave => {
+    return tiposDados.some(tipoDado => 
+      chave.toLowerCase().includes(tipoDado.toLowerCase())
+    );
+  });
+  
+  console.log("🔍 Chaves parciais encontradas:", chavesParciais);
+  
+  // Verificar quantos tipos de dados estão presentes com match exato
   const tiposPresentes = tiposDados.filter(tipo => 
-    dados[tipo] && Array.isArray(dados[tipo]) && dados[tipo].length > 0
+    dadosNormalizados[tipo] && Array.isArray(dadosNormalizados[tipo]) && dadosNormalizados[tipo].length > 0
   );
   
-  console.log("✅ Tipos de dados presentes:", tiposPresentes);
+  console.log("✅ Tipos de dados presentes (match exato):", tiposPresentes);
   console.log("📊 Total de tipos de dados presentes:", tiposPresentes.length);
-  
-  // Se temos pelo menos alguns dos tipos de dados, consideramos válido
-  const dadosValidos = tiposPresentes.length > 0;
   
   // Para cada tipo de dado presente, mostramos um exemplo
   tiposPresentes.forEach(tipo => {
-    console.log(`📄 Exemplo de ${tipo}:`, dados[tipo][0]);
+    console.log(`📄 Exemplo de ${tipo}:`, dadosNormalizados[tipo][0]);
   });
   
+  // Se temos pelo menos alguns dos tipos de dados ou chaves parciais, consideramos válido
+  const dadosValidos = tiposPresentes.length > 0 || chavesParciais.length > 0;
+  
   if (!dadosValidos) {
-    console.error("❌ Formato de dados inválido");
+    console.error("❌ Formato de dados inválido, nenhum dado reconhecido");
+  } else {
+    console.log("✅ Dados válidos encontrados");
   }
   
-  return dadosValidos;
+  return { dadosValidos, dadosNormalizados };
 };
 
 export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) {
@@ -526,12 +614,12 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
       }
 
       // Se não tivermos reportData ou seus dados, ou se o formato for inválido, use os dados de exemplo
-      if (!reportData?.dados || !verificarFormatoDados(reportData.dados)) {
-        console.warn("⚠️ Dados do relatório ausentes ou inválidos, verificando se há ID");
+      if (!reportData?.dados) {
+        console.warn("⚠️ Dados do relatório ausentes, verificando se há ID");
         
         // Se temos um ID de relatório mas não temos dados válidos, isso é um erro
         if (reportId) {
-          console.error("❌ ERRO: Relatório com ID existe, mas sem dados válidos:", reportId);
+          console.error("❌ ERRO: Relatório com ID existe, mas sem dados:", reportId);
           setError('O relatório não contém dados válidos. Verifique o arquivo Excel enviado.');
         }
         
@@ -539,199 +627,78 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         return exemplosDados;
       }
       
-      // A partir daqui, temos dados válidos do relatório, vamos processá-los:
-      console.log("✅ Processando dados reais do relatório");
+      // Verificar formato dos dados e obter dados normalizados
+      const { dadosValidos, dadosNormalizados } = verificarFormatoDados(reportData.dados);
       
-      // Lendo configuração do relatório para saber os campos esperados
-      const configRelatorio = configManager.getTipoRelatorio('transbordo_semanal');
-      console.log('📊 Configuração do relatório:', configRelatorio);
+      if (!dadosValidos) {
+        console.warn("⚠️ Dados do relatório em formato inválido, verificando se há ID");
+        
+        // Se temos um ID de relatório mas o formato dos dados é inválido, isso é um erro
+        if (reportId) {
+          console.error("❌ ERRO: Relatório com ID existe, mas formato inválido:", reportId);
+          setError('O relatório não contém dados válidos. Verifique o arquivo Excel enviado.');
+        }
+        
+        console.log("📊 Usando dados de exemplo (fallback)");
+        return exemplosDados;
+      }
       
-      // Processar cada tipo de dado conforme a configuração
-      const dadosProcessados: DadosProcessados = {
-        disponibilidade_mecanica: [],
-        eficiencia_energetica: [],
-        motor_ocioso: [],
-        uso_gps: [],
-        falta_apontamento: []
-      };
-
-      // 1. Processar disponibilidade mecânica
-      if (Array.isArray(reportData.dados.disponibilidade_mecanica)) {
-        console.log('📊 Processando disponibilidade mecânica...');
+      console.log("✅ Dados válidos encontrados:", dadosNormalizados);
+      
+      // Processar os dados normalizados
+      try {
+        const dadosProcessados: DadosProcessados = {
+          disponibilidade_mecanica: 
+            dadosNormalizados.disponibilidade_mecanica?.map((item: any) => ({
+              ...item,
+              tipo: 'Disponibilidade',
+              registro: new Date(item.registro),
+            })) || [],
+          
+          eficiencia_energetica: 
+            dadosNormalizados.eficiencia_energetica?.map((item: any) => ({
+              ...item,
+              tipo: 'Eficiência',
+              registro: new Date(item.registro),
+            })) || [],
+          
+          motor_ocioso: 
+            dadosNormalizados.motor_ocioso?.map((item: any) => ({
+              ...item,
+              tipo: 'Motor Ocioso',
+              registro: new Date(item.registro),
+            })) || [],
+          
+          falta_apontamento: 
+            dadosNormalizados.falta_apontamento?.map((item: any) => ({
+              ...item,
+              tipo: 'Falta Apontamento',
+              registro: new Date(item.registro),
+            })) || [],
+          
+          uso_gps: 
+            dadosNormalizados.uso_gps?.map((item: any) => ({
+              ...item,
+              tipo: 'Uso GPS',
+              registro: new Date(item.registro),
+            })) || [],
+          
+          exemplosOperadores: dadosNormalizados.eficiencia_energetica 
+            ? dadosNormalizados.eficiencia_energetica.slice(0, 5) 
+            : exemplosDados.eficiencia_energetica,
+          
+          exemplosFrotas: dadosNormalizados.disponibilidade_mecanica 
+            ? dadosNormalizados.disponibilidade_mecanica.slice(0, 5) 
+            : exemplosDados.disponibilidade_mecanica,
+        };
         
-        dadosProcessados.disponibilidade_mecanica = reportData.dados.disponibilidade_mecanica
-          .filter((item: any) => item && typeof item === 'object')
-          .map((item: any) => {
-            // Localizar a coluna de Frota
-            const frotaKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'frota' || 
-              k.toLowerCase().includes('frota')
-            ) || 'Frota';
-            
-            // Localizar a coluna de Disponibilidade
-            const dispKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'disponibilidade' || 
-              k.toLowerCase().includes('disponibilidade') ||
-              k.toLowerCase().includes('disp')
-            ) || 'Disponibilidade';
-            
-            console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, Disp: ${dispKey}`);
-            
-            return {
-              frota: String(item[frotaKey] || ''),
-              disponibilidade: processarPorcentagem(item[dispKey])
-            };
-          })
-          .filter((item: any) => item.frota && item.disponibilidade !== undefined);
+        console.log('📊 DADOS FINAIS APÓS PROCESSAMENTO:', dadosProcessados);
+        return dadosProcessados;
+      } catch (error) {
+        console.error('❌ ERRO NO PROCESSAMENTO DE DADOS:', error);
+        // Em caso de erro, usar dados de exemplo
+        return exemplosDados;
       }
-
-      // 2. Processar eficiência energética
-      if (Array.isArray(reportData.dados.eficiencia_energetica)) {
-        console.log('📊 Processando eficiência energética...');
-        
-        dadosProcessados.eficiencia_energetica = reportData.dados.eficiencia_energetica
-          .filter((item: any) => item && typeof item === 'object')
-          .map((item: any) => {
-            // Localizar a coluna de Operador
-            const operadorKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'operador' || 
-              k.toLowerCase().includes('operador')
-            ) || 'Operador';
-            
-            // Localizar a coluna de Eficiência
-            const eficienciaKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'eficiência' || 
-              k.toLowerCase().includes('eficiência') ||
-              k.toLowerCase().includes('eficiencia') ||
-              k.toLowerCase().includes('ef')
-            ) || 'Eficiência';
-            
-            const operador = processarOperador(item[operadorKey]);
-            
-            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Eficiência: ${eficienciaKey}`);
-            
-            if (!operador) return null;
-            
-            return {
-              id: operador.id,
-              nome: operador.nome,
-              eficiencia: processarPorcentagem(item[eficienciaKey])
-            };
-          })
-          .filter((item: any) => item !== null)
-          .sort((a: any, b: any) => b.eficiencia - a.eficiencia);
-      }
-
-      // 3. Processar motor ocioso
-      if (Array.isArray(reportData.dados.motor_ocioso)) {
-        console.log('📊 Processando motor ocioso...');
-        
-        dadosProcessados.motor_ocioso = reportData.dados.motor_ocioso
-          .filter((item: any) => item && typeof item === 'object')
-          .map((item: any) => {
-            // Localizar a coluna de Operador
-            const operadorKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'operador' || 
-              k.toLowerCase().includes('operador')
-            ) || 'Operador';
-            
-            // Localizar a coluna de Porcentagem
-            const porcentagemKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'porcentagem' || 
-              k.toLowerCase().includes('porcentagem') ||
-              k.toLowerCase().includes('percentual') ||
-              k.toLowerCase().includes('ocioso')
-            ) || 'Porcentagem';
-            
-            const operador = processarOperador(item[operadorKey]);
-            
-            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Porcentagem: ${porcentagemKey}`);
-            
-            if (!operador) return null;
-            
-            return {
-              id: operador.id,
-              nome: operador.nome,
-              percentual: processarPorcentagem(item[porcentagemKey])
-            };
-          })
-          .filter((item: any) => item !== null);
-      }
-
-      // 4. Processar uso GPS
-      if (Array.isArray(reportData.dados.uso_gps)) {
-        console.log('📊 Processando uso GPS...');
-        
-        dadosProcessados.uso_gps = reportData.dados.uso_gps
-          .filter((item: any) => item && typeof item === 'object')
-          .map((item: any) => {
-            // Localizar a coluna de Operador
-            const operadorKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'operador' || 
-              k.toLowerCase().includes('operador')
-            ) || 'Operador';
-            
-            // Localizar a coluna de Porcentagem
-            const porcentagemKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'porcentagem' || 
-              k.toLowerCase().includes('porcentagem') ||
-              k.toLowerCase().includes('percentual') ||
-              k.toLowerCase().includes('gps')
-            ) || 'Porcentagem';
-            
-            const operador = processarOperador(item[operadorKey]);
-            
-            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Porcentagem: ${porcentagemKey}`);
-            
-            if (!operador) return null;
-            
-            return {
-              id: operador.id,
-              nome: operador.nome,
-              porcentagem: processarPorcentagem(item[porcentagemKey])
-            };
-          })
-          .filter((item: any) => item !== null);
-      }
-
-      // 5. Processar falta apontamento
-      if (Array.isArray(reportData.dados.falta_apontamento)) {
-        console.log('📊 Processando falta apontamento...');
-        
-        dadosProcessados.falta_apontamento = reportData.dados.falta_apontamento
-          .filter((item: any) => item && typeof item === 'object')
-          .map((item: any) => {
-            // Localizar a coluna de Operador
-            const operadorKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'operador' || 
-              k.toLowerCase().includes('operador')
-            ) || 'Operador';
-            
-            // Localizar a coluna de Porcentagem
-            const porcentagemKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'porcentagem' || 
-              k.toLowerCase().includes('porcentagem') ||
-              k.toLowerCase().includes('percentual') ||
-              k.toLowerCase().includes('falta')
-            ) || 'Porcentagem';
-            
-            const operador = processarOperador(item[operadorKey]);
-            
-            console.log(`📊 Item: ${JSON.stringify(item)}, Operador: ${operadorKey}, Porcentagem: ${porcentagemKey}`);
-            
-            if (!operador) return null;
-            
-            return {
-              id: operador.id,
-              nome: operador.nome,
-              percentual: processarPorcentagem(item[porcentagemKey])
-            };
-          })
-          .filter((item: any) => item !== null);
-      }
-
-      console.log('📊 DADOS FINAIS APÓS PROCESSAMENTO:', dadosProcessados);
-      return dadosProcessados;
     } catch (error) {
       console.error('❌ ERRO NO PROCESSAMENTO DE DADOS:', error);
       // Em caso de erro, usar dados de exemplo
