@@ -37,10 +37,10 @@ export interface MetricData {
 
 export interface FrotaData {
   id: string;
-  tdh: number;
-  diesel: number;
+  tdh?: number;
+  diesel?: number;
   disponibilidade: number;
-  impureza: number;
+  impureza?: number;
 }
 
 export interface OperadorData {
@@ -266,11 +266,22 @@ const TabelaFrotas = ({ data }: { data: ResumoData }) => {
     );
   }
 
-  const getColorByMeta = (valor: number, meta: number, isInverted: boolean = false) => {
+  const getColorByMeta = (valor: number | undefined, meta: number, isInverted: boolean = false) => {
+    if (valor === undefined) return 'gray.500'; // Cor padrão para valores indefinidos
+    
+    // Para métricas onde menor é melhor (ex: TDH, Diesel, etc.)
     if (isInverted) {
-      return valor <= meta ? "green.500" : "red.500";
+      if (valor <= meta) return 'green.500';
+      if (valor <= meta * 1.2) return 'yellow.500';
+      if (valor <= meta * 1.5) return 'orange.500';
+      return 'red.500';
     }
-    return valor >= meta ? "green.500" : "red.500";
+    
+    // Para métricas onde maior é melhor (ex: Disponibilidade)
+    if (valor >= meta) return 'green.500';
+    if (valor >= meta * 0.9) return 'yellow.500';
+    if (valor >= meta * 0.8) return 'orange.500';
+    return 'red.500';
   };
 
   return (
@@ -293,11 +304,11 @@ const TabelaFrotas = ({ data }: { data: ResumoData }) => {
               </Td>
               <Td p={2} textAlign="center" borderRightWidth="1px" borderBottomWidth={index === data.frotas.length - 1 ? "0" : "1px"} borderColor="black"
                   color={getColorByMeta(frota.tdh, data.tdh?.meta || 0, true)}>
-                {frota.tdh.toFixed(4)}
+                {frota.tdh?.toFixed(4) || ''}
               </Td>
               <Td p={2} textAlign="center" borderRightWidth="1px" borderBottomWidth={index === data.frotas.length - 1 ? "0" : "1px"} borderColor="black"
                   color={getColorByMeta(frota.diesel, data.diesel?.meta || 0, true)}>
-                {frota.diesel.toFixed(4)}
+                {frota.diesel?.toFixed(4) || ''}
               </Td>
               <Td p={2} textAlign="center" borderRightWidth="1px" borderBottomWidth={index === data.frotas.length - 1 ? "0" : "1px"} borderColor="black"
                   color={getColorByMeta(frota.disponibilidade, data.disponibilidadeMecanica.meta)}>
@@ -305,7 +316,7 @@ const TabelaFrotas = ({ data }: { data: ResumoData }) => {
               </Td>
               <Td p={2} textAlign="center" borderBottomWidth={index === data.frotas.length - 1 ? "0" : "1px"} borderColor="black"
                   color={getColorByMeta(frota.impureza, data.impurezaVegetal?.meta || 0, true)}>
-                {frota.impureza.toFixed(2)}
+                {frota.impureza?.toFixed(2) || ''}
               </Td>
             </Tr>
           ))}
@@ -340,13 +351,17 @@ const TabelaOperadores = ({ data }: { data: ResumoData }) => {
     );
   }
 
-  const getColorByMeta = (valor: number, meta: number, isMotorOcioso: boolean = false) => {
+  const getColorByMeta = (valor: number | undefined, meta: number, isMotorOcioso: boolean = false) => {
+    if (valor === undefined) return 'gray.500'; // Cor padrão para valores indefinidos
+    
     // Para motor ocioso, menor é melhor (abaixo da meta é bom)
     if (isMotorOcioso) {
-      return valor <= meta ? "green.500" : "red.500"; 
+      if (valor <= meta) return "green.500";
+      return "red.500";
     }
     // Para os outros, maior é melhor (acima da meta é bom)
-    return valor >= meta ? "green.500" : "red.500";
+    if (valor >= meta) return "green.500";
+    return "red.500";
   };
 
   // Função especial para as horas do elevador

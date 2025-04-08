@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
 
 interface DisponibilidadeData {
@@ -16,14 +16,10 @@ interface DisponibilidadeMecanicaProps {
 // Obter a meta do configManager
 const META_DISPONIBILIDADE_MECANICA = configManager.getMetas('colheita_diario').disponibilidadeMecanica;
 
-// Dados de exemplo para o caso de não serem fornecidos
-const defaultData: DisponibilidadeData[] = [
-  { frota: '7041', disponibilidade: 94.49 },
-  { frota: '7042', disponibilidade: 92.82 }
-];
+// Dados de exemplo removidos
 
 export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMecanicaProps> = ({ 
-  data = defaultData,
+  data = [],
   meta = META_DISPONIBILIDADE_MECANICA,
   exibirCards = false
 }) => {
@@ -40,14 +36,21 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
     console.log('📊 Amostra de dados:', data.slice(0, 2));
   }
   
-  // Usar dados padrão se não houver dados válidos
-  const dadosFinais = dadosValidos ? data : defaultData;
+  // Caso não haja dados válidos, exibir mensagem
+  if (!dadosValidos) {
+    return (
+      <Center h="100%" flexDirection="column">
+        <Text fontSize="14px" color="gray.500" fontWeight="medium">Sem dados disponíveis</Text>
+        <Text fontSize="12px" color="gray.400">Verifique o relatório selecionado</Text>
+      </Center>
+    );
+  }
   
   // Calcula a média de disponibilidade
-  const mediaDisponibilidade = dadosFinais.reduce((acc, item) => acc + (item?.disponibilidade || 0), 0) / dadosFinais.length;
+  const mediaDisponibilidade = data.reduce((acc, item) => acc + (item?.disponibilidade || 0), 0) / data.length;
 
   // Ordena os dados de disponibilidade (do maior para o menor)
-  const sortedData = [...dadosFinais].sort((a, b) => (b?.disponibilidade || 0) - (a?.disponibilidade || 0));
+  const sortedData = [...data].sort((a, b) => (b?.disponibilidade || 0) - (a?.disponibilidade || 0));
   
   // Define as cores com base no valor da disponibilidade
   const getBarColor = (value: number) => {

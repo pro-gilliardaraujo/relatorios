@@ -129,9 +129,9 @@ export default function TabelaFrotas({
   const metaUsoGPSIntermediaria = metaUsoGPS * 0.85;
 
   // Determinar quais colunas mostrar com base no tipo de relatório
-  const mostrarTDH = tipo.includes('semanal');
-  const mostrarDiesel = tipo.includes('semanal');
-  const mostrarImpureza = tipo === 'colheita_semanal';
+  const mostrarTDH = tipo.includes('semanal') && tipo !== 'colheita_semanal';
+  const mostrarDiesel = tipo.includes('semanal') && tipo !== 'colheita_semanal';
+  const mostrarImpureza = tipo === 'colheita_semanal' && false; // Nunca mostrar impureza para colheita_semanal
   const mostrarDisponibilidade = true; // Sempre mostrar disponibilidade
   
   // Colunas específicas para transbordo

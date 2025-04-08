@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
 
 interface EficienciaData {
@@ -17,21 +17,8 @@ interface EficienciaEnergeticaProps {
 // Obter a meta do configManager
 const META_EFICIENCIA_ENERGETICA = configManager.getMetas('colheita_diario').eficienciaEnergetica;
 
-// Dados de exemplo para o caso de não serem fornecidos
-const defaultData: EficienciaData[] = [
-  { id: '1', nome: 'SEM OPERADOR', eficiencia: 65.1 },
-  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', eficiencia: 72.1 },
-  { id: '9999', nome: 'TROCA DE TURNO', eficiencia: 68.9 },
-  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', eficiencia: 75.0 },
-  { id: '11', nome: 'NAO CADASTRADO', eficiencia: 67.4 },
-  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', eficiencia: 71.1 },
-  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', eficiencia: 69.5 },
-  { id: '357887', nome: 'EVERTON TIAGO MARQUES', eficiencia: 73.0 },
-  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', eficiencia: 70.8 }
-];
-
 export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = ({ 
-  data = defaultData,
+  data = [],
   meta = META_EFICIENCIA_ENERGETICA,
   exibirCards = false
 }) => {
@@ -49,13 +36,20 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
   }
   
   // Usar dados padrão se não houver dados válidos
-  const dadosFinais = dadosValidos ? data : defaultData;
+  if (!dadosValidos) {
+    return (
+      <Center h="100%" flexDirection="column">
+        <Text fontSize="14px" color="gray.500" fontWeight="medium">Sem dados disponíveis</Text>
+        <Text fontSize="12px" color="gray.400">Verifique o relatório selecionado</Text>
+      </Center>
+    );
+  }
   
   // Calcula a média de eficiência
-  const mediaEficiencia = dadosFinais.reduce((acc, item) => acc + (item?.eficiencia || 0), 0) / dadosFinais.length;
+  const mediaEficiencia = data.reduce((acc, item) => acc + (item?.eficiencia || 0), 0) / data.length;
   
   // Encontra o valor máximo para definir a escala
-  const maxEficiencia = Math.max(...dadosFinais.map(item => item?.eficiencia || 0));
+  const maxEficiencia = Math.max(...data.map(item => item?.eficiencia || 0));
   
   // Para "maior melhor", usamos o maior valor como referência para a escala
   const valorReferencia = Math.max(maxEficiencia, meta * 1.2); // Garante que a meta fique visível
@@ -67,7 +61,7 @@ export const GraficoEficienciaEnergetica: React.FC<EficienciaEnergeticaProps> = 
   const metaScaled = (meta / valorReferencia) * 100;
 
   // Ordena por eficiência (do maior para o menor)
-  const sortedData = [...dadosFinais].sort((a, b) => b.eficiencia - a.eficiencia);
+  const sortedData = [...data].sort((a, b) => b.eficiencia - a.eficiencia);
   
   // Define as cores com base no valor da eficiência (maior melhor)
   const getBarColor = (value: number) => {

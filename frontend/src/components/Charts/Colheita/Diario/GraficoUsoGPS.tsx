@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
 
 interface GPSData {
@@ -14,71 +14,45 @@ interface GraficoUsoGPSProps {
   exibirCards?: boolean;
 }
 
+// Obter a meta do configManager
+const META_USO_GPS = configManager.getMetas('colheita_diario').usoGPS;
+
 export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({ 
-  data,
-  meta = configManager.getMetas('colheita_diario').usoGPS,
+  data = [],
+  meta = META_USO_GPS,
   exibirCards = false
 }) => {
-  // Log ao montar o componente
-  useEffect(() => {
-    console.log('🔍 GraficoUsoGPS montado com:');
-    console.log('- 📊 data:', Array.isArray(data) ? `Array com ${data.length} itens` : 'Não é um array');
-    console.log('- 🎯 meta:', meta);
-    console.log('- 🎯 meta default do config:', configManager.getMetas('colheita_diario').usoGPS);
-    
-    if (Array.isArray(data) && data.length > 0) {
-      console.log('- 📋 Primeiro item:', data[0]);
-    }
-  }, [data, meta]);
-  
-  // Verificar se há dados válidos e filtrar dados inválidos
-  const dadosValidos = Array.isArray(data) ? data.filter(item => 
-    item && 
-    item.nome && 
-    typeof item.porcentagem === 'number' && 
-    !isNaN(item.porcentagem)
-  ) : [];
+  // Verificar se há dados válidos
+  const dadosValidos = Array.isArray(data) && data.length > 0 && 
+    data.some(item => item && item.nome && typeof item.porcentagem === 'number' && item.porcentagem >= 0);
   
   // Log para diagnóstico
-  console.log('📊 GraficoUsoGPS dados válidos:', dadosValidos.length);
-  console.log('📊 Meta passada para o gráfico:', meta);
-  
-  if (dadosValidos.length > 0) {
-    console.log('📊 Amostra de dados válidos:', dadosValidos.slice(0, 2));
+  console.log('📊 GraficoUsoGPS recebeu dados:', 
+    Array.isArray(data) ? `${data.length} itens` : 'não é array',
+    dadosValidos ? 'válidos' : 'inválidos');
+    
+  if (Array.isArray(data) && data.length > 0) {
+    console.log('📊 Amostra de dados:', data.slice(0, 2));
   }
   
-  // Processar valores de porcentagem: se for entre 0 e 1, converter para porcentagem (multiplicar por 100)
-  const processedData = dadosValidos.map(item => {
-    const porcentagem = item.porcentagem;
-    // Se o valor for menor que 1 e maior que 0, provavelmente é um decimal que representa porcentagem
-    if (porcentagem > 0 && porcentagem < 1) {
-      return {
-        ...item,
-        porcentagem: porcentagem * 100
-      };
-    }
-    return item;
-  });
-  
-  // Se não houver dados válidos, retornar mensagem
-  if (processedData.length === 0) {
-    console.log('❌ Sem dados válidos para o gráfico UsoGPS');
+  // Se não tiver dados válidos, mostrar mensagem
+  if (!dadosValidos) {
     return (
-      <Box h="100%" display="flex" alignItems="center" justifyContent="center">
-        <Text>Sem dados de uso GPS disponíveis</Text>
-      </Box>
+      <Center h="100%" flexDirection="column">
+        <Text fontSize="14px" color="gray.500" fontWeight="medium">Sem dados disponíveis</Text>
+        <Text fontSize="12px" color="gray.400">Verifique o relatório selecionado</Text>
+      </Center>
     );
   }
   
   // Calcular a média de porcentagem
-  const mediaPorcentagem = processedData.reduce((acc, item) => acc + item.porcentagem, 0) / processedData.length;
+  const mediaPorcentagem = data.reduce((acc, item) => acc + (item?.porcentagem || 0), 0) / data.length;
   
   // Sempre usar 100 como base para escala máxima para manter a proporcionalidade
   const maxValueForScale = 100;
   
   // Calcula onde ficará a linha de meta na escala relativa (em porcentagem de maxValueForScale)
   const metaScaled = (meta / maxValueForScale) * 100;
-  console.log('📊 Meta escalada para o gráfico:', metaScaled, '% (meta original:', meta, ')');
   
   // Função de escala para garantir que valores não ultrapassem maxValueForScale
   const scalePercentage = (porcentagem: number) => {
@@ -87,7 +61,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
   };
 
   // Ordena por porcentagem (do maior para o menor)
-  const sortedData = [...processedData].sort((a, b) => b.porcentagem - a.porcentagem);
+  const sortedData = [...data].sort((a, b) => (b?.porcentagem || 0) - (a?.porcentagem || 0));
   
   // Define as cores com base no valor da porcentagem (maior melhor)
   const getBarColor = (value: number) => {
@@ -95,34 +69,6 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
     if (value >= meta * 0.8) return '#ECC94B'; // amarelo para médio (até 20% abaixo da meta)
     return '#E53E3E'; // vermelho para ruim (abaixo de 80% da meta)
   };
-
-  // Define cores dos cards com transparência (0.3 para 30% de opacidade)
-  const getCardBgColor = (color: string) => {
-    if (color.startsWith('#')) {
-      // Conversão simplificada de hex para rgba
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, 0.3)`;
-    } else if (color.startsWith('rgb')) {
-      // Se já for rgb, apenas adiciona alpha
-      return color.replace('rgb', 'rgba').replace(')', ', 0.3)');
-    }
-    return color;
-  };
-
-  // Usar as cores do configManager se disponíveis
-  const cores = configManager.getGraficosConfig()?.cores || {
-    meta_atingida: '#48BB78',
-    proximo_meta: '#90EE90',
-    alerta: '#ECC94B',
-    critico: '#E53E3E'
-  };
-  
-  console.log('📊 Cores usadas no gráfico:', cores);
-
-  const metaCardColor = getCardBgColor(cores.meta_atingida); // Verde com transparência
-  const mediaCardColor = getCardBgColor(getBarColor(mediaPorcentagem));
 
   return (
     <Box h="100%">      
@@ -138,7 +84,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
               borderRadius="sm"
             >
               {/* Primeira linha: ID e nome do operador */}
-              <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={item.nome} mb={0.5} color="black">
+              <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id} - ${item.nome}`} mb={0.5} color="black">
                 {item.id} - {item.nome}
               </Text>
               
@@ -167,7 +113,7 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
                   />
                 </Box>
                 <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={getBarColor(item.porcentagem)}>
-                  {item.porcentagem.toFixed(2)}%
+                  {item.porcentagem !== undefined ? item.porcentagem.toFixed(1) : "0.0"}%
                 </Text>
               </Flex>
             </Box>
