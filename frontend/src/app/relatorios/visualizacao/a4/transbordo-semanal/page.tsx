@@ -907,21 +907,107 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           }
         }}
       >
-        {/* Primeira Página - TDH e Diesel */}
+        {/* Primeira Página - Disponibilidade Mecânica e Eficiência Energética */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader showDate={true} />
+            <Box flex="1" display="flex" flexDirection="column">
+              {/* Disponibilidade Mecânica */}
+              <Box flex="1" mb={4}>
+                <SectionTitle title="Disponibilidade Mecânica" />
+                <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                  <IndicatorCard
+                    title=""
+                    value={calcularMedia(dadosProcessados.disponibilidade_mecanica, 'disponibilidade')}
+                    meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
+                    unitType="porcentagem"
+                    acimaMeta={{
+                      quantidade: contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica),
+                      total: dadosProcessados.disponibilidade_mecanica.length,
+                      percentual: (contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica) / dadosProcessados.disponibilidade_mecanica.length) * 100
+                    }}
+                  />
+                </SimpleGrid>
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="500px"
+                  overflow="hidden"
+                >
+                  <GraficoDisponibilidadeMecanicaTransbordo
+                    data={dadosProcessados.disponibilidade_mecanica}
+                    meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
+                  />
+                </Box>
+              </Box>
+              
+              {/* Eficiência Energética */}
+              <Box flex="1">
+                <SectionTitle title="Eficiência Energética" />
+                <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                  {dadosProcessados.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
+                    <IndicatorCard
+                      title=""
+                      value={calcularMedia(dadosProcessados.eficiencia_energetica, 'eficiencia')}
+                      meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
+                      unitType="porcentagem"
+                      acimaMeta={{
+                        quantidade: contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
+                        total: dadosProcessados.eficiencia_energetica.length,
+                        percentual: (contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / dadosProcessados.eficiencia_energetica.length) * 100
+                      }}
+                    />
+                  )}
+                </SimpleGrid>
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="500px"
+                  overflow="hidden"
+                >
+                  <GraficoEficienciaEnergetica 
+                    data={dadosProcessados.eficiencia_energetica}
+                    meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </A4Colheita>
+
+        {/* Segunda Página - TDH */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
               {/* TDH */}
               {secoes.tdh && (
-                <Box flex="1" mb={3}>
+                <Box flex="1">
                   <SectionTitle title="TDH" centered={true} />
+                  <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                    <IndicatorCard
+                      title=""
+                      value={calcularMedia(dadosProcessados.tdh, 'valor')}
+                      meta={configManager.getMetas('transbordo_semanal').tdh}
+                      unitType="decimal"
+                      isInverted={true}
+                      acimaMeta={{
+                        quantidade: contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false),
+                        total: dadosProcessados.tdh.length,
+                        percentual: (contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false) / dadosProcessados.tdh.length) * 100
+                      }}
+                    />
+                  </SimpleGrid>
                   <Box 
                     border="1px solid"
                     borderColor="black"
                     borderRadius="md"
                     p={2}
-                    h="calc(100% - 25px)"
+                    h="500px"
                   >
                     {dadosProcessados.tdh.length > 0 ? (
                       <GraficoTDH 
@@ -936,17 +1022,81 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   </Box>
                 </Box>
               )}
+            </Box>
+          </Box>
+        </A4Colheita>
               
+        {/* Terceira Página - Motor Ocioso */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader showDate={true} />
+            <Box flex="1" display="flex" flexDirection="column">
+              {/* Motor Ocioso */}
+              <Box flex="1">
+                <SectionTitle title="Motor Ocioso" />
+                <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                  {dadosProcessados.motor_ocioso.length > 0 && secoes.motorOcioso && (
+                    <IndicatorCard
+                      title=""
+                      value={calcularMedia(dadosProcessados.motor_ocioso, 'percentual')}
+                      meta={configManager.getMetas('transbordo_semanal').motorOcioso}
+                      unitType="porcentagem"
+                      isInverted={true}
+                      acimaMeta={{
+                        quantidade: contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso),
+                        total: dadosProcessados.motor_ocioso.length,
+                        percentual: (contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso) / dadosProcessados.motor_ocioso.length) * 100
+                      }}
+                    />
+                  )}
+                </SimpleGrid>
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="500px"
+                  overflow="hidden"
+                >
+                  <GraficoMotorOciosoTransbordo
+                    data={dadosProcessados.motor_ocioso}
+                    meta={configManager.getMetas('transbordo_semanal').motorOcioso}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </A4Colheita>
+              
+        {/* Quarta Página - Diesel */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader showDate={true} />
+            <Box flex="1" display="flex" flexDirection="column">
               {/* Diesel */}
               {secoes.diesel && (
-                <Box flex="1" mb={3}>
+                <Box flex="1">
                   <SectionTitle title="Diesel" centered={true} />
+                  <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                    <IndicatorCard
+                      title=""
+                      value={calcularMedia(dadosProcessados.diesel, 'valor')}
+                      meta={configManager.getMetas('transbordo_semanal').diesel}
+                      unitType="decimal"
+                      isInverted={true}
+                      acimaMeta={{
+                        quantidade: contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false),
+                        total: dadosProcessados.diesel.length,
+                        percentual: (contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false) / dadosProcessados.diesel.length) * 100
+                      }}
+                    />
+                  </SimpleGrid>
                   <Box 
                     border="1px solid"
                     borderColor="black"
                     borderRadius="md"
                     p={2}
-                    h="calc(100% - 25px)"
+                    h="500px"
                   >
                     {dadosProcessados.diesel.length > 0 ? (
                       <GraficoDiesel 
@@ -964,122 +1114,6 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
             </Box>
           </Box>
         </A4Colheita>
-
-        {/* Segunda Página - Disponibilidade e Eficiência */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
-            <Box flex="1" display="flex" flexDirection="column">
-              {/* Disponibilidade Mecânica */}
-              <Box flex="1" mb={2}>
-                <SectionTitle title="Disponibilidade Mecânica" />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 30px)"
-                  overflow="hidden"
-                >
-                  <GraficoDisponibilidadeMecanicaTransbordo
-                    data={dadosProcessados.disponibilidade_mecanica}
-                    meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
-                  />
-                </Box>
-              </Box>
-              
-              {/* Eficiência Energética */}
-              <Box flex="1">
-                <SectionTitle title="Eficiência Energética" />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 30px)"
-                  overflow="hidden"
-                >
-                  <GraficoEficienciaEnergetica 
-                    data={dadosProcessados.eficiencia_energetica}
-                    meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
-                  />
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        </A4Colheita>
-              
-        {/* Terceira Página - Motor Ocioso e Falta Apontamento */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader />
-            <Box flex="1" display="flex" flexDirection="column">
-              {/* Motor Ocioso */}
-              <Box flex="1" mb={2}>
-                <SectionTitle title="Motor Ocioso" />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 30px)"
-                  overflow="hidden"
-                >
-                  <GraficoMotorOciosoTransbordo
-                    data={dadosProcessados.motor_ocioso}
-                    meta={configManager.getMetas('transbordo_semanal').motorOcioso}
-                  />
-                </Box>
-              </Box>
-
-              {/* Falta de Apontamento */}
-              <Box flex="1">
-                <SectionTitle title="Falta de Apontamento" />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 30px)"
-                  overflow="hidden"
-                >
-                  <GraficoFaltaApontamentoTransbordo
-                    data={dadosProcessados.falta_apontamento}
-                    meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
-                  />
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        </A4Colheita>
-              
-        {/* Quarta Página - Uso GPS */}
-        {secoes.usoGPS && (
-          <A4Colheita>
-            <Box h="100%" display="flex" flexDirection="column">
-              <PageHeader />
-              <Box flex="1" display="flex" flexDirection="column">
-                {/* Uso GPS */}
-                <Box flex="1">
-                  <SectionTitle title="Uso GPS" />
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={2}
-                    h="calc(100% - 30px)"
-                    overflow="hidden"
-                  >
-                    <GraficoUsoGPS 
-                      data={dadosProcessados.uso_gps}
-                      meta={configManager.getMetas('transbordo_semanal').usoGPS}
-                    />
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </A4Colheita>
-        )}
         
         {/* Quinta Página - Resumo */}
         <A4Colheita isLastPage={true}>
@@ -1105,7 +1139,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 </Text>
                 <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
-                    title="Consumo de TDH"
+                    title=""
                     value={calcularMedia(dadosProcessados.tdh, 'valor')}
                     meta={configManager.getMetas('transbordo_semanal').tdh}
                     unitType="decimal"
@@ -1117,7 +1151,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                     }}
                   />
                   <IndicatorCard
-                    title="Consumo de Diesel"
+                    title=""
                     value={calcularMedia(dadosProcessados.diesel, 'valor')}
                     meta={configManager.getMetas('transbordo_semanal').diesel}
                     unitType="decimal"
@@ -1129,7 +1163,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                     }}
                   />
                   <IndicatorCard
-                    title="Disponibilidade Mecânica"
+                    title=""
                     value={calcularMedia(dadosProcessados.disponibilidade_mecanica, 'disponibilidade')}
                     meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
                     unitType="porcentagem"
@@ -1168,7 +1202,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
                   {dadosProcessados.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
                     <IndicatorCard
-                      title="Eficiência Energética"
+                      title=""
                       value={calcularMedia(dadosProcessados.eficiencia_energetica, 'eficiencia')}
                       meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
                       unitType="porcentagem"
@@ -1181,7 +1215,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   )}
                   {dadosProcessados.motor_ocioso.length > 0 && secoes.motorOcioso && (
                     <IndicatorCard
-                      title="Motor Ocioso"
+                      title=""
                       value={calcularMedia(dadosProcessados.motor_ocioso, 'percentual')}
                       meta={configManager.getMetas('transbordo_semanal').motorOcioso}
                       unitType="porcentagem"
@@ -1195,7 +1229,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   )}
                   {dadosProcessados.falta_apontamento.length > 0 && secoes.faltaApontamento && (
                     <IndicatorCard
-                      title="Falta Apontamento"
+                      title=""
                       value={calcularMedia(dadosProcessados.falta_apontamento, 'percentual')}
                       meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
                       unitType="porcentagem"
