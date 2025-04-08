@@ -24,7 +24,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "leaflet": "^1.9.4",
-    "next": "^14.1.0",
+    "next": "^14.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
@@ -41,7 +41,7 @@
     "@types/react": "^18.2.57",
     "@types/react-dom": "^18.2.19",
     "eslint": "^8.56.0",
-    "eslint-config-next": "14.1.0",
+    "eslint-config-next": "14.2.0",
     "typescript": "^5.3.3"
   }
 }

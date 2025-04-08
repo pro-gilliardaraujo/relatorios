@@ -26,6 +26,7 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Checkbox,
+  Badge,
 } from '@chakra-ui/react';
 import { FiEye, FiTrash2 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
@@ -51,7 +52,7 @@ export default function ListaRelatorios() {
   const [frenteFiltro, setFrenteFiltro] = useState('todas');
   const [dataFiltro, setDataFiltro] = useState('');
   const [filtrarTeste, setFiltrarTeste] = useState(false);
-  const [relatorioParaExcluir, setRelatorioParaExcluir] = useState<string | null>(null);
+  const [relatorioParaExcluir, setRelatorioParaExcluir] = useState<{ id: string, isSemanal: boolean } | null>(null);
   const router = useRouter();
   const toast = useToast();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
@@ -73,32 +74,79 @@ export default function ListaRelatorios() {
   const carregarRelatorios = async () => {
     try {
       setLoading(true);
-      let query = supabase
+      
+      // Construir queries para relatórios diários
+      let queryDiarios = supabase
         .from('relatorios_diarios')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*, periodo:data');
 
       if (tipoFiltro !== 'todos') {
-        query = query.eq('tipo', tipoFiltro);
+        queryDiarios = queryDiarios.eq('tipo', tipoFiltro);
       }
 
       if (frenteFiltro !== 'todas') {
-        query = query.eq('frente', frenteFiltro);
+        queryDiarios = queryDiarios.eq('frente', frenteFiltro);
       }
 
       if (dataFiltro) {
-        query = query.eq('data', dataFiltro);
+        queryDiarios = queryDiarios.eq('data', dataFiltro);
       }
 
       if (filtrarTeste) {
-        query = query.eq('is_teste', true);
+        queryDiarios = queryDiarios.eq('is_teste', true);
+      }
+      
+      // Construir queries para relatórios semanais
+      let querySemanais = supabase
+        .from('relatorios_semanais')
+        .select('*, periodo:data_inicio');
+
+      if (tipoFiltro !== 'todos') {
+        querySemanais = querySemanais.eq('tipo', tipoFiltro);
       }
 
-      const { data, error } = await query;
+      if (frenteFiltro !== 'todas') {
+        querySemanais = querySemanais.eq('frente', frenteFiltro);
+      }
 
-      if (error) throw error;
+      if (dataFiltro) {
+        querySemanais = querySemanais.eq('data_inicio', dataFiltro);
+      }
 
-      setRelatorios(data || []);
+      if (filtrarTeste) {
+        querySemanais = querySemanais.eq('is_teste', true);
+      }
+
+      // Executar ambas as queries em paralelo
+      const [resultDiarios, resultSemanais] = await Promise.all([
+        queryDiarios,
+        querySemanais
+      ]);
+
+      if (resultDiarios.error) throw resultDiarios.error;
+      if (resultSemanais.error) throw resultSemanais.error;
+
+      // Processar relatórios diários
+      const diarios = (resultDiarios.data || []).map(item => ({
+        ...item,
+        isSemanal: false
+      }));
+      
+      // Processar relatórios semanais
+      const semanais = (resultSemanais.data || []).map(item => ({
+        ...item,
+        isSemanal: true,
+        data: item.data_inicio // Para compatibilidade com o rendering
+      }));
+      
+      // Combinar e ordenar por data de criação (mais recente primeiro)
+      const todosDados = [...diarios, ...semanais].sort((a, b) => {
+        const dataA = new Date(a.created_at);
+        const dataB = new Date(b.created_at);
+        return dataB.getTime() - dataA.getTime();
+      });
+
+      setRelatorios(todosDados);
     } catch (error) {
       console.error('Erro ao carregar relatórios:', error);
       toast({
@@ -113,10 +161,13 @@ export default function ListaRelatorios() {
     }
   };
 
-  const excluirRelatorio = async (id: string) => {
+  const excluirRelatorio = async (id: string, isSemanal: boolean) => {
     try {
+      // Determinar de qual tabela excluir com base no flag isSemanal
+      const tabela = isSemanal ? 'relatorios_semanais' : 'relatorios_diarios';
+      
       const { error } = await supabase
-        .from('relatorios_diarios')
+        .from(tabela)
         .delete()
         .eq('id', id);
 
@@ -278,7 +329,14 @@ export default function ListaRelatorios() {
                 relatorios.map((relatorio) => (
                   <Tr key={relatorio.id} _hover={{ bg: 'gray.50' }} bg="white">
                     <Td py={4} color="black" bg="white" borderColor="black">
-                      {formatarData(relatorio.data)}
+                      {relatorio.isSemanal ? (
+                        <Flex align="center">
+                          <Badge colorScheme="green" mr={2}>Semanal</Badge>
+                          {formatarData(relatorio.data_inicio)} - {formatarData(relatorio.data_fim)}
+                        </Flex>
+                      ) : (
+                        formatarData(relatorio.data)
+                      )}
                     </Td>
                     <Td py={4} color="black" bg="white" borderColor="black">{configManager.getTipoRelatorio(relatorio.tipo)?.nome || relatorio.tipo}</Td>
                     <Td py={4} color="black" bg="white" borderColor="black">
@@ -292,8 +350,9 @@ export default function ListaRelatorios() {
                           aria-label="Visualizar relatório"
                           icon={<FiEye />}
                           onClick={() => {
-                            const tipoNormalizado = relatorio.tipo.replace('_diario', '');
-                            const url = `/relatorios/visualizacao/a4/${tipoNormalizado}?id=${relatorio.id}`;
+                            const tipoBase = relatorio.tipo.replace('_diario', '').replace('_semanal', '');
+                            const tipoRelatorio = relatorio.isSemanal ? `${tipoBase}-semanal` : tipoBase;
+                            const url = `/relatorios/visualizacao/a4/${tipoRelatorio}?id=${relatorio.id}`;
                             window.open(url, '_blank');
                           }}
                           variant="outline"
@@ -305,7 +364,7 @@ export default function ListaRelatorios() {
                         <IconButton
                           aria-label="Excluir relatório"
                           icon={<FiTrash2 />}
-                          onClick={() => setRelatorioParaExcluir(relatorio.id)}
+                          onClick={() => setRelatorioParaExcluir({ id: relatorio.id, isSemanal: relatorio.isSemanal })}
                           variant="outline"
                           color="red.500"
                           borderColor="red.500"
@@ -354,7 +413,7 @@ export default function ListaRelatorios() {
                 colorScheme="red"
                 onClick={() => {
                   if (relatorioParaExcluir) {
-                    excluirRelatorio(relatorioParaExcluir);
+                    excluirRelatorio(relatorioParaExcluir.id, relatorioParaExcluir.isSemanal);
                     setRelatorioParaExcluir(null);
                   }
                 }} 
