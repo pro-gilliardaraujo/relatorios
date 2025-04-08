@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel } from '@chakra-ui/react';
 import A4Colheita from '@/components/Layout/A4Colheita';
 import { useReportStore } from '@/store/useReportStore';
@@ -22,71 +22,57 @@ import { DateRangeDisplay } from '@/components/DateRangeDisplay';
 // Dados de exemplo para visualização offline
 const exemplosDados: DadosProcessados = {
   disponibilidade_mecanica: [
-    { frota: '6031', disponibilidade: 89.00 },
-    { frota: '6082', disponibilidade: 99.23 },
-    { frota: '6087', disponibilidade: 98.61 },
-    { frota: '6096', disponibilidade: 99.34 },
-    { frota: '0', disponibilidade: 0.00 }
+    { frota: '6031', disponibilidade: 0.95 },
+    { frota: '6082', disponibilidade: 0.92 },
+    { frota: '6087', disponibilidade: 0.97 },
+    { frota: '6096', disponibilidade: 0.91 },
+    { frota: '0', disponibilidade: 0.0 }
   ],
   eficiencia_energetica: [
-    { id: '1', nome: 'JOAO BATISTA DA ROCHA', eficiencia: 50.39 },
-    { id: '2', nome: 'TROCA DE TURNO', eficiencia: 0.00 },
-    { id: '3', nome: 'LEONARDO RODRIGUES DE MENEZES', eficiencia: 56.66 },
-    { id: '4', nome: 'GERALDO BRITO DA SILVA', eficiencia: 49.92 },
-    { id: '5', nome: 'MANUEL RICARDO ALVES DOS SANTOS', eficiencia: 64.13 },
-    { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', eficiencia: 52.45 },
-    { id: '7', nome: 'SEM OPERADOR', eficiencia: 9.25 },
-    { id: '8', nome: 'VITOR SOARES FREITAS', eficiencia: 56.81 },
-    { id: '9', nome: 'DANILO JESUS BRITO', eficiencia: 54.67 }
+    { operador: 'João Silva', eficiencia: 0.85 },
+    { operador: 'Maria Oliveira', eficiencia: 0.82 },
+    { operador: 'Pedro Santos', eficiencia: 0.87 },
+    { operador: 'Ana Souza', eficiencia: 0.81 },
+    { operador: '0', eficiencia: 0.0 }
   ],
   motor_ocioso: [
-    { id: '1', nome: 'JOAO BATISTA DA ROCHA', percentual: 8.87 },
-    { id: '2', nome: 'TROCA DE TURNO', percentual: 89.76 },
-    { id: '3', nome: 'LEONARDO RODRIGUES DE MENEZES', percentual: 25.30 },
-    { id: '4', nome: 'GERALDO BRITO DA SILVA', percentual: 38.27 },
-    { id: '5', nome: 'MANUEL RICARDO ALVES DOS SANTOS', percentual: 20.85 },
-    { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', percentual: 23.03 },
-    { id: '7', nome: 'VITOR SOARES FREITAS', percentual: 13.96 },
-    { id: '8', nome: 'DANILO JESUS BRITO', percentual: 17.89 }
+    { frota: '6031', ociosidade: 0.25 },
+    { frota: '6082', ociosidade: 0.22 },
+    { frota: '6087', ociosidade: 0.27 },
+    { frota: '6096', ociosidade: 0.21 },
+    { frota: '0', ociosidade: 0.0 }
   ],
   uso_gps: [
-    { id: '1', nome: 'JOAO BATISTA DA ROCHA', porcentagem: 0.0 },
-    { id: '2', nome: 'TROCA DE TURNO', porcentagem: 0.0 },
-    { id: '3', nome: 'LEONARDO RODRIGUES DE MENEZES', porcentagem: 0.0 },
-    { id: '4', nome: 'GERALDO BRITO DA SILVA', porcentagem: 0.0 },
-    { id: '5', nome: 'MANUEL RICARDO ALVES DOS SANTOS', porcentagem: 0.0 },
-    { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', porcentagem: 0.0 },
-    { id: '7', nome: 'VITOR SOARES FREITAS', porcentagem: 0.0 },
-    { id: '8', nome: 'DANILO JESUS BRITO', porcentagem: 0.0 }
+    { frota: '6031', uso: 0.95 },
+    { frota: '6082', uso: 0.92 },
+    { frota: '6087', uso: 0.97 },
+    { frota: '6096', uso: 0.91 },
+    { frota: '0', uso: 0.0 }
   ],
   falta_apontamento: [
-    { id: '1', nome: 'JOAO BATISTA DA ROCHA', percentual: 3.74 },
-    { id: '2', nome: 'TROCA DE TURNO', percentual: 0.00 },
-    { id: '3', nome: 'LEONARDO RODRIGUES DE MENEZES', percentual: 8.82 },
-    { id: '4', nome: 'GERALDO BRITO DA SILVA', percentual: 9.26 },
-    { id: '5', nome: 'MANUEL RICARDO ALVES DOS SANTOS', percentual: 0.04 },
-    { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', percentual: 14.99 },
-    { id: '7', nome: 'VITOR SOARES FREITAS', percentual: 5.30 },
-    { id: '8', nome: 'DANILO JESUS BRITO', percentual: 1.02 }
+    { frota: '6031', falta: 0.05 },
+    { frota: '6082', falta: 0.08 },
+    { frota: '6087', falta: 0.03 },
+    { frota: '6096', falta: 0.09 },
+    { frota: '0', falta: 0.0 }
   ],
   exemplosOperadores: [
-    { id: '1', nome: 'JOAO BATISTA DA ROCHA', eficiencia: 50.39 },
-    { id: '2', nome: 'TROCA DE TURNO', eficiencia: 0.00 },
-    { id: '3', nome: 'LEONARDO RODRIGUES DE MENEZES', eficiencia: 56.66 },
-    { id: '4', nome: 'GERALDO BRITO DA SILVA', eficiencia: 49.92 },
-    { id: '5', nome: 'MANUEL RICARDO ALVES DOS SANTOS', eficiencia: 64.13 }
+    'João Silva',
+    'Maria Oliveira',
+    'Pedro Santos',
+    'Ana Souza'
   ],
   exemplosFrotas: [
-    { frota: '6031', disponibilidade: 89.00 },
-    { frota: '6082', disponibilidade: 99.23 },
-    { frota: '6087', disponibilidade: 98.61 },
-    { frota: '6096', disponibilidade: 99.34 },
-    { frota: '0', disponibilidade: 0.00 }
+    '6031',
+    '6082',
+    '6087',
+    '6096'
   ]
 };
 
 interface TransbordoSemanalA4Props {
   data?: any;
+  carregandoDados?: boolean;
 }
 
 interface DadosProcessados {
@@ -176,63 +162,113 @@ const normalizarDados = (dados: any) => {
   return dadosNormalizados;
 };
 
-// Função de verificação de dados mais robusta
-const verificarFormatoDados = (dados: any): { dadosValidos: boolean; dadosNormalizados: any } => {
-  console.log("🔍 VERIFICANDO FORMATO DOS DADOS:", dados);
-  
-  if (!dados) {
-    console.error("❌ Dados ausentes");
-    return { dadosValidos: false, dadosNormalizados: {} };
+// Função para processar arrays com segurança
+const processarArray = (arr: any): Array<any> => {
+  if (!arr || !Array.isArray(arr) || arr.length === 0) {
+    return [];
   }
+  return arr;
+};
+
+const filtrarTrocaDeTurno = (array: any[]): any[] => {
+  if (!array || !Array.isArray(array)) return [];
   
-  // Normalizar dados antes da verificação
-  const dadosNormalizados = normalizarDados(dados);
-  
-  // Log detalhado das propriedades nos dados
-  console.log("📊 Propriedades nos dados normalizados:", Object.keys(dadosNormalizados));
-  
-  // Verificamos se pelo menos alguns dos dados esperados existem
-  // Não exigimos todos, apenas alguns para considerarmos válido
-  const tiposDados = [
-    'disponibilidade_mecanica', 
-    'eficiencia_energetica', 
-    'motor_ocioso', 
-    'uso_gps', 
-    'falta_apontamento'
-  ];
-  
-  // Verificar se qualquer propriedade nos dados contém as chaves que buscamos (busca parcial)
-  const chavesParciais = Object.keys(dadosNormalizados).filter(chave => {
-    return tiposDados.some(tipoDado => 
-      chave.toLowerCase().includes(tipoDado.toLowerCase())
-    );
+  return array.filter((item) => {
+    // Se o item não for um objeto, verificar se é uma string
+    if (typeof item === 'string') {
+      return !item.includes('TROCA DE TURNO');
+    }
+    
+    // Se for um objeto, verificar campos comuns que podem conter "TROCA DE TURNO"
+    if (typeof item === 'object' && item !== null) {
+      // Verificar campo 'operador'
+      if (item.operador && typeof item.operador === 'string' && item.operador.includes('TROCA DE TURNO')) {
+        return false;
+      }
+      
+      // Verificar campo 'nome'
+      if (item.nome && typeof item.nome === 'string' && item.nome.includes('TROCA DE TURNO')) {
+        return false;
+      }
+      
+      // Verificar campo 'id'
+      if (item.id) {
+        // ID como string
+        if (typeof item.id === 'string' && (item.id === '9999' || item.id.includes('TROCA DE TURNO'))) {
+          return false;
+        }
+        // ID como número
+        if (typeof item.id === 'number' && item.id === 9999) {
+          return false;
+        }
+      }
+      
+      // Verificar campo 'frota'
+      if (item.frota) {
+        // Frota como string
+        if (typeof item.frota === 'string' && (item.frota.includes('TROCA DE TURNO') || item.frota === '9999')) {
+          return false;
+        }
+        // Frota como número
+        if (typeof item.frota === 'number' && item.frota === 9999) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
   });
-  
-  console.log("🔍 Chaves parciais encontradas:", chavesParciais);
-  
-  // Verificar quantos tipos de dados estão presentes com match exato
-  const tiposPresentes = tiposDados.filter(tipo => 
-    dadosNormalizados[tipo] && Array.isArray(dadosNormalizados[tipo]) && dadosNormalizados[tipo].length > 0
-  );
-  
-  console.log("✅ Tipos de dados presentes (match exato):", tiposPresentes);
-  console.log("📊 Total de tipos de dados presentes:", tiposPresentes.length);
-  
-  // Para cada tipo de dado presente, mostramos um exemplo
-  tiposPresentes.forEach(tipo => {
-    console.log(`📄 Exemplo de ${tipo}:`, dadosNormalizados[tipo][0]);
-  });
-  
-  // Se temos pelo menos alguns dos tipos de dados ou chaves parciais, consideramos válido
-  const dadosValidos = tiposPresentes.length > 0 || chavesParciais.length > 0;
-  
-  if (!dadosValidos) {
-    console.error("❌ Formato de dados inválido, nenhum dado reconhecido");
-  } else {
-    console.log("✅ Dados válidos encontrados");
+};
+
+const processarDadosApi = (data: any): DadosProcessados => {
+  try {
+    if (!data || typeof data !== 'object') {
+      console.error('Dados inválidos recebidos da API:', data);
+      return exemplosDados;
+    }
+
+    // Log para debug dos dados recebidos
+    console.log('📊 DADOS RECEBIDOS DA API:', Object.keys(data));
+    
+    // Garantir que todos os arrays existam, mesmo que vazios
+    let disponibilidade = Array.isArray(data.disponibilidade_mecanica) ? data.disponibilidade_mecanica : [];
+    let eficiencia = Array.isArray(data.eficiencia_energetica) ? data.eficiencia_energetica : [];  
+    let motorOcioso = Array.isArray(data.motor_ocioso) ? data.motor_ocioso : [];
+    let faltaApontamento = Array.isArray(data.falta_apontamento) ? data.falta_apontamento : [];
+    let usoGps = Array.isArray(data.uso_gps) ? data.uso_gps : [];
+    
+    // Filtrar todas as entradas "TROCA DE TURNO"
+    disponibilidade = filtrarTrocaDeTurno(disponibilidade);
+    eficiencia = filtrarTrocaDeTurno(eficiencia);
+    motorOcioso = filtrarTrocaDeTurno(motorOcioso);
+    faltaApontamento = filtrarTrocaDeTurno(faltaApontamento);
+    usoGps = filtrarTrocaDeTurno(usoGps);
+    
+    console.log('📊 Quantidades encontradas após filtrar TROCA DE TURNO:', {
+      disponibilidade: disponibilidade.length,
+      eficiencia: eficiencia.length,
+      motorOcioso: motorOcioso.length,
+      faltaApontamento: faltaApontamento.length,
+      usoGps: usoGps.length
+    });
+
+    return {
+      disponibilidade_mecanica: disponibilidade,
+      eficiencia_energetica: eficiencia,
+      motor_ocioso: motorOcioso,
+      falta_apontamento: faltaApontamento,
+      uso_gps: usoGps,
+      exemplosOperadores: disponibilidade.length > 0 
+        ? eficiencia 
+        : exemplosDados.exemplosOperadores,
+      exemplosFrotas: disponibilidade.length > 0 
+        ? disponibilidade 
+        : exemplosDados.exemplosFrotas,
+    };
+  } catch (error) {
+    console.error('Erro ao processar dados da API:', error);
+    return exemplosDados;
   }
-  
-  return { dadosValidos, dadosNormalizados };
 };
 
 export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) {
@@ -276,118 +312,57 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
     usoGPS: false
   };
 
-  useEffect(() => {
-    // Recarregar configurações antes de buscar dados
-    const reloadConfig = async () => {
-      await configManager.reloadConfig();
-    };
-    
-    const loadData = async () => {
-      try {
-        await reloadConfig();
-        setLoading(true);
-        console.log("🔄 Buscando relatório:", searchParams);
-        
-        const reportId = searchParams.get('id');
-        console.log("📊 ID do relatório:", reportId);
-        
-        if (!reportId) {
-          console.log("⚠️ ID do relatório não fornecido, usando dados de exemplo");
-          setUseExampleData(true);
-          setLoading(false);
-          return;
-        }
-        
-        // Mostrar dados brutos do relatório para debugging
-        const fetchReportData = async () => {
-          try {
-            // Buscar dados do relatório
-            const { data: reportData, error } = await supabase
-              .from('relatorios_semanais')
-              .select('*')
-              .eq('id', reportId)
-              .single();
-            
-            if (error) {
-              throw error;
-            }
-            
-            if (!reportData) {
-              throw new Error('Relatório não encontrado');
-            }
-            
-            console.log("🔍 DADOS BRUTOS DO RELATÓRIO:", JSON.stringify(reportData, null, 2));
-            
-            // Exibir estrutura da árvore de dados para debug
-            console.log("📋 ESTRUTURA DE DADOS:");
-            console.log("- id:", reportData.id);
-            console.log("- tipo:", reportData.tipo);
-            console.log("- data:", reportData.data);
-            console.log("- frente:", reportData.frente);
-            
-            if (reportData.dados) {
-              console.log("- dados: ✓ Presente");
-              Object.keys(reportData.dados).forEach(key => {
-                const items = reportData.dados[key];
-                console.log(`  - ${key}: ${Array.isArray(items) ? items.length + ' itens' : 'não é array'}`);
-                
-                // Mostrar primeiro item de cada categoria, se disponível
-                if (Array.isArray(items) && items.length > 0) {
-                  console.log(`    Exemplo: ${JSON.stringify(items[0])}`);
-                }
-              });
-            } else {
-              console.log("- dados: ❌ Ausente");
-            }
-            
-            // Definir dados do relatório
-            setReportData(reportData);
-            
-            // SEMPRE usar dados reais quando temos um ID
-            if (reportId) {
-              console.log("✅ ID válido, NUNCA usar dados de exemplo");
-              setUseExampleData(false);
-            }
-            
-            // Código modificado para desabilitar atualizações constantes
-            /*
-            const subscription = supabase
-            .channel('report_updates')
-            .on('postgres_changes', {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'relatorios_semanais',
-              filter: `id=eq.${reportId}`
-            },
-            async (payload) => {
-              console.log("Atualização recebida:", payload);
-              fetchReport();
-            })
-            .subscribe();
+  // Função para carregar os dados do relatório
+  const loadData = useCallback(async () => {
+    if (!reportId) {
+      console.log('📊 Sem ID de relatório, usando dados de exemplo');
+      setReportData(null);
+      setLoading(false);
+      return;
+    }
 
-            return () => {
-              subscription.unsubscribe();
-            };
-            */
-          } catch (error) {
-            console.error('Erro ao buscar dados do relatório:', error);
-            setError('Erro ao buscar dados. Por favor, tente novamente.');
-            setLoading(false);
-            return null;
-          }
-        };
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log('📊 Buscando relatório:', reportId);
+      // Instead of using relatoriosApi, use supabase directly
+      const { data, error } = await supabase
+        .from('relatorios_semanais')
+        .select('*')
+        .eq('id', reportId)
+        .single();
         
-        await fetchReportData();
-        setLoading(false);
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-        setError('Erro ao carregar dados. Por favor, tente novamente.');
-        setLoading(false);
+      if (error) {
+        throw error;
       }
-    };
-    
+        
+      console.log('📊 Relatório recebido:', 
+        data ? `objeto com ${Object.keys(data).length} chaves` : 'null/undefined');
+      
+      // Exibir as chaves principais do relatório para debug
+      if (data) {
+        console.log('📊 Chaves do relatório:', Object.keys(data).join(', '));
+        
+        // Se tiver uma chave 'dados', mostrar suas chaves também
+        if (data.dados && typeof data.dados === 'object') {
+          console.log('📊 Chaves dentro de "dados":', Object.keys(data.dados).join(', '));
+        }
+      }
+      
+      setReportData(data);
+    } catch (error) {
+      console.error('❌ Erro ao buscar relatório:', error);
+      setError('Não foi possível obter os dados do relatório');
+    } finally {
+      setLoading(false);
+    }
+  }, [reportId]);
+
+  // Carregar dados quando o componente montar ou quando o ID mudar
+  useEffect(() => {
     loadData();
-  }, [searchParams]);
+  }, [loadData]);
 
   // Funções utilitárias para processamento de dados
       const processarOperador = (operador: any) => {
@@ -440,20 +415,34 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
     if (!array || array.length === 0) return 0;
     
+    // Primeiro, aplicar o filtro para remover as entradas de TROCA DE TURNO
+    const arrayFiltrado = filtrarTrocaDeTurno(array);
+    
     // Log de entrada para debug
-    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`, 
-      array.map(item => ({
-        id: item.frota || item.nome || 'desconhecido',
-        valor: item[propriedade]
-      }))
-    );
+    console.log(`📊 Calculando média para propriedade "${propriedade}" com ${arrayFiltrado.length} itens (após filtrar TROCA DE TURNO)`);
     
     // Filtrar apenas itens com valores válidos
-    const itensFiltrados = array.filter(item => {
+    const itensFiltrados = arrayFiltrado.filter(item => {
       if (!item) return false;
       
       // Verificação adicional para garantir que o valor existe e é válido
       const valorExiste = item[propriedade] !== undefined && item[propriedade] !== null;
+      
+      // Verificar se é TROCA DE TURNO em algum campo
+      if (
+        (item.operador && typeof item.operador === 'string' && item.operador.includes('TROCA DE TURNO')) ||
+        (item.nome && typeof item.nome === 'string' && item.nome.includes('TROCA DE TURNO')) ||
+        (item.frota && (
+          (typeof item.frota === 'string' && (item.frota.includes('TROCA DE TURNO') || item.frota === '9999')) ||
+          (typeof item.frota === 'number' && item.frota === 9999)
+        )) ||
+        (item.id && (
+          (typeof item.id === 'string' && (item.id === '9999' || item.id.includes('TROCA DE TURNO'))) ||
+          (typeof item.id === 'number' && item.id === 9999)
+        ))
+      ) {
+        return false;
+      }
       
       // Para disponibilidade, verificar se tem frota
       if (propriedade === 'disponibilidade') {
@@ -467,9 +456,6 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         return item.nome && item.nome.trim() !== '' && valorExiste;
       }
     });
-    
-    // Log para depuração dos itens filtrados
-    console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
     
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) return 0;
@@ -596,115 +582,103 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
 
   // Dados processados para os gráficos
   const dadosProcessados = useMemo(() => {
-    // Configurações e exemplos para exibição
-    const exemplosFrotas = exemplosDados.disponibilidade_mecanica;
-    const exemplosOperadores = exemplosDados.eficiencia_energetica;
-
-    try {
-      console.log('📊 INICIANDO PROCESSAMENTO DE DADOS - TRANSBORDO SEMANAL', {
-        reportData,
-        temDados: reportData?.dados && Object.keys(reportData.dados).length > 0,
-        useExampleData
-      });
-      
-      // Se useExampleData estiver definido (e não tivermos um ID válido), use os dados de exemplo
-      if (useExampleData && !searchParams.get('id')) {
-        console.log('📊 Usando dados de exemplo (modo preview)');
-        return exemplosDados;
-      }
-
-      // Se não tivermos reportData ou seus dados, ou se o formato for inválido, use os dados de exemplo
-      if (!reportData?.dados) {
-        console.warn("⚠️ Dados do relatório ausentes, verificando se há ID");
-        
-        // Se temos um ID de relatório mas não temos dados válidos, isso é um erro
-        if (reportId) {
-          console.error("❌ ERRO: Relatório com ID existe, mas sem dados:", reportId);
-          setError('O relatório não contém dados válidos. Verifique o arquivo Excel enviado.');
-        }
-        
-        console.log("📊 Usando dados de exemplo (fallback)");
-        return exemplosDados;
-      }
-      
-      // Verificar formato dos dados e obter dados normalizados
-      const { dadosValidos, dadosNormalizados } = verificarFormatoDados(reportData.dados);
-      
-      if (!dadosValidos) {
-        console.warn("⚠️ Dados do relatório em formato inválido, verificando se há ID");
-        
-        // Se temos um ID de relatório mas o formato dos dados é inválido, isso é um erro
-        if (reportId) {
-          console.error("❌ ERRO: Relatório com ID existe, mas formato inválido:", reportId);
-          setError('O relatório não contém dados válidos. Verifique o arquivo Excel enviado.');
-        }
-        
-        console.log("📊 Usando dados de exemplo (fallback)");
-        return exemplosDados;
-      }
-      
-      console.log("✅ Dados válidos encontrados:", dadosNormalizados);
-      
-      // Processar os dados normalizados
-      try {
-        const dadosProcessados: DadosProcessados = {
-          disponibilidade_mecanica: 
-            dadosNormalizados.disponibilidade_mecanica?.map((item: any) => ({
-              ...item,
-              tipo: 'Disponibilidade',
-              registro: new Date(item.registro),
-            })) || [],
-          
-          eficiencia_energetica: 
-            dadosNormalizados.eficiencia_energetica?.map((item: any) => ({
-              ...item,
-              tipo: 'Eficiência',
-              registro: new Date(item.registro),
-            })) || [],
-          
-          motor_ocioso: 
-            dadosNormalizados.motor_ocioso?.map((item: any) => ({
-              ...item,
-              tipo: 'Motor Ocioso',
-              registro: new Date(item.registro),
-            })) || [],
-          
-          falta_apontamento: 
-            dadosNormalizados.falta_apontamento?.map((item: any) => ({
-              ...item,
-              tipo: 'Falta Apontamento',
-              registro: new Date(item.registro),
-            })) || [],
-          
-          uso_gps: 
-            dadosNormalizados.uso_gps?.map((item: any) => ({
-              ...item,
-              tipo: 'Uso GPS',
-              registro: new Date(item.registro),
-            })) || [],
-          
-          exemplosOperadores: dadosNormalizados.eficiencia_energetica 
-            ? dadosNormalizados.eficiencia_energetica.slice(0, 5) 
-            : exemplosDados.eficiencia_energetica,
-          
-          exemplosFrotas: dadosNormalizados.disponibilidade_mecanica 
-            ? dadosNormalizados.disponibilidade_mecanica.slice(0, 5) 
-            : exemplosDados.disponibilidade_mecanica,
-        };
-        
-        console.log('📊 DADOS FINAIS APÓS PROCESSAMENTO:', dadosProcessados);
-        return dadosProcessados;
-      } catch (error) {
-        console.error('❌ ERRO NO PROCESSAMENTO DE DADOS:', error);
-        // Em caso de erro, usar dados de exemplo
-        return exemplosDados;
-      }
-    } catch (error) {
-      console.error('❌ ERRO NO PROCESSAMENTO DE DADOS:', error);
-      // Em caso de erro, usar dados de exemplo
+    // Se estiver carregando, não processar nada
+    if (loading) return exemplosDados;
+    
+    console.log('📊 Processando relatório:', reportData ? Object.keys(reportData).join(', ') : 'null');
+    
+    // Se não houver dados do relatório ou se useExampleData estiver definido, usar dados de exemplo
+    if (!reportData || useExampleData) {
+      console.log("📊 Usando dados de exemplo");
       return exemplosDados;
     }
-  }, [reportData, useExampleData, searchParams]);
+    
+    try {
+      // Obter os dados diretamente do relatório
+      const dados = reportData;
+      
+      console.log("📊 Processando dados do relatório:", 
+        dados?.disponibilidade_mecanica ? 
+          `tem dados diretos: ${dados.disponibilidade_mecanica.length} itens disp. mecânica` : 
+          "sem dados diretos"
+      );
+      
+      if (dados?.disponibilidade_mecanica) {
+        console.log("📊 Usando dados diretos do relatório");
+        
+        // Aplicar filtro para remover TROCA DE TURNO
+        const dispMecanica = filtrarTrocaDeTurno(Array.isArray(dados.disponibilidade_mecanica) ? dados.disponibilidade_mecanica : []);
+        const eficEnerg = filtrarTrocaDeTurno(Array.isArray(dados.eficiencia_energetica) ? dados.eficiencia_energetica : []);
+        const motorOcioso = filtrarTrocaDeTurno(Array.isArray(dados.motor_ocioso) ? dados.motor_ocioso : []);
+        const faltaApontamento = filtrarTrocaDeTurno(Array.isArray(dados.falta_apontamento) ? dados.falta_apontamento : []);
+        const usoGps = filtrarTrocaDeTurno(Array.isArray(dados.uso_gps) ? dados.uso_gps : []);
+        
+        console.log("📊 Dados após filtrar TROCA DE TURNO:", {
+          disponibilidade: dispMecanica.length,
+          eficiencia: eficEnerg.length,
+          motorOcioso: motorOcioso.length,
+          faltaApontamento: faltaApontamento.length,
+          usoGps: usoGps.length
+        });
+        
+        // Dados já estão no formato correto na raiz do objeto
+        return {
+          disponibilidade_mecanica: dispMecanica,
+          eficiencia_energetica: eficEnerg,
+          motor_ocioso: motorOcioso,
+          falta_apontamento: faltaApontamento,
+          uso_gps: usoGps,
+          exemplosOperadores: eficEnerg.length > 0 
+            ? eficEnerg 
+            : exemplosDados.exemplosOperadores,
+          exemplosFrotas: dispMecanica.length > 0 
+            ? dispMecanica 
+            : exemplosDados.exemplosFrotas
+        };
+      } 
+      
+      if (dados?.dados) {
+        console.log("📊 Tentando usar dados do objeto 'dados'");
+        
+        // Aplicar filtro para remover TROCA DE TURNO
+        const dispMecanica = filtrarTrocaDeTurno(Array.isArray(dados.dados.disponibilidade_mecanica) ? dados.dados.disponibilidade_mecanica : []);
+        const eficEnerg = filtrarTrocaDeTurno(Array.isArray(dados.dados.eficiencia_energetica) ? dados.dados.eficiencia_energetica : []);
+        const motorOcioso = filtrarTrocaDeTurno(Array.isArray(dados.dados.motor_ocioso) ? dados.dados.motor_ocioso : []);
+        const faltaApontamento = filtrarTrocaDeTurno(Array.isArray(dados.dados.falta_apontamento) ? dados.dados.falta_apontamento : []);
+        const usoGps = filtrarTrocaDeTurno(Array.isArray(dados.dados.uso_gps) ? dados.dados.uso_gps : []);
+        
+        console.log("📊 Dados após filtrar TROCA DE TURNO:", {
+          disponibilidade: dispMecanica.length,
+          eficiencia: eficEnerg.length,
+          motorOcioso: motorOcioso.length,
+          faltaApontamento: faltaApontamento.length,
+          usoGps: usoGps.length
+        });
+        
+        // Dados estão dentro da propriedade 'dados'
+        return {
+          disponibilidade_mecanica: dispMecanica,
+          eficiencia_energetica: eficEnerg,
+          motor_ocioso: motorOcioso,
+          falta_apontamento: faltaApontamento,
+          uso_gps: usoGps,
+          exemplosOperadores: eficEnerg.length > 0 
+            ? eficEnerg 
+            : exemplosDados.exemplosOperadores,
+          exemplosFrotas: dispMecanica.length > 0 
+            ? dispMecanica 
+            : exemplosDados.exemplosFrotas
+        };
+      }
+      
+      // Se não encontrou dados no formato esperado, usar exemplos
+      console.log("❌ Não encontrou dados no formato esperado, usando dados de exemplo");
+      return exemplosDados;
+    } catch (error) {
+      console.error('❌ ERRO NO PROCESSAMENTO DE DADOS:', error);
+      return exemplosDados;
+    }
+  }, [reportData, loading, useExampleData, searchParams]);
 
   // Formatação dos dados de frota para remover decimais
   const processarFrota = (frota: any) => {
@@ -782,13 +756,13 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           }
         }}
       >
-        {/* Primeira Página - Disponibilidade Mecânica e Eficiência Energética */}
+        {/* Primeira Página - Disponibilidade Mecânica */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
               {/* Disponibilidade Mecânica */}
-              <Box flex="1" mb={4}>
+              <Box flex="1">
                 <SectionTitle title="Disponibilidade Mecânica" />
                 <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
@@ -808,7 +782,8 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   borderColor="black"
                   borderRadius="md"
                   p={2}
-                  h="500px"
+                  h="calc(100vh - 50px)"
+                  maxH="2000px"
                   overflow="hidden"
                 >
                   <GraficoDisponibilidadeMecanicaTransbordo
@@ -817,7 +792,15 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   />
                 </Box>
               </Box>
-              
+            </Box>
+          </Box>
+        </A4Colheita>
+
+        {/* Segunda Página - Eficiência Energética */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader showDate={true} />
+            <Box flex="1" display="flex" flexDirection="column">
               {/* Eficiência Energética */}
               <Box flex="1">
                 <SectionTitle title="Eficiência Energética" />
@@ -841,7 +824,8 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   borderColor="black"
                   borderRadius="md"
                   p={2}
-                  h="500px"
+                  h="calc(100vh - 50px)"
+                  maxH="2000px"
                   overflow="hidden"
                 >
                   <GraficoEficienciaEnergetica 
@@ -854,7 +838,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           </Box>
         </A4Colheita>
 
-        {/* Segunda Página - Motor Ocioso */}
+        {/* Terceira Página - Motor Ocioso */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
@@ -883,7 +867,8 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   borderColor="black"
                   borderRadius="md"
                   p={2}
-                  h="500px"
+                  h="calc(100vh - 50px)"
+                  maxH="2000px"
                   overflow="hidden"
                 >
                   <GraficoMotorOciosoTransbordo
@@ -896,7 +881,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           </Box>
         </A4Colheita>
               
-        {/* Terceira Página - Falta Apontamento */}
+        {/* Quarta Página - Falta Apontamento */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
@@ -920,13 +905,71 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                     />
                   )}
                 </SimpleGrid>
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100vh - 50px)"
+                  maxH="2000px"
+                  overflow="hidden"
+                >
+                  <GraficoFaltaApontamentoTransbordo
+                    data={dadosProcessados.falta_apontamento}
+                    meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
+                  />
+                </Box>
               </Box>
             </Box>
           </Box>
         </A4Colheita>
         
-        {/* Quarta Página - Resumo */}
-        <A4Colheita isLastPage={true}>
+        {/* Quinta Página - Uso GPS */}
+        {secoes.usoGPS && (
+          <A4Colheita>
+            <Box h="100%" display="flex" flexDirection="column">
+              <PageHeader showDate={true} />
+              <Box flex="1" display="flex" flexDirection="column">
+                {/* Uso GPS */}
+                <Box flex="1">
+                  <SectionTitle title="Uso GPS" />
+                  <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                    {dadosProcessados.uso_gps.length > 0 && (
+                      <IndicatorCard
+                        title=""
+                        value={calcularMedia(dadosProcessados.uso_gps, 'porcentagem')}
+                        meta={configManager.getMetas('transbordo_semanal').usoGPS}
+                        unitType="porcentagem"
+                        acimaMeta={{
+                          quantidade: contarItensMeta(dadosProcessados.uso_gps, 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS),
+                          total: dadosProcessados.uso_gps.length,
+                          percentual: (contarItensMeta(dadosProcessados.uso_gps, 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS) / dadosProcessados.uso_gps.length) * 100
+                        }}
+                      />
+                    )}
+                  </SimpleGrid>
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100vh - 50px)"
+                    maxH="2000px"
+                    overflow="hidden"
+                  >
+                    <GraficoUsoGPS
+                      data={dadosProcessados.uso_gps}
+                      meta={configManager.getMetas('transbordo_semanal').usoGPS}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          </A4Colheita>
+        )}
+        
+        {/* Sexta Página - Resumo de Frotas */}
+        <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column" p={3}>
@@ -943,31 +986,31 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               </Heading>
 
               {/* Seção Frotas */}
-              <Box mb={2}>
-                <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
-                  Frotas
+              <Box>
+                <Text fontSize="14px" fontWeight="bold" color="black" mb={2} textAlign="center">
+                  Resumo de Frotas
                 </Text>
-                <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
-                  <IndicatorCard
-                    title=""
-                    value={calcularMedia(dadosProcessados.disponibilidade_mecanica, 'disponibilidade')}
-                    meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
-                    unitType="porcentagem"
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica),
-                      total: dadosProcessados.disponibilidade_mecanica.length,
-                      percentual: (contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica) / dadosProcessados.disponibilidade_mecanica.length) * 100
-                    }}
-                  />
-                </SimpleGrid>
-                
-                {/* Tabela de Frotas */}
-                <Box mb={2}>
+                <Box>
                   <TabelaFrotas 
                     dados={dadosProcessados.disponibilidade_mecanica
-                      .filter((item: { frota: string }) => item.frota !== '0')
-                      .map((item: { frota: string; disponibilidade: number }) => ({
-                        frota: item.frota,
+                      .filter((item: any) => {
+                        // Verificar se frota é 0
+                        if (item.frota === 0 || item.frota === '0') return false;
+                        
+                        // Verificar TROCA DE TURNO e 9999 para string
+                        if (typeof item.frota === 'string') {
+                          if (item.frota.includes('TROCA DE TURNO') || item.frota === '9999') 
+                            return false;
+                        }
+                        
+                        // Verificar 9999 para número
+                        if (typeof item.frota === 'number' && item.frota === 9999) 
+                          return false;
+                          
+                        return true;
+                      })
+                      .map((item: { frota: any; disponibilidade: number }) => ({
+                        frota: String(item.frota),
                         disponibilidade: item.disponibilidade
                       }))
                     }
@@ -975,60 +1018,46 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   />
                 </Box>
               </Box>
+            </Box>
+          </Box>
+        </A4Colheita>
+        
+        {/* Sétima Página - Resumo de Operadores */}
+        <A4Colheita isLastPage={true}>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader showDate={true} />
+            <Box flex="1" display="flex" flexDirection="column" p={3}>
+              <Heading
+                as="h1"
+                size="sm"
+                textAlign="center"
+                mb={2}
+                color="black"
+                fontWeight="bold"
+                fontSize="15px"
+              >
+                Resumo do Relatório de Transbordo Semanal
+              </Heading>
 
               {/* Seção Operadores */}
               <Box>
-                <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
-                  Operadores
+                <Text fontSize="14px" fontWeight="bold" color="black" mb={2} textAlign="center">
+                  Resumo de Operadores
                 </Text>
-                <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
-                  {dadosProcessados.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
-                    <IndicatorCard
-                      title=""
-                      value={calcularMedia(dadosProcessados.eficiencia_energetica, 'eficiencia')}
-                      meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
-                        total: dadosProcessados.eficiencia_energetica.length,
-                        percentual: (contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / dadosProcessados.eficiencia_energetica.length) * 100
-                      }}
-                    />
-                  )}
-                  {dadosProcessados.motor_ocioso.length > 0 && secoes.motorOcioso && (
-                    <IndicatorCard
-                      title=""
-                      value={calcularMedia(dadosProcessados.motor_ocioso, 'percentual')}
-                      meta={configManager.getMetas('transbordo_semanal').motorOcioso}
-                      unitType="porcentagem"
-                      isInverted={true}
-                      acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso),
-                        total: dadosProcessados.motor_ocioso.length,
-                        percentual: (contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso) / dadosProcessados.motor_ocioso.length) * 100
-                      }}
-                    />
-                  )}
-                  {dadosProcessados.falta_apontamento.length > 0 && secoes.faltaApontamento && (
-                    <IndicatorCard
-                      title=""
-                      value={calcularMedia(dadosProcessados.falta_apontamento, 'percentual')}
-                      meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
-                      unitType="porcentagem"
-                      isInverted={true}
-                      acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento),
-                        total: dadosProcessados.falta_apontamento.length,
-                        percentual: (contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento) / dadosProcessados.falta_apontamento.length) * 100
-                      }}
-                    />
-                  )}
-                </SimpleGrid>
-
-                {/* Tabela de Operadores */}
                 <Box>
                   <TabelaOperadores 
-                    dados={dadosProcessados} 
+                    dados={{
+                      ...dadosProcessados,
+                      // Garantir que todos os conjuntos de dados estejam filtrados
+                      eficiencia_energetica: dadosProcessados.eficiencia_energetica.filter(
+                        item => !((item.operador && typeof item.operador === 'string' && item.operador.includes('TROCA DE TURNO')) || 
+                                 (item.nome && typeof item.nome === 'string' && item.nome.includes('TROCA DE TURNO')) || 
+                                 (item.id && (
+                                    (typeof item.id === 'string' && (item.id === '9999' || item.id.includes('TROCA DE TURNO'))) || 
+                                    (typeof item.id === 'number' && item.id === 9999)
+                                  )))
+                      )
+                    }}
                     tipo="transbordo_semanal" 
                     mostrarUsoGPS={secoes.usoGPS}
                   />

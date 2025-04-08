@@ -1,0 +1,303 @@
+{
+  "metadata": {
+    "type": "transbordo_semanal",
+    "date": "2025-03-31",
+    "frente": "frente1",
+    "generated_at": "2025-04-08T07:46:40.207465",
+    "equipment_ids": null,
+    "is_weekly": true,
+    "start_date": "2025-03-31",
+    "end_date": "2025-04-06"
+  },
+  "metas": {
+    "tdh": 0.019,
+    "diesel": 9,
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034.0",
+      "disponibilidade": 95.15020145444308
+    },
+    {
+      "frota": "6086.0",
+      "disponibilidade": 99.44191202627462
+    },
+    {
+      "frota": "6096.0",
+      "disponibilidade": 92.4001061260136
+    },
+    {
+      "frota": "6100.0",
+      "disponibilidade": 87.74688861752911
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "eficiencia": 54.43385680063996
+    },
+    {
+      "id": 2,
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "eficiencia": 58.04423533279371
+    },
+    {
+      "id": 3,
+      "nome": "9999 - TROCA DE TURNO",
+      "eficiencia": 15.151515151515152
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "eficiencia": 43.7728595456123
+    },
+    {
+      "id": 5,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 22.910172173996408
+    },
+    {
+      "id": 6,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "eficiencia": 65.50503340208826
+    },
+    {
+      "id": 7,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "eficiencia": 69.92381540679061
+    },
+    {
+      "id": 8,
+      "nome": "1331013 - GILVAN CIRIACO DA SILVA",
+      "eficiencia": 58.84198095800433
+    },
+    {
+      "id": 9,
+      "nome": "133481 - RUAN PIETRO SILVA DOS SANTOS",
+      "eficiencia": 70.28482357942471
+    },
+    {
+      "id": 10,
+      "nome": "1331012 - CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 59.57176756249653
+    },
+    {
+      "id": 11,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "eficiencia": 48.71453257528774
+    },
+    {
+      "id": 12,
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "eficiencia": 52.70100502512566
+    },
+    {
+      "id": 13,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 52.119511196865986
+    },
+    {
+      "id": 14,
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "eficiencia": 49.26196973455718
+    },
+    {
+      "id": 15,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "eficiencia": 47.62965964343593
+    },
+    {
+      "id": 16,
+      "nome": "1331004 - DIJAIL LUIZ DA SILVA",
+      "eficiencia": 86.92810457516337
+    },
+    {
+      "id": 17,
+      "nome": "1331012 - NAO CADASTRADO",
+      "eficiencia": 70.4545454545455
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "percentual": 26.70535001330854
+    },
+    {
+      "id": 2,
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 24.949919357324184
+    },
+    {
+      "id": 3,
+      "nome": "9999 - TROCA DE TURNO",
+      "percentual": 89.53168044077135
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 37.44560429292255
+    },
+    {
+      "id": 5,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 23.85497098460502
+    },
+    {
+      "id": 6,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 23.037691510431138
+    },
+    {
+      "id": 7,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "percentual": 17.2071654698478
+    },
+    {
+      "id": 8,
+      "nome": "1331013 - GILVAN CIRIACO DA SILVA",
+      "percentual": 20.038379216178367
+    },
+    {
+      "id": 9,
+      "nome": "133481 - RUAN PIETRO SILVA DOS SANTOS",
+      "percentual": 35.6100325917529
+    },
+    {
+      "id": 10,
+      "nome": "1331012 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 18.801390651730074
+    },
+    {
+      "id": 11,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "percentual": 21.155799443337823
+    },
+    {
+      "id": 12,
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 17.80255443886098
+    },
+    {
+      "id": 13,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 17.260129801789144
+    },
+    {
+      "id": 14,
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "percentual": 22.088191515752918
+    },
+    {
+      "id": 15,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "percentual": 21.751755807671515
+    },
+    {
+      "id": 16,
+      "nome": "1331004 - DIJAIL LUIZ DA SILVA",
+      "percentual": 25.682429834678956
+    },
+    {
+      "id": 17,
+      "nome": "1331012 - NAO CADASTRADO",
+      "percentual": 12.735849056603774
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "percentual": 60.087553951854076
+    },
+    {
+      "id": 2,
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 2.641565122064393
+    },
+    {
+      "id": 3,
+      "nome": "9999 - TROCA DE TURNO",
+      "percentual": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 3.491467989834173
+    },
+    {
+      "id": 5,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 28.918860179439935
+    },
+    {
+      "id": 6,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 1.8966814092728428
+    },
+    {
+      "id": 7,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "percentual": 26.52368593674264
+    },
+    {
+      "id": 8,
+      "nome": "1331013 - GILVAN CIRIACO DA SILVA",
+      "percentual": 68.13562453806276
+    },
+    {
+      "id": 9,
+      "nome": "133481 - RUAN PIETRO SILVA DOS SANTOS",
+      "percentual": 3.211497515968778
+    },
+    {
+      "id": 10,
+      "nome": "1331012 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 1.72294514906935
+    },
+    {
+      "id": 11,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "percentual": 4.213747849467008
+    },
+    {
+      "id": 12,
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 3.309806437814137
+    },
+    {
+      "id": 13,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 3.35311881703634
+    },
+    {
+      "id": 14,
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "percentual": 64.68376824413977
+    },
+    {
+      "id": 15,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "percentual": 6.131655864785867
+    },
+    {
+      "id": 16,
+      "nome": "1331004 - DIJAIL LUIZ DA SILVA",
+      "percentual": 7.374631268436574
+    },
+    {
+      "id": 17,
+      "nome": "1331012 - NAO CADASTRADO",
+      "percentual": 7.4140687450039975
+    }
+  ],
+  "uso_gps": []
+}

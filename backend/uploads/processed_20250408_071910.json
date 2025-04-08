@@ -1,0 +1,340 @@
+{
+  "metadata": {
+    "type": "colheita_semanal",
+    "date": "2025-03-31",
+    "frente": "frente3",
+    "generated_at": "2025-04-08T07:19:10.544133",
+    "equipment_ids": null,
+    "is_weekly": true,
+    "start_date": "2025-03-31",
+    "end_date": "2025-04-06"
+  },
+  "metas": {
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64,
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041",
+      "disponibilidade": 95.36162062159123
+    },
+    {
+      "frota": "7042",
+      "disponibilidade": 91.34935510435028
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 49.89339019189768
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "eficiencia": 53.28384369522634
+    },
+    {
+      "id": "289948",
+      "nome": "FABIO JUNIOR DA SILVA COSTA",
+      "eficiencia": 44.39134029141242
+    },
+    {
+      "id": "977542",
+      "nome": "Ademilson matos de morais",
+      "eficiencia": 68.60012871093173
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "eficiencia": 66.779731234302
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "eficiencia": 63.42780026990552
+    },
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "eficiencia": 60.76523245740682
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "eficiencia": 58.52615948794686
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "eficiencia": 36.071158213474675
+    },
+    {
+      "id": "1292260",
+      "nome": "JOSE AILSON DE ARAUJO DIAS",
+      "eficiencia": 51.99625117150888
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "eficiencia": 58.55268586517038
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "eficiencia": 66.67692412897055
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "218534",
+      "nome": "ADEMIR CARVALHO DE MELO",
+      "eficiencia": 46.160561285524906
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "eficiencia": 62.596378797119876
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 0.14857142857142863
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "horas": 1.435555555555556
+    },
+    {
+      "id": "289948",
+      "nome": "FABIO JUNIOR DA SILVA COSTA",
+      "horas": 2.3865277777777756
+    },
+    {
+      "id": "977542",
+      "nome": "Ademilson matos de morais",
+      "horas": 3.4051388888888843
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "horas": 3.5820833333333284
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "horas": 3.916666666666665
+    },
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "horas": 2.9226388888888835
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "horas": 2.890444444444449
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "horas": 0.1764814814814815
+    },
+    {
+      "id": "1292260",
+      "nome": "JOSE AILSON DE ARAUJO DIAS",
+      "horas": 1.9263888888888852
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "horas": 3.449444444444441
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "horas": 4.333555555555553
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "horas": 0.0
+    },
+    {
+      "id": "218534",
+      "nome": "ADEMIR CARVALHO DE MELO",
+      "horas": 1.9829166666666653
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "horas": 3.8202222222222155
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 47.09488272921109
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "percentual": 23.548819465924332
+    },
+    {
+      "id": "289948",
+      "nome": "FABIO JUNIOR DA SILVA COSTA",
+      "percentual": 35.9253901002375
+    },
+    {
+      "id": "977542",
+      "nome": "Ademilson matos de morais",
+      "percentual": 15.800665939170038
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "percentual": 20.499210274202987
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "percentual": 19.869545659019366
+    },
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "percentual": 15.830205024545204
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "percentual": 13.269289177362584
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "percentual": 27.28993186979563
+    },
+    {
+      "id": "1292260",
+      "nome": "JOSE AILSON DE ARAUJO DIAS",
+      "percentual": 21.049671977507064
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "percentual": 20.599295085638875
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "percentual": 11.720860259171905
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "percentual": 70.80103359173127
+    },
+    {
+      "id": "218534",
+      "nome": "ADEMIR CARVALHO DE MELO",
+      "percentual": 34.702059555756755
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "percentual": 12.26730266811108
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 78.45832088437405
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "289948",
+      "nome": "FABIO JUNIOR DA SILVA COSTA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "977542",
+      "nome": "Ademilson matos de morais",
+      "porcentagem": 4.5699228307923985
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "porcentagem": 89.12506178942161
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "porcentagem": 99.79880721419848
+    },
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "porcentagem": 20.243673851921294
+    },
+    {
+      "id": "855523",
+      "nome": "RODRIGO FABIANO DA SILVA",
+      "porcentagem": 93.7513008831139
+    },
+    {
+      "id": "1298",
+      "nome": "ROBSON JOSE DA SILVA",
+      "porcentagem": 65.65628476084538
+    },
+    {
+      "id": "1292260",
+      "nome": "JOSE AILSON DE ARAUJO DIAS",
+      "porcentagem": 41.89476036197078
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "porcentagem": 85.9889644900308
+    },
+    {
+      "id": "919777",
+      "nome": "JOAO OSMAR DA SILVA",
+      "porcentagem": 88.08831351069963
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "218534",
+      "nome": "ADEMIR CARVALHO DE MELO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "134400",
+      "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "porcentagem": 96.01702822486591
+    }
+  ]
+}

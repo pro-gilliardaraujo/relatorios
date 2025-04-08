@@ -1,0 +1,41 @@
+{
+  "metadata": {
+    "type": "transbordo_semanal",
+    "date": "2025-03-31",
+    "frente": "frente1",
+    "generated_at": "2025-04-08T07:20:07.286606",
+    "equipment_ids": null,
+    "is_weekly": true,
+    "start_date": "2025-03-31",
+    "end_date": "2025-04-06"
+  },
+  "metas": {
+    "tdh": 0.019,
+    "diesel": 9,
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034",
+      "disponibilidade": 95.15020145444308
+    },
+    {
+      "frota": "6086",
+      "disponibilidade": 99.44191202627462
+    },
+    {
+      "frota": "6096",
+      "disponibilidade": 92.4001061260136
+    },
+    {
+      "frota": "6100",
+      "disponibilidade": 87.74688861752911
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 import pandas as pd
 from openpyxl import load_workbook
 
-caminho_txt = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\TTfrente1-0504.txt"
-caminho_excel = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\TTfrente1-0504.xlsx"
+caminho_txt = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\TTfrente3-07-04.txt"
+caminho_excel = r"C:\Users\IB\Desktop\Gilliard\Arquivos Relatórios\1_TRATAMENTOS\TTfrente3-07-04.xlsx"
 
 try:
     df = pd.read_csv(caminho_txt, sep=';', encoding='utf-8')

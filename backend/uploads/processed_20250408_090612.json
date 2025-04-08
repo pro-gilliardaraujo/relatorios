@@ -1,0 +1,394 @@
+{
+  "metadata": {
+    "type": "transbordo_semanal",
+    "date": "2025-03-31",
+    "frente": "frente3",
+    "generated_at": "2025-04-08T09:06:12.637797",
+    "equipment_ids": null,
+    "is_weekly": true,
+    "start_date": "2025-03-31",
+    "end_date": "2025-04-06"
+  },
+  "metas": {
+    "tdh": 0.019,
+    "diesel": 9,
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127.0",
+      "disponibilidade": 91.74700990043479
+    },
+    {
+      "frota": "6087.0",
+      "disponibilidade": 94.85485594787839
+    },
+    {
+      "frota": "6088.0",
+      "disponibilidade": 88.57184266210616
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 30.61847065933751
+    },
+    {
+      "id": 2,
+      "nome": "983786 - NORBERTO ORTIS MONTEIRO",
+      "eficiencia": 37.74906494389634
+    },
+    {
+      "id": 3,
+      "nome": "9999 - TROCA DE TURNO",
+      "eficiencia": 53.919047968853285
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "eficiencia": 30.87046871392288
+    },
+    {
+      "id": 5,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "eficiencia": 52.69535848922
+    },
+    {
+      "id": 6,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "eficiencia": 53.58278197769105
+    },
+    {
+      "id": 7,
+      "nome": "420796 - Jose Carlos Dias",
+      "eficiencia": 59.2568903360852
+    },
+    {
+      "id": 8,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 62.35860516432466
+    },
+    {
+      "id": 9,
+      "nome": "478414 - MATHEUS SILVA MAIA",
+      "eficiencia": 45.704297602310305
+    },
+    {
+      "id": 10,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "eficiencia": 57.66491142134199
+    },
+    {
+      "id": 11,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "eficiencia": 56.53761869978088
+    },
+    {
+      "id": 12,
+      "nome": "367478 - VALDEMAR ITALIANO",
+      "eficiencia": 54.18592250266619
+    },
+    {
+      "id": 13,
+      "nome": "218534 - ADEMIR CARVALHO DE MELO",
+      "eficiencia": 46.81157679836683
+    },
+    {
+      "id": 15,
+      "nome": "217998 - GLEISSON RODRIGUES DE ALMEIDA",
+      "eficiencia": 50.9638428675628
+    },
+    {
+      "id": 16,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "eficiencia": 54.48389104724398
+    },
+    {
+      "id": 17,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "eficiencia": 53.174897883401385
+    },
+    {
+      "id": 18,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "eficiencia": 52.745340654241716
+    },
+    {
+      "id": 19,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "eficiencia": 42.9270520683805
+    },
+    {
+      "id": 20,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "eficiencia": 48.68146162639446
+    },
+    {
+      "id": 21,
+      "nome": "1350160 - CARLOS JOSE DOS SANTOS",
+      "eficiencia": 52.788164526093354
+    },
+    {
+      "id": 22,
+      "nome": "133132 - LAION PEREIRA",
+      "eficiencia": 37.05288829380258
+    },
+    {
+      "id": 23,
+      "nome": "476835 - JOSE MARIANO DE OLIVEIRA",
+      "eficiencia": 42.542221634663065
+    },
+    {
+      "id": 24,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "eficiencia": 41.38472519628839
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 34.41735977206669
+    },
+    {
+      "id": 2,
+      "nome": "983786 - NORBERTO ORTIS MONTEIRO",
+      "percentual": 34.19018474441776
+    },
+    {
+      "id": 3,
+      "nome": "9999 - TROCA DE TURNO",
+      "percentual": 31.37809446852274
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "percentual": 36.68898637728007
+    },
+    {
+      "id": 5,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 25.857127567220267
+    },
+    {
+      "id": 6,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 21.063096053828616
+    },
+    {
+      "id": 7,
+      "nome": "420796 - Jose Carlos Dias",
+      "percentual": 22.450284916850684
+    },
+    {
+      "id": 8,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 15.900859234823978
+    },
+    {
+      "id": 9,
+      "nome": "478414 - MATHEUS SILVA MAIA",
+      "percentual": 20.781244062773133
+    },
+    {
+      "id": 10,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 22.126296024165356
+    },
+    {
+      "id": 11,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 20.798193771166787
+    },
+    {
+      "id": 12,
+      "nome": "367478 - VALDEMAR ITALIANO",
+      "percentual": 25.34216139353006
+    },
+    {
+      "id": 13,
+      "nome": "218534 - ADEMIR CARVALHO DE MELO",
+      "percentual": 29.56647051759338
+    },
+    {
+      "id": 15,
+      "nome": "217998 - GLEISSON RODRIGUES DE ALMEIDA",
+      "percentual": 30.316765655934176
+    },
+    {
+      "id": 16,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 19.230934340724254
+    },
+    {
+      "id": 17,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "percentual": 12.551058299294462
+    },
+    {
+      "id": 18,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 20.358054288144796
+    },
+    {
+      "id": 19,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 21.204162860498496
+    },
+    {
+      "id": 20,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "percentual": 14.174780243604413
+    },
+    {
+      "id": 21,
+      "nome": "1350160 - CARLOS JOSE DOS SANTOS",
+      "percentual": 28.9139977239474
+    },
+    {
+      "id": 22,
+      "nome": "133132 - LAION PEREIRA",
+      "percentual": 24.782421576128534
+    },
+    {
+      "id": 23,
+      "nome": "476835 - JOSE MARIANO DE OLIVEIRA",
+      "percentual": 21.492547179165157
+    },
+    {
+      "id": 24,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "percentual": 23.740185581727342
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 7.024867539974119
+    },
+    {
+      "id": 2,
+      "nome": "983786 - NORBERTO ORTIS MONTEIRO",
+      "percentual": 4.494189238653022
+    },
+    {
+      "id": 3,
+      "nome": "9999 - TROCA DE TURNO",
+      "percentual": 1.5820258829379268
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 1.9544819973377818
+    },
+    {
+      "id": 6,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 1.889565584735621
+    },
+    {
+      "id": 7,
+      "nome": "420796 - Jose Carlos Dias",
+      "percentual": 1.8694581280787996
+    },
+    {
+      "id": 8,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 1.2990503493997563
+    },
+    {
+      "id": 9,
+      "nome": "478414 - MATHEUS SILVA MAIA",
+      "percentual": 8.264610724857159
+    },
+    {
+      "id": 10,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 1.4987820604671414
+    },
+    {
+      "id": 11,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 3.3644756887722393
+    },
+    {
+      "id": 12,
+      "nome": "367478 - VALDEMAR ITALIANO",
+      "percentual": 1.4681697216158798
+    },
+    {
+      "id": 13,
+      "nome": "218534 - ADEMIR CARVALHO DE MELO",
+      "percentual": 58.99705014749268
+    },
+    {
+      "id": 14,
+      "nome": "432475 - VINICIUS FARIA JAFETT",
+      "percentual": 0.0
+    },
+    {
+      "id": 15,
+      "nome": "217998 - GLEISSON RODRIGUES DE ALMEIDA",
+      "percentual": 1.5415875259507958
+    },
+    {
+      "id": 16,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 1.1889661237674969
+    },
+    {
+      "id": 17,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "percentual": 2.958177490649438
+    },
+    {
+      "id": 18,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 2.3808712830818526
+    },
+    {
+      "id": 19,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 2.6732349007941925
+    },
+    {
+      "id": 20,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "percentual": 1.0616982566039486
+    },
+    {
+      "id": 21,
+      "nome": "1350160 - CARLOS JOSE DOS SANTOS",
+      "percentual": 8.770405762478761
+    },
+    {
+      "id": 22,
+      "nome": "133132 - LAION PEREIRA",
+      "percentual": 3.9102845377527196
+    },
+    {
+      "id": 23,
+      "nome": "476835 - JOSE MARIANO DE OLIVEIRA",
+      "percentual": 2.6641321830676983
+    },
+    {
+      "id": 24,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "percentual": 3.959917904141013
+    }
+  ],
+  "uso_gps": []
+}

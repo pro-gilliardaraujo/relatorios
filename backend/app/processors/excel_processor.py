@@ -166,21 +166,59 @@ class ExcelProcessor:
             # Log para depuração do nome da planilha
             print(f"  - Analisando planilha: '{sheet_name}', nome limpo: '{name_lower}'")
             
+            # Verificação por prefixos numerados
+            for prefix, sheet_type in [
+                ("1_tdh", "tdh"),
+                ("2_diesel", "diesel"),
+                ("1_diesel", "diesel"),
+                ("2_tdh", "tdh"),
+                ("3_disponibilidade", "disponibilidade_mecanica"),
+                ("1_disponibilidade", "disponibilidade_mecanica"),
+                ("4_impureza", "impureza_vegetal"),
+                ("5_eficiencia", "eficiencia_energetica"),
+                ("4_eficiencia", "eficiencia_energetica"),
+                ("6_hora", "hora_elevador"),
+                ("7_motor", "motor_ocioso"),
+                ("5_motor", "motor_ocioso"),
+                ("8_uso", "uso_gps"),
+                ("5_uso", "uso_gps"),
+                ("6_falta", "falta_apontamento"),
+                ("4_falta", "falta_apontamento")
+            ]:
+                if name_lower.startswith(prefix):
+                    print(f"  - Identificado como '{sheet_type}' pelo prefixo '{prefix}' na planilha: {sheet_name}")
+                    return sheet_type
+            
             # Verificar PRIMEIRO por "Uso GPS" com alta prioridade
-            if "uso gps" in name_lower or "5_uso gps" in name_lower:
+            if "uso gps" in name_lower:
                 print(f"  - Identificado como 'uso_gps' pelo nome da planilha: {sheet_name}")
                 return "uso_gps"
             
             # Verificação prioritária para "Falta de Apontamento"
-            if "falta de apontamento" in name_lower or "falta apontamento" in name_lower or "4_falta" in name_lower:
+            if "falta de apontamento" in name_lower or "falta apontamento" in name_lower:
                 print(f"  - Identificado como 'falta_apontamento' pelo nome da planilha: {sheet_name}")
                 return "falta_apontamento"
+            
+            # Verificações TDH e Diesel para relatórios de transbordo
+            if "tdh" in name_lower:
+                print(f"  - Identificado como 'tdh' pelo nome da planilha: {sheet_name}")
+                return "tdh"
+            
+            if "diesel" in name_lower or "consumo diesel" in name_lower:
+                print(f"  - Identificado como 'diesel' pelo nome da planilha: {sheet_name}")
+                return "diesel"
+            
+            # Verificar se é impureza vegetal
+            if "impureza" in name_lower:
+                print(f"  - Identificado como 'impureza_vegetal' pelo nome da planilha: {sheet_name}")
+                return "impureza_vegetal"
             
             # Verificar por configuração de colunas
             for sheet_type, cols in column_config.items():
                 if len(cols) >= 2:  # Precisa de pelo menos a coluna de ID e valor
                     id_col, value_col = cols[0], cols[1]
                     if id_col in df.columns and value_col in df.columns:
+                        print(f"  - Identificado como '{sheet_type}' pelas colunas: {id_col}, {value_col}")
                         return sheet_type
             
             # Identificação por nome parcial (menos confiável, mas útil como fallback)
@@ -192,15 +230,44 @@ class ExcelProcessor:
                 return "hora_elevador"
             elif "motor ocioso" in name_lower:
                 return "motor_ocioso"
-            elif "tdh" in name_lower:
-                return "tdh"
-            elif "diesel" in name_lower:
-                return "diesel"
-            elif "impureza" in name_lower:
-                return "impureza_vegetal"
             elif "falta" in name_lower and "apontamento" in name_lower:
                 return "falta_apontamento"
             
+            # Verificar colunas específicas (fallback final)
+            if "Frota" in df.columns:
+                if "TDH" in df.columns:
+                    print(f"  - Identificado como 'tdh' pelas colunas Frota e TDH")
+                    return "tdh"
+                elif "Diesel" in df.columns:
+                    print(f"  - Identificado como 'diesel' pelas colunas Frota e Diesel")
+                    return "diesel"
+                elif "Disponibilidade" in df.columns:
+                    print(f"  - Identificado como 'disponibilidade_mecanica' pelas colunas Frota e Disponibilidade")
+                    return "disponibilidade_mecanica"
+                elif "Impureza" in df.columns:
+                    print(f"  - Identificado como 'impureza_vegetal' pelas colunas Frota e Impureza")
+                    return "impureza_vegetal"
+            
+            if "Operador" in df.columns:
+                if "Eficiência" in df.columns or "Eficiencia" in df.columns:
+                    print(f"  - Identificado como 'eficiencia_energetica' pelas colunas Operador e Eficiência")
+                    return "eficiencia_energetica"
+                elif "Horas" in df.columns:
+                    print(f"  - Identificado como 'hora_elevador' pelas colunas Operador e Horas")
+                    return "hora_elevador"
+                elif "Porcentagem" in df.columns:
+                    if "Motor" in sheet_name_clean or "Ocioso" in sheet_name_clean:
+                        print(f"  - Identificado como 'motor_ocioso' pelas colunas Operador e Porcentagem + nome")
+                        return "motor_ocioso"
+                    elif "Falta" in sheet_name_clean or "Apontamento" in sheet_name_clean:
+                        print(f"  - Identificado como 'falta_apontamento' pelas colunas Operador e Porcentagem + nome")
+                        return "falta_apontamento"
+                    else:
+                        # Se não conseguimos diferenciar, usamos motor_ocioso como padrão
+                        print(f"  - Identificado como 'motor_ocioso' pelas colunas Operador e Porcentagem (padrão)")
+                        return "motor_ocioso"
+            
+            print(f"  - Não foi possível identificar o tipo da planilha: {sheet_name}")
             return None
         
         except Exception as e:
@@ -274,6 +341,9 @@ class ExcelProcessor:
             id_type = "texto"  # Tipo padrão para a coluna ID
             value_type = "porcentagem"  # Tipo padrão para a coluna de valor
             
+            # Log para depuração
+            print(f"  - Processando planilha do tipo: {sheet_type} para relatório: {report_type}")
+            
             # Interpretar a configuração com o novo formato
             if len(type_config) >= 4:
                 # Novo formato: ["Coluna1", "Coluna2", "tipo_coluna1", "tipo_coluna2"]
@@ -319,108 +389,180 @@ class ExcelProcessor:
                     id_col, value_col = "Operador", "Porcentagem"
                     id_type, value_type = "texto", "porcentagem"
                 else:
+                    print(f"  - AVISO: Tipo de planilha desconhecido: {sheet_type}")
                     return {}
                 print(f"  - Usando configuração padrão para {sheet_type}: {id_col}({id_type}), {value_col}({value_type})")
             
             # Verificar variações de nomes de colunas
+            original_id_col = id_col  # Guardar o nome original para log
+            original_value_col = value_col  # Guardar o nome original para log
+            
             if id_col not in df.columns:
                 for alt in [id_col.lower(), id_col.upper(), id_col.capitalize()]:
                     if alt in df.columns:
                         id_col = alt
+                        print(f"  - Coluna de ID alternativa encontrada: {alt} (original: {original_id_col})")
                         break
+                        
+                # Buscar por colunas aproximadas se ainda não encontrou
+                if id_col not in df.columns:
+                    aproximadas = [col for col in df.columns if original_id_col.lower() in col.lower()]
+                    if aproximadas:
+                        id_col = aproximadas[0]
+                        print(f"  - Coluna de ID aproximada encontrada: {id_col} (original: {original_id_col})")
             
             if value_col not in df.columns:
                 for alt in [value_col.lower(), value_col.upper(), value_col.capitalize()]:
                     if alt in df.columns:
                         value_col = alt
+                        print(f"  - Coluna de valor alternativa encontrada: {alt} (original: {original_value_col})")
                         break
+                        
+                # Buscar por colunas aproximadas se ainda não encontrou
+                if value_col not in df.columns:
+                    aproximadas = [col for col in df.columns if original_value_col.lower() in col.lower()]
+                    if aproximadas:
+                        value_col = aproximadas[0]
+                        print(f"  - Coluna de valor aproximada encontrada: {value_col} (original: {original_value_col})")
+            
+            # Se ainda não encontrou as colunas, tentar alternativas específicas para cada tipo
+            if id_col not in df.columns or value_col not in df.columns:
+                if sheet_type == "tdh":
+                    # Tentar encontrar colunas de TDH
+                    tdh_cols = [col for col in df.columns if "tdh" in col.lower()]
+                    frota_cols = [col for col in df.columns if "frota" in col.lower() or "equip" in col.lower()]
+                    
+                    if frota_cols and tdh_cols:
+                        id_col = frota_cols[0]
+                        value_col = tdh_cols[0]
+                        print(f"  - Usando colunas alternativas para TDH: {id_col}, {value_col}")
+                elif sheet_type == "diesel":
+                    # Tentar encontrar colunas de Diesel
+                    diesel_cols = [col for col in df.columns if "diesel" in col.lower() or "consumo" in col.lower()]
+                    frota_cols = [col for col in df.columns if "frota" in col.lower() or "equip" in col.lower()]
+                    
+                    if frota_cols and diesel_cols:
+                        id_col = frota_cols[0]
+                        value_col = diesel_cols[0]
+                        print(f"  - Usando colunas alternativas para Diesel: {id_col}, {value_col}")
+            
+            # Se ainda não encontrou, exibir as colunas disponíveis e retornar vazio
+            if id_col not in df.columns or value_col not in df.columns:
+                print(f"  - ERRO: Colunas necessárias não encontradas.")
+                print(f"  - Colunas disponíveis: {list(df.columns)}")
+                print(f"  - Colunas esperadas: {id_col}, {value_col}")
+                return {}
             
             # Processar conforme o tipo
             result[sheet_type] = []
-            for _, row in df.iterrows():
-                try:
-                    # Validar ID
-                    if not self.is_valid_id(row[id_col]):
-                        continue
-                    
-                    # Extrair o ID, sempre como texto se configurado assim
-                    id_value = row[id_col]
-                    if id_type == "texto":
-                        id_value = str(id_value).strip()
-                        
-                    # Limpar valor de frota (remover decimal se for um número)
-                    if sheet_type == "disponibilidade_mecanica" or sheet_type in ["tdh", "diesel", "impureza_vegetal"]:
-                        # Para frota, remover a parte decimal se for um número com ponto
-                        if re.match(r'^\d+\.\d+$', id_value):
-                            id_value = id_value.split('.')[0]
-                    
-                    # Processar ID e nome para operadores
-                    operator_id = id_value
-                    operator_name = id_value
-                    
-                    # Se for um tipo relacionado a operadores, tentar separar ID do nome
-                    if sheet_type in ["eficiencia_energetica", "hora_elevador", "motor_ocioso", "uso_gps", "falta_apontamento"]:
-                        # Tentar extrair ID e nome se estiver no formato "ID - Nome"
-                        if " - " in id_value:
-                            parts = id_value.split(" - ", 1)
-                            operator_id = parts[0].strip()
-                            operator_name = parts[1].strip() if len(parts) > 1 else parts[0].strip()
-                            print(f"  - Separando ID e nome: '{id_value}' -> ID='{operator_id}', Nome='{operator_name}'")
-                    
-                    # Converter o valor conforme o tipo configurado
-                    valor = self.convert_value(row, value_col, value_type)
-                    if valor is None:
-                        continue
-                    
-                    # Criar item com base no tipo de planilha
-                    if sheet_type == "disponibilidade_mecanica":
-                        result[sheet_type].append({
-                            'frota': id_value,
-                            'disponibilidade': valor
-                        })
-                    elif sheet_type == "eficiencia_energetica":
-                        result[sheet_type].append({
-                            'id': operator_id,
-                            'nome': operator_name,
-                            'eficiencia': valor
-                        })
-                    elif sheet_type == "hora_elevador":
-                        result[sheet_type].append({
-                            'id': operator_id,
-                            'nome': operator_name,
-                            'horas': valor
-                        })
-                    elif sheet_type == "motor_ocioso":
-                        result[sheet_type].append({
-                            'id': operator_id,
-                            'nome': operator_name,
-                            'percentual': valor
-                        })
-                    elif sheet_type == "uso_gps":
-                        result[sheet_type].append({
-                            'id': operator_id,
-                            'nome': operator_name,
-                            'porcentagem': valor
-                        })
-                    elif sheet_type in ["tdh", "diesel", "impureza_vegetal"]:
-                        result[sheet_type].append({
-                            'frota': id_value,
-                            'valor': valor
-                        })
-                    elif sheet_type == "falta_apontamento":
-                        result[sheet_type].append({
-                            'id': operator_id,
-                            'nome': operator_name,
-                            'percentual': valor
-                        })
-                except Exception as row_error:
-                    print(f"  - Erro ao processar linha: {str(row_error)}")
             
-            print(f"  - Processados {len(result.get(sheet_type, []))} registros do tipo {sheet_type}")
+            print(f"  - Processando {df.shape[0]} linhas")
+            for index, row in df.iterrows():
+                try:
+                    # Verificar se temos um ID válido e valor
+                    id_value = row[id_col]
+                    value = row[value_col]
+                    
+                    # Pular linhas sem valores
+                    if pd.isna(id_value) or id_value is None or pd.isna(value) or value is None:
+                        continue
+                    
+                    # Processamento específico para TDH (campo crítico no transbordo semanal)
+                    if sheet_type == "tdh":
+                        # Log para depuração de TDH
+                        print(f"  - Processando TDH linha {index}: ID={id_value}, Valor={value}")
+                        
+                        # Converter para string e limpar
+                        if isinstance(id_value, str):
+                            id_value = id_value.strip()
+                        else:
+                            id_value = str(id_value).strip()
+                        
+                        # Converter valor para float com tratamento especial
+                        try:
+                            if isinstance(value, str):
+                                value = value.replace('%', '').replace(',', '.').strip()
+                            value_float = float(value)
+                            
+                            # Adicionar o item processado
+                            item = {
+                                "frota": id_value,
+                                "tdh": value_float
+                            }
+                            print(f"  - Item TDH processado: {item}")
+                            result[sheet_type].append(item)
+                        except (ValueError, TypeError) as e:
+                            print(f"  - Erro ao converter valor TDH '{value}': {str(e)}")
+                    
+                    # Processamento específico para Diesel (campo crítico no transbordo semanal)
+                    elif sheet_type == "diesel":
+                        # Log para depuração de Diesel
+                        print(f"  - Processando Diesel linha {index}: ID={id_value}, Valor={value}")
+                        
+                        # Converter para string e limpar
+                        if isinstance(id_value, str):
+                            id_value = id_value.strip()
+                        else:
+                            id_value = str(id_value).strip()
+                        
+                        # Converter valor para float com tratamento especial
+                        try:
+                            if isinstance(value, str):
+                                value = value.replace(',', '.').strip()
+                            value_float = float(value)
+                            
+                            # Adicionar o item processado
+                            item = {
+                                "frota": id_value,
+                                "diesel": value_float
+                            }
+                            print(f"  - Item Diesel processado: {item}")
+                            result[sheet_type].append(item)
+                        except (ValueError, TypeError) as e:
+                            print(f"  - Erro ao converter valor Diesel '{value}': {str(e)}")
+                    
+                    # Processamento padrão para outros tipos
+                    else:
+                        # Extrair o ID, sempre como texto se configurado assim
+                        if id_type == "texto":
+                            id_value = str(id_value).strip()
+                        
+                        # Converter o valor conforme o tipo
+                        value_processed = self.convert_value(row, value_col, value_type)
+                        
+                        # Pular linha se o valor processado for None
+                        if value_processed is None:
+                            continue
+                        
+                        # Criar item conforme o tipo de planilha
+                        item = {}
+                        
+                        if sheet_type == "disponibilidade_mecanica":
+                            item = {"frota": id_value, "disponibilidade": value_processed}
+                        elif sheet_type == "eficiencia_energetica":
+                            item = {"id": index + 1, "nome": id_value, "eficiencia": value_processed}
+                        elif sheet_type == "hora_elevador":
+                            item = {"id": index + 1, "nome": id_value, "horas": value_processed}
+                        elif sheet_type == "motor_ocioso":
+                            item = {"id": index + 1, "nome": id_value, "percentual": value_processed}
+                        elif sheet_type == "uso_gps":
+                            item = {"id": index + 1, "nome": id_value, "porcentagem": value_processed}
+                        elif sheet_type == "impureza_vegetal":
+                            item = {"frota": id_value, "impureza": value_processed}
+                        elif sheet_type == "falta_apontamento":
+                            item = {"id": index + 1, "nome": id_value, "percentual": value_processed}
+                        
+                        # Adicionar a lista de resultados
+                        result[sheet_type].append(item)
+                
+                except Exception as row_error:
+                    print(f"  - Erro ao processar linha {index}: {str(row_error)}")
+            
+            print(f"  - Processados {len(result[sheet_type])} itens para {sheet_type}")
             return result
-        
+            
         except Exception as e:
-            print(f"Erro ao processar dados da planilha: {str(e)}")
+            print(f"Erro ao processar planilha: {str(e)}")
             import traceback
             print(traceback.format_exc())
             return {}

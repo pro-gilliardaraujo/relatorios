@@ -123,30 +123,94 @@ class ReportProcessor:
         # Anexar os dados processados
         if isinstance(processed_data, dict):
             print(f"Seções de dados disponíveis: {list(processed_data.keys())}")
-            # Converter valores decimais para porcentagem onde apropriado
-            for key, value in processed_data.items():
-                if isinstance(value, list):
-                    for item in value:
-                        if isinstance(item, dict):
-                            if 'porcentagem' in item and item['porcentagem'] < 1:
-                                print(f"Convertendo porcentagem de {item['porcentagem']} para {item['porcentagem'] * 100}")
-                                item['porcentagem'] *= 100
-                            if 'percentual' in item and item['percentual'] < 1:
-                                print(f"Convertendo percentual de {item['percentual']} para {item['percentual'] * 100}")
-                                item['percentual'] *= 100
-                            if 'disponibilidade' in item and item['disponibilidade'] < 1:
-                                print(f"Convertendo disponibilidade de {item['disponibilidade']} para {item['disponibilidade'] * 100}")
-                                item['disponibilidade'] *= 100
-                            if 'eficiencia' in item and item['eficiencia'] < 1:
-                                print(f"Convertendo eficiencia de {item['eficiencia']} para {item['eficiencia'] * 100}")
-                                item['eficiencia'] *= 100
-            report.update(processed_data)
+            
+            # Processamento especial para relatório de transbordo semanal
+            if report_type == 'transbordo_semanal':
+                print("Processamento especial para relatório de transbordo semanal")
+                report = self._process_transbordo_semanal_report(report, processed_data, metas)
+            else:
+                # Converter valores decimais para porcentagem onde apropriado
+                for key, value in processed_data.items():
+                    if isinstance(value, list):
+                        for item in value:
+                            if isinstance(item, dict):
+                                if 'porcentagem' in item and item['porcentagem'] < 1:
+                                    print(f"Convertendo porcentagem de {item['porcentagem']} para {item['porcentagem'] * 100}")
+                                    item['porcentagem'] *= 100
+                                if 'percentual' in item and item['percentual'] < 1:
+                                    print(f"Convertendo percentual de {item['percentual']} para {item['percentual'] * 100}")
+                                    item['percentual'] *= 100
+                                if 'disponibilidade' in item and item['disponibilidade'] < 1:
+                                    print(f"Convertendo disponibilidade de {item['disponibilidade']} para {item['disponibilidade'] * 100}")
+                                    item['disponibilidade'] *= 100
+                                if 'eficiencia' in item and item['eficiencia'] < 1:
+                                    print(f"Convertendo eficiencia de {item['eficiencia']} para {item['eficiencia'] * 100}")
+                                    item['eficiencia'] *= 100
+                
+                # Para outros relatórios, apenas atualize os dados
+                report.update(processed_data)
         else:
             print(f"AVISO: processed_data não é um dicionário: {type(processed_data)}")
             report['data'] = processed_data
         
         print("Relatório gerado com sucesso!")
         print(f"Metas incluídas: {metas}")
+        return report
+        
+    def _process_transbordo_semanal_report(self, report: Dict[str, Any], data: Dict[str, Any], metas: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Processamento especial para relatório de transbordo semanal
+        Este método garante que todos os campos necessários estejam presentes no relatório
+        Nota: Processamento adaptado para ser igual ao transbordo diário, sem TDH e Diesel
+        """
+        print("Processando relatório de transbordo semanal (mesmo padrão do transbordo diário)")
+        print(f"Dados recebidos: {list(data.keys())}")
+        
+        # Conjuntos de dados necessários para o relatório
+        required_data_sets = [
+            'disponibilidade_mecanica',
+            'eficiencia_energetica',
+            'motor_ocioso',
+            'falta_apontamento',
+            'uso_gps'
+        ]
+        
+        # Para cada conjunto de dados, verificar existência e adicionar ao relatório
+        for data_set in required_data_sets:
+            if data_set in data and isinstance(data[data_set], list):
+                # Converter porcentagens e valores decimais conforme necessário
+                for item in data[data_set]:
+                    if isinstance(item, dict):
+                        # Conversões específicas para cada tipo de dados
+                        if data_set == 'disponibilidade_mecanica' and 'disponibilidade' in item and item['disponibilidade'] < 1:
+                            item['disponibilidade'] *= 100
+                            print(f"Convertendo disponibilidade para porcentagem: {item['disponibilidade']}")
+                        
+                        elif data_set == 'eficiencia_energetica' and 'eficiencia' in item and item['eficiencia'] < 1:
+                            item['eficiencia'] *= 100
+                            print(f"Convertendo eficiencia para porcentagem: {item['eficiencia']}")
+                        
+                        elif data_set == 'motor_ocioso' and 'percentual' in item and item['percentual'] < 1:
+                            item['percentual'] *= 100
+                            print(f"Convertendo percentual de motor ocioso para porcentagem: {item['percentual']}")
+                        
+                        elif data_set == 'falta_apontamento' and 'percentual' in item and item['percentual'] < 1:
+                            item['percentual'] *= 100
+                            print(f"Convertendo percentual de falta de apontamento para porcentagem: {item['percentual']}")
+                        
+                        elif data_set == 'uso_gps' and 'porcentagem' in item and item['porcentagem'] < 1:
+                            item['porcentagem'] *= 100
+                            print(f"Convertendo porcentagem de uso GPS para porcentagem: {item['porcentagem']}")
+                
+                # Adicionar o conjunto de dados ao relatório
+                report[data_set] = data[data_set]
+                print(f"Adicionado conjunto de dados {data_set} com {len(data[data_set])} itens")
+            else:
+                # Se o conjunto de dados não existe, adicionar uma lista vazia
+                print(f"Conjunto de dados {data_set} não encontrado, adicionando lista vazia")
+                report[data_set] = []
+        
+        print(f"Relatório de transbordo semanal processado com sucesso: {list(report.keys())}")
         return report
     
     def _filter_by_equipment(self, data: Dict[str, Any], equipment_ids: List[str]) -> Dict[str, Any]:

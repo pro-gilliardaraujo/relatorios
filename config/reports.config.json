@@ -117,19 +117,14 @@
         "usoGPS": false
       },
       "planilhas_excel": [
-        "1_TDH",
-        "2_Consumo Diesel",
-        "3_Disponibilidade Mecânica",
-        "4_Impureza Vegetal",
+        "1_Disponibilidade Mecânica",
+        "2_Eficiência Energética",
+        "3_Motor Ocioso",
+        "4_Falta de Apontamento",
         "5_Eficiência Energética",
-        "6_Hora Elevador",
-        "7_Motor Ocioso",
-        "8_Uso GPS"
+        "5_Uso GPS"
       ],
       "colunas_excel": {
-        "tdh": ["Frota", "TDH", "texto", "decimal"],
-        "diesel": ["Frota", "Diesel", "texto", "decimal"],
-        "impureza_vegetal": ["Frota", "Impureza", "texto", "porcentagem"],
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
         "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
@@ -172,20 +167,17 @@
       },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",
-        "2_TDH",
-        "3_Diesel",
-        "4_Eficiência Energética",
-        "5_Motor Ocioso",
-        "6_Falta de Apontamento",
-        "7_Uso GPS"
+        "2_Eficiência Energética",
+        "3_Motor Ocioso",
+        "4_Falta de Apontamento",
+        "5_Eficiência Energética",
+        "5_Uso GPS"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
-        "tdh": ["Frota", "TDH", "texto", "decimal"],
-        "diesel": ["Frota", "Diesel", "texto", "decimal"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
         "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
-        "falta_apontamento": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
       },
       "componentes": {
