@@ -287,8 +287,15 @@ export default function ReportsPage() {
       // Criar objeto do relatório para salvar no Supabase
       const reportData = {
         tipo: reportType,
-        data: isWeeklyReport ? startDate : selectedDate,
-        ...(isWeeklyReport ? { data_fim: endDate } : {}),
+        ...(isWeeklyReport 
+          ? { 
+              data_inicio: startDate,
+              data_fim: endDate 
+            } 
+          : { 
+              data: selectedDate 
+            }
+        ),
         frente: useFrentesCheckbox ? selectedFrentes.join(',') : selectedFrente,
         dados: result.data,
         status: 'concluido',
@@ -327,6 +334,28 @@ export default function ReportsPage() {
       
       // Determinar URL com base no tipo de relatório
       let viewUrl = '';
+      
+      // Processar dados especializados com base no tipo de relatório
+      let requiredSheets: string[] = [];
+      let showFrentesChecks = false;
+      
+      if (reportType === 'colheita_diario') {
+        // Requisitos especiais para relatório de colheita diário
+        requiredSheets = ['disponibilidade_mecanica', 'eficiencia_energetica', 'motor_ocioso', 'hora_elevador', 'uso_gps'];
+      } else if (reportType === 'colheita_semanal') {
+        // Requisitos especiais para relatório de colheita semanal
+        requiredSheets = ['disponibilidade_mecanica', 'eficiencia_energetica', 'motor_ocioso', 'hora_elevador', 'uso_gps', 'tdh', 'diesel', 'impureza_vegetal'];
+      } else if (reportType === 'transbordo_diario') {
+        // Requisitos especiais para relatório de transbordo diário
+        requiredSheets = ['disponibilidade_mecanica', 'eficiencia_energetica', 'motor_ocioso', 'falta_apontamento', 'uso_gps'];
+      } else if (reportType === 'transbordo_semanal') {
+        // Requisitos especiais para relatório de transbordo semanal - usar as mesmas planilhas do transbordo diário
+        requiredSheets = ['disponibilidade_mecanica', 'eficiencia_energetica', 'motor_ocioso', 'falta_apontamento', 'uso_gps'];
+      } else if (reportType === 'comparativo_unidades_diario') {
+        // Requisitos para relatório comparativo entre unidades
+        showFrentesChecks = true;
+        requiredSheets = ['disponibilidade_mecanica', 'eficiencia_energetica'];
+      }
       
       // Determinar URL com base no tipo de relatório
       if (reportType === 'colheita_diario') {

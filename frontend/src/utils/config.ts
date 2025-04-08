@@ -115,27 +115,21 @@ const defaultConfig = {
         eficienciaEnergetica: true,
         motorOcioso: true,
         faltaApontamento: true,
-        usoGPS: false,
-        tdh: true,
-        diesel: true
+        usoGPS: false
       },
       metas: {
         disponibilidadeMecanica: 90,
         eficienciaEnergetica: 80,
         motorOcioso: 20,
         faltaApontamento: 10,
-        usoGPS: 95,
-        tdh: 0.014,
-        diesel: 8.5
+        usoGPS: 95
       },
       planilhas_excel: [
         'disponibilidade_mecanica',
         'eficiencia_energetica',
         'motor_ocioso',
         'falta_apontamento',
-        'uso_gps',
-        'tdh',
-        'diesel'
+        'uso_gps'
       ],
       frentes: [
         { id: 'FRENTE_01', nome: 'Frente 01' },
