@@ -111,7 +111,7 @@ const defaultConfig = {
     transbordo_semanal: {
       nome: "Transbordo - Semanal",
       frentes: [
-        { id: "frente1", nome: "Frente 4 - BP Ituiutaba" },
+        { id: "frente1", nome: "Frente 1 - BP Ituiutaba" },
         { id: "frente2", nome: "Frente 2 - CMAA Canápolis" },
         { id: "frente3", nome: "Frente 3 - Alexandrita" },
         { id: "frente4", nome: "Frente 4 - Zirleno" }

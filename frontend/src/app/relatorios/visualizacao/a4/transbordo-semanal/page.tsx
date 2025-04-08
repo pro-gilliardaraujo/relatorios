@@ -9,8 +9,6 @@ import { GraficoEficienciaEnergetica } from '@/components/Charts/Transbordo/Diar
 import { GraficoMotorOciosoTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoMotorOciosoTransbordo';
 import { GraficoUsoGPS } from '@/components/Charts/Transbordo/Diario/GraficoUsoGPS';
 import { GraficoFaltaApontamentoTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoFaltaApontamentoTransbordo';
-import { GraficoTDH } from '@/components/Charts/Transbordo/Semanal/GraficoTDH';
-import { GraficoDiesel } from '@/components/Charts/Transbordo/Semanal/GraficoDiesel';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { FaPrint } from 'react-icons/fa';
@@ -70,18 +68,6 @@ const exemplosDados: DadosProcessados = {
     { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', percentual: 14.99 },
     { id: '7', nome: 'VITOR SOARES FREITAS', percentual: 5.30 },
     { id: '8', nome: 'DANILO JESUS BRITO', percentual: 1.02 }
-  ],
-  tdh: [
-    { frota: '6031', valor: 0.015 },
-    { frota: '6082', valor: 0.018 },
-    { frota: '6087', valor: 0.017 },
-    { frota: '6096', valor: 0.019 }
-  ],
-  diesel: [
-    { frota: '6031', valor: 8.5 },
-    { frota: '6082', valor: 8.7 },
-    { frota: '6087', valor: 9.1 },
-    { frota: '6096', valor: 8.9 }
   ]
 };
 
@@ -114,14 +100,6 @@ interface DadosProcessados {
     nome: string;
     percentual: number;
   }>;
-  tdh: Array<{
-    frota: string;
-    valor: number;
-  }>;
-  diesel: Array<{
-    frota: string;
-    valor: number;
-  }>;
 }
 
 // Função de verificação de dados mais simples - verificamos apenas se os dados existem
@@ -143,9 +121,7 @@ const verificarFormatoDados = (dados: any) => {
     'eficiencia_energetica', 
     'motor_ocioso', 
     'uso_gps', 
-    'falta_apontamento',
-    'tdh',
-    'diesel'
+    'falta_apontamento'
   ];
   
   // Verificar quantos tipos de dados estão presentes
@@ -202,6 +178,15 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   const currentDate = formatarData(new Date().toISOString().split('T')[0]);
   const LOGO_HEIGHT = "50px";
   const LOGO_URL = "https://kjlwqezxzqjfhacmjhbh.supabase.co/storage/v1/object/public/sourcefiles/Logo%20IB%20Full.png";
+  
+  // Obter configuração das seções do relatório
+  const secoes = configManager.getTipoRelatorio('transbordo_semanal')?.secoes || {
+    disponibilidadeMecanica: true,
+    eficienciaEnergetica: true,
+    motorOcioso: true,
+    faltaApontamento: true,
+    usoGPS: false
+  };
 
   useEffect(() => {
     // Recarregar configurações antes de buscar dados
@@ -521,27 +506,12 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
       </Heading>
   );
 
-  // Adicionar no início da função principal, após a declaração de variáveis iniciais
-  // Verificar configuração para mostrar ou esconder componentes
-  const secoes = useMemo(() => {
-    // Obter configurações de seções para o tipo de relatório
-    const tipoRelatorio = reportData?.metadata?.type || 'transbordo_semanal';
-    const configSections = configManager.getTipoRelatorio(tipoRelatorio)?.secoes || {
-      disponibilidadeMecanica: true,
-      tdh: true,
-      diesel: true,
-      eficienciaEnergetica: true,
-      motorOcioso: true,
-      faltaApontamento: true,
-      usoGPS: false  // Para transbordo, o padrão para Uso GPS é false
-    };
-    
-    console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
-    return configSections;
-  }, [reportData?.metadata?.type]);
-
   // Dados processados para os gráficos
   const dadosProcessados = useMemo(() => {
+    // Configurações e exemplos para exibição
+    const exemplosFrotas = exemplosDados.disponibilidade_mecanica;
+    const exemplosOperadores = exemplosDados.eficiencia_energetica;
+
     try {
       console.log('📊 INICIANDO PROCESSAMENTO DE DADOS - TRANSBORDO SEMANAL', {
         reportData,
@@ -582,9 +552,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         eficiencia_energetica: [],
         motor_ocioso: [],
         uso_gps: [],
-        falta_apontamento: [],
-        tdh: [],
-        diesel: []
+        falta_apontamento: []
       };
 
       // 1. Processar disponibilidade mecânica
@@ -762,66 +730,6 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           .filter((item: any) => item !== null);
       }
 
-      // 6. Processar TDH
-      if (Array.isArray(reportData.dados.tdh)) {
-        console.log('📊 Processando TDH...');
-        
-        dadosProcessados.tdh = reportData.dados.tdh
-          .filter((item: any) => item && typeof item === 'object')
-          .map((item: any) => {
-            // Localizar a coluna de Frota
-            const frotaKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'frota' || 
-              k.toLowerCase().includes('frota')
-            ) || 'Frota';
-            
-            // Localizar a coluna de TDH
-            const tdhKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'tdh' || 
-              k.toLowerCase().includes('tdh') ||
-              k.toLowerCase().includes('consumo tdh')
-            ) || 'TDH';
-            
-            console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, TDH: ${tdhKey}`);
-            
-            return {
-              frota: processarFrota(item[frotaKey]),
-              valor: converterNumero(item[tdhKey])
-            };
-          })
-          .filter((item: any) => item.frota && item.valor !== undefined);
-      }
-
-      // 7. Processar Diesel
-      if (Array.isArray(reportData.dados.diesel)) {
-        console.log('📊 Processando Diesel...');
-        
-        dadosProcessados.diesel = reportData.dados.diesel
-          .filter((item: any) => item && typeof item === 'object')
-          .map((item: any) => {
-            // Localizar a coluna de Frota
-            const frotaKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'frota' || 
-              k.toLowerCase().includes('frota')
-            ) || 'Frota';
-            
-            // Localizar a coluna de Diesel
-            const dieselKey = Object.keys(item).find(k => 
-              k.toLowerCase() === 'diesel' || 
-              k.toLowerCase().includes('diesel') ||
-              k.toLowerCase().includes('consumo')
-            ) || 'Diesel';
-            
-            console.log(`📊 Item: ${JSON.stringify(item)}, Frota: ${frotaKey}, Diesel: ${dieselKey}`);
-            
-            return {
-              frota: processarFrota(item[frotaKey]),
-              valor: converterNumero(item[dieselKey])
-            };
-          })
-          .filter((item: any) => item.frota && item.valor !== undefined);
-      }
-
       console.log('📊 DADOS FINAIS APÓS PROCESSAMENTO:', dadosProcessados);
       return dadosProcessados;
     } catch (error) {
@@ -979,54 +887,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           </Box>
         </A4Colheita>
 
-        {/* Segunda Página - TDH */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column">
-            <PageHeader showDate={true} />
-            <Box flex="1" display="flex" flexDirection="column">
-              {/* TDH */}
-              {secoes.tdh && (
-                <Box flex="1">
-                  <SectionTitle title="TDH" centered={true} />
-                  <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
-                    <IndicatorCard
-                      title=""
-                      value={calcularMedia(dadosProcessados.tdh, 'valor')}
-                      meta={configManager.getMetas('transbordo_semanal').tdh}
-                      unitType="decimal"
-                      isInverted={true}
-                      acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false),
-                        total: dadosProcessados.tdh.length,
-                        percentual: (contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false) / dadosProcessados.tdh.length) * 100
-                      }}
-                    />
-                  </SimpleGrid>
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={2}
-                    h="500px"
-                  >
-                    {dadosProcessados.tdh.length > 0 ? (
-                      <GraficoTDH 
-                        data={dadosProcessados.tdh} 
-                        meta={configManager.getMetas('transbordo_semanal').tdh} 
-                      />
-                    ) : (
-                      <Center h="100%">
-                        <Text>Sem dados de TDH</Text>
-                      </Center>
-                    )}
-                  </Box>
-                </Box>
-              )}
-            </Box>
-          </Box>
-        </A4Colheita>
-              
-        {/* Terceira Página - Motor Ocioso */}
+        {/* Segunda Página - Motor Ocioso */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
@@ -1068,54 +929,36 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           </Box>
         </A4Colheita>
               
-        {/* Quarta Página - Diesel */}
+        {/* Terceira Página - Falta Apontamento */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
-              {/* Diesel */}
-              {secoes.diesel && (
-                <Box flex="1">
-                  <SectionTitle title="Diesel" centered={true} />
-                  <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+              {/* Falta Apontamento */}
+              <Box flex="1">
+                <SectionTitle title="Falta Apontamento" />
+                <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                  {dadosProcessados.falta_apontamento.length > 0 && secoes.faltaApontamento && (
                     <IndicatorCard
                       title=""
-                      value={calcularMedia(dadosProcessados.diesel, 'valor')}
-                      meta={configManager.getMetas('transbordo_semanal').diesel}
-                      unitType="decimal"
+                      value={calcularMedia(dadosProcessados.falta_apontamento, 'percentual')}
+                      meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
+                      unitType="porcentagem"
                       isInverted={true}
                       acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false),
-                        total: dadosProcessados.diesel.length,
-                        percentual: (contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false) / dadosProcessados.diesel.length) * 100
+                        quantidade: contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento),
+                        total: dadosProcessados.falta_apontamento.length,
+                        percentual: (contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento) / dadosProcessados.falta_apontamento.length) * 100
                       }}
                     />
-                  </SimpleGrid>
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={2}
-                    h="500px"
-                  >
-                    {dadosProcessados.diesel.length > 0 ? (
-                      <GraficoDiesel 
-                        data={dadosProcessados.diesel} 
-                        meta={configManager.getMetas('transbordo_semanal').diesel} 
-                      />
-                    ) : (
-                      <Center h="100%">
-                        <Text>Sem dados de diesel</Text>
-                      </Center>
-                    )}
-                  </Box>
-                </Box>
-              )}
+                  )}
+                </SimpleGrid>
+              </Box>
             </Box>
           </Box>
         </A4Colheita>
         
-        {/* Quinta Página - Resumo */}
+        {/* Quarta Página - Resumo */}
         <A4Colheita isLastPage={true}>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
@@ -1137,31 +980,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
                   Frotas
                 </Text>
-                <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
-                  <IndicatorCard
-                    title=""
-                    value={calcularMedia(dadosProcessados.tdh, 'valor')}
-                    meta={configManager.getMetas('transbordo_semanal').tdh}
-                    unitType="decimal"
-                    isInverted={true}
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false),
-                      total: dadosProcessados.tdh.length,
-                      percentual: (contarItensMeta(dadosProcessados.tdh, 'valor', configManager.getMetas('transbordo_semanal').tdh, false) / dadosProcessados.tdh.length) * 100
-                    }}
-                  />
-                  <IndicatorCard
-                    title=""
-                    value={calcularMedia(dadosProcessados.diesel, 'valor')}
-                    meta={configManager.getMetas('transbordo_semanal').diesel}
-                    unitType="decimal"
-                    isInverted={true}
-                    acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false),
-                      total: dadosProcessados.diesel.length,
-                      percentual: (contarItensMeta(dadosProcessados.diesel, 'valor', configManager.getMetas('transbordo_semanal').diesel, false) / dadosProcessados.diesel.length) * 100
-                    }}
-                  />
+                <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title=""
                     value={calcularMedia(dadosProcessados.disponibilidade_mecanica, 'disponibilidade')}
@@ -1186,10 +1005,6 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                       }))
                     }
                     tipo="transbordo_semanal"
-                    dadosCompletos={{
-                      tdh: dadosProcessados.tdh,
-                      diesel: dadosProcessados.diesel
-                    }}
                   />
                 </Box>
               </Box>
