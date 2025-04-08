@@ -17,6 +17,17 @@ interface HorasElevadorProps {
 // Obter a meta do configManager
 const META_HORAS_ELEVADOR = configManager.getMetas('colheita_diario').horaElevador;
 
+// Função para converter horas decimais para o formato 4h18
+const formatHoursToHHMM = (hours: number): string => {
+  if (hours === undefined || isNaN(hours)) return '0h00';
+  
+  const totalMinutes = Math.round(hours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  
+  return `${h}h${m.toString().padStart(2, '0')}`;
+};
+
 // Dados de exemplo removidos
 
 export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({ 
@@ -113,8 +124,8 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
                     zIndex="2"
                   />
                 </Box>
-                <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={getBarColor(item.horas)}>
-                  {item.horas !== undefined ? item.horas.toFixed(1) : "0.0"}h
+                <Text fontSize="10px" fontWeight="bold" w="40px" textAlign="right" color={getBarColor(item.horas)}>
+                  {item.horas !== undefined ? formatHoursToHHMM(item.horas) : "0h00"}
                 </Text>
               </Flex>
             </Box>
