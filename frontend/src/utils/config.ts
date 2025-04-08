@@ -109,45 +109,41 @@ const defaultConfig = {
       }
     },
     transbordo_semanal: {
-      nome: "Transbordo - Semanal",
-      frentes: [
-        { id: "frente1", nome: "Frente 1 - BP Ituiutaba" },
-        { id: "frente2", nome: "Frente 2 - CMAA Canápolis" },
-        { id: "frente3", nome: "Frente 3 - Alexandrita" },
-        { id: "frente4", nome: "Frente 4 - Zirleno" }
-      ],
+      nome: 'Relatório Semanal de Transbordo',
+      secoes: {
+        disponibilidadeMecanica: true,
+        eficienciaEnergetica: true,
+        motorOcioso: true,
+        faltaApontamento: true,
+        usoGPS: false,
+        tdh: true,
+        diesel: true
+      },
       metas: {
-        tdh: 0.019,
-        diesel: 9,        
         disponibilidadeMecanica: 90,
-        eficienciaEnergetica: 65,
-        motorOcioso: 6,
+        eficienciaEnergetica: 80,
+        motorOcioso: 20,
         faltaApontamento: 10,
-        usoGPS: 90
+        usoGPS: 95,
+        tdh: 0.014,
+        diesel: 8.5
       },
       planilhas_excel: [
-        "1_Disponibilidade Mecânica",
-        "2_TDH",
-        "3_Diesel",
-        "4_Eficiência Energética",
-        "5_Motor Ocioso",
-        "6_Falta de Apontamento",
-        "7_Uso GPS"
+        'disponibilidade_mecanica',
+        'eficiencia_energetica',
+        'motor_ocioso',
+        'falta_apontamento',
+        'uso_gps',
+        'tdh',
+        'diesel'
       ],
-      colunas_excel: {
-        disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
-        tdh: ["Frota", "TDH", "decimal"],
-        diesel: ["Frota", "Diesel", "decimal"],
-        eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
-        motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
-        falta_apontamento: ["Operador", "Porcentagem", "porcentagem"],
-        uso_gps: ["Operador", "Porcentagem", "porcentagem"]
-      },
-      componentes: {
-        mostrarImageUpload: true,
-        mostrarExcelUpload: true,
-        mostrarMapas: false
-      }
+      frentes: [
+        { id: 'FRENTE_01', nome: 'Frente 01' },
+        { id: 'FRENTE_02', nome: 'Frente 02' },
+        { id: 'FRENTE_03', nome: 'Frente 03' },
+        { id: 'FRENTE_04', nome: 'Frente 04' },
+        { id: 'FRENTE_05', nome: 'Frente 05' }
+      ]
     },
     drones_diario: {
       nome: "Drones - Diário",
