@@ -222,9 +222,15 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       // console.log('❌ Dados de disponibilidade inválidos ou ausentes');
       return [];
     }
-    const data = finalData.disponibilidade_mecanica.filter(item => 
-      item && item.frota && item.disponibilidade !== undefined && item.disponibilidade !== null
-    );
+    const data = finalData.disponibilidade_mecanica
+      .filter(item => 
+        item && item.frota && item.disponibilidade !== undefined && item.disponibilidade !== null
+      )
+      .map(item => ({
+        ...item,
+        frota: typeof item.frota === 'string' ? item.frota : String(item.frota).replace(/\.0+$/, '') // Remove decimais .0
+      }));
+    
     // Reduzindo logs
     // console.log('📊 Dados de disponibilidade processados:', data);
     return data;
@@ -784,7 +790,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   <GraficoMotorOciosoColheita 
                     data={finalDataMotorOcioso} 
                         meta={resumoData.motorOcioso.meta} 
-                        inverterMeta={true}
                   />
                     ) : (
                       <Center h="100%">
