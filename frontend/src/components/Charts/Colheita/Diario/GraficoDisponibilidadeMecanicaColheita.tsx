@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
+import { formatarFrota } from '@/utils/formatters';
 
 interface DisponibilidadeData {
   frota: string;
@@ -70,45 +71,50 @@ export const GraficoDisponibilidadeMecanicaColheita: React.FC<DisponibilidadeMec
   return (
     <Box h="100%">
       <VStack spacing={1} align="stretch" h="100%" justify="center">
-        {sortedData.map((item, index) => (
-          <Box key={index} w="100%">
-            <Flex justify="space-between" mb={1}>
-              <Text fontSize="11px" fontWeight="bold" color="black">Frota {item?.frota || `-`}</Text>
-              <Text fontSize="11px" fontWeight="bold" color={getBarColor(item?.disponibilidade || 0)}>
-                {formatarPorcentagem(item?.disponibilidade || 0)}
-              </Text>
-            </Flex>
-            <Box position="relative" w="100%">
-              {/* Barra de fundo */}
-              <Flex w="100%" h="20px" bg="gray.100" borderRadius="md" overflow="hidden">
-                <Box 
-                  h="100%" 
-                  w={`${item?.disponibilidade || 0}%`} 
-                  bg={getBarColor(item?.disponibilidade || 0)}
-                  borderRadius="md 0 0 md"
-                />
+        {sortedData.map((item, index) => {
+          // Formatar o código da frota como texto, removendo prefixos desnecessários
+          const frotaFormatada = formatarFrota(item?.frota || '');
+          
+          return (
+            <Box key={index} w="100%">
+              <Flex justify="space-between" mb={1}>
+                <Text fontSize="11px" fontWeight="bold" color="black">{frotaFormatada}</Text>
+                <Text fontSize="11px" fontWeight="bold" color={getBarColor(item?.disponibilidade || 0)}>
+                  {formatarPorcentagem(item?.disponibilidade || 0)}
+                </Text>
               </Flex>
-              
-              {/* Linha vertical indicando a meta */}
-              <Box 
-                position="absolute" 
-                top="0" 
-                left={`${meta}%`} 
-                h="23px"
-                w="2px"
-                bg="rgba(0,0,0,0.7)"
-                zIndex="2"
-              />
+              <Box position="relative" w="100%">
+                {/* Barra de fundo */}
+                <Flex w="100%" h="20px" bg="gray.100" borderRadius="md" overflow="hidden">
+                  <Box 
+                    h="100%" 
+                    w={`${item?.disponibilidade || 0}%`} 
+                    bg={getBarColor(item?.disponibilidade || 0)}
+                    borderRadius="md 0 0 md"
+                  />
+                </Flex>
+                
+                {/* Linha vertical indicando a meta */}
+                <Box 
+                  position="absolute" 
+                  top="0" 
+                  left={`${meta}%`} 
+                  h="23px"
+                  w="2px"
+                  bg="rgba(0,0,0,0.7)"
+                  zIndex="2"
+                />
+              </Box>
+              <Flex mt={1} justify="space-between">
+                <Text fontSize="9px" color="gray.500">0%</Text>
+                <Text fontSize="9px" color="gray.500">
+                  Meta: {meta}%
+                </Text>
+                <Text fontSize="9px" color="gray.500">100%</Text>
+              </Flex>
             </Box>
-            <Flex mt={1} justify="space-between">
-              <Text fontSize="9px" color="gray.500">0%</Text>
-              <Text fontSize="9px" color="gray.500">
-                Meta: {meta}%
-              </Text>
-              <Text fontSize="9px" color="gray.500">100%</Text>
-            </Flex>
-          </Box>
-        ))}
+          );
+        })}
       </VStack>
     </Box>
   );

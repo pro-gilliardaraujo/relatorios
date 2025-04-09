@@ -3,6 +3,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
+import { formatarFrota } from '@/utils/formatters';
 
 interface DisponibilidadeData {
   frota: string;
@@ -89,10 +90,13 @@ export const GraficoDisponibilidadeMecanicaTransbordo: React.FC<DisponibilidadeM
       <VStack spacing={1} align="stretch" h="100%" justify="center">
         {sortedData.map((item, index) => {
           const barColor = getBarColor(item?.disponibilidade || 0);
+          // Formatar o código da frota como texto, removendo prefixos desnecessários
+          const frotaFormatada = formatarFrota(item?.frota || '');
+          
           return (
             <Box key={index} w="100%">
               <Flex justify="space-between" mb={1}>
-                <Text fontSize="11px" fontWeight="bold" color="black">Frota {item?.frota || `-`}</Text>
+                <Text fontSize="11px" fontWeight="bold" color="black">{frotaFormatada}</Text>
                 <Text fontSize="11px" fontWeight="bold" color={barColor}>
                   {formatarPorcentagem(item?.disponibilidade || 0)}
                 </Text>
