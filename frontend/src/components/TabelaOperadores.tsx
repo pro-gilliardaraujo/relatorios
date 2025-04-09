@@ -59,6 +59,22 @@ const formatHoras = (val: number): string => {
   return `${hours}h${minutes.toString().padStart(2, '0')}m`;
 };
 
+// Função para limpar o ID do operador, removendo numerações como "1 - ", "2 - " antes do ID real
+const limparIdOperador = (idCompleto: string): string => {
+  // Se o ID contém um padrão como "123 - NOME", extrai apenas o número inicial
+  if (idCompleto && typeof idCompleto === 'string' && idCompleto.includes(' - ')) {
+    return idCompleto.split(' - ')[0].trim();
+  }
+  
+  // Se o ID parece ser apenas um índice numérico (1, 2, 3, etc.), retorna vazio
+  if (/^\d{1,2}$/.test(idCompleto)) {
+    return '';
+  }
+  
+  // Se não encontrou nenhum dos padrões, retorna o ID original
+  return idCompleto;
+};
+
 export default function TabelaOperadores({ dados, tipo = 'colheita_diario', mostrarUsoGPS = true }: TabelaOperadoresProps) {
   // Log para depuração
   console.log('📊 TabelaOperadores recebeu dados:', {
@@ -99,31 +115,33 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
     );
   }
 
-  // Se pelo menos uma das seções tem dados, vamos mostrar a tabela
-  const operadoresVistos = new Set<string>();
-  const todosOperadores: Array<{id: string, nome: string}> = [];
-  
-  // Coletar todos os operadores únicos de todas as seções
-  [
-    ...(Array.isArray(dados.eficiencia_energetica) ? dados.eficiencia_energetica : []),
-    ...(Array.isArray(dados.motor_ocioso) ? dados.motor_ocioso : []),
-    ...(Array.isArray(dados.falta_apontamento) ? dados.falta_apontamento : []),
-    ...(Array.isArray(dados.uso_gps) ? dados.uso_gps : []),
-    ...(Array.isArray(dados.hora_elevador) ? dados.hora_elevador : [])
-  ].forEach(item => {
-    if (item && item.nome && 
-        item.nome !== 'TROCA DE TURNO' && 
-        !operadoresVistos.has(item.nome)) {
-      operadoresVistos.add(item.nome);
-      todosOperadores.push({
-        id: item.id || '',
-        nome: item.nome
-      });
-    }
-  });
-  
-  // Se não encontramos operadores válidos, mostrar mensagem
-  if (todosOperadores.length === 0) {
+  // Filtrar operadores inválidos
+  const filtrarOperadoresValidos = (array: any[]): any[] => {
+    return array?.filter(item => 
+      item && 
+      item.nome && 
+      item.nome !== 'TROCA DE TURNO' && 
+      item.nome !== 'SEM OPERADOR' &&
+      // Remover valores com "TROCA DE TURNO" em qualquer parte do nome
+      !item.nome.includes('TROCA DE TURNO')
+    ) || [];
+  };
+
+  // Filtrar e limpar os arrays de dados
+  const eficienciaFiltrada = filtrarOperadoresValidos(dados.eficiencia_energetica);
+  const motorOciosoFiltrado = filtrarOperadoresValidos(dados.motor_ocioso);
+  const faltaApontamentoFiltrado = filtrarOperadoresValidos(dados.falta_apontamento || []);
+  const usoGPSFiltrado = filtrarOperadoresValidos(dados.uso_gps);
+  const horaElevadorFiltrado = filtrarOperadoresValidos(dados.hora_elevador || []);
+
+  // Se não encontramos operadores válidos após a filtragem, mostrar mensagem
+  if (
+    eficienciaFiltrada.length === 0 &&
+    motorOciosoFiltrado.length === 0 &&
+    faltaApontamentoFiltrado.length === 0 &&
+    usoGPSFiltrado.length === 0 &&
+    horaElevadorFiltrado.length === 0
+  ) {
     console.log('📊 Nenhum operador válido encontrado após filtragem');
     return (
       <Box p={4} textAlign="center" fontSize="sm" color="gray.500">
@@ -131,6 +149,28 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
       </Box>
     );
   }
+  
+  // Coletar todos os operadores únicos baseados no nome (não no ID)
+  const operadoresVistos = new Set<string>();
+  const todosOperadores: Array<{id: string, nome: string}> = [];
+  
+  // Combinando todos os arrays de dados filtrados
+  [
+    ...eficienciaFiltrada,
+    ...motorOciosoFiltrado,
+    ...faltaApontamentoFiltrado,
+    ...usoGPSFiltrado,
+    ...horaElevadorFiltrado
+  ].forEach(item => {
+    if (item && item.nome && !operadoresVistos.has(item.nome)) {
+      operadoresVistos.add(item.nome);
+      const idLimpo = limparIdOperador(item.id);
+      todosOperadores.push({
+        id: idLimpo,
+        nome: item.nome
+      });
+    }
+  });
   
   // Obter metas do configManager
   const metas = configManager.getMetas(tipo);
@@ -147,28 +187,21 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
   const metaUsoGPSIntermediaria = metaUsoGPS * 0.85;
   const metaFaltaApontamentoIntermediaria = metaFaltaApontamento * 1.2;
 
-  // Função auxiliar para procurar operador por ID ou nome
-  const encontrarValorOperador = (
+  // Função auxiliar para procurar operador pelo nome exato (não pelo ID)
+  const encontrarValorOperadorPorNome = (
     array: Array<any> | undefined, 
-    operadorId: string, 
     operadorNome: string, 
     campoValor: string
   ) => {
-    if (!array) return 0;
+    if (!array || !Array.isArray(array)) return 0;
     
-    // Tentar encontrar pelo ID exato
-    const itemPorId = array?.find((m: any) => m.id === operadorId);
-    if (itemPorId) {
-      return itemPorId[campoValor] || 0;
+    // Encontrar pelo nome exato do operador
+    const item = array.find((m: any) => m.nome === operadorNome);
+    
+    if (item) {
+      return item[campoValor] || 0;
     }
     
-    // Tentar encontrar pelo nome
-    const itemPorNome = array?.find((m: any) => m.nome === operadorNome);
-    if (itemPorNome) {
-      return itemPorNome[campoValor] || 0;
-    }
-    
-    // Se não encontrar, retorna 0
     return 0;
   };
 
@@ -216,50 +249,83 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
         </Box>
         <Box as="tbody">
           {todosOperadores.map((item, index) => {
-              // Usar nossa função auxiliar para encontrar os valores
-              const eficiencia = encontrarValorOperador(
+              // Usar nossa função auxiliar para encontrar os valores pelo nome do operador
+              const eficiencia = encontrarValorOperadorPorNome(
                 dados.eficiencia_energetica,
-                item.id,
                 item.nome, 
                 'eficiencia'
               );
               
-              const motorOcioso = encontrarValorOperador(
+              const motorOcioso = encontrarValorOperadorPorNome(
                 dados.motor_ocioso, 
-                item.id, 
                 item.nome, 
                 'percentual'
               );
               
-              const horasElevador = encontrarValorOperador(
+              const horasElevador = encontrarValorOperadorPorNome(
                 dados.hora_elevador, 
-                item.id, 
                 item.nome, 
                 'horas'
               );
               
-              const faltaApontamento = encontrarValorOperador(
+              const faltaApontamento = encontrarValorOperadorPorNome(
                 dados.falta_apontamento,
-                item.id,
                 item.nome,
                 'percentual'
               );
               
-              const usoGPS = encontrarValorOperador(
+              const usoGPS = encontrarValorOperadorPorNome(
                 dados.uso_gps, 
-                item.id, 
                 item.nome, 
                 'porcentagem'
               );
-
+              
+              // Determinar cores conforme o valor
+              const getEfficiencyColor = (val: number) => {
+                if (val >= metaEficiencia) return 'green.600';
+                if (val >= metaEficienciaIntermediaria) return 'orange.500';
+                return 'red.500';
+              };
+              
+              const getInvertedColor = (val: number, meta: number, intermedia: number) => {
+                if (val <= meta) return 'green.600';
+                if (val <= intermedia) return 'orange.500';
+                return 'red.500';
+              };
+              
+              const getHoursColor = (val: number) => {
+                if (val >= metaHorasElevador) return 'green.600';
+                if (val >= metaHorasElevadorIntermediaria) return 'orange.500';
+                return 'red.500';
+              };
+              
+              // Decidir se mostra ou não o operador
+              // Vamos esconder a linha se todos os valores do operador forem 0
+              const temAlgumValor = eficiencia > 0 || motorOcioso > 0 || horasElevador > 0 || faltaApontamento > 0 || usoGPS > 0;
+              if (!temAlgumValor) return null;
+              
+              // Formatação do ID: mostrar apenas se existir
+              const idDisplay = item.id ? `${item.id} - ` : '';
+              
               return (
                 <Box 
                   as="tr" 
-                  key={index}
-                  bg={index % 2 === 0 ? "white" : "gray.50"}
+                  key={index} 
+                  bg={index % 2 === 0 ? 'white' : 'gray.50'}
+                  borderBottom="1px solid"
+                  borderColor="gray.200"
+                  _hover={{ bg: 'gray.100' }}
                 >
-                  <Box as="td" p={2} borderBottom="1px solid" borderColor="black" color="black" fontWeight="medium">
-                    {item.nome}
+                  <Box 
+                    as="td" 
+                    p={2} 
+                    fontWeight="medium" 
+                    borderRight="1px solid" 
+                    borderColor="gray.200"
+                    title={item.nome}
+                    noOfLines={1}
+                  >
+                    {idDisplay}{item.nome}
                   </Box>
                   
                   {mostrarColunas.eficiencia && (
@@ -267,9 +333,9 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                       as="td" 
                       p={2} 
                       textAlign="center" 
-                      borderBottom="1px solid" 
-                      borderColor="black" 
-                      color={eficiencia >= metaEficiencia ? "green.600" : eficiencia >= metaEficienciaIntermediaria ? "orange.500" : "red.600"}
+                      borderRight="1px solid" 
+                      borderColor="gray.200"
+                      color={getEfficiencyColor(eficiencia)}
                       fontWeight="bold"
                     >
                       {formatPercentage(eficiencia)}
@@ -281,9 +347,9 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                       as="td" 
                       p={2} 
                       textAlign="center" 
-                      borderBottom="1px solid" 
-                      borderColor="black" 
-                      color={motorOcioso <= metaMotorOcioso ? "green.600" : motorOcioso <= metaMotorOciosoIntermediaria ? "orange.500" : "red.600"}
+                      borderRight="1px solid" 
+                      borderColor="gray.200"
+                      color={getInvertedColor(motorOcioso, metaMotorOcioso, metaMotorOciosoIntermediaria)}
                       fontWeight="bold"
                     >
                       {formatPercentage(motorOcioso)}
@@ -295,9 +361,9 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                       as="td" 
                       p={2} 
                       textAlign="center" 
-                      borderBottom="1px solid" 
-                      borderColor="black" 
-                      color={horasElevador >= metaHorasElevador ? "green.600" : horasElevador >= metaHorasElevadorIntermediaria ? "orange.500" : "red.600"}
+                      borderRight="1px solid" 
+                      borderColor="gray.200"
+                      color={getHoursColor(horasElevador)}
                       fontWeight="bold"
                     >
                       {formatHoras(horasElevador)}
@@ -309,9 +375,9 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                       as="td" 
                       p={2} 
                       textAlign="center" 
-                      borderBottom="1px solid" 
-                      borderColor="black" 
-                      color={faltaApontamento <= metaFaltaApontamento ? "green.600" : faltaApontamento <= metaFaltaApontamentoIntermediaria ? "orange.500" : "red.600"}
+                      borderRight="1px solid" 
+                      borderColor="gray.200"
+                      color={getInvertedColor(faltaApontamento, metaFaltaApontamento, metaFaltaApontamentoIntermediaria)}
                       fontWeight="bold"
                     >
                       {formatPercentage(faltaApontamento)}
@@ -322,10 +388,8 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                     <Box 
                       as="td" 
                       p={2} 
-                      textAlign="center" 
-                      borderBottom="1px solid" 
-                      borderColor="black" 
-                      color={usoGPS >= metaUsoGPS ? "green.600" : usoGPS >= metaUsoGPSIntermediaria ? "orange.500" : "red.600"}
+                      textAlign="center"
+                      color={usoGPS >= metaUsoGPS ? 'green.600' : (usoGPS >= metaUsoGPSIntermediaria ? 'orange.500' : 'red.500')}
                       fontWeight="bold"
                     >
                       {formatPercentage(usoGPS)}
