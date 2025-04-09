@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-07",
+    "frente": "frente3",
+    "generated_at": "2025-04-08T09:49:34.289484",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127.0",
+      "disponibilidade": 52.37345436020914
+    },
+    {
+      "frota": "6087.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6088.0",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "367478 - VALDEMAR ITALIANO",
+      "eficiencia": 45.51193529295722
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "eficiencia": 43.20254072328656
+    },
+    {
+      "id": 4,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 52.722287504896194
+    },
+    {
+      "id": 5,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "eficiencia": 63.303263169617985
+    },
+    {
+      "id": 6,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "eficiencia": 54.92496300993454
+    },
+    {
+      "id": 7,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "eficiencia": 44.89092531019383
+    },
+    {
+      "id": 8,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "eficiencia": 48.30687830687832
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "367478 - VALDEMAR ITALIANO",
+      "percentual": 27.52022095087788
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 100.0
+    },
+    {
+      "id": 3,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 12.744595840590106
+    },
+    {
+      "id": 4,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 19.498629063846483
+    },
+    {
+      "id": 5,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 21.99576790288456
+    },
+    {
+      "id": 6,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 21.12661170999791
+    },
+    {
+      "id": 7,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 22.35828399967561
+    },
+    {
+      "id": 8,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 25.87782587782587
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "367478 - VALDEMAR ITALIANO",
+      "percentual": 1.7707985299031122
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 69.4050097797968
+    },
+    {
+      "id": 4,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 2.488798770317561
+    },
+    {
+      "id": 5,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 1.9893552046069316
+    },
+    {
+      "id": 6,
+      "nome": "9999 - TROCA DE TURNO",
+      "percentual": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 59.20747583550325
+    },
+    {
+      "id": 8,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 6.111111111111114
+    },
+    {
+      "id": 9,
+      "nome": "9999 - TROCA DE TURNO",
+      "percentual": 0.0
+    },
+    {
+      "id": 10,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 3.4153603643051063
+    },
+    {
+      "id": 11,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": 12,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 69.4050097797968
+    }
+  ],
+  "uso_gps": []
+}

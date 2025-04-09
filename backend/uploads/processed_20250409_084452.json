@@ -1,0 +1,161 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-07",
+    "frente": "frente1",
+    "generated_at": "2025-04-09T08:44:52.278527",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034.0",
+      "disponibilidade": 1.0000000000000002
+    },
+    {
+      "frota": "6086.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6096.0",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "eficiencia": 58.683291770573454
+    },
+    {
+      "id": 2,
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "eficiencia": 56.03163686382396
+    },
+    {
+      "id": 3,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "eficiencia": 76.43237966508973
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "eficiencia": 80.26586620926179
+    },
+    {
+      "id": 6,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "eficiencia": 34.31711363008015
+    },
+    {
+      "id": 7,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "eficiencia": 55.59709367180194
+    },
+    {
+      "id": 8,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 0.0
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 27.424771404821268
+    },
+    {
+      "id": 2,
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "percentual": 27.544704264099078
+    },
+    {
+      "id": 3,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "percentual": 13.997146504468008
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 100.0
+    },
+    {
+      "id": 5,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 14.248141795311525
+    },
+    {
+      "id": 6,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "percentual": 8.45313795963505
+    },
+    {
+      "id": 7,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 7.371340709698812
+    },
+    {
+      "id": 8,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 0.0
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "126986 - DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 2.112784561457538
+    },
+    {
+      "id": 2,
+      "nome": "108096 - EDMILSON DOS SANTOS SILVA",
+      "percentual": 50.29411764705864
+    },
+    {
+      "id": 3,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "percentual": 5.028456492422972
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 1.899939722724512
+    },
+    {
+      "id": 6,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "percentual": 59.97419714773885
+    },
+    {
+      "id": 7,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 1.7696332084965252
+    },
+    {
+      "id": 8,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 0.0
+    }
+  ],
+  "uso_gps": []
+}

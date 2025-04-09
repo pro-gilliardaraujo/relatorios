@@ -1,0 +1,147 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-08",
+    "frente": "frente1",
+    "generated_at": "2025-04-09T08:07:29.713078",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 99.99999999999999
+    },
+    {
+      "frota": "7038.0",
+      "disponibilidade": 97.18411107459744
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 70.36527718091958
+    },
+    {
+      "id": 2,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "eficiencia": 75.26466696074115
+    },
+    {
+      "id": 3,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 50.09875417806137
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "eficiencia": 65.43209876543203
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 0.6497619047619053
+    },
+    {
+      "id": 2,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "horas": 1.8958333333333344
+    },
+    {
+      "id": 3,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 0.4579861111111112
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "horas": 0.47601851851851856
+    },
+    {
+      "id": 6,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "horas": 6.5177777777777886
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "percentual": 6.939236876929867
+    },
+    {
+      "id": 3,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 12.093588574901242
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 7.567567567567568
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "percentual": 26.18047600865467
+    },
+    {
+      "id": 6,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "percentual": 3.785955416678292
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 1.417492460146486
+    },
+    {
+      "id": 2,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "porcentagem": 62.00256356753211
+    },
+    {
+      "id": 3,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 62.19809214532168
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "porcentagem": 90.87239884871148
+    }
+  ]
+}

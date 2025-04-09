@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-08",
+    "frente": "frente3",
+    "generated_at": "2025-04-09T08:17:41.441372",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "disponibilidade": 99.24928751824649
+    },
+    {
+      "frota": "7042.0",
+      "disponibilidade": 99.99999999999997
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "eficiencia": 78.57811663991423
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "eficiencia": 69.47867298578198
+    },
+    {
+      "id": 4,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "eficiencia": 72.79983521293576
+    },
+    {
+      "id": 5,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "eficiencia": 74.49800141076878
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "horas": 13.05444444444444
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "horas": 0.10180555555555554
+    },
+    {
+      "id": 4,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "horas": 1.9634722222222185
+    },
+    {
+      "id": 5,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "horas": 2.200277777777777
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 71.61538461538461
+    },
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "percentual": 15.339085072231114
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "percentual": 16.018957345971568
+    },
+    {
+      "id": 4,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "percentual": 10.788403110355857
+    },
+    {
+      "id": 5,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "percentual": 12.946155654831873
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "porcentagem": 85.61896555533458
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "porcentagem": 18.860759493670887
+    },
+    {
+      "id": 4,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "porcentagem": 91.76600155480696
+    },
+    {
+      "id": 5,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "porcentagem": 97.40645090389582
+    }
+  ]
+}

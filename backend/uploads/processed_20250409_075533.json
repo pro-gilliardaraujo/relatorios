@@ -1,0 +1,117 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-07",
+    "frente": "frente1",
+    "generated_at": "2025-04-09T07:55:33.416507",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 99.94022807707432
+    },
+    {
+      "frota": "7038.0",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "133729 - GILVAN FERNANDES DOS SANTOS",
+      "eficiencia": 72.69890795631825
+    },
+    {
+      "id": 2,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 66.96633975057514
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 0.0
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "133729 - GILVAN FERNANDES DOS SANTOS",
+      "horas": 2.0711111111111116
+    },
+    {
+      "id": 2,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 6.145277777777781
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 6.184722222222229
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "133729 - GILVAN FERNANDES DOS SANTOS",
+      "percentual": 15.317862714508577
+    },
+    {
+      "id": 2,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "percentual": 2.5840789879666737
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 100.0
+    },
+    {
+      "id": 4,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 7.8587664797696615
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "133729 - GILVAN FERNANDES DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 73.14728579031402
+    }
+  ]
+}

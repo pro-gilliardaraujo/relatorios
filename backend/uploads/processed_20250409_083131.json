@@ -1,0 +1,127 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-08",
+    "frente": "frente4",
+    "generated_at": "2025-04-09T08:31:31.217635",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7031.0",
+      "disponibilidade": 99.66151973834333
+    },
+    {
+      "frota": "7033.0",
+      "disponibilidade": 46.50901139957971
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 16.422594142259413
+    },
+    {
+      "id": 4,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "eficiencia": 49.05746082216671
+    },
+    {
+      "id": 5,
+      "nome": "121944 - WESLEY SILVA",
+      "eficiencia": 56.49594003747652
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "136852 - JADIELSON JUNIOR PAIXÃO",
+      "horas": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "982550 - MANOEL BATISTA DA SILVA",
+      "horas": 0.4472222222222223
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.469444444444445
+    },
+    {
+      "id": 4,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "horas": 0.6000000000000002
+    },
+    {
+      "id": 5,
+      "nome": "121944 - WESLEY SILVA",
+      "horas": 0.10049999999999999
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "136852 - JADIELSON JUNIOR PAIXÃO",
+      "percentual": 100.0
+    },
+    {
+      "id": 2,
+      "nome": "982550 - MANOEL BATISTA DA SILVA",
+      "percentual": 33.26930991905613
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 10.527585652243856
+    },
+    {
+      "id": 4,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "percentual": 8.516920281626165
+    },
+    {
+      "id": 5,
+      "nome": "121944 - WESLEY SILVA",
+      "percentual": 24.578388507182993
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "136852 - JADIELSON JUNIOR PAIXÃO",
+      "porcentagem": 100.0
+    },
+    {
+      "id": 2,
+      "nome": "982550 - MANOEL BATISTA DA SILVA",
+      "porcentagem": 33.26930991905613
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 10.527585652243856
+    },
+    {
+      "id": 4,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "porcentagem": 8.516920281626165
+    },
+    {
+      "id": 5,
+      "nome": "121944 - WESLEY SILVA",
+      "porcentagem": 24.578388507182993
+    }
+  ]
+}

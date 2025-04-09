@@ -1,0 +1,161 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-08",
+    "frente": "frente3",
+    "generated_at": "2025-04-09T09:03:46.957276",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127.0",
+      "disponibilidade": 99.75676990432949
+    },
+    {
+      "frota": "6088.0",
+      "disponibilidade": 65.58199491342371
+    },
+    {
+      "frota": "6087.0",
+      "disponibilidade": 82.63711051113
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 14.069814096562789
+    },
+    {
+      "id": 2,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 58.041408229230385
+    },
+    {
+      "id": 3,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "eficiencia": 59.376642489225326
+    },
+    {
+      "id": 4,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "eficiencia": 92.39996843185233
+    },
+    {
+      "id": 5,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "eficiencia": 69.95373430270988
+    },
+    {
+      "id": 6,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "eficiencia": 67.12888888888892
+    },
+    {
+      "id": 7,
+      "nome": "478414 - MATHEUS SILVA MAIA",
+      "eficiencia": 44.472580517527845
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 21.10270156627779
+    },
+    {
+      "id": 2,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 19.738796191141823
+    },
+    {
+      "id": 3,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 16.8177777777778
+    },
+    {
+      "id": 4,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 20.40096937651472
+    },
+    {
+      "id": 5,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 56.34612812625384
+    },
+    {
+      "id": 6,
+      "nome": "478414 - MATHEUS SILVA MAIA",
+      "percentual": 27.34826303711322
+    },
+    {
+      "id": 7,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 18.108355356779878
+    },
+    {
+      "id": 9,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 23.107884144897852
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 2.3977900552486235
+    },
+    {
+      "id": 2,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 2.4220849474749633
+    },
+    {
+      "id": 3,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 74.18833553694736
+    },
+    {
+      "id": 4,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 3.8107325327866266
+    },
+    {
+      "id": 5,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 1.1456649151172191
+    },
+    {
+      "id": 6,
+      "nome": "478414 - MATHEUS SILVA MAIA",
+      "percentual": 1.2518508547583782
+    },
+    {
+      "id": 7,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 1.9472749029988794
+    },
+    {
+      "id": 8,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": 9,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 2.436503248671002
+    }
+  ],
+  "uso_gps": []
+}
