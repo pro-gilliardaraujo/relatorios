@@ -3,6 +3,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
+import { limparIdOperador, formatarExibicaoOperador } from '@/utils/formatters';
 
 interface MotorOciosoData {
   id: string;
@@ -136,6 +137,12 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoProps> = ({
         <VStack spacing={0} align="stretch">
           {sortedData.map((item, index) => {
             const barColor = getBarColor(item.percentual);
+            // Limpar o ID do operador para remover numerações desnecessárias
+            const idLimpo = limparIdOperador(item.id);
+            
+            // Formatar a exibição do operador baseado no ID limpo
+            const operadorExibicao = formatarExibicaoOperador(idLimpo, item.nome);
+            
             return (
               <Box 
                 key={index}
@@ -144,8 +151,16 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoProps> = ({
                 bg={index % 2 === 0 ? "gray.50" : "white"}
                 borderRadius="sm"
               >
-                <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id} - ${item.nome}`} mb={0.5} color="black">
-                  {item.id} - {item.nome}
+                {/* Primeira linha: Nome do operador (com ID apenas se for relevante) */}
+                <Text 
+                  fontSize="10px" 
+                  fontWeight="medium" 
+                  noOfLines={1} 
+                  title={operadorExibicao} 
+                  mb={0.5} 
+                  color="black"
+                >
+                  {operadorExibicao}
                 </Text>
                 
                 <Flex direction="row" align="center">

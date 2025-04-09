@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
+import { limparIdOperador, formatarExibicaoOperador } from '@/utils/formatters';
 
 interface GPSData {
   id: string;
@@ -75,49 +76,64 @@ export const GraficoUsoGPS: React.FC<GraficoUsoGPSProps> = ({
       {/* Container principal apenas para o gráfico */}
       <Box h="100%" overflowY="auto">
         <VStack spacing={0} align="stretch">
-          {sortedData.map((item, index) => (
-            <Box 
-              key={index}
-              py={0.5}
-              px={1}
-              bg={index % 2 === 0 ? "gray.50" : "white"}
-              borderRadius="sm"
-            >
-              {/* Primeira linha: ID e nome do operador */}
-              <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id} - ${item.nome}`} mb={0.5} color="black">
-                {item.id} - {item.nome}
-              </Text>
-              
-              {/* Segunda linha: Barra de progresso e valor percentual */}
-              <Flex direction="row" align="center">
-                <Box flex="1" h="13px" position="relative" mr={2} maxW="calc(100% - 40px)" bg="gray.100">
-                  {/* Barra de progresso */}
-                  <Flex 
-                    position="absolute" 
-                    bg={getBarColor(item.porcentagem)} 
-                    h="100%" 
-                    w={`${scalePercentage(item.porcentagem)}%`}
-                    borderRadius="sm"
-                    alignItems="center"
-                  />
-                  
-                  {/* Linha vertical indicando a meta */}
-                  <Box 
-                    position="absolute" 
-                    top="0" 
-                    left={`${metaScaled}%`} 
-                    h="13px"
-                    w="2px"
-                    bg="rgba(0,0,0,0.7)"
-                    zIndex="2"
-                  />
-                </Box>
-                <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={getBarColor(item.porcentagem)}>
-                  {item.porcentagem !== undefined ? item.porcentagem.toFixed(1) : "0.0"}%
+          {sortedData.map((item, index) => {
+            // Limpar o ID do operador para remover numerações desnecessárias
+            const idLimpo = limparIdOperador(item.id);
+            
+            // Formatar a exibição do operador baseado no ID limpo
+            const operadorExibicao = formatarExibicaoOperador(idLimpo, item.nome);
+            
+            return (
+              <Box 
+                key={index}
+                py={0.5}
+                px={1}
+                bg={index % 2 === 0 ? "gray.50" : "white"}
+                borderRadius="sm"
+              >
+                {/* Primeira linha: Nome do operador (com ID apenas se for relevante) */}
+                <Text 
+                  fontSize="10px" 
+                  fontWeight="medium" 
+                  noOfLines={1} 
+                  title={operadorExibicao} 
+                  mb={0.5} 
+                  color="black"
+                >
+                  {operadorExibicao}
                 </Text>
-              </Flex>
-            </Box>
-          ))}
+                
+                {/* Segunda linha: Barra de progresso e valor percentual */}
+                <Flex direction="row" align="center">
+                  <Box flex="1" h="13px" position="relative" mr={2} maxW="calc(100% - 40px)" bg="gray.100">
+                    {/* Barra de progresso */}
+                    <Flex 
+                      position="absolute" 
+                      bg={getBarColor(item.porcentagem)} 
+                      h="100%" 
+                      w={`${scalePercentage(item.porcentagem)}%`}
+                      borderRadius="sm"
+                      alignItems="center"
+                    />
+                    
+                    {/* Linha vertical indicando a meta */}
+                    <Box 
+                      position="absolute" 
+                      top="0" 
+                      left={`${metaScaled}%`} 
+                      h="13px"
+                      w="2px"
+                      bg="rgba(0,0,0,0.7)"
+                      zIndex="2"
+                    />
+                  </Box>
+                  <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={getBarColor(item.porcentagem)}>
+                    {item.porcentagem !== undefined ? item.porcentagem.toFixed(1) : "0.0"}%
+                  </Text>
+                </Flex>
+              </Box>
+            );
+          })}
         </VStack>
       </Box>
     </Box>
