@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text, Flex, Grid, GridItem, Table, Thead, Tbody, Tr, Th, Td, SimpleGrid, Card, CardBody, Heading, TableContainer, VStack } from '@chakra-ui/react';
+import { formatarFrota } from '@/utils/formatters';
 
 interface DataItem {
   frota?: string;
@@ -300,7 +301,7 @@ const TabelaFrotas = ({ data }: { data: ResumoData }) => {
           {data.frotas.map((frota: FrotaData, index) => (
             <Tr key={frota.id} bg={index % 2 === 0 ? "white" : "gray.50"}>
               <Td p={2} color="black" borderRightWidth="1px" borderBottomWidth={index === data.frotas.length - 1 ? "0" : "1px"} borderColor="black">
-                {frota.id}
+                {formatarFrota(frota.id)}
               </Td>
               <Td p={2} textAlign="center" borderRightWidth="1px" borderBottomWidth={index === data.frotas.length - 1 ? "0" : "1px"} borderColor="black"
                   color={getColorByMeta(frota.tdh, data.tdh?.meta || 0, true)}>

@@ -1,6 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
 import { useMemo } from 'react';
+import { formatarFrota } from '@/utils/formatters';
 
 interface FrotaData {
   frota: string;
@@ -26,21 +27,6 @@ interface TabelaFrotasProps {
   };
   dadosAdicionais?: DadosAdicionais;
 }
-
-// Função para limpar e formatar o valor da frota como texto puro
-const cleanFrotaValue = (frota: string): string => {
-  // Log para debug
-  console.log(`🧹 Limpando valor de frota: ${frota}`);
-  
-  // Se o valor for numérico com decimal, remover a parte decimal
-  if (/^\d+\.\d+$/.test(frota)) {
-    console.log(`  - Removendo decimal de: ${frota}`);
-    return frota.split('.')[0];
-  }
-  
-  // Retornar como string limpa
-  return frota.trim();
-};
 
 // Função para formatar valores decimais com 4 casas sem arredondamento
 const formatDecimal = (val: number): string => {
@@ -155,12 +141,12 @@ export default function TabelaFrotas({
       console.log("📊 Processando dados completos...");
       dadosFinal = dadosFinal.map(item => {
         // Limpar o valor da frota
-        const frotaLimpa = cleanFrotaValue(item.frota);
+        const frotaLimpa = formatarFrota(item.frota);
         
         // Buscar valores correspondentes nos dadosCompletos
-        const tdh = dadosCompletos.tdh?.find(t => cleanFrotaValue(t.frota) === frotaLimpa)?.valor;
-        const diesel = dadosCompletos.diesel?.find(d => cleanFrotaValue(d.frota) === frotaLimpa)?.valor;
-        const impureza = dadosCompletos.impureza_vegetal?.find(i => cleanFrotaValue(i.frota) === frotaLimpa)?.valor;
+        const tdh = dadosCompletos.tdh?.find(t => formatarFrota(t.frota) === frotaLimpa)?.valor;
+        const diesel = dadosCompletos.diesel?.find(d => formatarFrota(d.frota) === frotaLimpa)?.valor;
+        const impureza = dadosCompletos.impureza_vegetal?.find(i => formatarFrota(i.frota) === frotaLimpa)?.valor;
 
         // Log detalhado para depuração
         console.log(`📊 Frotas: ${item.frota} (limpa: ${frotaLimpa}), TDH (completos): ${tdh}, Diesel (completos): ${diesel}, Impureza: ${impureza}`);
@@ -180,11 +166,11 @@ export default function TabelaFrotas({
       console.log("📊 Processando dados adicionais...");
       dadosFinal = dadosFinal.map(item => {
         // Limpar o valor da frota se ainda não foi limpo
-        const frotaLimpa = cleanFrotaValue(item.frota);
+        const frotaLimpa = formatarFrota(item.frota);
         
         // Buscar valores correspondentes nos dadosAdicionais
-        const tdh = dadosAdicionais.tdh?.find(t => cleanFrotaValue(t.frota) === frotaLimpa)?.valor;
-        const diesel = dadosAdicionais.diesel?.find(d => cleanFrotaValue(d.frota) === frotaLimpa)?.valor;
+        const tdh = dadosAdicionais.tdh?.find(t => formatarFrota(t.frota) === frotaLimpa)?.valor;
+        const diesel = dadosAdicionais.diesel?.find(d => formatarFrota(d.frota) === frotaLimpa)?.valor;
 
         // Log detalhado para depuração
         console.log(`📊 Frotas: ${item.frota} (limpa: ${frotaLimpa}), TDH (adicionais): ${tdh}, Diesel (adicionais): ${diesel}`);
@@ -202,7 +188,7 @@ export default function TabelaFrotas({
     if (!dadosCompletos && !dadosAdicionais) {
       dadosFinal = dadosFinal.map(item => ({
         ...item,
-        frota: cleanFrotaValue(item.frota)
+        frota: formatarFrota(item.frota)
       }));
     }
     
