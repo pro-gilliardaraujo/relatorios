@@ -1,0 +1,157 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-09",
+    "frente": "frente3",
+    "generated_at": "2025-04-10T08:12:17.112134",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "disponibilidade": 85.59
+    },
+    {
+      "frota": "7042.0",
+      "disponibilidade": 97.06
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "eficiencia": 79.21000000000001
+    },
+    {
+      "id": 2,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "eficiencia": 76.75
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 4.25
+    },
+    {
+      "id": 4,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "eficiencia": 86.02
+    },
+    {
+      "id": 5,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "eficiencia": 79.60000000000001
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "horas": 4.97
+    },
+    {
+      "id": 2,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "horas": 5.26
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.06
+    },
+    {
+      "id": 4,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "horas": 6.59
+    },
+    {
+      "id": 5,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "horas": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "horas": 1.05
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "percentual": 11.43
+    },
+    {
+      "id": 2,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "percentual": 13.950000000000001
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 79.25999999999999
+    },
+    {
+      "id": 4,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "percentual": 5.94
+    },
+    {
+      "id": 5,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "percentual": 36.76
+    },
+    {
+      "id": 6,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "percentual": 14.829999999999998
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "porcentagem": 99.42999999999999
+    },
+    {
+      "id": 2,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "porcentagem": 99.06
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 100.0
+    },
+    {
+      "id": 4,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "porcentagem": 95.17999999999999
+    },
+    {
+      "id": 5,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "porcentagem": 98.06
+    }
+  ]
+}

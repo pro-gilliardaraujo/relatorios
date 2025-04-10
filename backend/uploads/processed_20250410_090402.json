@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-09",
+    "frente": "frente1",
+    "generated_at": "2025-04-10T09:04:02.963582",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 91.08000000000001
+    },
+    {
+      "frota": "7038.0",
+      "disponibilidade": 92.34
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "eficiencia": 65.85
+    },
+    {
+      "id": 2,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 51.31
+    },
+    {
+      "id": 3,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "eficiencia": 42.93
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 19.139999999999997
+    },
+    {
+      "id": 5,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 37.46
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "horas": 4.61
+    },
+    {
+      "id": 2,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 4.16
+    },
+    {
+      "id": 3,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "horas": 2.63
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.17
+    },
+    {
+      "id": 5,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 2.72
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "percentual": 22.56
+    },
+    {
+      "id": 2,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 31.180000000000003
+    },
+    {
+      "id": 3,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "percentual": 23.31
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 57.220000000000006
+    },
+    {
+      "id": 5,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 26.14
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 27.0
+    },
+    {
+      "id": 3,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "porcentagem": 68.77
+    },
+    {
+      "id": 4,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 2.69
+    },
+    {
+      "id": 5,
+      "nome": "1331016 - JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 63.3
+    }
+  ]
+}
