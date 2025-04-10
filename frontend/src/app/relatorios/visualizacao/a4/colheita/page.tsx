@@ -17,6 +17,7 @@ import RelatorioColheitaDiarioResumo from '@/components/RelatorioColheitaDiarioR
 import IndicatorCard from '@/components/IndicatorCard';
 import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
+import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
 
 interface ColheitaA4Props {
   data?: any;
@@ -59,6 +60,12 @@ interface DadosProcessados {
     nome: string;
     porcentagem: number;
   }>;
+}
+
+interface HorasPorFrota {
+  frota: string;
+  horasRegistradas: number;
+  diferencaPara24h: number;
 }
 
 // Função para verificar se os dados estão no formato esperado
@@ -291,6 +298,19 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // console.log('📊 Dados de uso GPS processados:', data);
     return data;
   }, [finalData]);
+
+  // Preparar dados para o footer de HorasPorFrota
+  const dadosHorasPorFrota = useMemo(() => {
+    if (!reportData?.dados?.horas_por_frota) return [];
+    
+    return reportData.dados.horas_por_frota
+      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
+      .map((item: any) => ({
+        frota: item.frota,
+        horasRegistradas: Number(item.horasRegistradas || 0),
+        diferencaPara24h: Number(item.diferencaPara24h || 0)
+      }));
+  }, [reportData]);
 
   // Obter metas do relatório ou usar fallback do configManager
   const metas = useMemo(() => {
@@ -863,7 +883,14 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         </A4Colheita>
         
         {/* Página 3 - Resumo Geral */}
-        <A4Colheita isLastPage={true}>
+        <A4Colheita 
+          isLastPage={true} 
+          footer={
+            dadosHorasPorFrota && dadosHorasPorFrota.length > 0 ? 
+            <HorasPorFrotaFooter dados={dadosHorasPorFrota} /> : 
+            null
+          }
+        >
           <Box h="100%" display="flex" flexDirection="column" bg="white">
             <PageHeader />
             

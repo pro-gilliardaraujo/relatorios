@@ -21,6 +21,7 @@ import RelatorioColheitaSemanalResumo, { ResumoData, MetricData, FrotaData, Oper
 import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
 import IndicatorCard from '@/components/IndicatorCard';
+import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
 
 interface ColheitaA4Props {
   data?: any;
@@ -251,6 +252,12 @@ const processarDadosResumo = (dados: any): ResumoData => {
   };
 };
 
+interface HorasPorFrota {
+  frota: string;
+  horasRegistradas: number;
+  diferencaPara24h: number;
+}
+
 export default function ColheitaA4({ data }: ColheitaA4Props) {
   // Hooks e estados
   const { images } = useReportStore();
@@ -360,6 +367,19 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     
     return processarDadosResumo(reportData.dados);
   }, [reportData, loading]);
+
+  // Preparar dados para o footer de HorasPorFrota
+  const dadosHorasPorFrota = useMemo(() => {
+    if (!reportData?.dados?.horas_por_frota) return [];
+    
+    return reportData.dados.horas_por_frota
+      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
+      .map((item: any) => ({
+        frota: item.frota,
+        horasRegistradas: Number(item.horasRegistradas || 0),
+        diferencaPara24h: Number(item.diferencaPara24h || 0)
+      }));
+  }, [reportData]);
 
   // Verificar se estamos no modo de visualização ou no modo de relatório específico
   const isModoTemplate = !reportId;
@@ -652,7 +672,14 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       </A4Colheita>
       
       {/* Página 5 - Tabelas */}
-      <A4Colheita isLastPage={true}>
+      <A4Colheita 
+        isLastPage={true}
+        footer={
+          dadosHorasPorFrota && dadosHorasPorFrota.length > 0 ? 
+          <HorasPorFrotaFooter dados={dadosHorasPorFrota} /> : 
+          null
+        }
+      >
         <Box h="100%" display="flex" flexDirection="column" bg="white">
           <PageHeader showDate={true} />
           

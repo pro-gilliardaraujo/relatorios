@@ -20,21 +20,24 @@
         "eficienciaEnergetica": true,
         "motorOcioso": true,
         "horaElevador": true,
-        "usoGPS": true
+        "usoGPS": true,
+        "horasPorFrota": true
       },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
         "3_Hora Elevador",
         "4_Motor Ocioso",
-        "5_Uso GPS"
+        "5_Uso GPS",
+        "Horas por Frota"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
         "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
-        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -70,21 +73,24 @@
         "eficienciaEnergetica": true,
         "motorOcioso": true,
         "horaElevador": true,
-        "usoGPS": true
+        "usoGPS": true,
+        "horasPorFrota": true
       },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
         "3_Hora Elevador",
         "4_Motor Ocioso",
-        "5_Uso GPS"
+        "5_Uso GPS",
+        "Horas por Frota"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
         "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
-        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -114,7 +120,8 @@
         "eficienciaEnergetica": true,
         "motorOcioso": true,
         "faltaApontamento": true,
-        "usoGPS": false
+        "usoGPS": false,
+        "horasPorFrota": true
       },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",
@@ -122,14 +129,16 @@
         "3_Motor Ocioso",
         "4_Falta de Apontamento",
         "5_Eficiência Energética",
-        "5_Uso GPS"
+        "5_Uso GPS",
+        "Horas por Frota"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
         "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
-        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -163,7 +172,8 @@
         "eficienciaEnergetica": true,
         "motorOcioso": true,
         "faltaApontamento": true,
-        "usoGPS": false
+        "usoGPS": false,
+        "horasPorFrota": true
       },
       "planilhas_excel": [
         "1_Disponibilidade Mecânica",
@@ -171,14 +181,16 @@
         "3_Motor Ocioso",
         "4_Falta de Apontamento",
         "5_Eficiência Energética",
-        "5_Uso GPS"
+        "5_Uso GPS",
+        "Horas por Frota"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
         "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
-        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"]
+        "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
       },
       "componentes": {
         "mostrarImageUpload": true,

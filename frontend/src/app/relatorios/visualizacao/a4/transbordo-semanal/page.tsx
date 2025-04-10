@@ -18,6 +18,7 @@ import IndicatorCard from '@/components/IndicatorCard';
 import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
 import { DateRangeDisplay } from '@/components/DateRangeDisplay';
+import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
 
 // Dados de exemplo para visualização offline
 const exemplosDados: DadosProcessados = {
@@ -83,6 +84,12 @@ interface DadosProcessados {
   falta_apontamento: Array<any>;
   exemplosOperadores: Array<any>;
   exemplosFrotas: Array<any>;
+}
+
+interface HorasPorFrota {
+  frota: string;
+  horasRegistradas: number;
+  diferencaPara24h: number;
 }
 
 // Função para normalizar dados recebidos do backend
@@ -688,6 +695,19 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
     return frotaStr.includes('.') ? frotaStr.split('.')[0] : frotaStr;
   };
 
+  // Preparar dados para o footer de HorasPorFrota
+  const dadosHorasPorFrota = useMemo(() => {
+    if (!reportData?.dados?.horas_por_frota) return [];
+    
+    return reportData.dados.horas_por_frota
+      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
+      .map((item: any) => ({
+        frota: item.frota,
+        horasRegistradas: Number(item.horasRegistradas || 0),
+        diferencaPara24h: Number(item.diferencaPara24h || 0)
+      }));
+  }, [reportData]);
+
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
     return (
@@ -1023,7 +1043,14 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         </A4Colheita>
         
         {/* Sétima Página - Resumo de Operadores */}
-        <A4Colheita isLastPage={true}>
+        <A4Colheita 
+          isLastPage={true}
+          footer={
+            dadosHorasPorFrota && dadosHorasPorFrota.length > 0 ? 
+            <HorasPorFrotaFooter dados={dadosHorasPorFrota} /> : 
+            null
+          }
+        >
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column" p={3}>

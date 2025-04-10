@@ -27,6 +27,25 @@
     print-color-adjust: exact !important;
   }
 
+  /* Garantir que o footer seja visível e impresso corretamente */
+  .last-page > div > div:last-child {
+    position: relative !important;
+    padding-bottom: 13mm !important;
+    overflow: visible !important;
+  }
+  
+  /* Estilo específico para o footer de horas por frota */
+  .horas-por-frota-footer {
+    display: block !important;
+    visibility: visible !important;
+    position: fixed !important;
+    bottom: 10mm !important;
+    left: 10mm !important;
+    right: 10mm !important;
+    z-index: 9999 !important;
+    background-color: white !important;
+  }
+
   /* Evita que o navegador adicione uma página em branco no final */
   @page :last {
     page-break-after: avoid;

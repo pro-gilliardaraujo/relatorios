@@ -183,7 +183,8 @@ class ExcelProcessor:
                 ("8_uso", "uso_gps"),
                 ("5_uso", "uso_gps"),
                 ("6_falta", "falta_apontamento"),
-                ("4_falta", "falta_apontamento")
+                ("4_falta", "falta_apontamento"),
+                ("horas_por_frota", "horas_por_frota")
             ]:
                 if name_lower.startswith(prefix):
                     print(f"  - Identificado como '{sheet_type}' pelo prefixo '{prefix}' na planilha: {sheet_name}")
@@ -198,6 +199,11 @@ class ExcelProcessor:
             if "falta de apontamento" in name_lower or "falta apontamento" in name_lower:
                 print(f"  - Identificado como 'falta_apontamento' pelo nome da planilha: {sheet_name}")
                 return "falta_apontamento"
+            
+            # Verificação para "Horas por Frota"
+            if "horas por frota" in name_lower:
+                print(f"  - Identificado como 'horas_por_frota' pelo nome da planilha: {sheet_name}")
+                return "horas_por_frota"
             
             # Verificações TDH e Diesel para relatórios de transbordo
             if "tdh" in name_lower:
@@ -247,6 +253,9 @@ class ExcelProcessor:
                 elif "Impureza" in df.columns:
                     print(f"  - Identificado como 'impureza_vegetal' pelas colunas Frota e Impureza")
                     return "impureza_vegetal"
+                elif "Horas Registradas" in df.columns and "Diferença para 24h" in df.columns:
+                    print(f"  - Identificado como 'horas_por_frota' pelas colunas Frota, Horas Registradas e Diferença para 24h")
+                    return "horas_por_frota"
             
             if "Operador" in df.columns:
                 if "Eficiência" in df.columns or "Eficiencia" in df.columns:
@@ -388,9 +397,12 @@ class ExcelProcessor:
                 elif sheet_type == "falta_apontamento":
                     id_col, value_col = "Operador", "Porcentagem"
                     id_type, value_type = "texto", "porcentagem"
+                elif sheet_type == "horas_por_frota":
+                    id_col, value_col = "Frota", "Horas Registradas"
+                    id_type, value_type = "texto", "horas"
                 else:
-                    print(f"  - AVISO: Tipo de planilha desconhecido: {sheet_type}")
-                    return {}
+                    print(f"  - AVISO: Configuração padrão não encontrada para o tipo '{sheet_type}'")
+                    id_col, value_col = "", ""
                 print(f"  - Usando configuração padrão para {sheet_type}: {id_col}({id_type}), {value_col}({value_type})")
             
             # Verificar variações de nomes de colunas
@@ -520,6 +532,59 @@ class ExcelProcessor:
                             result[sheet_type].append(item)
                         except (ValueError, TypeError) as e:
                             print(f"  - Erro ao converter valor Diesel '{value}': {str(e)}")
+                    
+                    # Processamento específico para Horas por Frota
+                    elif sheet_type == "horas_por_frota":
+                        # Log para depuração de Horas por Frota
+                        print(f"  - Processando Horas por Frota linha {index}: ID={id_value}, Valor={value}")
+                        
+                        # Converter para string e limpar
+                        if isinstance(id_value, str):
+                            id_value = id_value.strip()
+                        else:
+                            id_value = str(id_value).strip()
+                        
+                        # Obter o segundo valor (Diferença para 24h)
+                        segunda_coluna = "Diferença para 24h"
+                        if segunda_coluna not in df.columns:
+                            # Tentar encontrar colunas com nomes similares
+                            alternativas = [col for col in df.columns if "diferenca" in col.lower() or "24h" in col.lower()]
+                            if alternativas:
+                                segunda_coluna = alternativas[0]
+                                print(f"  - Coluna alternativa encontrada para 'Diferença para 24h': {segunda_coluna}")
+                        
+                        # Pular se não encontrou a segunda coluna
+                        if segunda_coluna not in df.columns:
+                            print(f"  - ERRO: Coluna '{segunda_coluna}' não encontrada para Horas por Frota")
+                            continue
+                        
+                        valor_diferenca = row[segunda_coluna]
+                        if pd.isna(valor_diferenca) or valor_diferenca is None:
+                            print(f"  - ERRO: Valor de diferença ausente para a linha {index}")
+                            continue
+                        
+                        # Converter valores para float com tratamento especial
+                        try:
+                            # Processar Horas Registradas
+                            if isinstance(value, str):
+                                value = value.replace(',', '.').strip()
+                            horas_registradas = float(value)
+                            
+                            # Processar Diferença para 24h
+                            if isinstance(valor_diferenca, str):
+                                valor_diferenca = valor_diferenca.replace(',', '.').strip()
+                            diferenca_para_24h = float(valor_diferenca)
+                            
+                            # Adicionar o item processado
+                            item = {
+                                "frota": id_value,
+                                "horasRegistradas": horas_registradas,
+                                "diferencaPara24h": diferenca_para_24h
+                            }
+                            print(f"  - Item Horas por Frota processado: {item}")
+                            result[sheet_type].append(item)
+                        except (ValueError, TypeError) as e:
+                            print(f"  - Erro ao converter valores de Horas por Frota: {str(e)}")
                     
                     # Processamento padrão para outros tipos
                     else:
@@ -820,6 +885,32 @@ class ExcelProcessor:
                         'valor': valor
                     })
                 print(f"Processados {len(result['impureza_vegetal'])} registros de impureza vegetal")
+                
+            # Verificar se temos dados de Horas por Frota
+            if 'Frota' in df.columns and 'Horas Registradas' in df.columns and 'Diferença para 24h' in df.columns:
+                print("Processando dados de Horas por Frota")
+                result['horas_por_frota'] = []
+                for _, row in df.iterrows():
+                    # Validar ID
+                    if not is_valid_id(row['Frota']):
+                        continue
+                    
+                    # Limpar valor de frota
+                    frota_limpa = clean_frota_value(row['Frota'])
+                    
+                    # Converter os valores usando o método da classe
+                    horas_registradas = self.convert_value(row, 'Horas Registradas', "horas")
+                    diferenca_para_24h = self.convert_value(row, 'Diferença para 24h', "horas")
+                    
+                    if horas_registradas is None or diferenca_para_24h is None:
+                        continue
+                    
+                    result['horas_por_frota'].append({
+                        'frota': frota_limpa,
+                        'horasRegistradas': horas_registradas,
+                        'diferencaPara24h': diferenca_para_24h
+                    })
+                print(f"Processados {len(result['horas_por_frota'])} registros de horas por frota")
                 
             print("Transformação de dados concluída com sucesso!")
             print(f"Seções processadas: {list(result.keys())}")

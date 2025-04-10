@@ -4,9 +4,10 @@ import { ReactNode } from 'react';
 interface A4ColheitaProps {
   children: ReactNode;
   isLastPage?: boolean;
+  footer?: ReactNode;
 }
 
-export default function A4Colheita({ children, isLastPage = false }: A4ColheitaProps) {
+export default function A4Colheita({ children, isLastPage = false, footer }: A4ColheitaProps) {
   return (
     <Box
       w="210mm"
@@ -62,7 +63,7 @@ export default function A4Colheita({ children, isLastPage = false }: A4ColheitaP
             p: '10mm !important',
             h: '277mm !important',
             maxH: '277mm !important',
-            overflow: 'hidden !important',
+            overflow: 'visible !important',
             breakInside: 'avoid !important',
             breakAfter: isLastPage ? 'avoid !important' : 'always !important',
             m: '0 !important',
@@ -73,6 +74,9 @@ export default function A4Colheita({ children, isLastPage = false }: A4ColheitaP
         }}
       >
         {children}
+        
+        {/* Footer opcional (normalmente usado na última página) */}
+        {footer}
       </Box>
     </Box>
   );

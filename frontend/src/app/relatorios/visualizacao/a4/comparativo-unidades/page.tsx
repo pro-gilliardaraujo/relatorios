@@ -11,6 +11,7 @@ import { configManager } from '@/utils/config';
 import TabelaUnidades from '@/components/TabelaUnidades';
 import IndicatorCard from '@/components/IndicatorCard';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList } from 'recharts';
+import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
 
 // Interfaces para tipagem de dados
 interface UnidadeData {
@@ -35,6 +36,12 @@ interface ProcessedData {
     uso_gps: UnidadeData[];
   };
   unidadesNomes?: string[];
+}
+
+interface HorasPorFrota {
+  frota: string;
+  horasRegistradas: number;
+  diferencaPara24h: number;
 }
 
 // Componente para título de seção
@@ -450,6 +457,19 @@ export default function ComparativoUnidadesPage() {
   // Título do relatório
   const reportTitle = useMemo(() => 'Comparativo de Unidades - Diário', []);
   
+  // Preparar dados para o footer de HorasPorFrota
+  const dadosHorasPorFrota = useMemo(() => {
+    if (!reportData?.dados?.horas_por_frota) return [];
+    
+    return reportData.dados.horas_por_frota
+      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
+      .map((item: any) => ({
+        frota: item.frota,
+        horasRegistradas: Number(item.horasRegistradas || 0),
+        diferencaPara24h: Number(item.diferencaPara24h || 0)
+      }));
+  }, [reportData]);
+  
   // Renderização condicional do conteúdo
   if (isLoading) {
     return (
@@ -500,534 +520,582 @@ export default function ComparativoUnidadesPage() {
   
   // Renderização principal do relatório
   return (
-    <Box bg="white" minH="100vh" pb={8}>
-      {/* Botão de impressão fixo no canto superior direito */}
-      <Box 
-        position="fixed" 
-        top="20px" 
-        right="20px" 
-        zIndex={10}
-        className="no-print"
-      >
-        <Button
-          leftIcon={<FaPrint />}
-          colorScheme="black"
-          variant="outline"
-          size="sm"
-          onClick={handlePrint}
-        >
-          Imprimir
-        </Button>
-      </Box>
-      
-      {/* PÁGINA 1 - Gráficos de Colheita */}
-      <A4Colheita>
-        <VStack spacing={4} align="stretch" width="100%">
-          {/* Cabeçalho padronizado com logos */}
-          <Flex justify="space-between" align="center" mb={4}>
-            <Image
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-            <VStack spacing={0}>
-              <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-                {reportTitle}
-              </Heading>
-              <Text color="black" fontSize="sm" fontWeight="medium">
-                {dadosProcessados?.unidadesNomes?.join(" / ")}
-              </Text>
-              <Text color="black" fontSize="sm">
-                {reportDate}
-              </Text>
-            </VStack>
-            <Image 
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-          </Flex>
+    <Box maxW="100vw" overflow="hidden">
+      {isLoading ? (
+        <Center h="100vh">
+          <Spinner size="xl" thickness="4px" color="green.500" />
+        </Center>
+      ) : error ? (
+        <Center h="100vh" flexDirection="column" p={6}>
+          <Alert status="error" borderRadius="md" mb={4}>
+            <AlertIcon />
+            <AlertTitle mr={2}>Erro ao carregar o relatório</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button colorScheme="green" onClick={() => { 
+            setReportData(dadosExemplo); 
+            setDadosProcessados(processReportData(dadosExemplo));
+            setReportDate(formatDate(dadosExemplo.data));
+            setError(null); 
+          }}>
+            Carregar Dados de Exemplo
+          </Button>
+        </Center>
+      ) : (
+        <VStack spacing={0} align="stretch" className="report-container">
+          {/* PÁGINA 1 - Gráficos de Colheita */}
+          <A4Colheita>
+            <VStack spacing={4} align="stretch" width="100%">
+              {/* Cabeçalho padronizado com logos */}
+              <Flex justify="space-between" align="center" mb={4}>
+                <Image
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+                <VStack spacing={0}>
+                  <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+                    {reportTitle}
+                  </Heading>
+                  <Text color="black" fontSize="sm" fontWeight="medium">
+                    {dadosProcessados?.unidadesNomes?.join(" / ")}
+                  </Text>
+                  <Text color="black" fontSize="sm">
+                    {reportDate}
+                  </Text>
+                </VStack>
+                <Image 
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+              </Flex>
 
-          {/* Seção de Colheita - APENAS GRÁFICOS */}
-          <Box w="100%" mb={5}>
-            <SectionTitle title="Colheita" />
-            
-            {/* Gráfico principal de Disponibilidade Mecânica */}
-            <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-              <HorizontalBarChart 
-                data={dadosProcessados?.colheita.disponibilidade_mecanica} 
-                meta={90}
-              />
-            </Box>
-            
-            {/* Gráficos em 2 colunas */}
-            <SimpleGrid columns={2} spacing={4} mb={4}>
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Eficiência Energética
-                </Heading>
+              {/* Seção de Colheita - APENAS GRÁFICOS */}
+              <Box w="100%" mb={5}>
+                <SectionTitle title="Colheita" />
+                
+                {/* Gráfico principal de Disponibilidade Mecânica */}
                 <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
                   <HorizontalBarChart 
-                    data={dadosProcessados?.colheita.eficiencia_energetica} 
-                    meta={70}
-                  />
-                </Box>
-              </Box>
-              
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Motor Ocioso
-                </Heading>
-                <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-                  <HorizontalBarChart 
-                    data={dadosProcessados?.colheita.motor_ocioso} 
-                    meta={4}
-                    metaColors={{ above: '#E53E3E', below: '#48BB78', warning: '#ECC94B' }}
-                  />
-                </Box>
-              </Box>
-
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Horas Elevador
-                </Heading>
-                <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-                  <HorizontalBarChart 
-                    data={dadosProcessados?.colheita.hora_elevador} 
-                    meta={5}
-                  />
-                </Box>
-              </Box>
-              
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Uso GPS
-                </Heading>
-                <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-                  <HorizontalBarChart 
-                    data={dadosProcessados?.colheita.uso_gps} 
+                    data={dadosProcessados?.colheita.disponibilidade_mecanica} 
                     meta={90}
                   />
                 </Box>
+                
+                {/* Gráficos em 2 colunas */}
+                <SimpleGrid columns={2} spacing={4} mb={4}>
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Eficiência Energética
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.colheita.eficiencia_energetica} 
+                        meta={70}
+                      />
+                    </Box>
+                  </Box>
+                  
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Motor Ocioso
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.colheita.motor_ocioso} 
+                        meta={4}
+                        metaColors={{ above: '#E53E3E', below: '#48BB78', warning: '#ECC94B' }}
+                      />
+                    </Box>
+                  </Box>
+
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Horas Elevador
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.colheita.hora_elevador} 
+                        meta={5}
+                      />
+                    </Box>
+                  </Box>
+                  
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Uso GPS
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.colheita.uso_gps} 
+                        meta={90}
+                      />
+                    </Box>
+                  </Box>
+                </SimpleGrid>
               </Box>
-            </SimpleGrid>
-          </Box>
-        </VStack>
-      </A4Colheita>
-      
-      {/* PÁGINA 2 - Gráficos de Transbordo */}
-      <A4Colheita>
-        <VStack spacing={4} align="stretch" width="100%">
-          {/* Cabeçalho padronizado com logos */}
-          <Flex justify="space-between" align="center" mb={4}>
-            <Image
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-            <VStack spacing={0}>
-              <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-                {reportTitle}
-              </Heading>
-              <Text color="black" fontSize="sm" fontWeight="medium">
-                {dadosProcessados?.unidadesNomes?.join(" / ")}
-              </Text>
-              <Text color="black" fontSize="sm">
-                {reportDate}
-              </Text>
             </VStack>
-            <Image 
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-          </Flex>
+          </A4Colheita>
           
-          {/* Seção de Transbordo - APENAS GRÁFICOS */}
-          <Box w="100%" mb={5}>
-            <SectionTitle title="Transbordos" />
-            
-            {/* Gráfico principal de Disponibilidade Mecânica para Transbordo */}
-            <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-              <HorizontalBarChart 
-                data={dadosProcessados?.transbordo.disponibilidade_mecanica} 
-                meta={90}
-              />
-            </Box>
-            
-            {/* Gráficos de Transbordo em 2 colunas */}
-            <SimpleGrid columns={2} spacing={4} mb={4}>
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Eficiência Energética
-                </Heading>
-                <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-                  <HorizontalBarChart 
-                    data={dadosProcessados?.transbordo.eficiencia_energetica} 
-                    meta={65}
-                  />
-                </Box>
-              </Box>
+          {/* PÁGINA 2 - Gráficos de Transbordo */}
+          <A4Colheita>
+            <VStack spacing={4} align="stretch" width="100%">
+              {/* Cabeçalho padronizado com logos */}
+              <Flex justify="space-between" align="center" mb={4}>
+                <Image
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+                <VStack spacing={0}>
+                  <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+                    {reportTitle}
+                  </Heading>
+                  <Text color="black" fontSize="sm" fontWeight="medium">
+                    {dadosProcessados?.unidadesNomes?.join(" / ")}
+                  </Text>
+                  <Text color="black" fontSize="sm">
+                    {reportDate}
+                  </Text>
+                </VStack>
+                <Image 
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+              </Flex>
               
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Motor Ocioso
-                </Heading>
+              {/* Seção de Transbordo - APENAS GRÁFICOS */}
+              <Box w="100%" mb={5}>
+                <SectionTitle title="Transbordos" />
+                
+                {/* Gráfico principal de Disponibilidade Mecânica para Transbordo */}
                 <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
                   <HorizontalBarChart 
-                    data={dadosProcessados?.transbordo.motor_ocioso} 
-                    meta={6}
-                    metaColors={{ above: '#E53E3E', below: '#48BB78', warning: '#ECC94B' }}
-                  />
-                </Box>
-              </Box>
-              
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Falta de Apontamento
-                </Heading>
-                <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-                  <HorizontalBarChart 
-                    data={dadosProcessados?.transbordo.falta_apontamento} 
-                    meta={10}
-                    metaColors={{ above: '#E53E3E', below: '#48BB78', warning: '#ECC94B' }}
-                  />
-                </Box>
-              </Box>
-              
-              <Box>
-                <Heading size="sm" mb={2} color="black" textAlign="center">
-                  Uso GPS
-                </Heading>
-                <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
-                  <HorizontalBarChart 
-                    data={dadosProcessados?.transbordo.uso_gps} 
+                    data={dadosProcessados?.transbordo.disponibilidade_mecanica} 
                     meta={90}
                   />
                 </Box>
+                
+                {/* Gráficos de Transbordo em 2 colunas */}
+                <SimpleGrid columns={2} spacing={4} mb={4}>
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Eficiência Energética
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.transbordo.eficiencia_energetica} 
+                        meta={65}
+                      />
+                    </Box>
+                  </Box>
+                  
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Motor Ocioso
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.transbordo.motor_ocioso} 
+                        meta={6}
+                        metaColors={{ above: '#E53E3E', below: '#48BB78', warning: '#ECC94B' }}
+                      />
+                    </Box>
+                  </Box>
+                  
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Falta de Apontamento
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.transbordo.falta_apontamento} 
+                        meta={10}
+                        metaColors={{ above: '#E53E3E', below: '#48BB78', warning: '#ECC94B' }}
+                      />
+                    </Box>
+                  </Box>
+                  
+                  <Box>
+                    <Heading size="sm" mb={2} color="black" textAlign="center">
+                      Uso GPS
+                    </Heading>
+                    <Box h="250px" w="100%" mt={2} mb={4} border="1px solid" borderColor="black" borderRadius="md" p={2} bg="white">
+                      <HorizontalBarChart 
+                        data={dadosProcessados?.transbordo.uso_gps} 
+                        meta={90}
+                      />
+                    </Box>
+                  </Box>
+                </SimpleGrid>
               </Box>
-            </SimpleGrid>
-          </Box>
-        </VStack>
-      </A4Colheita>
-      
-      {/* PÁGINA 3 - Cards Colheita apenas - agora organizados por unidade */}
-      <A4Colheita>
-        <VStack spacing={2} align="stretch" width="100%">
-          {/* Cabeçalho padronizado com logos */}
-          <Flex justify="space-between" align="center" mb={2}>
-            <Image
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-            <VStack spacing={0}>
-              <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-                {reportTitle}
-              </Heading>
-              <Text color="black" fontSize="sm" fontWeight="medium">
-                {dadosProcessados?.unidadesNomes?.join(" / ")}
-              </Text>
-              <Text color="black" fontSize="sm">
-                {reportDate}
-              </Text>
             </VStack>
-            <Image 
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-          </Flex>
-
-          {/* Seção de Cards - Colheita - Organizado por unidade */}
-          <Box w="100%" mb={2}>
-            <SectionTitle title="Colheita - Indicadores por Unidade" />
-            
-            {/* Criamos uma SimpleGrid com 4 colunas (uma para cada unidade) */}
-            <SimpleGrid columns={4} spacing={3} mb={3}>
-              {dadosProcessados?.colheita.disponibilidade_mecanica.slice(0, 4).map((unidade, indexUnidade) => (
-                <Box key={unidade.id}>
-                  <Heading size="xs" mb={1} color="black" textAlign="center" fontSize="11px">
-                    {unidade.nome}
+          </A4Colheita>
+          
+          {/* PÁGINA 3 - Cards Colheita apenas - agora organizados por unidade */}
+          <A4Colheita>
+            <VStack spacing={2} align="stretch" width="100%">
+              {/* Cabeçalho padronizado com logos */}
+              <Flex justify="space-between" align="center" mb={2}>
+                <Image
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+                <VStack spacing={0}>
+                  <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+                    {reportTitle}
                   </Heading>
-                  <VStack spacing={2} align="stretch">
-                    {/* Disponibilidade Mecânica */}
-                    <IndicatorCard
-                      title="Disponibilidade"
-                      value={dadosProcessados.colheita.disponibilidade_mecanica[indexUnidade]?.valor || 0}
-                      meta={90}
-                      isInverted={false}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 1 : indexUnidade === 1 ? 2 : indexUnidade === 2 ? 3 : 0,
-                        total: indexUnidade === 0 ? 8 : indexUnidade === 1 ? 10 : indexUnidade === 2 ? 7 : 9,
-                        percentual: (indexUnidade === 0 ? 1/8 : indexUnidade === 1 ? 2/10 : indexUnidade === 2 ? 3/7 : 0) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Eficiência Energética */}
-                    <IndicatorCard
-                      title="Eficiência Energética"
-                      value={dadosProcessados.colheita.eficiencia_energetica[indexUnidade]?.valor || 0}
-                      meta={70}
-                      isInverted={false}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 5 : indexUnidade === 1 ? 4 : indexUnidade === 2 ? 6 : 3,
-                        total: indexUnidade === 0 ? 12 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 11 : 8,
-                        percentual: (indexUnidade === 0 ? 5/12 : indexUnidade === 1 ? 4/9 : indexUnidade === 2 ? 6/11 : 3/8) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Motor Ocioso */}
-                    <IndicatorCard
-                      title="Motor Ocioso"
-                      value={dadosProcessados.colheita.motor_ocioso[indexUnidade]?.valor || 0}
-                      meta={4}
-                      isInverted={true}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 7 : indexUnidade === 1 ? 6 : indexUnidade === 2 ? 5 : 4,
-                        total: indexUnidade === 0 ? 12 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 11 : 8,
-                        percentual: (indexUnidade === 0 ? 7/12 : indexUnidade === 1 ? 6/9 : indexUnidade === 2 ? 5/11 : 4/8) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Horas Elevador */}
-                    <IndicatorCard
-                      title="Horas Elevador"
-                      value={dadosProcessados.colheita.hora_elevador[indexUnidade]?.valor || 0}
-                      meta={5}
-                      isInverted={false}
-                      unitType="horas"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 4 : indexUnidade === 1 ? 3 : indexUnidade === 2 ? 5 : 2,
-                        total: indexUnidade === 0 ? 8 : indexUnidade === 1 ? 7 : indexUnidade === 2 ? 9 : 6,
-                        percentual: (indexUnidade === 0 ? 4/8 : indexUnidade === 1 ? 3/7 : indexUnidade === 2 ? 5/9 : 2/6) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Uso GPS */}
-                    <IndicatorCard
-                      title="Uso GPS"
-                      value={dadosProcessados.colheita.uso_gps[indexUnidade]?.valor || 0}
-                      meta={90}
-                      isInverted={false}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 5 : indexUnidade === 1 ? 4 : indexUnidade === 2 ? 3 : 6,
-                        total: indexUnidade === 0 ? 8 : indexUnidade === 1 ? 10 : indexUnidade === 2 ? 7 : 9,
-                        percentual: (indexUnidade === 0 ? 5/8 : indexUnidade === 1 ? 4/10 : indexUnidade === 2 ? 3/7 : 6/9) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                  </VStack>
-                </Box>
-              ))}
-            </SimpleGrid>
-          </Box>
-        </VStack>
-      </A4Colheita>
-      
-      {/* PÁGINA 4 - Cards Transbordo apenas - agora organizados por unidade */}
-      <A4Colheita>
-        <VStack spacing={2} align="stretch" width="100%">
-          {/* Cabeçalho padronizado com logos */}
-          <Flex justify="space-between" align="center" mb={2}>
-            <Image
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-            <VStack spacing={0}>
-              <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-                {reportTitle}
-              </Heading>
-              <Text color="black" fontSize="sm" fontWeight="medium">
-                {dadosProcessados?.unidadesNomes?.join(" / ")}
-              </Text>
-              <Text color="black" fontSize="sm">
-                {reportDate}
-              </Text>
+                  <Text color="black" fontSize="sm" fontWeight="medium">
+                    {dadosProcessados?.unidadesNomes?.join(" / ")}
+                  </Text>
+                  <Text color="black" fontSize="sm">
+                    {reportDate}
+                  </Text>
+                </VStack>
+                <Image 
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+              </Flex>
+
+              {/* Seção de Cards - Colheita - Organizado por unidade */}
+              <Box w="100%" mb={2}>
+                <SectionTitle title="Colheita - Indicadores por Unidade" />
+                
+                {/* Criamos uma SimpleGrid com 4 colunas (uma para cada unidade) */}
+                <SimpleGrid columns={4} spacing={3} mb={3}>
+                  {dadosProcessados?.colheita.disponibilidade_mecanica.slice(0, 4).map((unidade, indexUnidade) => (
+                    <Box key={unidade.id}>
+                      <Heading size="xs" mb={1} color="black" textAlign="center" fontSize="11px">
+                        {unidade.nome}
+                      </Heading>
+                      <VStack spacing={2} align="stretch">
+                        {/* Disponibilidade Mecânica */}
+                        <IndicatorCard
+                          title="Disponibilidade"
+                          value={dadosProcessados.colheita.disponibilidade_mecanica[indexUnidade]?.valor || 0}
+                          meta={90}
+                          isInverted={false}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 1 : indexUnidade === 1 ? 2 : indexUnidade === 2 ? 3 : 0,
+                            total: indexUnidade === 0 ? 8 : indexUnidade === 1 ? 10 : indexUnidade === 2 ? 7 : 9,
+                            percentual: (indexUnidade === 0 ? 1/8 : indexUnidade === 1 ? 2/10 : indexUnidade === 2 ? 3/7 : 0) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Eficiência Energética */}
+                        <IndicatorCard
+                          title="Eficiência Energética"
+                          value={dadosProcessados.colheita.eficiencia_energetica[indexUnidade]?.valor || 0}
+                          meta={70}
+                          isInverted={false}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 5 : indexUnidade === 1 ? 4 : indexUnidade === 2 ? 6 : 3,
+                            total: indexUnidade === 0 ? 12 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 11 : 8,
+                            percentual: (indexUnidade === 0 ? 5/12 : indexUnidade === 1 ? 4/9 : indexUnidade === 2 ? 6/11 : 3/8) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Motor Ocioso */}
+                        <IndicatorCard
+                          title="Motor Ocioso"
+                          value={dadosProcessados.colheita.motor_ocioso[indexUnidade]?.valor || 0}
+                          meta={4}
+                          isInverted={true}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 7 : indexUnidade === 1 ? 6 : indexUnidade === 2 ? 5 : 4,
+                            total: indexUnidade === 0 ? 12 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 11 : 8,
+                            percentual: (indexUnidade === 0 ? 7/12 : indexUnidade === 1 ? 6/9 : indexUnidade === 2 ? 5/11 : 4/8) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Horas Elevador */}
+                        <IndicatorCard
+                          title="Horas Elevador"
+                          value={dadosProcessados.colheita.hora_elevador[indexUnidade]?.valor || 0}
+                          meta={5}
+                          isInverted={false}
+                          unitType="horas"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 4 : indexUnidade === 1 ? 3 : indexUnidade === 2 ? 5 : 2,
+                            total: indexUnidade === 0 ? 8 : indexUnidade === 1 ? 7 : indexUnidade === 2 ? 9 : 6,
+                            percentual: (indexUnidade === 0 ? 4/8 : indexUnidade === 1 ? 3/7 : indexUnidade === 2 ? 5/9 : 2/6) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Uso GPS */}
+                        <IndicatorCard
+                          title="Uso GPS"
+                          value={dadosProcessados.colheita.uso_gps[indexUnidade]?.valor || 0}
+                          meta={90}
+                          isInverted={false}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 5 : indexUnidade === 1 ? 4 : indexUnidade === 2 ? 3 : 6,
+                            total: indexUnidade === 0 ? 8 : indexUnidade === 1 ? 10 : indexUnidade === 2 ? 7 : 9,
+                            percentual: (indexUnidade === 0 ? 5/8 : indexUnidade === 1 ? 4/10 : indexUnidade === 2 ? 3/7 : 6/9) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                      </VStack>
+                    </Box>
+                  ))}
+                </SimpleGrid>
+              </Box>
             </VStack>
-            <Image 
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-          </Flex>
+          </A4Colheita>
           
-          {/* Seção de Cards - Transbordo - Organizado por unidade */}
-          <Box w="100%" mb={2}>
-            <SectionTitle title="Transbordo - Indicadores por Unidade" />
-            
-            {/* Criamos uma SimpleGrid com 4 colunas (uma para cada unidade) */}
-            <SimpleGrid columns={4} spacing={3} mb={3}>
-              {dadosProcessados?.transbordo.disponibilidade_mecanica.slice(0, 4).map((unidade, indexUnidade) => (
-                <Box key={unidade.id}>
-                  <Heading size="xs" mb={1} color="black" textAlign="center" fontSize="11px">
-                    {unidade.nome}
+          {/* PÁGINA 4 - Cards Transbordo apenas - agora organizados por unidade */}
+          <A4Colheita>
+            <VStack spacing={2} align="stretch" width="100%">
+              {/* Cabeçalho padronizado com logos */}
+              <Flex justify="space-between" align="center" mb={2}>
+                <Image
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+                <VStack spacing={0}>
+                  <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+                    {reportTitle}
                   </Heading>
-                  <VStack spacing={2} align="stretch">
-                    {/* Disponibilidade Mecânica */}
-                    <IndicatorCard
-                      title="Disponibilidade"
-                      value={dadosProcessados.transbordo.disponibilidade_mecanica[indexUnidade]?.valor || 0}
-                      meta={90}
-                      isInverted={false}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 4 : indexUnidade === 1 ? 6 : indexUnidade === 2 ? 5 : 7,
-                        total: indexUnidade === 0 ? 7 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 8 : 10,
-                        percentual: (indexUnidade === 0 ? 4/7 : indexUnidade === 1 ? 6/9 : indexUnidade === 2 ? 5/8 : 7/10) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Eficiência Energética */}
-                    <IndicatorCard
-                      title="Eficiência Energética"
-                      value={dadosProcessados.transbordo.eficiencia_energetica[indexUnidade]?.valor || 0}
-                      meta={65}
-                      isInverted={false}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 6 : indexUnidade === 1 ? 5 : indexUnidade === 2 ? 7 : 4,
-                        total: indexUnidade === 0 ? 10 : indexUnidade === 1 ? 8 : indexUnidade === 2 ? 12 : 7,
-                        percentual: (indexUnidade === 0 ? 6/10 : indexUnidade === 1 ? 5/8 : indexUnidade === 2 ? 7/12 : 4/7) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Motor Ocioso */}
-                    <IndicatorCard
-                      title="Motor Ocioso"
-                      value={dadosProcessados.transbordo.motor_ocioso[indexUnidade]?.valor || 0}
-                      meta={6}
-                      isInverted={true}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 5 : indexUnidade === 1 ? 4 : indexUnidade === 2 ? 8 : 3,
-                        total: indexUnidade === 0 ? 10 : indexUnidade === 1 ? 8 : indexUnidade === 2 ? 12 : 7,
-                        percentual: (indexUnidade === 0 ? 5/10 : indexUnidade === 1 ? 4/8 : indexUnidade === 2 ? 8/12 : 3/7) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Falta de Apontamento */}
-                    <IndicatorCard
-                      title="Falta de Apontamento"
-                      value={dadosProcessados.transbordo.falta_apontamento[indexUnidade]?.valor || 0}
-                      meta={10}
-                      isInverted={true}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 6 : indexUnidade === 1 ? 7 : indexUnidade === 2 ? 5 : 6,
-                        total: indexUnidade === 0 ? 9 : indexUnidade === 1 ? 11 : indexUnidade === 2 ? 8 : 10,
-                        percentual: (indexUnidade === 0 ? 6/9 : indexUnidade === 1 ? 7/11 : indexUnidade === 2 ? 5/8 : 6/10) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                    
-                    {/* Uso GPS */}
-                    <IndicatorCard
-                      title="Uso GPS"
-                      value={dadosProcessados.transbordo.uso_gps[indexUnidade]?.valor || 0}
-                      meta={90}
-                      isInverted={false}
-                      unitType="porcentagem"
-                      acimaMeta={{
-                        quantidade: indexUnidade === 0 ? 4 : indexUnidade === 1 ? 5 : indexUnidade === 2 ? 6 : 7,
-                        total: indexUnidade === 0 ? 7 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 8 : 10,
-                        percentual: (indexUnidade === 0 ? 4/7 : indexUnidade === 1 ? 5/9 : indexUnidade === 2 ? 6/8 : 7/10) * 100
-                      }}
-                      showMetaOnTop={true}
-                      showSummaryOnBottom={true}
-                    />
-                  </VStack>
-                </Box>
-              ))}
-            </SimpleGrid>
-          </Box>
-        </VStack>
-      </A4Colheita>
-
-      {/* PÁGINA 5 - Apenas tabelas */}
-      <A4Colheita>
-        <VStack spacing={4} align="stretch" width="100%">
-          {/* Cabeçalho padronizado com logos */}
-          <Flex justify="space-between" align="center" mb={4}>
-            <Image
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-            <VStack spacing={0}>
-              <Heading size="md" color="black" fontWeight="bold" textAlign="center">
-                {reportTitle}
-              </Heading>
-              <Text color="black" fontSize="sm" fontWeight="medium">
-                {dadosProcessados?.unidadesNomes?.join(" / ")}
-              </Text>
-              <Text color="black" fontSize="sm">
-                {reportDate}
-              </Text>
+                  <Text color="black" fontSize="sm" fontWeight="medium">
+                    {dadosProcessados?.unidadesNomes?.join(" / ")}
+                  </Text>
+                  <Text color="black" fontSize="sm">
+                    {reportDate}
+                  </Text>
+                </VStack>
+                <Image 
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+              </Flex>
+              
+              {/* Seção de Cards - Transbordo - Organizado por unidade */}
+              <Box w="100%" mb={2}>
+                <SectionTitle title="Transbordo - Indicadores por Unidade" />
+                
+                {/* Criamos uma SimpleGrid com 4 colunas (uma para cada unidade) */}
+                <SimpleGrid columns={4} spacing={3} mb={3}>
+                  {dadosProcessados?.transbordo.disponibilidade_mecanica.slice(0, 4).map((unidade, indexUnidade) => (
+                    <Box key={unidade.id}>
+                      <Heading size="xs" mb={1} color="black" textAlign="center" fontSize="11px">
+                        {unidade.nome}
+                      </Heading>
+                      <VStack spacing={2} align="stretch">
+                        {/* Disponibilidade Mecânica */}
+                        <IndicatorCard
+                          title="Disponibilidade"
+                          value={dadosProcessados.transbordo.disponibilidade_mecanica[indexUnidade]?.valor || 0}
+                          meta={90}
+                          isInverted={false}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 4 : indexUnidade === 1 ? 6 : indexUnidade === 2 ? 5 : 7,
+                            total: indexUnidade === 0 ? 7 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 8 : 10,
+                            percentual: (indexUnidade === 0 ? 4/7 : indexUnidade === 1 ? 6/9 : indexUnidade === 2 ? 5/8 : 7/10) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Eficiência Energética */}
+                        <IndicatorCard
+                          title="Eficiência Energética"
+                          value={dadosProcessados.transbordo.eficiencia_energetica[indexUnidade]?.valor || 0}
+                          meta={65}
+                          isInverted={false}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 6 : indexUnidade === 1 ? 5 : indexUnidade === 2 ? 7 : 4,
+                            total: indexUnidade === 0 ? 10 : indexUnidade === 1 ? 8 : indexUnidade === 2 ? 12 : 7,
+                            percentual: (indexUnidade === 0 ? 6/10 : indexUnidade === 1 ? 5/8 : indexUnidade === 2 ? 7/12 : 4/7) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Motor Ocioso */}
+                        <IndicatorCard
+                          title="Motor Ocioso"
+                          value={dadosProcessados.transbordo.motor_ocioso[indexUnidade]?.valor || 0}
+                          meta={6}
+                          isInverted={true}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 5 : indexUnidade === 1 ? 4 : indexUnidade === 2 ? 8 : 3,
+                            total: indexUnidade === 0 ? 10 : indexUnidade === 1 ? 8 : indexUnidade === 2 ? 12 : 7,
+                            percentual: (indexUnidade === 0 ? 5/10 : indexUnidade === 1 ? 4/8 : indexUnidade === 2 ? 8/12 : 3/7) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Falta de Apontamento */}
+                        <IndicatorCard
+                          title="Falta de Apontamento"
+                          value={dadosProcessados.transbordo.falta_apontamento[indexUnidade]?.valor || 0}
+                          meta={10}
+                          isInverted={true}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 6 : indexUnidade === 1 ? 7 : indexUnidade === 2 ? 5 : 6,
+                            total: indexUnidade === 0 ? 9 : indexUnidade === 1 ? 11 : indexUnidade === 2 ? 8 : 10,
+                            percentual: (indexUnidade === 0 ? 6/9 : indexUnidade === 1 ? 7/11 : indexUnidade === 2 ? 5/8 : 6/10) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                        
+                        {/* Uso GPS */}
+                        <IndicatorCard
+                          title="Uso GPS"
+                          value={dadosProcessados.transbordo.uso_gps[indexUnidade]?.valor || 0}
+                          meta={90}
+                          isInverted={false}
+                          unitType="porcentagem"
+                          acimaMeta={{
+                            quantidade: indexUnidade === 0 ? 4 : indexUnidade === 1 ? 5 : indexUnidade === 2 ? 6 : 7,
+                            total: indexUnidade === 0 ? 7 : indexUnidade === 1 ? 9 : indexUnidade === 2 ? 8 : 10,
+                            percentual: (indexUnidade === 0 ? 4/7 : indexUnidade === 1 ? 5/9 : indexUnidade === 2 ? 6/8 : 7/10) * 100
+                          }}
+                          showMetaOnTop={true}
+                          showSummaryOnBottom={true}
+                        />
+                      </VStack>
+                    </Box>
+                  ))}
+                </SimpleGrid>
+              </Box>
             </VStack>
-            <Image 
-              src={LOGO_URL}
-              alt="Logo IB"
-              h={LOGO_HEIGHT}
-              objectFit="contain"
-            />
-          </Flex>
+          </A4Colheita>
 
-          {/* Tabela Colheita */}
-          <Box mb={5}>
-            <SectionTitle title="Detalhamento por Unidade - Colheita" />
-            {dadosProcessados && (
-              <TabelaUnidades 
-                dados={dadosProcessados} 
-                tipo="colheita"
-              />
-            )}
-          </Box>
-          
-          <Divider my={4} borderColor="gray.400" />
-          
-          {/* Tabela Transbordo */}
-          <Box mb={5}>
-            <SectionTitle title="Detalhamento por Unidade - Transbordo" />
-            {dadosProcessados && (
-              <TabelaUnidades 
-                dados={dadosProcessados} 
-                tipo="transbordo"
-              />
-            )}
-          </Box>
+          {/* PÁGINA 5 - Apenas tabelas */}
+          <A4Colheita>
+            <VStack spacing={4} align="stretch" width="100%">
+              {/* Cabeçalho padronizado com logos */}
+              <Flex justify="space-between" align="center" mb={4}>
+                <Image
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+                <VStack spacing={0}>
+                  <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+                    {reportTitle}
+                  </Heading>
+                  <Text color="black" fontSize="sm" fontWeight="medium">
+                    {dadosProcessados?.unidadesNomes?.join(" / ")}
+                  </Text>
+                  <Text color="black" fontSize="sm">
+                    {reportDate}
+                  </Text>
+                </VStack>
+                <Image 
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+              </Flex>
+
+              {/* Tabela Colheita */}
+              <Box mb={5}>
+                <SectionTitle title="Detalhamento por Unidade - Colheita" />
+                {dadosProcessados && (
+                  <TabelaUnidades 
+                    dados={dadosProcessados} 
+                    tipo="colheita"
+                  />
+                )}
+              </Box>
+              
+              <Divider my={4} borderColor="gray.400" />
+              
+              {/* Tabela Transbordo */}
+              <Box mb={5}>
+                <SectionTitle title="Detalhamento por Unidade - Transbordo" />
+                {dadosProcessados && (
+                  <TabelaUnidades 
+                    dados={dadosProcessados} 
+                    tipo="transbordo"
+                  />
+                )}
+              </Box>
+            </VStack>
+          </A4Colheita>
+
+          {/* Na última página, adicionar o footer */}
+          <A4Colheita 
+            isLastPage={true}
+            footer={
+              dadosHorasPorFrota && dadosHorasPorFrota.length > 0 ? 
+              <HorasPorFrotaFooter dados={dadosHorasPorFrota} /> : 
+              null
+            }
+          >
+            {/* Conteúdo da última página */}
+            <VStack spacing={4} align="stretch" width="100%">
+              {/* Cabeçalho padronizado com logos */}
+              <Flex justify="space-between" align="center" mb={4}>
+                <Image
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+                <VStack spacing={0}>
+                  <Heading size="md" color="black" fontWeight="bold" textAlign="center">
+                    {reportTitle}
+                  </Heading>
+                  <Text color="black" fontSize="sm" fontWeight="medium">
+                    {dadosProcessados?.unidadesNomes?.join(" / ")}
+                  </Text>
+                  <Text color="black" fontSize="sm">
+                    {reportDate}
+                  </Text>
+                </VStack>
+                <Image 
+                  src={LOGO_URL}
+                  alt="Logo IB"
+                  h={LOGO_HEIGHT}
+                  objectFit="contain"
+                />
+              </Flex>
+              
+              {/* Conteúdo adicional ou resumo final pode ser adicionado aqui */}
+              <Box flex="1" />
+            </VStack>
+          </A4Colheita>
         </VStack>
-      </A4Colheita>
+      )}
     </Box>
   );
 } 
