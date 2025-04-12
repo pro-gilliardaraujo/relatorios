@@ -1,0 +1,169 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-10",
+    "frente": "frente1",
+    "generated_at": "2025-04-11T07:41:18.772184",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 99.75
+    },
+    {
+      "frota": "7038.0",
+      "disponibilidade": 90.36999999999999
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 34.31
+    },
+    {
+      "id": 2,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 52.23
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 13.71
+    },
+    {
+      "id": 4,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "eficiencia": 56.720000000000006
+    },
+    {
+      "id": 5,
+      "nome": "968003 - NAILSON BATISTA DOS SANTOS",
+      "eficiencia": 37.830000000000005
+    },
+    {
+      "id": 6,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "eficiencia": 46.17
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 3.37
+    },
+    {
+      "id": 2,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "horas": 2.4
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.05
+    },
+    {
+      "id": 4,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "horas": 1.02
+    },
+    {
+      "id": 5,
+      "nome": "968003 - NAILSON BATISTA DOS SANTOS",
+      "horas": 2.51
+    },
+    {
+      "id": 6,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "horas": 1.22
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 49.39
+    },
+    {
+      "id": 2,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 28.04
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 68.22
+    },
+    {
+      "id": 4,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "percentual": 15.78
+    },
+    {
+      "id": 5,
+      "nome": "968003 - NAILSON BATISTA DOS SANTOS",
+      "percentual": 28.24
+    },
+    {
+      "id": 6,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "percentual": 28.87
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 72.78
+    },
+    {
+      "id": 2,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 65.31
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 51.62
+    },
+    {
+      "id": 4,
+      "nome": "133538 - NAILSON BATISTA DOS SANTOS",
+      "porcentagem": 83.16
+    },
+    {
+      "id": 5,
+      "nome": "968003 - NAILSON BATISTA DOS SANTOS",
+      "porcentagem": 81.35
+    },
+    {
+      "id": 6,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "porcentagem": 88.86
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7032.0",
+      "horasRegistradas": 24.0,
+      "diferencaPara24h": 0.0
+    },
+    {
+      "frota": "7038.0",
+      "horasRegistradas": 23.92,
+      "diferencaPara24h": 0.08
+    }
+  ]
+}

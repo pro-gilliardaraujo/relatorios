@@ -1,0 +1,149 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-11",
+    "frente": "frente3",
+    "generated_at": "2025-04-12T07:52:47.442221",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "disponibilidade": 29.659999999999997
+    },
+    {
+      "frota": "7042.0",
+      "disponibilidade": 84.17999999999999
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - NAO CADASTRADO",
+      "eficiencia": 84.52
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "eficiencia": 76.89
+    },
+    {
+      "id": 4,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "eficiencia": 75.11
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "eficiencia": 82.0
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - NAO CADASTRADO",
+      "horas": 0.32
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "horas": 4.92
+    },
+    {
+      "id": 4,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "horas": 5.34
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "horas": 4.99
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 49.55
+    },
+    {
+      "id": 2,
+      "nome": "61829 - NAO CADASTRADO",
+      "percentual": 2.23
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "percentual": 9.07
+    },
+    {
+      "id": 4,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "percentual": 8.870000000000001
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "percentual": 8.309999999999999
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - NAO CADASTRADO",
+      "porcentagem": 7.17
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "porcentagem": 99.26
+    },
+    {
+      "id": 4,
+      "nome": "134400 - GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+      "porcentagem": 99.48
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "porcentagem": 91.62
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7041.0",
+      "horasRegistradas": 14.51,
+      "diferencaPara24h": 9.49
+    },
+    {
+      "frota": "7042.0",
+      "horasRegistradas": 23.97,
+      "diferencaPara24h": 0.03
+    }
+  ]
+}

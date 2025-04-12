@@ -1,0 +1,239 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-10",
+    "frente": "frente3",
+    "generated_at": "2025-04-11T07:46:16.571721",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6087.0",
+      "disponibilidade": 99.8
+    },
+    {
+      "frota": "6088.0",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 56.81
+    },
+    {
+      "id": 2,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "eficiencia": 50.23
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 2.18
+    },
+    {
+      "id": 4,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "eficiencia": 53.99
+    },
+    {
+      "id": 5,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "eficiencia": 21.23
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "eficiencia": 62.339999999999996
+    },
+    {
+      "id": 7,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "eficiencia": 56.87
+    },
+    {
+      "id": 8,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "eficiencia": 44.46
+    },
+    {
+      "id": 9,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "eficiencia": 44.71
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 15.5
+    },
+    {
+      "id": 2,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 23.419999999999998
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 32.92
+    },
+    {
+      "id": 4,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 16.5
+    },
+    {
+      "id": 5,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "percentual": 19.93
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 17.86
+    },
+    {
+      "id": 7,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 14.37
+    },
+    {
+      "id": 8,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 17.28
+    },
+    {
+      "id": 9,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 28.34
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 3.19
+    },
+    {
+      "id": 2,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "percentual": 2.93
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 65.0
+    },
+    {
+      "id": 4,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "percentual": 2.71
+    },
+    {
+      "id": 5,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "percentual": 1.03
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 2.62
+    },
+    {
+      "id": 7,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 1.7999999999999998
+    },
+    {
+      "id": 8,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 2.6
+    },
+    {
+      "id": 9,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 8.309999999999999
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "8555232 - RONIVON CESAR DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "508581 - ALFREDO FERREIRA DE QUEIROZ",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 8,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 9,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "porcentagem": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "2127.0",
+      "horasRegistradas": 24.02,
+      "diferencaPara24h": 0.0
+    },
+    {
+      "frota": "6087.0",
+      "horasRegistradas": 23.51,
+      "diferencaPara24h": 0.49
+    },
+    {
+      "frota": "6088.0",
+      "horasRegistradas": 23.97,
+      "diferencaPara24h": 0.03
+    }
+  ]
+}

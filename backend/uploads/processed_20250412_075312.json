@@ -1,0 +1,259 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-11",
+    "frente": "frente3",
+    "generated_at": "2025-04-12T07:53:12.420522",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127.0",
+      "disponibilidade": 98.91
+    },
+    {
+      "frota": "6087.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6088.0",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "eficiencia": 50.18
+    },
+    {
+      "id": 2,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "eficiencia": 61.1
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 5.92
+    },
+    {
+      "id": 4,
+      "nome": "61829 - NAO CADASTRADO",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "802755 - CLAUDIO DA CONCEICAO",
+      "eficiencia": 68.56
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "eficiencia": 58.9
+    },
+    {
+      "id": 7,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "eficiencia": 50.480000000000004
+    },
+    {
+      "id": 8,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "eficiencia": 43.86
+    },
+    {
+      "id": 9,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "eficiencia": 43.74
+    },
+    {
+      "id": 10,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "eficiencia": 45.879999999999995
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "percentual": 11.74
+    },
+    {
+      "id": 2,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 6.959999999999999
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 24.08
+    },
+    {
+      "id": 4,
+      "nome": "61829 - NAO CADASTRADO",
+      "percentual": 2.09
+    },
+    {
+      "id": 5,
+      "nome": "802755 - CLAUDIO DA CONCEICAO",
+      "percentual": 12.620000000000001
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 9.86
+    },
+    {
+      "id": 7,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 11.76
+    },
+    {
+      "id": 8,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 12.49
+    },
+    {
+      "id": 9,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 16.900000000000002
+    },
+    {
+      "id": 10,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 7.290000000000001
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "percentual": 2.96
+    },
+    {
+      "id": 2,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 4.2
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 6.45
+    },
+    {
+      "id": 4,
+      "nome": "61829 - NAO CADASTRADO",
+      "percentual": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "802755 - CLAUDIO DA CONCEICAO",
+      "percentual": 2.09
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "percentual": 1.78
+    },
+    {
+      "id": 7,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 2.36
+    },
+    {
+      "id": 8,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 1.87
+    },
+    {
+      "id": 9,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "percentual": 2.5
+    },
+    {
+      "id": 10,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 3.5000000000000004
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "612544 - JOSENIAS SOARES NUNES",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "61829 - NAO CADASTRADO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "802755 - CLAUDIO DA CONCEICAO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "704894 - REINALDO QUEIROZ DE JESUS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 8,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 9,
+      "nome": "426551 - MANUEL RICARDO ALVES DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 10,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "porcentagem": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "2127.0",
+      "horasRegistradas": 12.59,
+      "diferencaPara24h": 11.41
+    },
+    {
+      "frota": "6087.0",
+      "horasRegistradas": 24.03,
+      "diferencaPara24h": 0.0
+    },
+    {
+      "frota": "6088.0",
+      "horasRegistradas": 20.94,
+      "diferencaPara24h": 3.06
+    }
+  ]
+}

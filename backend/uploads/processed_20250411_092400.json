@@ -1,0 +1,149 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-10",
+    "frente": "frente4",
+    "generated_at": "2025-04-11T09:24:00.781919",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7031",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "7033",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "982550 - MANOEL BATISTA DA SILVA",
+      "eficiencia": 43.08
+    },
+    {
+      "id": 2,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "eficiencia": 63.49
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 28.78
+    },
+    {
+      "id": 4,
+      "nome": "121944 - WESLEY SILVA",
+      "eficiencia": 71.69
+    },
+    {
+      "id": 5,
+      "nome": "618291 - LAILSON ANTONIO DA SILVA",
+      "eficiencia": 79.97999999999999
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "982550 - MANOEL BATISTA DA SILVA",
+      "horas": 3.69
+    },
+    {
+      "id": 2,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "horas": 4.97
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.15
+    },
+    {
+      "id": 4,
+      "nome": "121944 - WESLEY SILVA",
+      "horas": 2.69
+    },
+    {
+      "id": 5,
+      "nome": "618291 - LAILSON ANTONIO DA SILVA",
+      "horas": 5.07
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "982550 - MANOEL BATISTA DA SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "percentual": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "121944 - WESLEY SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "618291 - LAILSON ANTONIO DA SILVA",
+      "percentual": 0.0
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "982550 - MANOEL BATISTA DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "porcentagem": 53.339999999999996
+    },
+    {
+      "id": 3,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 10.489999999999998
+    },
+    {
+      "id": 4,
+      "nome": "121944 - WESLEY SILVA",
+      "porcentagem": 97.84
+    },
+    {
+      "id": 5,
+      "nome": "618291 - LAILSON ANTONIO DA SILVA",
+      "porcentagem": 90.32
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7031.0",
+      "horasRegistradas": 16.98,
+      "diferencaPara24h": 7.02
+    },
+    {
+      "frota": "7033.0",
+      "horasRegistradas": 14.72,
+      "diferencaPara24h": 9.28
+    }
+  ]
+}

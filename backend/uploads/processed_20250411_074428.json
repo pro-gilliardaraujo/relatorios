@@ -1,0 +1,228 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-10",
+    "frente": "frente1",
+    "generated_at": "2025-04-11T07:44:28.254290",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034.0",
+      "disponibilidade": 71.44
+    },
+    {
+      "frota": "6086.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6096.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6100.0",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 2.46
+    },
+    {
+      "id": 2,
+      "nome": "103799 - JOSENILDO DA SILVA",
+      "eficiencia": 21.09
+    },
+    {
+      "id": 3,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 30.59
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "eficiencia": 38.78
+    },
+    {
+      "id": 5,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "eficiencia": 30.61
+    },
+    {
+      "id": 6,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "eficiencia": 7.340000000000001
+    },
+    {
+      "id": 7,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "eficiencia": 31.04
+    },
+    {
+      "id": 8,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "eficiencia": 25.25
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 36.04
+    },
+    {
+      "id": 2,
+      "nome": "103799 - JOSENILDO DA SILVA",
+      "percentual": 35.709999999999994
+    },
+    {
+      "id": 3,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 25.430000000000003
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 25.929999999999996
+    },
+    {
+      "id": 5,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "percentual": 20.84
+    },
+    {
+      "id": 6,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "percentual": 37.09
+    },
+    {
+      "id": 7,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "percentual": 29.13
+    },
+    {
+      "id": 8,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "percentual": 25.7
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 5.62
+    },
+    {
+      "id": 2,
+      "nome": "103799 - JOSENILDO DA SILVA",
+      "percentual": 11.07
+    },
+    {
+      "id": 3,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 5.28
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 4.77
+    },
+    {
+      "id": 5,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "percentual": 1.46
+    },
+    {
+      "id": 6,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "percentual": 3.11
+    },
+    {
+      "id": 7,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "percentual": 9.32
+    },
+    {
+      "id": 8,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "percentual": 89.99999999999999
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "103799 - JOSENILDO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "1331003 - ALAILSON SILVA DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "456270 - JOSE AVELINO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 8,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "porcentagem": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "6034.0",
+      "horasRegistradas": 23.92,
+      "diferencaPara24h": 0.08
+    },
+    {
+      "frota": "6086.0",
+      "horasRegistradas": 14.24,
+      "diferencaPara24h": 9.76
+    },
+    {
+      "frota": "6096.0",
+      "horasRegistradas": 23.91,
+      "diferencaPara24h": 0.09
+    },
+    {
+      "frota": "6100.0",
+      "horasRegistradas": 23.97,
+      "diferencaPara24h": 0.03
+    }
+  ]
+}
