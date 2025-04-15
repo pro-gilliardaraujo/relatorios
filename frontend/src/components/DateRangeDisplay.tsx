@@ -8,18 +8,12 @@ interface DateRangeDisplayProps {
 
 export const DateRangeDisplay: React.FC<DateRangeDisplayProps> = ({ startDate, endDate }) => {
   const formatDate = (date: Date) => {
-    // Criar uma nova data para aplicar a correção de fuso horário
-    const adjustedDate = new Date(date);
+    // Formatar a data no padrão brasileiro (dd/MM/yyyy)
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
     
-    // Adicionamos um dia para compensar a diferença de fuso horário
-    // ou quando a data é serializada/deserializada entre JSON e Date
-    adjustedDate.setDate(adjustedDate.getDate() + 1);
-    
-    return adjustedDate.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return `${day}/${month}/${year}`;
   };
 
   return (

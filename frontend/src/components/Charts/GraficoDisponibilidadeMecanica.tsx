@@ -1,317 +1,261 @@
+'use client';
+
 import React from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  LabelList,
-  Cell,
-  ReferenceLine
-} from 'recharts';
+import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { configManager } from '@/utils/config';
 
-/**
- * Estrutura dos dados para o gráfico de disponibilidade mecânica
- */
-interface DisponibilidadeMecanicaData {
-  /** Nome/ID da máquina */
-  name: string;
-  /** Porcentagem de disponibilidade */
-  percentage: number;
+// Interface para os dados recebidos pelo componente
+export interface DisponibilidadeMecanicaData {
+  maquina: string;
+  disponibilidade: number;  // Percentual de disponibilidade
+  horasDisponiveis?: number; // Opcional: horas disponíveis
+  horasTotal?: number;      // Opcional: horas totais
 }
 
-/**
- * Props do componente GraficoDisponibilidadeMecanica
- */
-interface GraficoDisponibilidadeMecanicaProps {
-  /** Array com os dados das máquinas */
+export interface GraficoDisponibilidadeMecanicaProps {
   data: DisponibilidadeMecanicaData[];
-  
-  /** Meta de disponibilidade */
   meta?: number;
-
-  /** Configurações de customização do gráfico */
-  options?: {
-    /** 
-     * Dimensões e posicionamento do gráfico
-     */
-    width?: number;
-    height?: number;
-    marginTop?: number;
-    
-    /** 
-     * Margens internas do gráfico
-     */
-    margin?: {
-      top?: number;
-      right?: number;
-      bottom?: number;
-      left?: number;
-    };
-    
-    /** 
-     * Estilização das barras do gráfico
-     */
-    barStyle?: {
-      fillAboveTarget?: string;
-      fillBelowTarget?: string;
-      radius?: [number, number, number, number];
-      maxBarSize?: number;
-    };
-    
-    /** 
-     * Configurações do eixo X (máquinas)
-     */
-    xAxis?: {
-      fontSize?: number;
-      fontWeight?: 'normal' | 'bold' | 'lighter';
-      angle?: number;
-      textAnchor?: 'start' | 'middle' | 'end';
-      height?: number;
-      fill?: string;
-      verticalOffset?: number;
-    };
-    
-    /** 
-     * Configurações do eixo Y (valores em %)
-     */
-    yAxis?: {
-      fontSize?: number;
-      fontWeight?: 'normal' | 'bold' | 'lighter';
-      width?: number;
-      fill?: string;
-    };
-    
-    /** 
-     * Configurações dos labels de porcentagem
-     */
-    labels?: {
-      position?: 'top' | 'center' | 'bottom';
-      fontSize?: number;
-      fontWeight?: 'normal' | 'bold' | 'lighter';
-      fill?: string;
-      offset?: number;
-    };
-    
-    /** 
-     * Configurações da grade de fundo
-     */
-    grid?: {
-      /** Se true, mostra as linhas horizontais */
-      horizontal?: boolean;
-      /** Se true, mostra as linhas verticais */
-      vertical?: boolean;
-      /** Se true, mostra apenas a linha de meta */
-      showOnlyTarget?: boolean;
-      /** Padrão da linha pontilhada */
-      strokeDasharray?: string;
-      /** Cor das linhas */
-      stroke?: string;
-    };
-
-    /** 
-     * Configurações do chart
-     */
-    chart?: {
-      barCategoryGap?: number;
-      barGap?: number;
-      dx?: number;
-    };
-
-    /**
-     * Configuração da linha de meta
-     */
-    targetLine?: {
-      stroke?: string;
-      strokeWidth?: number;
-      strokeDasharray?: string;
-    };
-  };
+  title?: string;
+  height?: number;
+  options?: Partial<typeof defaultOptions>;
 }
 
-// Helper function para formatar os ticks do eixo Y
-const formatYAxisTick = (value: number) => `${value}%`;
-
-// Helper function para formatar os labels das barras
-const formatBarLabel = (value: number) => `${value.toFixed(1)}%`;
-
-// Valores padrão para as opções - ajustados para o container A4
-const defaultOptions = {
-  width: 650,
-  height: 200,
-  marginTop: 0,
-  margin: {
-    top: 25,
-    right: 0,
-    left: -10,
-    bottom: 35,
-  },
-  barStyle: {
-    fillAboveTarget: '#009900', // Verde para valores >= meta
-    fillBelowTarget: '#FF0000', // Vermelho para valores < meta
-    radius: [2, 2, 0, 0],
-    maxBarSize: 80,
-  },
-  chart: {
-    barCategoryGap: 8,
-    barGap: 4,
-    dx: -20,
-  },
-  xAxis: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    angle: 0,
-    textAnchor: 'middle',
-    height: 10,
-    fill: '#000000',
-    verticalOffset: 10,
-  },
-  yAxis: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    width: 35,
-    fill: '#000000',
-  },
-  labels: {
-    position: 'top',
-    fontSize: 10,
-    fontWeight: 'bold',
-    fill: '#000000',
-    offset: 5,
-  },
-  grid: {
-    horizontal: true,
-    vertical: false,
-    showOnlyTarget: false,
-    strokeDasharray: '3 3',
-    stroke: '#E5E5E5',
-  },
-  targetLine: {
-    stroke: '#000000',
-    strokeWidth: 1,
-    strokeDasharray: '5 5',
-  }
+// Função auxiliar para formatar o tempo em horas
+const formatHours = (hours: number): string => {
+  if (hours === undefined || hours === null) return '0h';
+  const h = Math.floor(hours);
+  const m = Math.floor((hours - h) * 60);
+  return `${h}h${m > 0 ? `${m.toString().padStart(2, '0')}m` : ''}`;
 };
 
-export const GraficoDisponibilidadeMecanica: React.FC<GraficoDisponibilidadeMecanicaProps> = ({ 
-  data, 
-  meta = 0,
-  options = {} 
+// Valores padrão para cores
+const DEFAULT_COLORS = {
+  disponivel: '#48BB78',     // Verde para máquina disponível
+  indisponivel: '#E53E3E',   // Vermelho para máquina indisponível  
+  meta: '#000000',           // Preto para linha de meta
+};
+
+// Opções padrão para personalização do gráfico
+const defaultOptions = {
+  chart: {
+    height: 400,
+    padding: 1,
+  },
+  barStyle: {
+    height: 18,
+    spacing: 0,
+    borderRadius: 'sm',
+  },
+  labels: {
+    fontSize: '10px',
+    fontWeight: 'medium',
+    colorAboveTarget: 'black',
+    colorBelowTarget: 'white',
+  },
+};
+
+export const GraficoDisponibilidadeMecanica: React.FC<GraficoDisponibilidadeMecanicaProps> = ({
+  data = [],
+  meta = configManager.getMetas('colheita_diario')?.disponibilidadeMecanica || 85,
+  title = 'Disponibilidade Mecânica',
+  height = 400,
+  options = {}
 }) => {
-  // Ordena os dados pelo número da máquina
-  const sortedData = [...data].sort((a, b) => Number(a.name) - Number(b.name));
-
-  const opts = {
-    ...defaultOptions,
-    ...options,
-    margin: { ...defaultOptions.margin, ...options.margin },
-    barStyle: { ...defaultOptions.barStyle, ...options.barStyle },
-    xAxis: { ...defaultOptions.xAxis, ...options.xAxis },
-    yAxis: { ...defaultOptions.yAxis, ...options.yAxis },
-    labels: { ...defaultOptions.labels, ...options.labels },
-    grid: { ...defaultOptions.grid, ...options.grid },
-    chart: { ...defaultOptions.chart, ...options.chart },
-    targetLine: { ...defaultOptions.targetLine, ...options.targetLine },
-  };
-
-  return (
-    <div style={{ 
-      width: opts.width, 
-      height: opts.height,
-      margin: '0 auto',
-      position: 'relative',
-      marginTop: opts.marginTop,
-    }}>
-      <BarChart
-        width={opts.width}
-        height={opts.height - 20}
-        data={sortedData}
-        margin={opts.margin}
-        barCategoryGap={opts.chart.barCategoryGap}
-        barGap={opts.chart.barGap}
-        layout="horizontal"
-      >
-        {!opts.grid.showOnlyTarget && (
-          <CartesianGrid 
-            strokeDasharray={opts.grid.strokeDasharray}
-            horizontal={opts.grid.horizontal}
-            vertical={opts.grid.vertical}
-            stroke={opts.grid.stroke}
-          />
-        )}
-        <XAxis
-          dataKey="name"
-          tick={(props) => {
-            const { x, y, payload } = props;
-            return (
-              <g transform={`translate(${x + opts.chart.dx},${y})`}>
-                <text
-                  x={0}
-                  y={0}
-                  dy={opts.xAxis.verticalOffset}
-                  textAnchor={opts.xAxis.textAnchor}
-                  fill={opts.xAxis.fill}
-                  fontSize={opts.xAxis.fontSize}
-                  fontWeight={opts.xAxis.fontWeight}
-                  transform={`rotate(${opts.xAxis.angle})`}
-                >
-                  {payload.value}
-                </text>
-              </g>
-            );
-          }}
-          height={opts.xAxis.height}
-          interval={0}
-          xAxisId={0}
-          tickSize={0}
-        />
-        <YAxis
-          tickFormatter={formatYAxisTick}
-          tick={{ 
-            fontSize: opts.yAxis.fontSize,
-            fontWeight: opts.yAxis.fontWeight,
-            fill: opts.yAxis.fill,
-          }}
-          width={opts.yAxis.width}
-          domain={[0, 100]}
-          ticks={[0, 20, 40, 60, 80, 100]}
-        />
+  try {
+    // Mesclar opções padrão com opções personalizadas
+    const opts = {
+      ...defaultOptions,
+      ...options,
+    };
+    
+    // Obter configurações com fallback para valores padrão
+    const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
+    
+    console.log('GraficoDisponibilidadeMecanica - Dados recebidos:', {
+      totalItens: data.length,
+      meta,
+      primeiroItem: data[0]
+    });
+    
+    // Processar e ordenar os dados para o formato esperado pelo gráfico
+    const chartData = data
+      .filter(item => item && item.maquina)
+      .map(item => {
+        // Calcular horas disponíveis e totais se não fornecidas
+        const horasTotal = item.horasTotal || 24; // Assumir 24h se não for fornecido
+        const horasDisponiveis = item.horasDisponiveis || (item.disponibilidade / 100) * horasTotal;
+        const horasIndisponiveis = horasTotal - horasDisponiveis;
         
-        <ReferenceLine
-          y={meta}
-          stroke={opts.targetLine.stroke}
-          strokeWidth={opts.targetLine.strokeWidth}
-          strokeDasharray={opts.targetLine.strokeDasharray}
-        />
-        <Bar
-          dataKey="percentage"
-          radius={opts.barStyle.radius as [number, number, number, number]}
-          maxBarSize={opts.barStyle.maxBarSize}
-          xAxisId={0}
+        // A meta já está em percentual, então usamos diretamente
+        return {
+          name: item.maquina,
+          disponibilidade: Number(item.disponibilidade.toFixed(2)),
+          horasDisponiveis: Number(horasDisponiveis.toFixed(2)),
+          horasIndisponiveis: Number(horasIndisponiveis.toFixed(2)),
+          total: Number(horasTotal.toFixed(2)),
+          metaPosicao: meta // Usar o valor da meta diretamente
+        };
+      })
+      .sort((a, b) => b.disponibilidade - a.disponibilidade); // Ordenar por disponibilidade (maior para menor)
+    
+    console.log('GraficoDisponibilidadeMecanica - chartData processado:', {
+      totalItens: chartData.length,
+      primeiroItem: chartData[0]
+    });
+    
+    // Definir cor da barra com base na comparação com a meta
+    const getBarColor = (disponibilidade: number): string => {
+      if (disponibilidade >= meta) {
+        return '#48BB78'; // Verde se estiver acima da meta
+      } else if (disponibilidade >= meta * 0.95) {
+        return '#ECC94B'; // Amarelo se estiver até 5% abaixo da meta
+      } else if (disponibilidade >= meta * 0.85) {
+        return '#ED8936'; // Laranja se estiver até 15% abaixo da meta
+      } else {
+        return '#E53E3E'; // Vermelho se estiver mais de 15% abaixo da meta
+      }
+    };
+
+    // Se não houver dados processados, exibir mensagem
+    if (chartData.length === 0) {
+      return (
+        <Box h="100%" w="100%" display="flex" alignItems="center" justifyContent="center">
+          <Text fontSize="14px" color="gray.500">
+            Sem dados disponíveis para exibição
+          </Text>
+        </Box>
+      );
+    }
+
+    return (
+      <Box h={height ? `${height}px` : "100%"} w="100%" py={0} px={1}>
+        {/* Container para barras com uso máximo de espaço */}
+        <Box 
+          h="100%"
+          w="100%"
+          overflowY={chartData.length > 16 ? "auto" : "visible"}
         >
-          {sortedData.map((entry, index) => (
-            <Cell 
-              key={`cell-${index}`}
-              fill={entry.percentage >= meta ? opts.barStyle.fillAboveTarget : opts.barStyle.fillBelowTarget}
-              style={{
-                transform: `translateX(${opts.chart.dx}px)`
-              }}
-            />
-          ))}
-          <LabelList
-            dataKey="percentage"
-            position={opts.labels.position as any}
-            formatter={formatBarLabel}
-            style={{ 
-              fontSize: opts.labels.fontSize,
-              fontWeight: opts.labels.fontWeight,
-              fill: opts.labels.fill,
-              transform: `translateX(${opts.chart.dx}px)`
-            }}
-            offset={opts.labels.offset}
-          />
-        </Bar>
-      </BarChart>
-    </div>
-  );
+          <VStack spacing={opts.barStyle.spacing} align="stretch" w="100%">
+            {chartData.map((item, index) => {
+              const barColor = getBarColor(item.disponibilidade);
+              
+              return (
+                <Box 
+                  key={index} 
+                  position="relative"
+                  bg={index % 2 === 0 ? "transparent" : "gray.100"} 
+                  p={0.5}
+                  borderRadius={opts.barStyle.borderRadius}
+                >
+                  {/* Nome da máquina */}
+                  <Text 
+                    fontSize={opts.labels.fontSize} 
+                    fontWeight={opts.labels.fontWeight}
+                    noOfLines={1} 
+                    title={item.name} 
+                    color="black"
+                    mb={0}
+                  >
+                    {item.name}
+                  </Text>
+                  
+                  {/* Barra e percentual */}
+                  <Flex align="center" width="100%">
+                    {/* Container da barra */}
+                    <Box position="relative" width="92%" height={`${opts.barStyle.height}px`} bg="gray.200" borderRadius={opts.barStyle.borderRadius} mr={1}>
+                      {/* Barra de disponibilidade (à esquerda) */}
+                      <Box
+                        position="absolute"
+                        left="0"
+                        top="0"
+                        height="100%"
+                        width={`${item.disponibilidade}%`}
+                        bg={barColor}
+                        borderRadius={`${opts.barStyle.borderRadius} 0 0 ${opts.barStyle.borderRadius}`}
+                        display="flex"
+                        alignItems="center"
+                      >
+                        {/* Texto de horas disponíveis */}
+                        {item.disponibilidade > 15 && (
+                          <Text
+                            position="absolute"
+                            left="2px"
+                            top="50%"
+                            transform="translateY(-50%)"
+                            fontSize="8px"
+                            fontWeight="bold"
+                            color={item.disponibilidade >= meta ? opts.labels.colorAboveTarget : opts.labels.colorBelowTarget}
+                            zIndex={3}
+                          >
+                            {formatHours(item.horasDisponiveis)}
+                          </Text>
+                        )}
+                      </Box>
+                      
+                      {/* Barra de horas indisponíveis (à direita) */}
+                      <Box
+                        position="absolute"
+                        left={`${item.disponibilidade}%`}
+                        top="0"
+                        height="100%"
+                        right="0"
+                        bg="#f8d7da" // Vermelho claro para área indisponível
+                        borderRadius={`0 ${opts.barStyle.borderRadius} ${opts.barStyle.borderRadius} 0`}
+                      >
+                        {/* Texto de horas indisponíveis */}
+                        {(100 - item.disponibilidade) > 15 && (
+                          <Text
+                            position="absolute"
+                            right="5px"
+                            top="50%"
+                            transform="translateY(-50%)"
+                            fontSize="8px"
+                            fontWeight="bold"
+                            color="black"
+                          >
+                            {formatHours(item.horasIndisponiveis)}
+                          </Text>
+                        )}
+                      </Box>
+                      
+                      {/* Linha de meta (individual para cada barra) */}
+                      <Box
+                        position="absolute"
+                        left={`${item.metaPosicao}%`}
+                        top="0"
+                        height="100%"
+                        width="2px"
+                        bg="black"
+                        zIndex={2}
+                      />
+                    </Box>
+                    
+                    {/* Percentual à direita da barra */}
+                    <Text
+                      fontSize={opts.labels.fontSize}
+                      fontWeight="bold"
+                      color={barColor}
+                      width="8%"
+                      textAlign="right"
+                    >
+                      {item.disponibilidade.toFixed(1)}%
+                    </Text>
+                  </Flex>
+                </Box>
+              );
+            })}
+          </VStack>
+        </Box>
+      </Box>
+    );
+  } catch (error) {
+    console.error('Erro ao renderizar GraficoDisponibilidadeMecanica:', error);
+    return (
+      <Box h="100%" w="100%" display="flex" alignItems="center" justifyContent="center">
+        <Text fontSize="14px" color="red.500">
+          Erro ao carregar o gráfico. Tente recarregar a página.
+        </Text>
+      </Box>
+    );
+  }
 }; 

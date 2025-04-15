@@ -1,0 +1,140 @@
+{
+    "informacoes_gerais": {
+      "data_inicio": "2025-04-07",
+      "data_fim": "2025-04-13",
+      "tipo_relatorio": "colheita_semanal",
+      "frente": "Frente 3",
+      "fazenda": "Alexandrita"
+    },
+    "colheita": {
+      "disponibilidade_mecanica": [
+        {
+          "frota": "7041",
+          "disponibilidade": 82.62
+        },
+        {
+          "frota": "7042",
+          "disponibilidade": 93.79
+        }
+      ],
+      "eficiencia_energetica": [
+        {
+          "id": "1292024",
+          "nome": "SENI JOAQUIM SOARES",
+          "eficiencia": 76.23
+        },
+        {
+          "id": "134400",
+          "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+          "eficiencia": 74.63
+        },
+        {
+          "id": "855523",
+          "nome": "RODRIGO FABIANO DA SILVA",
+          "eficiencia": 70.27
+        },
+        {
+          "id": "919777",
+          "nome": "JOAO OSMAR DA SILVA",
+          "eficiencia": 75.38
+        },
+        {
+          "id": "61829",
+          "nome": "LAILSON ANTONIO DA SILVA",
+          "eficiencia": 79.15
+        }
+      ],
+      "hora_elevador": [
+        {
+          "id": "1292024",
+          "nome": "SENI JOAQUIM SOARES",
+          "horas": 4.45
+        },
+        {
+          "id": "134400",
+          "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+          "horas": 5.09
+        },
+        {
+          "id": "855523",
+          "nome": "RODRIGO FABIANO DA SILVA",
+          "horas": 3.82
+        },
+        {
+          "id": "919777",
+          "nome": "JOAO OSMAR DA SILVA",
+          "horas": 4.64
+        },
+        {
+          "id": "61829",
+          "nome": "LAILSON ANTONIO DA SILVA",
+          "horas": 4.86
+        }
+      ],
+      "motor_ocioso": [
+        {
+          "id": "1292024",
+          "nome": "SENI JOAQUIM SOARES",
+          "percentual": 11.14,
+          "tempoLigado": 11.66,
+          "tempoOcioso": 1.30
+        },
+        {
+          "id": "134400",
+          "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+          "percentual": 11.86,
+          "tempoLigado": 40.96,
+          "tempoOcioso": 4.86
+        },
+        {
+          "id": "855523",
+          "nome": "RODRIGO FABIANO DA SILVA",
+          "percentual": 11.72,
+          "tempoLigado": 27.05,
+          "tempoOcioso": 3.17
+        },
+        {
+          "id": "919777",
+          "nome": "JOAO OSMAR DA SILVA",
+          "percentual": 10.45,
+          "tempoLigado": 30.77,
+          "tempoOcioso": 3.21
+        },
+        {
+          "id": "61829",
+          "nome": "LAILSON ANTONIO DA SILVA",
+          "percentual": 14.64,
+          "tempoLigado": 18.99,
+          "tempoOcioso": 2.78
+        }
+      ],
+      "uso_gps": [
+        {
+          "id": "1292024",
+          "nome": "SENI JOAQUIM SOARES",
+          "porcentagem": 95.96
+        },
+        {
+          "id": "134400",
+          "nome": "GABRIEL YURI DO NASCIMENTO OLIVEIRA",
+          "porcentagem": 97.49
+        },
+        {
+          "id": "855523",
+          "nome": "RODRIGO FABIANO DA SILVA",
+          "porcentagem": 98.73
+        },
+        {
+          "id": "919777",
+          "nome": "JOAO OSMAR DA SILVA",
+          "porcentagem": 93.54
+        },
+        {
+          "id": "61829",
+          "nome": "LAILSON ANTONIO DA SILVA",
+          "porcentagem": 86.51
+        }
+      ]
+    },
+    "transbordo": {}
+  }

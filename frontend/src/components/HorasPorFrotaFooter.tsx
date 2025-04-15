@@ -45,15 +45,23 @@ export default function HorasPorFrotaFooter({ dados }: HorasPorFrotaFooterProps)
     <Box 
       className="horas-por-frota-footer"
       position="absolute"
-      bottom="-13mm"
-      left={0}
-      right={0}
+      bottom="-5mm"
+      left="0"
+      right="0"
       width="100%"
-      py={1.5}
-      px="10mm"
+      py={1}
+      borderTop="0px solid #e0e0e0"
     >
-      <Flex justify="center">
-        <Text fontSize="xs" color="black" textAlign="center">
+      <Flex 
+        justify="center"
+        width="100%" 
+      >
+        <Text 
+          fontSize="xs" 
+          color="black" 
+          textAlign="center"
+          width="100%"
+        >
           Total de horas de informação registradas: {mediaHorasFormatada} ; 
           Precisão das informações: {precisaoFormatada}% ; 
           Fonte SGPA Solinftec

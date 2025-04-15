@@ -7,8 +7,10 @@ import { useReportStore } from '@/store/useReportStore';
 import { GraficoDisponibilidadeMecanicaTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoDisponibilidadeMecanicaTransbordo';
 import { GraficoEficienciaEnergetica } from '@/components/Charts/Transbordo/Diario/GraficoEficienciaEnergetica';
 import { GraficoMotorOciosoTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoMotorOciosoTransbordo';
+import { GraficoMotorOciosoProgresso } from '@/components/Charts/Transbordo/Diario/GraficoMotorOciosoProgresso';
 import { GraficoUsoGPS } from '@/components/Charts/Transbordo/Diario/GraficoUsoGPS';
 import { GraficoFaltaApontamentoTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoFaltaApontamentoTransbordo';
+import { GraficoMotorOciosoEmpilhado } from '@/components/Charts/Transbordo/Diario/GraficoMotorOciosoEmpilhado';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { FaPrint } from 'react-icons/fa';
@@ -25,8 +27,8 @@ const exemplosDados: DadosProcessados = {
     { frota: '6031', disponibilidade: 89.00 },
     { frota: '6082', disponibilidade: 99.23 },
     { frota: '6087', disponibilidade: 98.61 },
-    { frota: '6096', disponibilidade: 99.34 },
-    { frota: '0', disponibilidade: 0.00 }
+    { frota: '6096', disponibilidade: 79.34 },
+    { frota: '0', disponibilidade: 10.00 }
   ],
   eficiencia_energetica: [
     { id: '1', nome: 'JOAO BATISTA DA ROCHA', eficiencia: 50.39 },
@@ -185,6 +187,32 @@ function verificarFormatoDados(dados: any) {
   
   return temDadosValidos;
 }
+
+// Adicione esta função utilitária para calcular o tempo total e ocioso
+const calcularTempoTotalEOcioso = (dadosMotorOcioso: Array<{percentual: number}>) => {
+  // Valores padrão caso não haja dados
+  if (!dadosMotorOcioso || dadosMotorOcioso.length === 0) {
+    return {
+      tempoTotal: 24, // Assumindo 24 horas por dia
+      tempoOcioso: 0,
+      meta: 6 // Meta padrão de 6%
+    };
+  }
+  
+  // Calcula o tempo total (assumindo que o total é igual para todos os operadores)
+  // Em um sistema real, isso viria dos dados precisos
+  const tempoTotal = 24; // Horas por dia
+  
+  // Calcular média de percentual ocioso e converter para horas
+  const percentualMedioOcioso = dadosMotorOcioso.reduce((acc, item) => acc + item.percentual, 0) / dadosMotorOcioso.length;
+  const tempoOcioso = (percentualMedioOcioso / 100) * tempoTotal;
+  
+  return {
+    tempoTotal,
+    tempoOcioso,
+    meta: configManager.getMetas('transbordo_diario').motorOcioso || 6 // Meta padrão de 6%
+  };
+};
 
 export default function TransbordoA4({ data }: TransbordoA4Props) {
   // Hooks e estados
@@ -545,7 +573,8 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           
           return {
             frota: frotaFormatada,
-            disponibilidade: Number(Number(item.disponibilidade).toFixed(2))
+            disponibilidade: Number(Number(item.disponibilidade).toFixed(2)),
+            horasTotal: item.horasTotal || 24 // Adicionar horasTotal
           };
         }),
       eficiencia_energetica: (dados.eficiencia_energetica || [])
@@ -553,14 +582,16 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         .map(item => ({
           id: item.id,
           nome: item.nome,
-          eficiencia: Number(Number(item.eficiencia).toFixed(2))
+          eficiencia: Number(Number(item.eficiencia).toFixed(2)),
+          horasTotal: item.horasTotal || 24 // Adicionar horasTotal
         })),
       motor_ocioso: (dados.motor_ocioso || [])
         .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
         .map(item => ({
           id: item.id,
           nome: item.nome,
-          percentual: Number(Number(item.percentual).toFixed(2))
+          percentual: Number(Number(item.percentual).toFixed(2)),
+          horasTotal: item.horasTotal || 24 // Usar horasTotal dos dados ou padrão 24h
         }))
         .sort((a, b) => b.percentual - a.percentual),
       falta_apontamento: (dados.falta_apontamento || [])
@@ -568,14 +599,16 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         .map(item => ({
           id: item.id,
           nome: item.nome,
-          percentual: Number(Number(item.percentual).toFixed(2))
+          percentual: Number(Number(item.percentual).toFixed(2)),
+          horasTotal: item.horasTotal || 24 // Adicionar horasTotal
         })),
       uso_gps: (dados.uso_gps || dados.gps || []) // Tenta uso_gps primeiro, depois gps, ou array vazio
         .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
         .map(item => ({
           id: item.id,
           nome: item.nome,
-          porcentagem: Number(Number(item.porcentagem).toFixed(2))
+          porcentagem: Number(Number(item.porcentagem).toFixed(2)),
+          horasTotal: item.horasTotal || 24 // Adicionar horasTotal
         }))
     };
   }, [reportData]);
@@ -676,8 +709,8 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           }
         }}
       >
-        {/* Primeira Página - Disponibilidade e Eficiência */}
-        {(processedData.disponibilidade_mecanica.length > 0 || processedData.eficiencia_energetica.length > 0) && (
+        {/* Primeira Página - Disponibilidade, Eficiência e Falta de Apontamento */}
+        {(processedData.disponibilidade_mecanica.length > 0 || processedData.eficiencia_energetica.length > 0 || processedData.falta_apontamento.length > 0) && (
           <A4Colheita>
             <Box h="100%" display="flex" flexDirection="column">
               <PageHeader />
@@ -691,12 +724,14 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                       borderColor="black"
                       borderRadius="md"
                       p={2}
-                      h="calc(100% - 30px)"
+                      h="16.5%"
+                      minH="calc(43.5mm - 17px)"
                       overflow="hidden"
                     >
                       <GraficoDisponibilidadeMecanicaTransbordo
                         data={processedData.disponibilidade_mecanica}
                         meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
+                        height={150}
                       />
                     </Box>
                   </Box>
@@ -704,14 +739,15 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                 
                 {/* Eficiência Energética */}
                 {secoes.eficienciaEnergetica && (
-                  <Box flex="1">
+                  <Box flex="1" mb={2}>
                     <SectionTitle title="Eficiência Energética" />
                     <Box 
                       border="1px solid"
                       borderColor="black"
                       borderRadius="md"
                       p={2}
-                      h="calc(100% - 30px)"
+                      h="41.75%"
+                      minH="calc(108.5mm - 36px)"
                       overflow="hidden"
                     >
                       <GraficoEficienciaEnergetica 
@@ -721,39 +757,9 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     </Box>
                   </Box>
                 )}
-              </Box>
-            </Box>
-          </A4Colheita>
-        )}
-              
-        {/* Segunda Página - Motor Ocioso e Falta Apontamento */}
-        {(processedData.motor_ocioso.length > 0 || processedData.falta_apontamento.length > 0) && (
-          <A4Colheita>
-            <Box h="100%" display="flex" flexDirection="column">
-              <PageHeader />
-              <Box flex="1" display="flex" flexDirection="column">
-                {/* Motor Ocioso */}
-                {secoes.motorOcioso && (
-                  <Box flex="1" mb={2}>
-                    <SectionTitle title="Motor Ocioso" />
-                    <Box 
-                      border="1px solid"
-                      borderColor="black"
-                      borderRadius="md"
-                      p={2}
-                      h="calc(100% - 30px)"
-                      overflow="hidden"
-                    >
-                      <GraficoMotorOciosoTransbordo
-                        data={processedData.motor_ocioso}
-                        meta={configManager.getMetas('transbordo_diario').motorOcioso}
-                      />
-                    </Box>
-                  </Box>
-                )}
-
+                
                 {/* Falta de Apontamento */}
-                {secoes.faltaApontamento && (
+                {secoes.faltaApontamento && processedData.falta_apontamento.length > 0 && (
                   <Box flex="1">
                     <SectionTitle title="Falta de Apontamento" />
                     <Box 
@@ -761,7 +767,8 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                       borderColor="black"
                       borderRadius="md"
                       p={2}
-                      h="calc(100% - 30px)"
+                      h="41.75%"
+                      minH="calc(108.5mm - 36px)"
                       overflow="hidden"
                     >
                       <GraficoFaltaApontamentoTransbordo
@@ -776,7 +783,37 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           </A4Colheita>
         )}
               
-        {/* Terceira Página - Uso GPS */}
+        {/* Página de Motor Ocioso */}
+        {secoes.motorOcioso && (
+          <A4Colheita>
+            <Box h="100%" display="flex" flexDirection="column">
+              <PageHeader />
+              <Box flex="1" display="flex" flexDirection="column">
+                <Box flex="1">
+                  <SectionTitle title="Motor Ocioso por Operador" />
+                  
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 30px)"
+                    minH="calc(262mm - 70px)"
+                    overflow="auto"
+                  >
+                    <GraficoMotorOciosoEmpilhado
+                      data={processedData.motor_ocioso}
+                      meta={configManager.getMetas('transbordo_diario').motorOcioso}
+                      height={450}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          </A4Colheita>
+        )}
+
+        {/* Página de Uso GPS */}
         {secoes.usoGPS && (
           <A4Colheita>
             <Box h="100%" display="flex" flexDirection="column">
@@ -791,6 +828,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     borderRadius="md"
                     p={2}
                     h="calc(100% - 30px)"
+                    minH="calc(262mm - 70px)"
                     overflow="hidden"
                   >
                     <GraficoUsoGPS 

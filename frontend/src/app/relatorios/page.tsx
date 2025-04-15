@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Grid, GridItem, Heading, Text, Flex, Select, Input, Button, useToast, useDisclosure, Checkbox, CheckboxGroup } from '@chakra-ui/react';
-import { FiEye, FiRefreshCw } from 'react-icons/fi';
+import { FiEye, FiRefreshCw, FiLayers } from 'react-icons/fi';
 import ExcelUpload, { ExcelPreview } from '@/components/FileUpload/ExcelUpload';
 import ReportImageInputs from '@/components/FileUpload/ReportImageInputs';
 import { useState, useEffect, useCallback } from 'react';

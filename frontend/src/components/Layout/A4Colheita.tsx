@@ -56,13 +56,13 @@ export default function A4Colheita({ children, isLastPage = false, footer }: A4C
       <Box
         position="relative"
         p="10mm"
-        h="277mm"
-        maxH="277mm"
+        h="287mm"
+        maxH="287mm"
         sx={{
           '@media print': {
             p: '10mm !important',
-            h: '277mm !important',
-            maxH: '277mm !important',
+            h: '287mm !important',
+            maxH: '287mm !important',
             overflow: 'visible !important',
             breakInside: 'avoid !important',
             breakAfter: isLastPage ? 'avoid !important' : 'always !important',

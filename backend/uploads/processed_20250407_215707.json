@@ -1,0 +1,250 @@
+{
+  "metadata": {
+    "type": "colheita_semanal",
+    "date": "2025-03-31",
+    "frente": "frente3",
+    "generated_at": "2025-04-07T21:57:07.386888",
+    "equipment_ids": null,
+    "is_weekly": true,
+    "start_date": "2025-03-31",
+    "end_date": "2025-04-06"
+  },
+  "metas": {
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64,
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90
+  },
+  "colheita_semanal_metrics": {
+    "disponibilidade_mecanica": [
+      {
+        "frota": "7041",
+        "disponibilidade": 95.36162062159123
+      },
+      {
+        "frota": "7042",
+        "disponibilidade": 91.34935510435028
+      }
+    ],
+    "eficiencia_energetica": [
+      {
+        "id": "1",
+        "nome": "SEM OPERADOR",
+        "eficiencia": 49.89339019189768
+      },
+      {
+        "id": "1292073",
+        "nome": "RENATO SOUZA SANTOS LIMA",
+        "eficiencia": 53.28384369522634
+      },
+      {
+        "id": "289948",
+        "nome": "FABIO JUNIOR DA SILVA COSTA",
+        "eficiencia": 44.39134029141242
+      },
+      {
+        "id": "898238",
+        "nome": "REGINALDO MARCOS DOS SANTOS",
+        "eficiencia": 66.779731234302
+      },
+      {
+        "id": "143536",
+        "nome": "LUCAS SANTOS SILVA",
+        "eficiencia": 63.42780026990552
+      }
+    ],
+    "motor_ocioso": [
+      {
+        "id": "1",
+        "nome": "SEM OPERADOR",
+        "percentual": 47.09488272921109
+      },
+      {
+        "id": "1292073",
+        "nome": "RENATO SOUZA SANTOS LIMA",
+        "percentual": 23.548819465924332
+      },
+      {
+        "id": "289948",
+        "nome": "FABIO JUNIOR DA SILVA COSTA",
+        "percentual": 35.9253901002375
+      },
+      {
+        "id": "977542",
+        "nome": "Ademilson matos de morais",
+        "percentual": 15.800665939170038
+      },
+      {
+        "id": "898238",
+        "nome": "REGINALDO MARCOS DOS SANTOS",
+        "percentual": 20.499210274202987
+      }
+    ],
+    "hora_elevador": [
+      {
+        "id": "1",
+        "nome": "SEM OPERADOR",
+        "horas": 0.14857142857142863
+      },
+      {
+        "id": "1292073",
+        "nome": "RENATO SOUZA SANTOS LIMA",
+        "horas": 1.435555555555556
+      },
+      {
+        "id": "289948",
+        "nome": "FABIO JUNIOR DA SILVA COSTA",
+        "horas": 2.3865277777777756
+      },
+      {
+        "id": "977542",
+        "nome": "Ademilson matos de morais",
+        "horas": 3.4051388888888843
+      },
+      {
+        "id": "898238",
+        "nome": "REGINALDO MARCOS DOS SANTOS",
+        "horas": 3.5820833333333284
+      }
+    ],
+    "uso_gps": [
+      {
+        "id": "1",
+        "nome": "SEM OPERADOR",
+        "porcentagem": 78.45832088437405
+      },
+      {
+        "id": "1292073",
+        "nome": "RENATO SOUZA SANTOS LIMA",
+        "porcentagem": 0.0
+      },
+      {
+        "id": "977542",
+        "nome": "Ademilson matos de morais",
+        "porcentagem": 4.5699228307923985
+      },
+      {
+        "id": "898238",
+        "nome": "REGINALDO MARCOS DOS SANTOS",
+        "porcentagem": 89.12506178942161
+      }
+    ]
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041",
+      "disponibilidade": 95.36162062159123
+    },
+    {
+      "frota": "7042",
+      "disponibilidade": 91.34935510435028
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 49.89339019189768
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "eficiencia": 53.28384369522634
+    },
+    {
+      "id": "289948",
+      "nome": "FABIO JUNIOR DA SILVA COSTA",
+      "eficiencia": 44.39134029141242
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "eficiencia": 66.779731234302
+    },
+    {
+      "id": "143536",
+      "nome": "LUCAS SANTOS SILVA",
+      "eficiencia": 63.42780026990552
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 0.14857142857142863
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "horas": 1.435555555555556
+    },
+    {
+      "id": "289948",
+      "nome": "FABIO JUNIOR DA SILVA COSTA",
+      "horas": 2.3865277777777756
+    },
+    {
+      "id": "977542",
+      "nome": "Ademilson matos de morais",
+      "horas": 3.4051388888888843
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "horas": 3.5820833333333284
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 47.09488272921109
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "percentual": 23.548819465924332
+    },
+    {
+      "id": "289948",
+      "nome": "FABIO JUNIOR DA SILVA COSTA",
+      "percentual": 35.9253901002375
+    },
+    {
+      "id": "977542",
+      "nome": "Ademilson matos de morais",
+      "percentual": 15.800665939170038
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "percentual": 20.499210274202987
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 78.45832088437405
+    },
+    {
+      "id": "1292073",
+      "nome": "RENATO SOUZA SANTOS LIMA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "977542",
+      "nome": "Ademilson matos de morais",
+      "porcentagem": 4.5699228307923985
+    },
+    {
+      "id": "898238",
+      "nome": "REGINALDO MARCOS DOS SANTOS",
+      "porcentagem": 89.12506178942161
+    }
+  ]
+}

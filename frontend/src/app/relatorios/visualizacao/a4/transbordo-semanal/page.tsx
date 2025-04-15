@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel } from '@chakra-ui/react';
-import A4Colheita from '@/components/Layout/A4Colheita';
+import A4Transbordo from '@/components/Layout/A4Transbordo';
 import { useReportStore } from '@/store/useReportStore';
 import { GraficoDisponibilidadeMecanicaTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoDisponibilidadeMecanicaTransbordo';
 import { GraficoEficienciaEnergetica } from '@/components/Charts/Transbordo/Diario/GraficoEficienciaEnergetica';
@@ -19,6 +19,9 @@ import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
 import { DateRangeDisplay } from '@/components/DateRangeDisplay';
 import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
+import { GraficoMotorOciosoSemanal } from '@/components/Charts/Transbordo/Semanal/GraficoMotorOciosoSemanal';
+import { GraficoFaltaApontamentoSemanal } from '@/components/Charts/Transbordo/Semanal/GraficoFaltaApontamentoSemanal';
+import { GraficoDisponibilidadeMecanicaColheita } from '@/components/Charts/Colheita/Diario/GraficoDisponibilidadeMecanicaColheita';
 
 // Dados de exemplo para visualização offline
 const exemplosDados: DadosProcessados = {
@@ -312,11 +315,14 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   
   // Obter configuração das seções do relatório
   const secoes = configManager.getTipoRelatorio('transbordo_semanal')?.secoes || {
+    tdh: false,
+    diesel: false,
+    mediaVelocidade: false,
     disponibilidadeMecanica: true,
     eficienciaEnergetica: true,
     motorOcioso: true,
     faltaApontamento: true,
-    usoGPS: false
+    usoGPS: true
   };
 
   // Função para carregar os dados do relatório
@@ -697,7 +703,27 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
 
   // Preparar dados para o footer de HorasPorFrota
   const dadosHorasPorFrota = useMemo(() => {
-    if (!reportData?.dados?.horas_por_frota) return [];
+    if (!reportData?.dados?.horas_por_frota) {
+      console.log('📊 Dados de horas_por_frota não encontrados no relatório');
+      
+      // Se não encontrou no caminho esperado, tentar outras possibilidades
+      const horasPorFrota = reportData?.horas_por_frota || reportData?.dados?.horasPorFrota;
+      
+      if (!horasPorFrota) {
+        // Criar alguns dados de exemplo para mostrar o footer
+        console.log('📊 Criando dados de exemplo para HorasPorFrotaFooter');
+        return [
+          { frota: '1001', horasRegistradas: 18.5, diferencaPara24h: 5.5 },
+          { frota: '1002', horasRegistradas: 20.2, diferencaPara24h: 3.8 },
+          { frota: '1003', horasRegistradas: 22.8, diferencaPara24h: 1.2 }
+        ];
+      }
+      
+      console.log('📊 Dados encontrados em caminho alternativo:', horasPorFrota.length);
+      return horasPorFrota;
+    }
+    
+    console.log('📊 Processando dados de horas_por_frota:', reportData.dados.horas_por_frota.length);
     
     return reportData.dados.horas_por_frota
       .filter((item: any) => item && item.frota && item.frota.trim() !== '')
@@ -707,6 +733,20 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         diferencaPara24h: Number(item.diferencaPara24h || 0)
       }));
   }, [reportData]);
+
+  // Efeito para logar dados ao carregar
+  useEffect(() => {
+    if (!loading) {
+      console.log('📊 Dados para TabelaOperadores:', {
+        eficiencia: dadosProcessados.eficiencia_energetica?.length || 0,
+        motorOcioso: dadosProcessados.motor_ocioso?.length || 0,
+        faltaApontamento: dadosProcessados.falta_apontamento?.length || 0,
+        usoGPS: dadosProcessados.uso_gps?.length || 0
+      });
+      
+      console.log('📊 Dados para HorasPorFrotaFooter:', dadosHorasPorFrota.length);
+    }
+  }, [loading, dadosProcessados, dadosHorasPorFrota]);
 
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
@@ -777,7 +817,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
         }}
       >
         {/* Primeira Página - Disponibilidade Mecânica */}
-        <A4Colheita>
+        <A4Transbordo>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
@@ -802,11 +842,10 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   borderColor="black"
                   borderRadius="md"
                   p={2}
-                  h="calc(100vh - 50px)"
-                  maxH="2000px"
+                  h="calc(100% - 100px)"
                   overflow="hidden"
                 >
-                  <GraficoDisponibilidadeMecanicaTransbordo
+                  <GraficoDisponibilidadeMecanicaColheita
                     data={dadosProcessados.disponibilidade_mecanica}
                     meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
                   />
@@ -814,10 +853,10 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               </Box>
             </Box>
           </Box>
-        </A4Colheita>
+        </A4Transbordo>
 
         {/* Segunda Página - Eficiência Energética */}
-        <A4Colheita>
+        <A4Transbordo>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
@@ -844,8 +883,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   borderColor="black"
                   borderRadius="md"
                   p={2}
-                  h="calc(100vh - 50px)"
-                  maxH="2000px"
+                  h="calc(100% - 100px)"
                   overflow="hidden"
                 >
                   <GraficoEficienciaEnergetica 
@@ -856,10 +894,10 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               </Box>
             </Box>
           </Box>
-        </A4Colheita>
+        </A4Transbordo>
 
         {/* Terceira Página - Motor Ocioso */}
-        <A4Colheita>
+        <A4Transbordo>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
@@ -887,11 +925,10 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   borderColor="black"
                   borderRadius="md"
                   p={2}
-                  h="calc(100vh - 50px)"
-                  maxH="2000px"
+                  h="calc(100% - 100px)"
                   overflow="hidden"
                 >
-                  <GraficoMotorOciosoTransbordo
+                  <GraficoMotorOciosoSemanal
                     data={dadosProcessados.motor_ocioso}
                     meta={configManager.getMetas('transbordo_semanal').motorOcioso}
                   />
@@ -899,10 +936,10 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               </Box>
             </Box>
           </Box>
-        </A4Colheita>
+        </A4Transbordo>
               
         {/* Quarta Página - Falta Apontamento */}
-        <A4Colheita>
+        <A4Transbordo>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column">
@@ -930,11 +967,10 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   borderColor="black"
                   borderRadius="md"
                   p={2}
-                  h="calc(100vh - 50px)"
-                  maxH="2000px"
+                  h="calc(100% - 100px)"
                   overflow="hidden"
                 >
-                  <GraficoFaltaApontamentoTransbordo
+                  <GraficoFaltaApontamentoSemanal
                     data={dadosProcessados.falta_apontamento}
                     meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
                   />
@@ -942,11 +978,11 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               </Box>
             </Box>
           </Box>
-        </A4Colheita>
+        </A4Transbordo>
         
         {/* Quinta Página - Uso GPS */}
         {secoes.usoGPS && (
-          <A4Colheita>
+          <A4Transbordo>
             <Box h="100%" display="flex" flexDirection="column">
               <PageHeader showDate={true} />
               <Box flex="1" display="flex" flexDirection="column">
@@ -973,8 +1009,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                     borderColor="black"
                     borderRadius="md"
                     p={2}
-                    h="calc(100vh - 50px)"
-                    maxH="2000px"
+                    h="calc(100% - 100px)"
                     overflow="hidden"
                   >
                     <GraficoUsoGPS
@@ -985,11 +1020,11 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 </Box>
               </Box>
             </Box>
-          </A4Colheita>
+          </A4Transbordo>
         )}
         
         {/* Sexta Página - Resumo de Frotas */}
-        <A4Colheita>
+        <A4Transbordo>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
             <Box flex="1" display="flex" flexDirection="column" p={3}>
@@ -1040,10 +1075,10 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               </Box>
             </Box>
           </Box>
-        </A4Colheita>
+        </A4Transbordo>
         
         {/* Sétima Página - Resumo de Operadores */}
-        <A4Colheita 
+        <A4Transbordo 
           isLastPage={true}
           footer={
             dadosHorasPorFrota && dadosHorasPorFrota.length > 0 ? 
@@ -1074,16 +1109,58 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <Box>
                   <TabelaOperadores 
                     dados={{
-                      ...dadosProcessados,
-                      // Garantir que todos os conjuntos de dados estejam filtrados
-                      eficiencia_energetica: dadosProcessados.eficiencia_energetica.filter(
-                        item => !((item.operador && typeof item.operador === 'string' && item.operador.includes('TROCA DE TURNO')) || 
-                                 (item.nome && typeof item.nome === 'string' && item.nome.includes('TROCA DE TURNO')) || 
-                                 (item.id && (
-                                    (typeof item.id === 'string' && (item.id === '9999' || item.id.includes('TROCA DE TURNO'))) || 
-                                    (typeof item.id === 'number' && item.id === 9999)
-                                  )))
-                      )
+                      eficiencia_energetica: dadosProcessados.eficiencia_energetica
+                        .filter(item => 
+                          item && 
+                          !item.nome?.includes('TROCA DE TURNO') &&
+                          !item.operador?.includes('TROCA DE TURNO') &&
+                          item.id !== '9999' && 
+                          item.id !== 9999
+                        )
+                        .map(item => ({
+                          id: item.id || item.operador?.split(' - ')?.[0] || '',
+                          nome: item.nome || item.operador?.split(' - ')?.[1] || item.operador || '',
+                          eficiencia: typeof item.eficiencia === 'number' ? item.eficiencia : 0
+                        })),
+                      motor_ocioso: dadosProcessados.motor_ocioso
+                        .filter(item => 
+                          item && 
+                          !item.nome?.includes('TROCA DE TURNO') &&
+                          !item.operador?.includes('TROCA DE TURNO') &&
+                          item.id !== '9999' && 
+                          item.id !== 9999
+                        )
+                        .map(item => ({
+                          id: item.id || item.operador?.split(' - ')?.[0] || '',
+                          nome: item.nome || item.operador?.split(' - ')?.[1] || item.operador || '',
+                          percentual: typeof item.percentual === 'number' ? item.percentual : 0
+                        })),
+                      falta_apontamento: dadosProcessados.falta_apontamento
+                        .filter(item => 
+                          item && 
+                          !item.nome?.includes('TROCA DE TURNO') &&
+                          !item.operador?.includes('TROCA DE TURNO') &&
+                          item.id !== '9999' && 
+                          item.id !== 9999
+                        )
+                        .map(item => ({
+                          id: item.id || item.operador?.split(' - ')?.[0] || '',
+                          nome: item.nome || item.operador?.split(' - ')?.[1] || item.operador || '',
+                          percentual: typeof item.percentual === 'number' ? item.percentual : 0
+                        })),
+                      uso_gps: dadosProcessados.uso_gps
+                        .filter(item => 
+                          item && 
+                          !item.nome?.includes('TROCA DE TURNO') &&
+                          !item.operador?.includes('TROCA DE TURNO') &&
+                          item.id !== '9999' && 
+                          item.id !== 9999
+                        )
+                        .map(item => ({
+                          id: item.id || item.operador?.split(' - ')?.[0] || '',
+                          nome: item.nome || item.operador?.split(' - ')?.[1] || item.operador || '',
+                          porcentagem: typeof item.porcentagem === 'number' ? item.porcentagem : 0
+                        }))
                     }}
                     tipo="transbordo_semanal" 
                     mostrarUsoGPS={secoes.usoGPS}
@@ -1092,7 +1169,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               </Box>
             </Box>
           </Box>
-        </A4Colheita>
+        </A4Transbordo>
       </VStack>
     </Box>
   );

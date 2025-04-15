@@ -12,9 +12,6 @@ import { GraficoUsoGPS } from '@/components/Charts/Colheita/Diario/GraficoUsoGPS
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { configManager } from '@/utils/config';
-import { GraficoTDH } from '@/components/Charts/Colheita/Semanal/GraficoTDH';
-import { GraficoDiesel } from '@/components/Charts/Colheita/Semanal/GraficoDiesel';
-import { GraficoImpurezaVegetal } from '@/components/Charts/Colheita/Semanal/GraficoImpurezaVegetal';
 import { DateRangeDisplay } from '@/components/DateRangeDisplay';
 import { useReportData } from '@/hooks/useReportData';
 import RelatorioColheitaSemanalResumo, { ResumoData, MetricData, FrotaData, OperadorData } from '@/components/RelatorioColheitaSemanalResumo';
@@ -86,9 +83,6 @@ interface AcimaMeta {
 }
 
 interface Metas {
-  tdh: number;
-  diesel: number;
-  impureza_vegetal: number;
   disponibilidadeMecanica: number;
   eficienciaEnergetica: number;
   horaElevador: number;
@@ -122,9 +116,6 @@ const processarDadosResumo = (dados: any): ResumoData => {
   // Obter metas do relatório ou usar as metas padrão da configuração
   const metasConfig = configManager.getMetas('colheita_semanal');
   const metas: Metas = {
-    tdh: metasConfig?.tdh ?? 0.0124,
-    diesel: metasConfig?.diesel ?? 0.718,
-    impureza_vegetal: metasConfig?.impureza_vegetal ?? 64,
     disponibilidadeMecanica: metasConfig?.disponibilidadeMecanica ?? 90,
     eficienciaEnergetica: metasConfig?.eficienciaEnergetica ?? 70,
     horaElevador: metasConfig?.horaElevador ?? 5,
@@ -286,9 +277,10 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // Obter configurações de seções para o tipo de relatório
     const tipoRelatorio = reportData?.metadata?.type || 'colheita_semanal';
     const configSections = configManager.getTipoRelatorio(tipoRelatorio)?.secoes || {
-      tdh: true,
-      diesel: true,
-      impurezaVegetal: true,
+      tdh: false,
+      diesel: false,
+      impurezaVegetal: false,
+      mediaVelocidade: false,
       disponibilidadeMecanica: true,
       eficienciaEnergetica: true,
       motorOcioso: true,
@@ -415,39 +407,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     );
   };
 
-  // Preparar dados para TDH
-  const finalDataTDH = useMemo(() => {
-    if (!reportData?.tdh) return [];
-    return reportData.tdh
-      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
-      .map((item: any) => ({
-        frota: item.frota,
-        valor: item.valor
-      }));
-  }, [reportData]);
-
-  // Preparar dados para Diesel
-  const finalDataDiesel = useMemo(() => {
-    if (!reportData?.diesel) return [];
-    return reportData.diesel
-      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
-      .map((item: any) => ({
-        frota: item.frota,
-        valor: item.valor
-      }));
-  }, [reportData]);
-
-  // Preparar dados para Impureza Vegetal
-  const finalDataImpureza = useMemo(() => {
-    if (!reportData?.impureza_vegetal) return [];
-    return reportData.impureza_vegetal
-      .filter((item: any) => item && item.frota && item.frota.trim() !== '')
-      .map((item: any) => ({
-        frota: item.frota,
-        valor: item.valor
-      }));
-  }, [reportData]);
-
   // RENDERIZAÇÃO CONDICIONAL
   // Se estiver carregando, mostrar indicador de loading
   if (loading) {
@@ -490,7 +449,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {/* Disponibilidade Mecânica */}
             <Box flex="1" mb={4}>
               <SectionTitle title="Disponibilidade Mecânica" centered={true} />
-              <Flex direction="column" h="calc(100% - 25px)">
+              <Flex direction="column" h="calc(100% - 100px)">
                 {/* Card de indicador */}
                 <Box mb={3}>
                   <IndicatorCard 
@@ -508,6 +467,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   borderColor="black"
                   borderRadius="md"
                   p={3}
+                  h="calc(100% - 100px)"
                 >
                   <GraficoDisponibilidadeMecanicaColheita 
                     data={finalData?.disponibilidadeMecanica?.data || []} 
@@ -520,7 +480,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {/* Eficiência Energética */}
             <Box flex="1">
               <SectionTitle title="Eficiência Energética" centered={true} />
-              <Flex direction="column" h="calc(100% - 25px)">
+              <Flex direction="column" h="calc(100% - 100px)">
                 {/* Card de indicador */}
                 <Box mb={3}>
                   <IndicatorCard 
@@ -538,6 +498,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   borderColor="black"
                   borderRadius="md"
                   p={3}
+                  h="calc(100% - 100px)"
                 >
                   <GraficoEficienciaEnergetica 
                     data={finalData?.eficienciaEnergetica?.data || []} 
@@ -559,7 +520,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {/* Hora Elevador */}
             <Box>
               <SectionTitle title="Hora Elevador" centered={true} />
-              <Flex direction="column" h="calc(100% - 25px)">
+              <Flex direction="column" h="calc(100% - 100px)">
                 {/* Card de indicador */}
                 <Box mb={3}>
                   <IndicatorCard 
@@ -577,7 +538,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   borderColor="black"
                   borderRadius="md"
                   p={3}
-                  h="500px" // Altura fixa para melhor visualização
+                  h="calc(100% - 100px)"
                 >
                   <GraficoHorasElevador 
                     data={finalData?.horaElevador?.data || []} 
@@ -599,7 +560,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {/* Motor Ocioso */}
             <Box>
               <SectionTitle title="Motor Ocioso" centered={true} />
-              <Flex direction="column" h="calc(100% - 25px)">
+              <Flex direction="column" h="calc(100% - 100px)">
                 {/* Card de indicador */}
                 <Box mb={3}>
                   <IndicatorCard 
@@ -618,7 +579,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   borderColor="black"
                   borderRadius="md"
                   p={3}
-                  h="500px" // Altura fixa para melhor visualização
+                  h="calc(100% - 100px)"
                 >
                   <GraficoMotorOciosoColheita 
                     data={finalData?.motorOcioso?.data || []} 
@@ -640,7 +601,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             {/* Uso GPS */}
             <Box>
               <SectionTitle title="Uso GPS" centered={true} />
-              <Flex direction="column" h="calc(100% - 25px)">
+              <Flex direction="column" h="calc(100% - 100px)">
                 {/* Card de indicador */}
                 <Box mb={3}>
                   <IndicatorCard 
@@ -658,7 +619,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   borderColor="black"
                   borderRadius="md"
                   p={3}
-                  h="500px" // Altura fixa para melhor visualização
+                  h="calc(100% - 100px)"
                 >
                   <GraficoUsoGPS 
                     data={finalData?.usoGPS?.data || []} 

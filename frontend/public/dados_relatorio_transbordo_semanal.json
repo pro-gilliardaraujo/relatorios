@@ -1,0 +1,254 @@
+{
+  "informacoes_gerais": {
+    "data_inicio": "2025-04-07",
+    "data_fim": "2025-04-13",
+    "tipo_relatorio": "transbordo_semanal",
+    "frente": "Frente 1",
+    "fazenda": "BP Ituiutaba"
+  },
+  "colheita": {},
+  "transbordo": {
+    "disponibilidade_mecanica": [
+      {
+        "frota": "6096",
+        "disponibilidade": 98.78
+      },
+      {
+        "frota": "6100",
+        "disponibilidade": 99.89
+      },
+      {
+        "frota": "6086",
+        "disponibilidade": 95.94
+      }
+    ],
+    "eficiencia_energetica": [
+      {
+        "id": "126986",
+        "nome": "DIOGO JOSE DOS SANTOS SILVA",
+        "eficiencia": 54.01
+      },
+      {
+        "id": "108096",
+        "nome": "EDMILSON DOS SANTOS SILVA",
+        "eficiencia": 49.81
+      },
+      {
+        "id": "103799",
+        "nome": "JOSENILDO DA SILVA",
+        "eficiencia": 45.97
+      },
+      {
+        "id": "876839",
+        "nome": "CLAUDIO CAMPOS DA SILVA",
+        "eficiencia": 33.54
+      },
+      {
+        "id": "1331003",
+        "nome": "ALAILSON SILVA DOS SANTOS",
+        "eficiencia": 55.74
+      },
+      {
+        "id": "795183",
+        "nome": "CREGINALDO BATISTA DE ARAUJO",
+        "eficiencia": 72.89
+      },
+      {
+        "id": "1331004",
+        "nome": "DIJAIL LUIZ DA SILVA",
+        "eficiencia": 37.64
+      },
+      {
+        "id": "327574",
+        "nome": "GILVAN CIRIACO DA SILVA",
+        "eficiencia": 41.63
+      },
+      {
+        "id": "456270",
+        "nome": "JOSE AVELINO DA SILVA",
+        "eficiencia": 36.67
+      },
+      {
+        "id": "101063",
+        "nome": "GEANDERSON VIEIRA DOS SANTOS",
+        "eficiencia": 38.81
+      },
+      {
+        "id": "953792",
+        "nome": "LUIZITO MARCAL DE MORAIS",
+        "eficiencia": 31.92
+      },
+      {
+        "id": "267399",
+        "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+        "eficiencia": 52.75
+      },
+      {
+        "id": "579965",
+        "nome": "JOSE EDVALDO DA SILVA",
+        "eficiencia": 47.85
+      }
+    ],
+    "motor_ocioso": [
+      {
+        "id": "126986",
+        "nome": "DIOGO JOSE DOS SANTOS SILVA",
+        "percentual": 25.87,
+        "tempoLigado": 45.42,
+        "tempoOcioso": 11.75
+      },
+      {
+        "id": "108096",
+        "nome": "EDMILSON DOS SANTOS SILVA",
+        "percentual": 27.80,
+        "tempoLigado": 42.42,
+        "tempoOcioso": 11.79
+      },
+      {
+        "id": "103799",
+        "nome": "JOSENILDO DA SILVA",
+        "percentual": 34.10,
+        "tempoLigado": 17.98,
+        "tempoOcioso": 6.13
+      },
+      {
+        "id": "876839",
+        "nome": "CLAUDIO CAMPOS DA SILVA",
+        "percentual": 15.66,
+        "tempoLigado": 30.81,
+        "tempoOcioso": 4.83
+      },
+      {
+        "id": "1331003",
+        "nome": "ALAILSON SILVA DOS SANTOS",
+        "percentual": 20.04,
+        "tempoLigado": 58.58,
+        "tempoOcioso": 11.74
+      },
+      {
+        "id": "795183",
+        "nome": "CREGINALDO BATISTA DE ARAUJO",
+        "percentual": 18.75,
+        "tempoLigado": 23.85,
+        "tempoOcioso": 4.47
+      },
+      {
+        "id": "1331004",
+        "nome": "DIJAIL LUIZ DA SILVA",
+        "percentual": 24.32,
+        "tempoLigado": 9.41,
+        "tempoOcioso": 2.29
+      },
+      {
+        "id": "327574",
+        "nome": "GILVAN CIRIACO DA SILVA",
+        "percentual": 23.16,
+        "tempoLigado": 52.63,
+        "tempoOcioso": 12.19
+      },
+      {
+        "id": "456270",
+        "nome": "JOSE AVELINO DA SILVA",
+        "percentual": 24.46,
+        "tempoLigado": 35.19,
+        "tempoOcioso": 8.61
+      },
+      {
+        "id": "101063",
+        "nome": "GEANDERSON VIEIRA DOS SANTOS",
+        "percentual": 28.92,
+        "tempoLigado": 18.64,
+        "tempoOcioso": 5.39
+      },
+      {
+        "id": "953792",
+        "nome": "LUIZITO MARCAL DE MORAIS",
+        "percentual": 13.04,
+        "tempoLigado": 4.05,
+        "tempoOcioso": 0.53
+      },
+      {
+        "id": "267399",
+        "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+        "percentual": 17.20,
+        "tempoLigado": 37.81,
+        "tempoOcioso": 6.50
+      },
+      {
+        "id": "579965",
+        "nome": "JOSE EDVALDO DA SILVA",
+        "percentual": 22.07,
+        "tempoLigado": 44.38,
+        "tempoOcioso": 9.80
+      }
+    ],
+    "falta_apontamento": [
+      {
+        "id": "126986",
+        "nome": "DIOGO JOSE DOS SANTOS SILVA",
+        "percentual": 5.35
+      },
+      {
+        "id": "108096",
+        "nome": "EDMILSON DOS SANTOS SILVA",
+        "percentual": 2.97
+      },
+      {
+        "id": "103799",
+        "nome": "JOSENILDO DA SILVA",
+        "percentual": 7.42
+      },
+      {
+        "id": "876839",
+        "nome": "CLAUDIO CAMPOS DA SILVA",
+        "percentual": 3.51
+      },
+      {
+        "id": "1331003",
+        "nome": "ALAILSON SILVA DOS SANTOS",
+        "percentual": 1.85
+      },
+      {
+        "id": "795183",
+        "nome": "CREGINALDO BATISTA DE ARAUJO",
+        "percentual": 3.25
+      },
+      {
+        "id": "1331004",
+        "nome": "DIJAIL LUIZ DA SILVA",
+        "percentual": 3.51
+      },
+      {
+        "id": "327574",
+        "nome": "GILVAN CIRIACO DA SILVA",
+        "percentual": 3.83
+      },
+      {
+        "id": "456270",
+        "nome": "JOSE AVELINO DA SILVA",
+        "percentual": 2.24
+      },
+      {
+        "id": "101063",
+        "nome": "GEANDERSON VIEIRA DOS SANTOS",
+        "percentual": 1.15
+      },
+      {
+        "id": "953792",
+        "nome": "LUIZITO MARCAL DE MORAIS",
+        "percentual": 1.28
+      },
+      {
+        "id": "267399",
+        "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+        "percentual": 2.27
+      },
+      {
+        "id": "579965",
+        "nome": "JOSE EDVALDO DA SILVA",
+        "percentual": 3.50
+      }
+    ],
+    "uso_gps": []
+  }
+} 

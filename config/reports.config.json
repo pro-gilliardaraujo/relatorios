@@ -34,7 +34,7 @@
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
@@ -66,9 +66,10 @@
           "usoGPS": 90
       },
       "secoes": {
-        "tdh": true,
-        "diesel": true,
-        "impurezaVegetal": true,
+        "tdh": false,
+        "diesel": false,
+        "impurezaVegetal": false,
+        "mediaVelocidade": false,
         "disponibilidadeMecanica": true,
         "eficienciaEnergetica": true,
         "motorOcioso": true,
@@ -87,7 +88,7 @@
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
@@ -135,7 +136,7 @@
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
@@ -166,8 +167,9 @@
         "usoGPS": 90
       },
       "secoes": {
-        "tdh": true,
-        "diesel": true,
+        "tdh": false,
+        "diesel": false,
+        "mediaVelocidade": false,
         "disponibilidadeMecanica": true,
         "eficienciaEnergetica": true,
         "motorOcioso": true,
@@ -187,7 +189,7 @@
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "texto", "porcentagem"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
         "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]

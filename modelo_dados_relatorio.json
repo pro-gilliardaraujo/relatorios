@@ -1,0 +1,154 @@
+{
+  "informacoes_gerais": {
+    "data_inicio": "2023-07-01",
+    "data_fim": "2023-07-07",
+    "tipo_relatorio": "transbordo_semanal",
+    "frente": "Frente 01",
+    "fazenda": "Fazenda São José",
+    "observacao": "Opções para tipo_relatorio: colheita_semanal ou transbordo_semanal"
+  },
+  "colheita": {
+    "disponibilidade_mecanica": [
+      {
+        "frota": "1001",
+        "disponibilidade": 95.67
+      },
+      {
+        "frota": "1002",
+        "disponibilidade": 92.30
+      }
+    ],
+    "eficiencia_energetica": [
+      {
+        "id": "1001",
+        "nome": "Operador João",
+        "eficiencia": 85.42
+      },
+      {
+        "id": "1002",
+        "nome": "Operador Pedro",
+        "eficiencia": 82.19
+      }
+    ],
+    "hora_elevador": [
+      {
+        "id": "1001",
+        "nome": "Operador João",
+        "horas": 2.50
+      },
+      {
+        "id": "1002",
+        "nome": "Operador Pedro",
+        "horas": 3.25
+      }
+    ],
+    "motor_ocioso": [
+      {
+        "id": "1001",
+        "nome": "Operador João",
+        "percentual": 8.25
+      },
+      {
+        "id": "1002",
+        "nome": "Operador Pedro",
+        "percentual": 7.50
+      }
+    ],
+    "uso_gps": [
+      {
+        "id": "1001",
+        "nome": "Operador João",
+        "porcentagem": 98.75
+      },
+      {
+        "id": "1002",
+        "nome": "Operador Pedro",
+        "porcentagem": 97.20
+      }
+    ],
+    "media_velocidade": [
+      {
+        "id": "1001",
+        "nome": "Frota 1001",
+        "velocidade": 6.8
+      },
+      {
+        "id": "1002",
+        "nome": "Frota 1002",
+        "velocidade": 7.2
+      }
+    ]
+  },
+  "transbordo": {
+    "disponibilidade_mecanica": [
+      {
+        "frota": "2001",
+        "disponibilidade": 94.30
+      },
+      {
+        "frota": "2002",
+        "disponibilidade": 91.15
+      }
+    ],
+    "eficiencia_energetica": [
+      {
+        "id": "2001",
+        "nome": "Operador Carlos",
+        "eficiencia": 88.65
+      },
+      {
+        "id": "2002",
+        "nome": "Operador Marcos",
+        "eficiencia": 84.72
+      }
+    ],
+    "motor_ocioso": [
+      {
+        "id": "2001",
+        "nome": "Operador Carlos",
+        "percentual": 9.35
+      },
+      {
+        "id": "2002",
+        "nome": "Operador Marcos",
+        "percentual": 8.42
+      }
+    ],
+    "falta_apontamento": [
+      {
+        "id": "2001",
+        "nome": "Operador Carlos",
+        "percentual": 5.25
+      },
+      {
+        "id": "2002",
+        "nome": "Operador Marcos",
+        "percentual": 6.15
+      }
+    ],
+    "uso_gps": [
+      {
+        "id": "2001",
+        "nome": "Operador Carlos",
+        "porcentagem": 96.45
+      },
+      {
+        "id": "2002",
+        "nome": "Operador Marcos",
+        "porcentagem": 95.80
+      }
+    ],
+    "media_velocidade": [
+      {
+        "id": "2001",
+        "nome": "Frota 2001",
+        "velocidade": 14.3
+      },
+      {
+        "id": "2002",
+        "nome": "Frota 2002",
+        "velocidade": 15.7
+      }
+    ]
+  }
+} 

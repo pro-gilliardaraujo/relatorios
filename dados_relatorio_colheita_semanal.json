@@ -1,0 +1,229 @@
+{
+  "informacoes_gerais": {
+    "data_inicio": "2025-04-07",
+    "data_fim": "2025-04-13",
+    "tipo_relatorio": "colheita_semanal",
+    "frente": "Frente 1 - BP Ituiutaba",
+    "fazenda": "BP Ituiutaba"
+  },
+  "colheita": {
+    "disponibilidade_mecanica": [
+      {
+        "frota": "7032",
+        "disponibilidade": 94.93
+      },
+      {
+        "frota": "7038",
+        "disponibilidade": 88.40
+      }
+    ],
+    "eficiencia_energetica": [
+      {
+        "id": "133729",
+        "nome": "GILVAN FERNANDES DOS SANTOS",
+        "eficiencia": 72.70
+      },
+      {
+        "id": "784911",
+        "nome": "PAULIANO DOS SANTOS",
+        "eficiencia": 80.01
+      },
+      {
+        "id": "1331016",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "eficiencia": 51.91
+      },
+      {
+        "id": "701026",
+        "nome": "ELIZEU SILVA OLIVEIRA",
+        "eficiencia": 57.68
+      },
+      {
+        "id": "133472",
+        "nome": "WELLINGTON OLIVEIRA MENEZES",
+        "eficiencia": 61.82
+      },
+      {
+        "id": "133769",
+        "nome": "JOELTON DOS SANTOS",
+        "eficiencia": 59.77
+      },
+      {
+        "id": "968003",
+        "nome": "NAILSON BATISTA DOS SANTOS",
+        "eficiencia": 42.09
+      },
+      {
+        "id": "108717",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "eficiencia": 44.88
+      },
+      {
+        "id": "112996",
+        "nome": "JOELTON DOS SANTOS",
+        "eficiencia": 56.65
+      }
+    ],
+    "hora_elevador": [
+      {
+        "id": "133729",
+        "nome": "GILVAN FERNANDES DOS SANTOS",
+        "horas": 1.04
+      },
+      {
+        "id": "784911",
+        "nome": "PAULIANO DOS SANTOS",
+        "horas": 4.53
+      },
+      {
+        "id": "1331016",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "horas": 2.55
+      },
+      {
+        "id": "701026",
+        "nome": "ELIZEU SILVA OLIVEIRA",
+        "horas": 1.21
+      },
+      {
+        "id": "133472",
+        "nome": "WELLINGTON OLIVEIRA MENEZES",
+        "horas": 7.03
+      },
+      {
+        "id": "133769",
+        "nome": "JOELTON DOS SANTOS",
+        "horas": 2.32
+      },
+      {
+        "id": "968003",
+        "nome": "NAILSON BATISTA DOS SANTOS",
+        "horas": 1.78
+      },
+      {
+        "id": "108717",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "horas": 0.00
+      },
+      {
+        "id": "112996",
+        "nome": "JOELTON DOS SANTOS",
+        "horas": 0.00
+      }
+    ],
+    "motor_ocioso": [
+      {
+        "id": "133729",
+        "nome": "GILVAN FERNANDES DOS SANTOS",
+        "percentual": 15.32
+      },
+      {
+        "id": "784911",
+        "nome": "PAULIANO DOS SANTOS",
+        "percentual": 17.94
+      },
+      {
+        "id": "1331016",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "percentual": 15.83
+      },
+      {
+        "id": "701026",
+        "nome": "ELIZEU SILVA OLIVEIRA",
+        "percentual": 26.52
+      },
+      {
+        "id": "133472",
+        "nome": "WELLINGTON OLIVEIRA MENEZES",
+        "percentual": 21.56
+      },
+      {
+        "id": "133769",
+        "nome": "JOELTON DOS SANTOS",
+        "percentual": 8.55
+      },
+      {
+        "id": "968003",
+        "nome": "NAILSON BATISTA DOS SANTOS",
+        "percentual": 25.58
+      },
+      {
+        "id": "108717",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "percentual": 22.42
+      },
+      {
+        "id": "112996",
+        "nome": "JOELTON DOS SANTOS",
+        "percentual": 10.93
+      }
+    ],
+    "uso_gps": [
+      {
+        "id": "133729",
+        "nome": "GILVAN FERNANDES DOS SANTOS",
+        "porcentagem": 0.00
+      },
+      {
+        "id": "784911",
+        "nome": "PAULIANO DOS SANTOS",
+        "porcentagem": 35.40
+      },
+      {
+        "id": "1331016",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "porcentagem": 71.55
+      },
+      {
+        "id": "701026",
+        "nome": "ELIZEU SILVA OLIVEIRA",
+        "porcentagem": 33.08
+      },
+      {
+        "id": "133472",
+        "nome": "WELLINGTON OLIVEIRA MENEZES",
+        "porcentagem": 62.39
+      },
+      {
+        "id": "133769",
+        "nome": "JOELTON DOS SANTOS",
+        "porcentagem": 82.91
+      },
+      {
+        "id": "968003",
+        "nome": "NAILSON BATISTA DOS SANTOS",
+        "porcentagem": 81.81
+      },
+      {
+        "id": "108717",
+        "nome": "JOSE EDUARDO DE DEUS SANTOS",
+        "porcentagem": 91.02
+      },
+      {
+        "id": "112996",
+        "nome": "JOELTON DOS SANTOS",
+        "porcentagem": 95.75
+      }
+    ],
+    "media_velocidade": [
+      {
+        "id": "7032",
+        "nome": "Frota 7032",
+        "velocidade": 6.9
+      },
+      {
+        "id": "7038",
+        "nome": "Frota 7038",
+        "velocidade": 7.2
+      }
+    ]
+  },
+  "transbordo": {
+    "disponibilidade_mecanica": [],
+    "eficiencia_energetica": [],
+    "motor_ocioso": [],
+    "falta_apontamento": [],
+    "uso_gps": [],
+    "media_velocidade": []
+  }
+} 

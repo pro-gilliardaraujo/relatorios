@@ -10,6 +10,7 @@ interface FrotaData {
   diesel?: number;
   impureza?: number;
   isHeader?: boolean;
+  horasTotal?: number;
 }
 
 interface DadosAdicionais {
@@ -82,6 +83,19 @@ const formatPercentage = (val: number): string => {
   }
 };
 
+// Função para formatar horas sem arredondamento
+const formatHoras = (val: number): string => {
+  // Log para debug
+  console.log(`📊 Formatando horas na tabela: ${val}`);
+  
+  const hours = Math.floor(val);
+  const minutesDecimal = (val - hours) * 60;
+  // Evitar arredondamento dos minutos
+  const minutes = Math.floor(minutesDecimal);
+  
+  return `${hours}h${minutes.toString().padStart(2, '0')}m`;
+};
+
 export default function TabelaFrotas({ 
   dados, 
   tipo = 'colheita_diario', 
@@ -114,11 +128,12 @@ export default function TabelaFrotas({
   const metaUsoGPS = metas.usoGPS || 95;
   const metaUsoGPSIntermediaria = metaUsoGPS * 0.85;
 
-  // Determinar quais colunas mostrar com base no tipo de relatório
-  const mostrarTDH = tipo.includes('semanal') && tipo !== 'colheita_semanal';
-  const mostrarDiesel = tipo.includes('semanal') && tipo !== 'colheita_semanal';
+  // Definir quais colunas mostrar com base no tipo de relatório
+  const mostrarTDH = tipo.includes('semanal') && tipo !== 'colheita_semanal' && tipo !== 'transbordo_semanal';
+  const mostrarDiesel = tipo.includes('semanal') && tipo !== 'colheita_semanal' && tipo !== 'transbordo_semanal';
   const mostrarImpureza = tipo === 'colheita_semanal' && false; // Nunca mostrar impureza para colheita_semanal
   const mostrarDisponibilidade = true; // Sempre mostrar disponibilidade
+  const mostrarHorasTotal = tipo.endsWith('_diario'); // Mostrar apenas em relatórios diários
   
   // Colunas específicas para transbordo
   const ehTransbordo = tipo.includes('transbordo');
@@ -212,6 +227,11 @@ export default function TabelaFrotas({
             <Box as="th" p={2} textAlign="left" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
               Frota
             </Box>
+            {mostrarHorasTotal && (
+              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+                Horas Totais
+              </Box>
+            )}
             {mostrarDisponibilidade && (
               <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
                 Disponibilidade
@@ -268,7 +288,7 @@ export default function TabelaFrotas({
               <Box 
                 as="tr" 
                 key={index}
-                bg={index % 2 === 0 ? "white" : "gray.50"}
+                bg={index % 2 === 0 ? "white" : "gray.100"}
               >
                 <Box 
                   as="td" 
@@ -280,6 +300,19 @@ export default function TabelaFrotas({
                 >
                   {item.frota}
                 </Box>
+                {mostrarHorasTotal && (
+                  <Box 
+                    as="td" 
+                    p={2} 
+                    textAlign="center" 
+                    borderBottom="1px solid" 
+                    borderColor="black" 
+                    color="black"
+                    fontWeight="bold"
+                  >
+                    {formatHoras(item.horasTotal || 24)}
+                  </Box>
+                )}
                 {mostrarDisponibilidade && (
                   <Box 
                     as="td" 

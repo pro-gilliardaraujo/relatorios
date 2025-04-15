@@ -5,15 +5,16 @@ interface OperadorData {
   id: string;
   nome: string;
   eficiencia: number;
+  horasTotal?: number;
 }
 
 interface TabelaOperadoresProps {
   dados: {
     eficiencia_energetica: OperadorData[];
-    motor_ocioso: Array<{ id: string; nome: string; percentual: number }>;
-    falta_apontamento?: Array<{ id: string; nome: string; percentual: number }>;
-    uso_gps: Array<{ id: string; nome: string; porcentagem: number }>;
-    hora_elevador?: Array<{ id: string; nome: string; horas: number }>;
+    motor_ocioso: Array<{ id: string; nome: string; percentual: number; horasTotal?: number }>;
+    falta_apontamento?: Array<{ id: string; nome: string; percentual: number; horasTotal?: number }>;
+    uso_gps: Array<{ id: string; nome: string; porcentagem: number; horasTotal?: number }>;
+    hora_elevador?: Array<{ id: string; nome: string; horas: number; horasTotal?: number }>;
   };
   tipo?: string;
   mostrarUsoGPS?: boolean;
@@ -93,7 +94,8 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
     motorOcioso: true, // Mostrar em todos os tipos
     horaElevador: tipo.startsWith('colheita_'), // Apenas para relatórios de colheita
     usoGPS: mostrarUsoGPS, // Usar o valor da prop
-    faltaApontamento: tipo.startsWith('transbordo_') // Apenas para relatórios de transbordo
+    faltaApontamento: tipo.startsWith('transbordo_'), // Apenas para relatórios de transbordo
+    horasTotal: tipo.endsWith('_diario') // Mostrar apenas em relatórios diários
   };
   
   console.log('📊 Configuração de colunas para tabela:', mostrarColunas);
@@ -205,6 +207,31 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
     return 0;
   };
 
+  // Nova função - encontrar horasTotal pelo nome do operador
+  const encontrarHorasTotalPorNome = (
+    arrays: {
+      motor_ocioso?: Array<any>,
+      eficiencia_energetica?: Array<any>,
+      falta_apontamento?: Array<any>,
+      uso_gps?: Array<any>,
+    }, 
+    operadorNome: string
+  ): number => {
+    // Verificar em cada array
+    const checkArray = (arr?: Array<any>): number | undefined => {
+      if (!arr || !Array.isArray(arr)) return undefined;
+      const item = arr.find(m => m.nome === operadorNome);
+      return item?.horasTotal;
+    };
+    
+    // Verificar em cada fonte de dados
+    return checkArray(arrays.motor_ocioso) || 
+           checkArray(arrays.eficiencia_energetica) || 
+           checkArray(arrays.falta_apontamento) || 
+           checkArray(arrays.uso_gps) || 
+           24; // Valor padrão se não encontrar em nenhum lugar
+  };
+
   return (
     <Box 
       w="100%" 
@@ -220,6 +247,11 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
             <Box as="th" p={2} textAlign="left" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
               Operador
             </Box>
+            {mostrarColunas.horasTotal && (
+              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+                Horas Totais
+              </Box>
+            )}
             {mostrarColunas.eficiencia && (
               <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
                 Eficiência
@@ -261,6 +293,19 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                 item.nome, 
                 'percentual'
               );
+              
+              // Buscar ou calcular horas totais com nossa nova função
+              const horasTotal = encontrarHorasTotalPorNome(
+                {
+                  motor_ocioso: dados.motor_ocioso,
+                  eficiencia_energetica: dados.eficiencia_energetica,
+                  falta_apontamento: dados.falta_apontamento,
+                  uso_gps: dados.uso_gps
+                },
+                item.nome
+              );
+              
+              console.log(`TabelaOperadores - Horas totais para ${item.nome}:`, horasTotal);
               
               const horasElevador = encontrarValorOperadorPorNome(
                 dados.hora_elevador, 
@@ -311,7 +356,7 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                 <Box 
                   as="tr" 
                   key={index} 
-                  bg={index % 2 === 0 ? 'white' : 'gray.50'}
+                  bg={index % 2 === 0 ? 'white' : 'gray.100'}
                   borderBottom="1px solid"
                   borderColor="gray.200"
                   _hover={{ bg: 'gray.100' }}
@@ -327,6 +372,19 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                   >
                     {idDisplay}{item.nome}
                   </Box>
+                  
+                  {mostrarColunas.horasTotal && (
+                    <Box 
+                      as="td" 
+                      p={2} 
+                      textAlign="center" 
+                      borderRight="1px solid" 
+                      borderColor="gray.200"
+                      fontWeight="bold"
+                    >
+                      {formatHoras(horasTotal)}
+                    </Box>
+                  )}
                   
                   {mostrarColunas.eficiencia && (
                     <Box 
