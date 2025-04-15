@@ -1,0 +1,313 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-14",
+    "frente": "frente1",
+    "generated_at": "2025-04-15T12:58:27.850828",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "mediaVelocidade": 15,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034.0",
+      "nome": "6034.0",
+      "disponibilidade": 93.76
+    },
+    {
+      "frota": "6086.0",
+      "nome": "6086.0",
+      "disponibilidade": 1.0
+    },
+    {
+      "frota": "6096.0",
+      "nome": "6096.0",
+      "disponibilidade": 62.4
+    },
+    {
+      "frota": "6100.0",
+      "nome": "6100.0",
+      "disponibilidade": 1.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "126986",
+      "nome": "DIOGO JOSE DOS SANTOS SILVA",
+      "eficiencia": 31.65
+    },
+    {
+      "id": "108096",
+      "nome": "EDMILSON DOS SANTOS SILVA",
+      "eficiencia": 14.7
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "1331003",
+      "nome": "ALAILSON SILVA DOS SANTOS",
+      "eficiencia": 31.259999999999998
+    },
+    {
+      "id": "795183",
+      "nome": "CREGINALDO BATISTA DE ARAUJO",
+      "eficiencia": 36.870000000000005
+    },
+    {
+      "id": "876839",
+      "nome": "CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "456270",
+      "nome": "JOSE AVELINO DA SILVA",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "327574",
+      "nome": "GILVAN CIRIACO DA SILVA",
+      "eficiencia": 9.180000000000001
+    },
+    {
+      "id": "101063",
+      "nome": "GEANDERSON VIEIRA DOS SANTOS",
+      "eficiencia": 11.89
+    },
+    {
+      "id": "267399",
+      "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "eficiencia": 37.57
+    },
+    {
+      "id": "133481",
+      "nome": "RUAN PIETRO SILVA DOS SANTOS",
+      "eficiencia": 28.720000000000002
+    },
+    {
+      "id": "579965",
+      "nome": "JOSE EDVALDO DA SILVA",
+      "eficiencia": 20.66
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "126986",
+      "nome": "DIOGO JOSE DOS SANTOS SILVA",
+      "percentual": 25.759999999999998
+    },
+    {
+      "id": "108096",
+      "nome": "EDMILSON DOS SANTOS SILVA",
+      "percentual": 20.82
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 95.23
+    },
+    {
+      "id": "1331003",
+      "nome": "ALAILSON SILVA DOS SANTOS",
+      "percentual": 20.52
+    },
+    {
+      "id": "795183",
+      "nome": "CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 22.24
+    },
+    {
+      "id": "876839",
+      "nome": "CLAUDIO CAMPOS DA SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": "456270",
+      "nome": "JOSE AVELINO DA SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": "327574",
+      "nome": "GILVAN CIRIACO DA SILVA",
+      "percentual": 22.78
+    },
+    {
+      "id": "101063",
+      "nome": "GEANDERSON VIEIRA DOS SANTOS",
+      "percentual": 15.329999999999998
+    },
+    {
+      "id": "267399",
+      "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 17.26
+    },
+    {
+      "id": "133481",
+      "nome": "RUAN PIETRO SILVA DOS SANTOS",
+      "percentual": 26.240000000000002
+    },
+    {
+      "id": "579965",
+      "nome": "JOSE EDVALDO DA SILVA",
+      "percentual": 15.370000000000001
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "126986",
+      "nome": "DIOGO JOSE DOS SANTOS SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "108096",
+      "nome": "EDMILSON DOS SANTOS SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "1331003",
+      "nome": "ALAILSON SILVA DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "795183",
+      "nome": "CREGINALDO BATISTA DE ARAUJO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "876839",
+      "nome": "CLAUDIO CAMPOS DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "456270",
+      "nome": "JOSE AVELINO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "327574",
+      "nome": "GILVAN CIRIACO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "101063",
+      "nome": "GEANDERSON VIEIRA DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "267399",
+      "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "133481",
+      "nome": "RUAN PIETRO SILVA DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "579965",
+      "nome": "JOSE EDVALDO DA SILVA",
+      "porcentagem": 0.0
+    }
+  ],
+  "media_velocidade": [
+    {
+      "id": "126986",
+      "nome": "DIOGO JOSE DOS SANTOS SILVA",
+      "velocidade": 4.47
+    },
+    {
+      "id": "108096",
+      "nome": "EDMILSON DOS SANTOS SILVA",
+      "velocidade": 5.24
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "velocidade": 6.43
+    },
+    {
+      "id": "1331003",
+      "nome": "ALAILSON SILVA DOS SANTOS",
+      "velocidade": 4.34
+    },
+    {
+      "id": "795183",
+      "nome": "CREGINALDO BATISTA DE ARAUJO",
+      "velocidade": 4.57
+    },
+    {
+      "id": "876839",
+      "nome": "CLAUDIO CAMPOS DA SILVA",
+      "velocidade": 4.0
+    },
+    {
+      "id": "456270",
+      "nome": "JOSE AVELINO DA SILVA",
+      "velocidade": 5.46
+    },
+    {
+      "id": "327574",
+      "nome": "GILVAN CIRIACO DA SILVA",
+      "velocidade": 5.27
+    },
+    {
+      "id": "101063",
+      "nome": "GEANDERSON VIEIRA DOS SANTOS",
+      "velocidade": 4.89
+    },
+    {
+      "id": "267399",
+      "nome": "LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "velocidade": 4.79
+    },
+    {
+      "id": "133481",
+      "nome": "RUAN PIETRO SILVA DOS SANTOS",
+      "velocidade": 5.49
+    },
+    {
+      "id": "579965",
+      "nome": "JOSE EDVALDO DA SILVA",
+      "velocidade": 5.11
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "6034.0",
+      "nome": "6034.0",
+      "horasRegistradas": 23.81472222222222
+    },
+    {
+      "frota": "6086.0",
+      "nome": "6086.0",
+      "horasRegistradas": 23.92777777777778
+    },
+    {
+      "frota": "6096.0",
+      "nome": "6096.0",
+      "horasRegistradas": 23.885
+    },
+    {
+      "frota": "6100.0",
+      "nome": "6100.0",
+      "horasRegistradas": 23.93805555555556
+    }
+  ]
+}

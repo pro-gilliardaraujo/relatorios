@@ -1,0 +1,204 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-14",
+    "frente": "frente3",
+    "generated_at": "2025-04-15T12:57:32.128789",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7031.0",
+      "nome": "7031.0",
+      "disponibilidade": 33.85
+    },
+    {
+      "frota": "7033.0",
+      "nome": "7033.0",
+      "disponibilidade": 1.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 41.42
+    },
+    {
+      "id": "136852",
+      "nome": "JADIELSON JUNIO SILVA PAIXAO",
+      "eficiencia": 65.53999999999999
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "eficiencia": 61.019999999999996
+    },
+    {
+      "id": "139813",
+      "nome": "JACKSON DE LIMA OLIVEIRA",
+      "eficiencia": 77.07000000000001
+    },
+    {
+      "id": "129365",
+      "nome": "ABDIAS GOMES DOS SANTOS",
+      "eficiencia": 70.22
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "horas": 0.0
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 1.1
+    },
+    {
+      "id": "136852",
+      "nome": "JADIELSON JUNIO SILVA PAIXAO",
+      "horas": 1.91
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "horas": 2.07
+    },
+    {
+      "id": "139813",
+      "nome": "JACKSON DE LIMA OLIVEIRA",
+      "horas": 1.77
+    },
+    {
+      "id": "129365",
+      "nome": "ABDIAS GOMES DOS SANTOS",
+      "horas": 1.53
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "percentual": 89.03999999999999
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 43.230000000000004
+    },
+    {
+      "id": "136852",
+      "nome": "JADIELSON JUNIO SILVA PAIXAO",
+      "percentual": 25.019999999999996
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "percentual": 27.73
+    },
+    {
+      "id": "139813",
+      "nome": "JACKSON DE LIMA OLIVEIRA",
+      "percentual": 10.68
+    },
+    {
+      "id": "129365",
+      "nome": "ABDIAS GOMES DOS SANTOS",
+      "percentual": 16.18
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 98.06
+    },
+    {
+      "id": "136852",
+      "nome": "JADIELSON JUNIO SILVA PAIXAO",
+      "porcentagem": 91.35
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "porcentagem": 83.98
+    },
+    {
+      "id": "139813",
+      "nome": "JACKSON DE LIMA OLIVEIRA",
+      "porcentagem": 97.25
+    },
+    {
+      "id": "129365",
+      "nome": "ABDIAS GOMES DOS SANTOS",
+      "porcentagem": 1.0
+    }
+  ],
+  "media_velocidade": [
+    {
+      "id": "982550",
+      "nome": "MANOEL BATISTA DA SILVA",
+      "velocidade": 1.1
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "velocidade": 3.35
+    },
+    {
+      "id": "136852",
+      "nome": "JADIELSON JUNIO SILVA PAIXAO",
+      "velocidade": 3.77
+    },
+    {
+      "id": "121944",
+      "nome": "WESLEY SILVA",
+      "velocidade": 3.52
+    },
+    {
+      "id": "139813",
+      "nome": "JACKSON DE LIMA OLIVEIRA",
+      "velocidade": 3.05
+    },
+    {
+      "id": "129365",
+      "nome": "ABDIAS GOMES DOS SANTOS",
+      "velocidade": 4.19
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7031.0",
+      "nome": "7031.0",
+      "horasRegistradas": 23.99
+    },
+    {
+      "frota": "7033.0",
+      "nome": "7033.0",
+      "horasRegistradas": 23.98
+    }
+  ]
+}

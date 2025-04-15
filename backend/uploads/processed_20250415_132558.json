@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-14",
+    "frente": "frente3",
+    "generated_at": "2025-04-15T13:25:58.722614",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "7042.0",
+      "disponibilidade": 99.95
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "eficiencia": 73.74000000000001
+    },
+    {
+      "id": 3,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "eficiencia": 74.13
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "horas": 5.08
+    },
+    {
+      "id": 3,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "horas": 3.46
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "percentual": 8.92
+    },
+    {
+      "id": 3,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "percentual": 15.950000000000001
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "61829 - LAILSON ANTONIO DA SILVA",
+      "porcentagem": 97.53
+    },
+    {
+      "id": 3,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "porcentagem": 98.2
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7041.0",
+      "horasRegistradas": 7.6,
+      "diferencaPara24h": 16.4
+    },
+    {
+      "frota": "7042.0",
+      "horasRegistradas": 23.98,
+      "diferencaPara24h": 0.02
+    }
+  ]
+}

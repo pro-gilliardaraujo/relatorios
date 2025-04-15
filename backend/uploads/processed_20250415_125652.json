@@ -1,0 +1,124 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-14",
+    "frente": "frente3",
+    "generated_at": "2025-04-15T12:56:52.145497",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "nome": "7041.0",
+      "disponibilidade": 1.0
+    },
+    {
+      "frota": "7042.0",
+      "nome": "7042.0",
+      "disponibilidade": 99.95
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "eficiencia": 73.74000000000001
+    },
+    {
+      "id": "1292024",
+      "nome": "SENI JOAQUIM SOARES",
+      "eficiencia": 74.13
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "horas": 5.08
+    },
+    {
+      "id": "1292024",
+      "nome": "SENI JOAQUIM SOARES",
+      "horas": 3.46
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "percentual": 8.92
+    },
+    {
+      "id": "1292024",
+      "nome": "SENI JOAQUIM SOARES",
+      "percentual": 15.950000000000001
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "porcentagem": 97.53
+    },
+    {
+      "id": "1292024",
+      "nome": "SENI JOAQUIM SOARES",
+      "porcentagem": 98.2
+    }
+  ],
+  "media_velocidade": [
+    {
+      "id": "61829",
+      "nome": "LAILSON ANTONIO DA SILVA",
+      "velocidade": 5.08
+    },
+    {
+      "id": "1292024",
+      "nome": "SENI JOAQUIM SOARES",
+      "velocidade": 4.62
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7041.0",
+      "nome": "7041.0",
+      "horasRegistradas": 7.6
+    },
+    {
+      "frota": "7042.0",
+      "nome": "7042.0",
+      "horasRegistradas": 23.98
+    }
+  ]
+}

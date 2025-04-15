@@ -1,0 +1,229 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-14",
+    "frente": "frente1",
+    "generated_at": "2025-04-15T11:59:52.935636",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "nome": "7032.0",
+      "disponibilidade": 91.49000000000001
+    },
+    {
+      "frota": "7038.0",
+      "nome": "7038.0",
+      "disponibilidade": 51.839999999999996
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 62.51
+    },
+    {
+      "id": "133538",
+      "nome": "NAILSON BATISTA DOS SANTOS",
+      "eficiencia": 51.92
+    },
+    {
+      "id": "701026",
+      "nome": "ELIZEU SILVA OLIVEIRA",
+      "eficiencia": 70.48
+    },
+    {
+      "id": "133769",
+      "nome": "JOELTON DOS SANTOS",
+      "eficiencia": 70.19
+    },
+    {
+      "id": "112996",
+      "nome": "JOELTON DOS SANTOS",
+      "eficiencia": 46.660000000000004
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": "108717",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 43.71
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "horas": 3.24
+    },
+    {
+      "id": "133538",
+      "nome": "NAILSON BATISTA DOS SANTOS",
+      "horas": 4.4
+    },
+    {
+      "id": "701026",
+      "nome": "ELIZEU SILVA OLIVEIRA",
+      "horas": 2.38
+    },
+    {
+      "id": "133769",
+      "nome": "JOELTON DOS SANTOS",
+      "horas": 0.86
+    },
+    {
+      "id": "112996",
+      "nome": "JOELTON DOS SANTOS",
+      "horas": 2.35
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": "108717",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 1.04
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 19.98
+    },
+    {
+      "id": "133538",
+      "nome": "NAILSON BATISTA DOS SANTOS",
+      "percentual": 30.520000000000003
+    },
+    {
+      "id": "701026",
+      "nome": "ELIZEU SILVA OLIVEIRA",
+      "percentual": 14.52
+    },
+    {
+      "id": "133769",
+      "nome": "JOELTON DOS SANTOS",
+      "percentual": 14.399999999999999
+    },
+    {
+      "id": "112996",
+      "nome": "JOELTON DOS SANTOS",
+      "percentual": 7.7299999999999995
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": "108717",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 20.25
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 89.12
+    },
+    {
+      "id": "133538",
+      "nome": "NAILSON BATISTA DOS SANTOS",
+      "porcentagem": 74.82
+    },
+    {
+      "id": "701026",
+      "nome": "ELIZEU SILVA OLIVEIRA",
+      "porcentagem": 94.06
+    },
+    {
+      "id": "133769",
+      "nome": "JOELTON DOS SANTOS",
+      "porcentagem": 99.92
+    },
+    {
+      "id": "112996",
+      "nome": "JOELTON DOS SANTOS",
+      "porcentagem": 97.81
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": "108717",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 92.42
+    }
+  ],
+  "media_velocidade": [
+    {
+      "id": "133472",
+      "nome": "WELLINGTON OLIVEIRA MENEZES",
+      "velocidade": 3.99
+    },
+    {
+      "id": "133538",
+      "nome": "NAILSON BATISTA DOS SANTOS",
+      "velocidade": 4.29
+    },
+    {
+      "id": "701026",
+      "nome": "ELIZEU SILVA OLIVEIRA",
+      "velocidade": 3.96
+    },
+    {
+      "id": "133769",
+      "nome": "JOELTON DOS SANTOS",
+      "velocidade": 4.98
+    },
+    {
+      "id": "112996",
+      "nome": "JOELTON DOS SANTOS",
+      "velocidade": 3.0
+    },
+    {
+      "id": "108717",
+      "nome": "JOSE EDUARDO DE DEUS SANTOS",
+      "velocidade": 3.97
+    },
+    {
+      "id": "1",
+      "nome": "SEM OPERADOR",
+      "velocidade": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7032.0",
+      "nome": "7032.0",
+      "horasRegistradas": 22.72
+    },
+    {
+      "frota": "7038.0",
+      "nome": "7038.0",
+      "horasRegistradas": 16.64
+    }
+  ]
+}
