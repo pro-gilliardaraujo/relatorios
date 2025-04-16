@@ -34,15 +34,16 @@ export const formatarFrota = (frota: string | number): string => {
   // Se for undefined ou null, retorna string vazia
   if (frota === undefined || frota === null) return '';
   
-  // Garantir que seja tratado como string
+  // Garantir que seja tratado como string e remover decimais
   const frotaStr = String(frota).trim();
+  const frotaSemDecimal = frotaStr.includes('.') ? frotaStr.split('.')[0] : frotaStr;
   
   // Remover prefixo "Frota" se existir
-  if (frotaStr.toLowerCase().startsWith('frota ')) {
-    return frotaStr.substring(6).trim();
+  if (frotaSemDecimal.toLowerCase().startsWith('frota ')) {
+    return frotaSemDecimal.substring(6).trim();
   }
   
-  return frotaStr;
+  return frotaSemDecimal;
 };
 
 /**
@@ -69,4 +70,27 @@ export const formatarExibicaoOperador = (id: string, nome: string): string => {
   
   // Se não tiver nenhum dos dois, mostra "Sem identificação"
   return 'Sem identificação';
+};
+
+/**
+ * Formata um número de horas para o formato "Xh00m"
+ * @param horas Número de horas (pode ser decimal)
+ * @returns String formatada no padrão "Xh00m"
+ */
+export const formatarHoras = (horas: number): string => {
+  if (typeof horas !== 'number' || isNaN(horas)) return '0h00m';
+  
+  // Separar horas e minutos
+  const horasInteiras = Math.floor(horas);
+  const minutos = Math.round((horas - horasInteiras) * 60);
+  
+  // Se os minutos forem 60, incrementar a hora
+  if (minutos === 60) {
+    return `${horasInteiras + 1}h00m`;
+  }
+  
+  // Formatar minutos com dois dígitos
+  const minutosFormatados = minutos.toString().padStart(2, '0');
+  
+  return `${horasInteiras}h${minutosFormatados}m`;
 }; 

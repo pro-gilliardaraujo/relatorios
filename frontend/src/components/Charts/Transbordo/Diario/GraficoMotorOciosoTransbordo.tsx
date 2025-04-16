@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
-import { limparIdOperador, formatarExibicaoOperador } from '@/utils/formatters';
+import { limparIdOperador, formatarExibicaoOperador, formatarHoras } from '@/utils/formatters';
 
 interface MotorOciosoData {
   id: string;
@@ -95,11 +95,6 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoTransbordoProps> 
     return cores.critico;
   };
 
-  // Formatar horas para exibição
-  const formatHoras = (horas: number): string => {
-    return horas.toFixed(1).replace('.', ',') + 'h';
-  };
-
   // Se não tiver dados, mostrar mensagem
   if (!dadosValidos && data.length === 0) {
     return (
@@ -148,9 +143,9 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoTransbordoProps> 
                 {/* Segunda linha: Valores de tempo e barra empilhada */}
                 <Flex direction="row" align="center" justify="space-between">
                   {/* Grupo de Tempo Ocioso à esquerda */}
-                  <Flex direction="column" align="center" minW="55px">
+                  <Flex direction="column" align="center" minW="65px">
                     <Text fontSize="9px" color={cores.critico} fontWeight="medium">
-                      {formatHoras(item.tempoOcioso || 0)}
+                      {formatarHoras(item.tempoOcioso || 0)}
                     </Text>
                     <Text fontSize="8px" color={cores.critico}>Tempo Ocioso</Text>
                   </Flex>
@@ -190,9 +185,9 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoTransbordoProps> 
                   </Box>
                   
                   {/* Grupo de Tempo Ligado à direita */}
-                  <Flex direction="column" align="center" minW="55px">
+                  <Flex direction="column" align="center" minW="65px">
                     <Text fontSize="9px" color={cores.meta_atingida} fontWeight="medium">
-                      {formatHoras(item.tempoTotal || 0)}
+                      {formatarHoras(item.tempoTotal || 0)}
                     </Text>
                     <Text fontSize="8px" color={cores.meta_atingida}>Tempo Ligado</Text>
                   </Flex>
