@@ -58,6 +58,7 @@ export const GraficoMediaVelocidadeColheita: React.FC<GraficoMediaVelocidadeProp
   // Obter configurações de cores e tolerâncias com fallback para valores padrão
   const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
   const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
+  const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
 
   // Se não tiver dados, mostrar mensagem
   if (!data || data.length === 0) {
@@ -69,19 +70,18 @@ export const GraficoMediaVelocidadeColheita: React.FC<GraficoMediaVelocidadeProp
     );
   }
 
-  // Escala fixa para velocidade (velocidade máxima das colhedoras)
-  const ESCALA_MAXIMA = 10; // Velocidade máxima das colhedoras
+  // Escala fixa para velocidade
+  const ESCALA_MAXIMA = 10; // Velocidade máxima fixa em 10 km/h
   const META_VELOCIDADE = meta || 7; // Garante que temos um valor de meta
   
   // Ordena por velocidade (do menor para o maior)
   const sortedData = [...data].sort((a, b) => a.velocidade - b.velocidade);
   
-  // Define as cores com base no valor
+  // Define as cores com base no valor (menor é melhor)
   const getBarColor = (value: number) => {
     if (value <= META_VELOCIDADE) return cores.meta_atingida;
-    const diferenca = ((value - META_VELOCIDADE) / META_VELOCIDADE) * 100;
-    if (diferenca <= tolerancias.proximo_meta) return cores.proximo_meta;
-    if (diferenca <= tolerancias.alerta) return cores.alerta;
+    if (value <= META_VELOCIDADE * 1.2) return cores.proximo_meta;
+    if (value <= META_VELOCIDADE * 1.5) return cores.alerta;
     return cores.critico;
   };
 
@@ -91,7 +91,7 @@ export const GraficoMediaVelocidadeColheita: React.FC<GraficoMediaVelocidadeProp
     return `${Math.min(width, 100)}%`; // Limita a 100%
   };
 
-  // Calcula a posição da meta (7 km/h / 10 km/h = 70%)
+  // Calcula a posição da meta
   const metaPosition = `${(META_VELOCIDADE / ESCALA_MAXIMA) * 100}%`;
 
   return (

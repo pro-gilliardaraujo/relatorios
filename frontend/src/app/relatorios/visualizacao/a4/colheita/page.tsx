@@ -106,6 +106,50 @@ interface DadosTabelaOperadores {
   media_velocidade: Array<{ id: string; nome: string; velocidade: number; }>;
 }
 
+interface MediaVelocidadeData {
+  id: string;
+  nome: string;
+  velocidade: number;
+}
+
+interface MotorOciosoData {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoLigado: number;
+  tempoOcioso: number;
+}
+
+interface MediaVelocidade {
+  id: string;
+  nome: string;
+  velocidade: number;
+}
+
+interface DadosOperador {
+  operadores: MediaVelocidade[];
+  data: any;
+  meta: number;
+  media: number;
+  acimaMeta: {
+    quantidade: number;
+    total: number;
+    percentual: number;
+  };
+}
+
+interface DadosProcessados {
+  operadores: MediaVelocidade[];
+  data: any;
+  meta: any;
+  media: number;
+  acimaMeta: {
+    quantidade: number;
+    total: any;
+    percentual: number;
+  };
+}
+
 // Função para verificar se os dados estão no formato esperado
 const verificarFormatoDados = (dados: any) => {
   if (!dados) return false;
@@ -311,18 +355,15 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   }, [finalData]);
   
   const finalDataMotorOcioso = useMemo(() => {
-    if (!Array.isArray(finalData?.motor_ocioso)) {
-      // Reduzindo logs
-      // console.log('❌ Dados de motor ocioso inválidos ou ausentes');
-      return [];
-    }
-    const data = finalData.motor_ocioso.filter(item => 
-      item && item.nome && item.percentual !== undefined && item.percentual !== null
-    );
-    // Reduzindo logs
-    // console.log('📊 Dados de motor ocioso processados:', data);
-    return data;
-  }, [finalData]);
+    if (!reportData?.dados?.motor_ocioso) return [];
+    return reportData.dados.motor_ocioso.map((item: MotorOciosoData) => ({
+      id: item.id,
+      nome: item.nome,
+      percentual: item.percentual,
+      tempoLigado: item.tempoLigado || 0,
+      tempoOcioso: item.tempoOcioso || 0
+    }));
+  }, [reportData?.dados?.motor_ocioso]);
   
   const finalDataUsoGPS = useMemo(() => {
     if (!Array.isArray(finalData?.uso_gps)) {
@@ -337,6 +378,15 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     // console.log('📊 Dados de uso GPS processados:', data);
     return data;
   }, [finalData]);
+
+  const finalDataMediaVelocidade = useMemo(() => {
+    if (!reportData?.dados?.media_velocidade) return [];
+    return reportData.dados.media_velocidade.map((item: MediaVelocidadeData) => ({
+      id: item.id,
+      nome: item.nome,
+      velocidade: item.velocidade
+    }));
+  }, [reportData?.dados?.media_velocidade]);
 
   // Preparar dados para o footer de HorasPorFrota
   const dadosHorasPorFrota = useMemo(() => {
@@ -722,14 +772,14 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         }
       },
       mediaVelocidade: {
-        data: finalData.media_velocidade || [],
+        data: finalDataMediaVelocidade,
         meta: reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade,
-        media: calcularMedia(finalData.media_velocidade, 'velocidade', true),
+        media: calcularMedia(finalDataMediaVelocidade, 'velocidade', true),
         acimaMeta: {
-          quantidade: contarItensMeta(finalData.media_velocidade, 'velocidade', reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade, true),
-          total: finalData.media_velocidade?.length || 0,
-          percentual: ((contarItensMeta(finalData.media_velocidade, 'velocidade', reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade, true) / 
-            (finalData.media_velocidade?.length || 1)) * 100)
+          quantidade: contarItensMeta(finalDataMediaVelocidade, 'velocidade', reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade, true),
+          total: finalDataMediaVelocidade.length,
+          percentual: ((contarItensMeta(finalDataMediaVelocidade, 'velocidade', reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade, true) / 
+            (finalDataMediaVelocidade.length || 1)) * 100)
         }
       },
       frotas,
@@ -937,9 +987,9 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                     p={2}
                     h="calc(100% - 25px)"
                   >
-                    {finalData.media_velocidade?.length > 0 ? (
+                    {finalDataMediaVelocidade.length > 0 ? (
                       <GraficoMediaVelocidadeColheita 
-                        data={finalData.media_velocidade} 
+                        data={finalDataMediaVelocidade} 
                         meta={resumoData.mediaVelocidade.meta} 
                       />
                     ) : (
@@ -1041,13 +1091,16 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                   />
                   
                   {/* Novo card para Média de Velocidade */}
-                  <IndicatorCard 
+                  <IndicatorCard
                     title="Média de Velocidade"
-                    value={resumoData.mediaVelocidade.media || 0}
-                    meta={resumoData.mediaVelocidade.meta || 0}
-                    unitType="velocidade"
-                    isInverted={true}
-                    acimaMeta={resumoData.mediaVelocidade.acimaMeta}
+                    value={resumoData.mediaVelocidade.media}
+                    meta={7}
+                    unit="km/h"
+                    acimaMeta={{
+                      quantidade: resumoData.mediaVelocidade.data.filter((m: { velocidade: number }) => m.velocidade <= 7).length,
+                      total: resumoData.mediaVelocidade.data.length,
+                      percentual: (resumoData.mediaVelocidade.data.filter((m: { velocidade: number }) => m.velocidade <= 7).length / resumoData.mediaVelocidade.data.length) * 100
+                    }}
                   />
                 </SimpleGrid>
 
@@ -1063,8 +1116,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                       id: item.id || '',
                       nome: item.nome || '',
                       percentual: item.percentual || 0,
-                      tempoLigado: (item as any).tempoLigado || 0,
-                      tempoOcioso: (item as any).tempoOcioso || 0
+                      tempoLigado: item.tempoLigado || 0,
+                      tempoOcioso: item.tempoOcioso || 0
                     })),
                     hora_elevador: finalDataHorasElevador.map(item => ({
                       id: item.id,
@@ -1076,7 +1129,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                       nome: item.nome || '',
                       porcentagem: item.porcentagem || 0
                     })),
-                    media_velocidade: (finalData.media_velocidade || []).map(item => ({
+                    media_velocidade: (finalDataMediaVelocidade || []).map(item => ({
                       id: item.id || '',
                       nome: item.nome || '',
                       velocidade: item.velocidade || 0

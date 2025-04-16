@@ -33,6 +33,19 @@ interface TabelaOperadoresProps {
   mostrarUsoGPS?: boolean;
 }
 
+// Valores padrão para cores e tolerâncias
+const DEFAULT_COLORS = {
+  meta_atingida: '#48BB78',
+  proximo_meta: '#90EE90',
+  alerta: '#ECC94B',
+  critico: '#E53E3E'
+};
+
+const DEFAULT_TOLERANCES = {
+  proximo_meta: 5,
+  alerta: 15
+};
+
 // Função para formatar percentagens com 2 casas sem arredondamento
 const formatPercentage = (val: number): string => {
   // Log para debug
@@ -253,6 +266,29 @@ const TabelaOperadores: React.FC<TabelaOperadoresProps> = ({ dados, tipo = 'colh
     return 0;
   };
 
+  // Função para determinar a cor do valor
+  const getValueColor = (value: number | undefined, tipo: string, meta: number) => {
+    if (value === undefined || value === null) return "gray.400";
+
+    const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
+    const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
+
+    // Para velocidade e motor ocioso, menor é melhor
+    if (tipo === 'velocidade' || tipo === 'motor_ocioso') {
+      if (value <= meta) return cores.meta_atingida;
+      if (value <= meta * 1.2) return cores.proximo_meta;
+      if (value <= meta * 1.5) return cores.alerta;
+      return cores.critico;
+    }
+
+    // Para os demais indicadores, maior é melhor
+    const diferenca = ((value - meta) / meta) * 100;
+    if (value >= meta) return cores.meta_atingida;
+    if (diferenca >= -tolerancias.proximo_meta) return cores.proximo_meta;
+    if (diferenca >= -tolerancias.alerta) return cores.alerta;
+    return cores.critico;
+  };
+
   return (
     <Box 
       w="100%" 
@@ -433,7 +469,7 @@ const TabelaOperadores: React.FC<TabelaOperadoresProps> = ({ dados, tipo = 'colh
                     as="td" 
                     p={2} 
                     textAlign="center"
-                    color={velocidade >= metaVelocidade ? 'green.600' : (velocidade >= metaVelocidadeIntermediaria ? 'orange.500' : 'red.500')}
+                    color={velocidade <= 7 ? 'green.600' : (velocidade <= 8.4 ? 'orange.500' : 'red.500')}
                     fontWeight="bold"
                   >
                     {velocidade.toFixed(2)} km/h

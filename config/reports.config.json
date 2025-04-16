@@ -22,6 +22,7 @@
         "motorOcioso": true,
         "horaElevador": true,
         "usoGPS": true,
+        "mediaVelocidade": true,
         "horasPorFrota": true
       },
       "planilhas_excel": [
@@ -30,15 +31,17 @@
         "3_Hora Elevador",
         "4_Motor Ocioso",
         "5_Uso GPS",
-        "Horas por Frota"
+        "Horas por Frota",
+        "Média Velocidade"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Tempo Ligado", "Tempo Ocioso", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
-        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"],
+        "media_velocidade": ["Operador", "Velocidade", "texto", "decimal"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -60,17 +63,18 @@
         "tdh": 0.0124,
         "diesel": 0.718,
         "impureza_vegetal": 64,
-          "disponibilidadeMecanica": 90,
-          "eficienciaEnergetica": 70,
-          "motorOcioso": 4,
-          "horaElevador": 5,
-          "usoGPS": 90
+        "disponibilidadeMecanica": 90,
+        "eficienciaEnergetica": 70,
+        "motorOcioso": 4,
+        "horaElevador": 5,
+        "usoGPS": 90,
+        "mediaVelocidade": 7
       },
       "secoes": {
         "tdh": false,
         "diesel": false,
         "impurezaVegetal": false,
-        "mediaVelocidade": false,
+        "mediaVelocidade": true,
         "disponibilidadeMecanica": true,
         "eficienciaEnergetica": true,
         "motorOcioso": true,
@@ -84,15 +88,17 @@
         "3_Hora Elevador",
         "4_Motor Ocioso",
         "5_Uso GPS",
-        "Horas por Frota"
+        "Horas por Frota",
+        "Média Velocidade"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Tempo Ligado", "Tempo Ocioso", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
-        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"],
+        "media_velocidade": ["Operador", "Velocidade", "texto", "decimal"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -124,6 +130,7 @@
         "motorOcioso": true,
         "faltaApontamento": true,
         "usoGPS": false,
+        "mediaVelocidade": true,
         "horasPorFrota": true
       },
       "planilhas_excel": [
@@ -131,17 +138,18 @@
         "2_Eficiência Energética",
         "3_Motor Ocioso",
         "4_Falta de Apontamento",
-        "5_Eficiência Energética",
         "5_Uso GPS",
-        "Horas por Frota"
+        "Horas por Frota",
+        "Média Velocidade"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Tempo Ligado", "Tempo Ocioso", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
-        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"],
+        "media_velocidade": ["Operador", "Velocidade", "texto", "decimal"]
       },
       "componentes": {
         "mostrarImageUpload": true,
@@ -166,12 +174,13 @@
         "eficienciaEnergetica": 65,
         "motorOcioso": 6,
         "faltaApontamento": 10,
-        "usoGPS": 90
+        "usoGPS": 90,
+        "mediaVelocidade": 15
       },
       "secoes": {
         "tdh": false,
         "diesel": false,
-        "mediaVelocidade": false,
+        "mediaVelocidade": true,
         "disponibilidadeMecanica": true,
         "eficienciaEnergetica": true,
         "motorOcioso": true,
@@ -186,15 +195,17 @@
         "4_Falta de Apontamento",
         "5_Eficiência Energética",
         "5_Uso GPS",
-        "Horas por Frota"
+        "Horas por Frota",
+        "Média Velocidade"
       ],
       "colunas_excel": {
         "disponibilidade_mecanica": ["Frota", "Disponibilidade", "texto", "porcentagem"],
         "eficiencia_energetica": ["Operador", "Eficiência", "texto", "porcentagem"],
-        "motor_ocioso": ["Operador", "Porcentagem", "Horas Ociosas", "Horas Totais", "texto", "porcentagem", "horas", "horas"],
+        "motor_ocioso": ["Operador", "Porcentagem", "Tempo Ligado", "Tempo Ocioso", "texto", "porcentagem", "horas", "horas"],
         "hora_elevador": ["Operador", "Horas", "texto", "horas"],
         "uso_gps": ["Operador", "Porcentagem", "texto", "porcentagem"],
-        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"]
+        "horas_por_frota": ["Frota", "Horas Registradas", "Diferença para 24h", "texto", "horas", "horas"],
+        "media_velocidade": ["Operador", "Velocidade", "texto", "decimal"]
       },
       "componentes": {
         "mostrarImageUpload": true,

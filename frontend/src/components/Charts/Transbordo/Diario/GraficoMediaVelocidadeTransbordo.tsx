@@ -71,6 +71,7 @@ export const GraficoMediaVelocidadeTransbordo: React.FC<GraficoMediaVelocidadePr
   
   // Define as cores com base no valor
   const getBarColor = (value: number) => {
+    // Para velocidade, menor é melhor
     if (value <= META_VELOCIDADE) return cores.meta_atingida;
     const diferenca = ((value - META_VELOCIDADE) / META_VELOCIDADE) * 100;
     if (diferenca <= tolerancias.proximo_meta) return cores.proximo_meta;

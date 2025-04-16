@@ -33,13 +33,16 @@ interface IndicatorCardProps {
   title: string;
   value: number;
   meta: number;
-  unitType?: 'horas' | 'porcentagem' | 'decimal' | 'velocidade';
+  unit?: string;
+  unitType?: string;
   isInverted?: boolean;
   acimaMeta?: {
     quantidade: number;
     total: number;
     percentual: number;
   };
+  operadoresAcimaMeta?: number;
+  totalOperadores?: number;
   showMetaOnTop?: boolean;
   showSummaryOnBottom?: boolean;
   formatValue?: (value: number) => string;
@@ -80,6 +83,16 @@ export default function IndicatorCard({
 
   // Determinar a cor baseada na diferença percentual
   const getValueColor = () => {
+    // Para velocidade, usamos a diferença absoluta em vez de percentual
+    if (unitType === 'velocidade') {
+      if (isInverted) {
+        if (value <= meta) return cores.meta_atingida;
+        if (value <= meta * 1.2) return cores.proximo_meta;
+        if (value <= meta * 1.5) return cores.alerta;
+        return cores.critico;
+      }
+    }
+
     const diferenca = ((value - meta) / meta) * 100;
     const diferencaAbs = Math.abs(diferenca);
     const config = isInverted ? diferencas.invertido : diferencas.normal;

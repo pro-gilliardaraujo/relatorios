@@ -184,10 +184,12 @@ class ExcelProcessor:
                 ("5_uso", "uso_gps"),
                 ("6_falta", "falta_apontamento"),
                 ("4_falta", "falta_apontamento"),
-                ("horas_por_frota", "horas_por_frota")
+                ("horas_por_frota", "horas_por_frota"),
+                ("média velocidade", "media_velocidade"),
+                ("media velocidade", "media_velocidade")
             ]:
-                if name_lower.startswith(prefix):
-                    print(f"  - Identificado como '{sheet_type}' pelo prefixo '{prefix}' na planilha: {sheet_name}")
+                if name_lower.startswith(prefix) or prefix in name_lower:
+                    print(f"  - Identificado como '{sheet_type}' pelo prefixo/nome '{prefix}' na planilha: {sheet_name}")
                     return sheet_type
             
             # Verificar PRIMEIRO por "Uso GPS" com alta prioridade
@@ -258,14 +260,21 @@ class ExcelProcessor:
                     return "horas_por_frota"
             
             if "Operador" in df.columns:
-                if "Eficiência" in df.columns or "Eficiencia" in df.columns:
+                if "Velocidade" in df.columns:
+                    print(f"  - Identificado como 'media_velocidade' pelas colunas Operador e Velocidade")
+                    return "media_velocidade"
+                elif "Eficiência" in df.columns or "Eficiencia" in df.columns:
                     print(f"  - Identificado como 'eficiencia_energetica' pelas colunas Operador e Eficiência")
                     return "eficiencia_energetica"
                 elif "Horas" in df.columns:
                     print(f"  - Identificado como 'hora_elevador' pelas colunas Operador e Horas")
                     return "hora_elevador"
                 elif "Porcentagem" in df.columns:
-                    if "Motor" in sheet_name_clean or "Ocioso" in sheet_name_clean:
+                    # Verificar se é motor ocioso com as novas colunas
+                    if "Tempo Ligado" in df.columns and "Tempo Ocioso" in df.columns:
+                        print(f"  - Identificado como 'motor_ocioso' pelas colunas Operador, Porcentagem, Tempo Ligado e Tempo Ocioso")
+                        return "motor_ocioso"
+                    elif "Motor" in sheet_name_clean or "Ocioso" in sheet_name_clean:
                         print(f"  - Identificado como 'motor_ocioso' pelas colunas Operador e Porcentagem + nome")
                         return "motor_ocioso"
                     elif "Falta" in sheet_name_clean or "Apontamento" in sheet_name_clean:
@@ -609,13 +618,24 @@ class ExcelProcessor:
                         elif sheet_type == "hora_elevador":
                             item = {"id": index + 1, "nome": id_value, "horas": value_processed}
                         elif sheet_type == "motor_ocioso":
-                            item = {"id": index + 1, "nome": id_value, "percentual": value_processed}
+                            # Processar também os tempos
+                            tempo_ligado = self.convert_value(row, 'Tempo Ligado', "horas") if 'Tempo Ligado' in df.columns else 0
+                            tempo_ocioso = self.convert_value(row, 'Tempo Ocioso', "horas") if 'Tempo Ocioso' in df.columns else 0
+                            item = {
+                                "id": index + 1,
+                                "nome": id_value,
+                                "percentual": value_processed,
+                                "tempoLigado": tempo_ligado,
+                                "tempoOcioso": tempo_ocioso
+                            }
                         elif sheet_type == "uso_gps":
                             item = {"id": index + 1, "nome": id_value, "porcentagem": value_processed}
                         elif sheet_type == "impureza_vegetal":
                             item = {"frota": id_value, "impureza": value_processed}
                         elif sheet_type == "falta_apontamento":
                             item = {"id": index + 1, "nome": id_value, "percentual": value_processed}
+                        elif sheet_type == "media_velocidade":
+                            item = {"id": index + 1, "nome": id_value, "velocidade": value_processed}
                         
                         # Adicionar a lista de resultados
                         result[sheet_type].append(item)
@@ -624,6 +644,32 @@ class ExcelProcessor:
                     print(f"  - Erro ao processar linha {index}: {str(row_error)}")
             
             print(f"  - Processados {len(result[sheet_type])} itens para {sheet_type}")
+            
+            # Verificar se temos dados de velocidade média
+            if 'id' in df.columns and 'nome' in df.columns and 'velocidade' in df.columns:
+                print("Processando dados de Velocidade Média")
+                result['media_velocidade'] = []
+                for _, row in df.iterrows():
+                    # Validar ID
+                    if not self.is_valid_id(row['id']):
+                        continue
+                    
+                    # Separar ID e nome do operador
+                    operator_id, operator_name = self.process_operator_id(row['id'])
+                    
+                    # Converter o valor usando o método da classe
+                    valor = self.convert_value(row, 'velocidade', "decimal")
+                    
+                    if valor is None:
+                        continue
+                    
+                    result['media_velocidade'].append({
+                        'id': operator_id,
+                        'nome': operator_name,
+                        'velocidade': valor
+                    })
+                print(f"Processados {len(result['media_velocidade'])} registros de velocidade média")
+            
             return result
             
         except Exception as e:

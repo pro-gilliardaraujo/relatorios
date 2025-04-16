@@ -1,0 +1,169 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-15",
+    "frente": "frente1",
+    "generated_at": "2025-04-16T11:21:53.593916",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 93.53
+    },
+    {
+      "frota": "7038.0",
+      "disponibilidade": 66.75
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 25.869999999999997
+    },
+    {
+      "id": 2,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 61.22
+    },
+    {
+      "id": 3,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "eficiencia": 70.53
+    },
+    {
+      "id": 4,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 47.43
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "eficiencia": 65.62
+    },
+    {
+      "id": 6,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 41.260000000000005
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.16
+    },
+    {
+      "id": 2,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 5.86
+    },
+    {
+      "id": 3,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "horas": 2.14
+    },
+    {
+      "id": 4,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "horas": 1.24
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "horas": 4.01
+    },
+    {
+      "id": 6,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 4.0
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 29.35323383084577
+    },
+    {
+      "id": 2,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 9.731125097891349
+    },
+    {
+      "id": 3,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "percentual": 18.691588785046733
+    },
+    {
+      "id": 4,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 28.71097897642811
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "percentual": 25.161525161525162
+    },
+    {
+      "id": 6,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 31.60489580646086
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 76.23
+    },
+    {
+      "id": 2,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 91.43
+    },
+    {
+      "id": 3,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "porcentagem": 97.54
+    },
+    {
+      "id": 4,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 85.0
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "porcentagem": 89.60000000000001
+    },
+    {
+      "id": 6,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 77.32
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7032.0",
+      "horasRegistradas": 23.96,
+      "diferencaPara24h": 0.04
+    },
+    {
+      "frota": "7038.0",
+      "horasRegistradas": 22.36,
+      "diferencaPara24h": 1.64
+    }
+  ]
+}

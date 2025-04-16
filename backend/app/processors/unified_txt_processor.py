@@ -1123,4 +1123,58 @@ class UnifiedTXTProcessor:
                 'Porcentagem': percentual
             })
         
+        return pd.DataFrame(resultados)
+    
+    def _calcular_media_velocidade_colhedora(self, base_calculo: pd.DataFrame) -> pd.DataFrame:
+        """
+        Calcula a média de velocidade por operador para colhedoras.
+        """
+        # Agrupar por operador
+        operadores = base_calculo[['Operador', 'Grupo Equipamento/Frente']].drop_duplicates()
+        resultados = []
+        
+        for _, row in operadores.iterrows():
+            operador = row['Operador']
+            grupo = row['Grupo Equipamento/Frente']
+            
+            # Filtrar dados para este operador e grupo
+            filtro = (base_calculo['Operador'] == operador) & (base_calculo['Grupo Equipamento/Frente'] == grupo)
+            dados_op = base_calculo[filtro]
+            
+            # Calcular média de velocidade
+            velocidade_media = round(dados_op['Velocidade'].mean(), 1)
+            
+            resultados.append({
+                'id': operador,
+                'nome': operador,
+                'velocidade': velocidade_media
+            })
+        
+        return pd.DataFrame(resultados)
+    
+    def _calcular_media_velocidade_transbordo(self, base_calculo: pd.DataFrame) -> pd.DataFrame:
+        """
+        Calcula a média de velocidade por operador para transbordos.
+        """
+        # Agrupar por operador
+        operadores = base_calculo[['Operador', 'Grupo Equipamento/Frente']].drop_duplicates()
+        resultados = []
+        
+        for _, row in operadores.iterrows():
+            operador = row['Operador']
+            grupo = row['Grupo Equipamento/Frente']
+            
+            # Filtrar dados para este operador e grupo
+            filtro = (base_calculo['Operador'] == operador) & (base_calculo['Grupo Equipamento/Frente'] == grupo)
+            dados_op = base_calculo[filtro]
+            
+            # Calcular média de velocidade
+            velocidade_media = round(dados_op['Velocidade'].mean(), 1)
+            
+            resultados.append({
+                'id': operador,
+                'nome': operador,
+                'velocidade': velocidade_media
+            })
+        
         return pd.DataFrame(resultados) 

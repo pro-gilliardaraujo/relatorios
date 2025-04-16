@@ -91,6 +91,20 @@ interface TransbordoA4Props {
   data?: any;
 }
 
+interface MotorOciosoData {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoLigado?: number;
+  tempoOcioso?: number;
+}
+
+interface MediaVelocidadeData {
+  id: string;
+  nome: string;
+  velocidade: number;
+}
+
 interface DadosProcessados {
   disponibilidade_mecanica: Array<{
     frota: string;
@@ -588,7 +602,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       const itensValidos = dados.filter((item) => 
         item && 
         typeof item[propriedade] === 'number' && 
-        (!item.nome || (item.nome !== 'TROCA DE TURNO')));
+        (!item.nome || (item.nome !== 'TROCA DE TURNO' && item.nome !== 'SEM OPERADOR')));
       
       if (itensValidos.length === 0) {
         console.log(`⚠️ Sem itens válidos para ${propriedade}`);
@@ -607,9 +621,15 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       const media = soma / itensValidos.length;
       
       // Contar quantos itens estão dentro da meta
-      const itensMeta = itensValidos.filter((item) => 
-        isInverted ? item[propriedade] <= meta : item[propriedade] >= meta
-      );
+      const itensMeta = itensValidos.filter((item) => {
+        const valor = item[propriedade];
+        // Para indicadores invertidos (como motor ocioso e velocidade), menor é melhor
+        if (isInverted) {
+          return valor <= meta;
+        }
+        // Para indicadores normais, maior é melhor
+        return valor >= meta;
+      });
       
       const quantidade = itensMeta.length;
       const total = itensValidos.length;
@@ -814,6 +834,26 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
         diferencaPara24h: Number(item.diferencaPara24h || 0)
       }));
   }, [reportData]);
+
+  const finalDataMotorOcioso = useMemo(() => {
+    if (!reportData?.dados?.motor_ocioso) return [];
+    return reportData.dados.motor_ocioso.map((item: MotorOciosoData) => ({
+      id: item.id,
+      nome: item.nome,
+      percentual: item.percentual,
+      tempoLigado: item.tempoLigado || 0,
+      tempoOcioso: item.tempoOcioso || 0
+    }));
+  }, [reportData?.dados?.motor_ocioso]);
+
+  const finalDataMediaVelocidade = useMemo(() => {
+    if (!reportData?.dados?.media_velocidade) return [];
+    return reportData.dados.media_velocidade.map((item: MediaVelocidadeData) => ({
+      id: item.id,
+      nome: item.nome,
+      velocidade: item.velocidade
+    }));
+  }, [reportData?.dados?.media_velocidade]);
 
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
@@ -1085,11 +1125,20 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                   {/* Novo card para Média de Velocidade */}
                   <IndicatorCard 
                     title="Média de Velocidade"
-                    value={calcularIndicador(processedData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_diario').mediaVelocidade).valor}
+                    value={calcularIndicador(processedData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_diario').mediaVelocidade, true).valor}
                     meta={configManager.getMetas('transbordo_diario').mediaVelocidade}
                     unitType="velocidade"
                     isInverted={true}
-                    acimaMeta={calcularIndicador(processedData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_diario').mediaVelocidade).acimaMeta}
+                    acimaMeta={(() => {
+                      const meta = configManager.getMetas('transbordo_diario').mediaVelocidade;
+                      const quantidade = processedData.media_velocidade.filter((item: OperadorVelocidade) => item.velocidade <= meta).length;
+                      const total = processedData.media_velocidade.length;
+                      return {
+                        quantidade,
+                        total,
+                        percentual: total > 0 ? (quantidade / total) * 100 : 0
+                      };
+                    })()}
                   />
                 </SimpleGrid>
 
