@@ -55,10 +55,14 @@ export const GraficoUsoGPS: React.FC<UsoGPSProps> = ({
   const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
 
   // Calcula a média de uso do GPS
-  const mediaUsoGPS = data.reduce((acc, item) => acc + item.porcentagem, 0) / data.length;
+  const mediaUsoGPS = data.length > 0 
+    ? data.reduce((acc, item) => acc + (item?.porcentagem || 0), 0) / data.length 
+    : 0;
   
   // Encontra o valor máximo para definir a escala
-  const maxPorcentagem = Math.max(...data.map(item => item.porcentagem));
+  const maxPorcentagem = data.length > 0 
+    ? Math.max(...data.map(item => item?.porcentagem || 0)) 
+    : 0;
   
   // Para "maior melhor", usamos o maior valor como referência para a escala
   const valorReferencia = Math.max(maxPorcentagem, meta * 1.2); // Garante que a meta fique visível
@@ -69,11 +73,14 @@ export const GraficoUsoGPS: React.FC<UsoGPSProps> = ({
   // Calcula onde ficará a linha de meta na escala relativa
   const metaScaled = (meta / valorReferencia) * 100;
 
-  // Ordena por porcentagem (do maior para o menor)
-  const sortedData = [...data].sort((a, b) => b.porcentagem - a.porcentagem);
+  // Ordena por porcentagem (do maior para o menor) e filtra itens inválidos
+  const sortedData = [...data]
+    .filter(item => item && typeof item.porcentagem === 'number')
+    .sort((a, b) => (b?.porcentagem || 0) - (a?.porcentagem || 0));
   
   // Define as cores com base no valor da porcentagem (maior melhor)
   const getBarColor = (value: number) => {
+    if (typeof value !== 'number') return cores.critico;
     const diferenca = ((value - meta) / meta) * 100;
 
     if (value >= meta) return cores.meta_atingida;
@@ -82,12 +89,24 @@ export const GraficoUsoGPS: React.FC<UsoGPSProps> = ({
     return cores.critico;
   };
 
+  // Se não houver dados válidos, mostrar mensagem
+  if (sortedData.length === 0) {
+    return (
+      <Box h="100%" display="flex" alignItems="center" justifyContent="center">
+        <Text color="gray.500">Sem dados disponíveis</Text>
+      </Box>
+    );
+  }
+
   return (
     <Box h="100%">
       <Box h="100%" overflowY="auto">
         <VStack spacing={0} align="stretch">
           {sortedData.map((item, index) => {
+            if (!item || typeof item.porcentagem !== 'number') return null;
             const barColor = getBarColor(item.porcentagem);
+            const porcentagemFormatada = item.porcentagem.toFixed(formatacao.porcentagem.casas);
+            
             return (
               <Box 
                 key={index}
@@ -96,8 +115,8 @@ export const GraficoUsoGPS: React.FC<UsoGPSProps> = ({
                 bg={index % 2 === 0 ? "gray.50" : "white"}
                 borderRadius="sm"
               >
-                <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id} - ${item.nome}`} mb={0.5} color="black">
-                  {item.id} - {item.nome}
+                <Text fontSize="10px" fontWeight="medium" noOfLines={1} title={`${item.id || ''} - ${item.nome || ''}`} mb={0.5} color="black">
+                  {item.id || ''} - {item.nome || ''}
                 </Text>
                 
                 <Flex direction="row" align="center">
@@ -122,7 +141,7 @@ export const GraficoUsoGPS: React.FC<UsoGPSProps> = ({
                     />
                   </Box>
                   <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={barColor}>
-                    {item.porcentagem.toFixed(formatacao.porcentagem.casas)}%
+                    {porcentagemFormatada}%
                   </Text>
                 </Flex>
               </Box>

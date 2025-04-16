@@ -1,0 +1,152 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-15",
+    "frente": "frente3",
+    "generated_at": "2025-04-16T16:50:37.120531",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "7042.0",
+      "disponibilidade": 92.31
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 44.47
+    },
+    {
+      "id": 2,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "eficiencia": 69.88
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "eficiencia": 79.65
+    },
+    {
+      "id": 4,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "eficiencia": 82.09
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.14
+    },
+    {
+      "id": 2,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "horas": 0.37
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "horas": 4.69
+    },
+    {
+      "id": 4,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "horas": 5.17
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 15.31954887218045,
+      "tempoLigado": 0.2955555555555555,
+      "tempoOcioso": 0.04527777777777778
+    },
+    {
+      "id": 2,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "percentual": 3.6703902509792554,
+      "tempoLigado": 5.744166666666667,
+      "tempoOcioso": 0.2108333333333333
+    },
+    {
+      "id": 3,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "percentual": 9.027336300063574,
+      "tempoLigado": 0.4369444444444445,
+      "tempoOcioso": 0.03944444444444445
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "percentual": 1.6230646022423922,
+      "tempoLigado": 5.202777777777778,
+      "tempoOcioso": 0.08444444444444445
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 92.31
+    },
+    {
+      "id": 2,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "porcentagem": 85.41
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "porcentagem": 89.05999999999999
+    },
+    {
+      "id": 4,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "porcentagem": 82.17
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 4.48
+    },
+    {
+      "id": 2,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "velocidade": 5.04
+    },
+    {
+      "id": 3,
+      "nome": "1292024 - SENI JOAQUIM SOARES",
+      "velocidade": 4.6
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "velocidade": 4.79
+    }
+  ]
+}

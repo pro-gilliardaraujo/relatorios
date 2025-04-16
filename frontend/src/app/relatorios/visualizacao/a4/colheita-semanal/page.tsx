@@ -19,6 +19,9 @@ import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
 import IndicatorCard from '@/components/IndicatorCard';
 import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
+import { GraficoMotorOciosoSemanal } from '@/components/Charts/Colheita/Semanal/GraficoMotorOciosoSemanal';
+import { GraficoHoraElevadorSemanal } from '@/components/Charts/Colheita/Semanal/GraficoHoraElevadorSemanal';
+import { GraficoMediaVelocidadeSemanal } from '@/components/Charts/Colheita/Semanal/GraficoMediaVelocidadeSemanal';
 
 interface ColheitaA4Props {
   data?: any;
@@ -247,6 +250,20 @@ interface HorasPorFrota {
   frota: string;
   horasRegistradas: number;
   diferencaPara24h: number;
+}
+
+interface ResumoData {
+  disponibilidade_mecanica: Array<any>;
+  eficiencia_energetica: Array<any>;
+  motor_ocioso: Array<any>;
+  hora_elevador: Array<any>;
+  uso_gps: Array<any>;
+  exemplosOperadores: Array<any>;
+  exemplosFrotas: Array<any>;
+  media_velocidade: Array<{
+    operador: string;
+    velocidade: number;
+  }>;
 }
 
 export default function ColheitaA4({ data }: ColheitaA4Props) {
@@ -685,6 +702,15 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
           </Box>
         </Box>
       </A4Colheita>
+
+      {/* Seção de Média de Velocidade */}
+      <Box p={4} bg="white" borderRadius="md" boxShadow="sm" mb={4}>
+        <SectionTitle title="Média de Velocidade" />
+        <GraficoMediaVelocidadeSemanal 
+          dados={finalData?.media_velocidade || []} 
+          meta={configManager.getTipoRelatorio('colheita_semanal')?.metas?.mediaVelocidade || 7}
+        />
+      </Box>
     </Box>
   );
 } 

@@ -1,0 +1,206 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-15",
+    "frente": "frente1",
+    "generated_at": "2025-04-16T16:35:22.766908",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 93.53
+    },
+    {
+      "frota": "7038.0",
+      "disponibilidade": 66.75
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 25.869999999999997
+    },
+    {
+      "id": 2,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 61.22
+    },
+    {
+      "id": 3,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "eficiencia": 70.53
+    },
+    {
+      "id": 4,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 47.43
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "eficiencia": 65.62
+    },
+    {
+      "id": 6,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 41.260000000000005
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.16
+    },
+    {
+      "id": 2,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 5.86
+    },
+    {
+      "id": 3,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "horas": 2.14
+    },
+    {
+      "id": 4,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "horas": 1.24
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "horas": 4.01
+    },
+    {
+      "id": 6,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 4.0
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "percentual": 0.6500812601575199,
+      "tempoLigado": 2.221944444444444,
+      "tempoOcioso": 0.01444444444444445
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 18.13417190775682,
+      "tempoLigado": 0.5299999999999999,
+      "tempoOcioso": 0.09611111111111112
+    },
+    {
+      "id": 3,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "percentual": 2.024706236818319,
+      "tempoLigado": 4.609722222222222,
+      "tempoOcioso": 0.09333333333333334
+    },
+    {
+      "id": 4,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 2.19573400250941,
+      "tempoLigado": 6.198888888888888,
+      "tempoOcioso": 0.1361111111111111
+    },
+    {
+      "id": 5,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 0.4365497516182447,
+      "tempoLigado": 1.845277777777778,
+      "tempoOcioso": 0.008055555555555555
+    },
+    {
+      "id": 6,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 3.186926158318267,
+      "tempoLigado": 7.835833333333333,
+      "tempoOcioso": 0.2497222222222222
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 76.23
+    },
+    {
+      "id": 2,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 91.43
+    },
+    {
+      "id": 3,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "porcentagem": 97.54
+    },
+    {
+      "id": 4,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 85.0
+    },
+    {
+      "id": 5,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "porcentagem": 89.60000000000001
+    },
+    {
+      "id": 6,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 77.32
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "velocidade": 4.19
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 3.55
+    },
+    {
+      "id": 3,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "velocidade": 4.25
+    },
+    {
+      "id": 4,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "velocidade": 4.27
+    },
+    {
+      "id": 5,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "velocidade": 3.95
+    },
+    {
+      "id": 6,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "velocidade": 4.48
+    }
+  ]
+}

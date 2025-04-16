@@ -51,21 +51,32 @@ const defaultConfig = {
         eficienciaEnergetica: 70,
         motorOcioso: 4,
         horaElevador: 5,
-        usoGPS: 90
+        usoGPS: 90,
+        mediaVelocidade: 7
+      },
+      secoes: {
+        disponibilidadeMecanica: true,
+        eficienciaEnergetica: true,
+        motorOcioso: true,
+        horaElevador: true,
+        usoGPS: true,
+        mediaVelocidade: true
       },
       planilhas_excel: [
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
         "3_Hora Elevador",
         "4_Motor Ocioso",
-        "5_Uso GPS"
+        "5_Uso GPS",
+        "Média Velocidade"
       ],
       colunas_excel: {
         disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
         eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
         motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
         hora_elevador: ["Operador", "Horas", "horas"],
-        uso_gps: ["Operador", "Porcentagem", "porcentagem"]
+        uso_gps: ["Operador", "Porcentagem", "porcentagem"],
+        media_velocidade: ["Operador", "Velocidade", "texto", "decimal"]
       },
       componentes: {
         mostrarImageUpload: true,
@@ -86,7 +97,8 @@ const defaultConfig = {
         eficienciaEnergetica: 65,
         motorOcioso: 6,
         faltaApontamento: 10,
-        usoGPS: 90
+        usoGPS: 90,
+        mediaVelocidade: 15
       },
       planilhas_excel: [
         "1_Disponibilidade Mecânica",
@@ -94,7 +106,6 @@ const defaultConfig = {
         "3_Motor Ocioso",
         "4_Falta Apontamento",
         "5_Uso GPS",
-        "Horas por Frota",
         "Média Velocidade"
       ],
       colunas_excel: {
@@ -102,7 +113,8 @@ const defaultConfig = {
         eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
         motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
         falta_apontamento: ["Operador", "Porcentagem", "porcentagem"],
-        uso_gps: ["Operador", "Porcentagem", "porcentagem"]
+        uso_gps: ["Operador", "Porcentagem", "porcentagem"],
+        media_velocidade: ["Operador", "Velocidade", "texto", "decimal"]
       },
       componentes: {
         mostrarImageUpload: true,
@@ -123,28 +135,32 @@ const defaultConfig = {
         eficienciaEnergetica: 65,
         motorOcioso: 6,
         faltaApontamento: 10,
-        usoGPS: 90
+        usoGPS: 90,
+        mediaVelocidade: 15
       },
       secoes: {
         disponibilidadeMecanica: true,
         eficienciaEnergetica: true,
         motorOcioso: true,
         faltaApontamento: true,
-        usoGPS: false
+        usoGPS: false,
+        mediaVelocidade: true
       },
       planilhas_excel: [
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
         "3_Motor Ocioso",
         "4_Falta Apontamento",
-        "5_Uso GPS"
+        "5_Uso GPS",
+        "Média Velocidade"
       ],
       colunas_excel: {
         disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
         eficiencia_energetica: ["Operador", "Eficiência", "porcentagem"],
         motor_ocioso: ["Operador", "Porcentagem", "porcentagem"],
         falta_apontamento: ["Operador", "Porcentagem", "porcentagem"],
-        uso_gps: ["Operador", "Porcentagem", "porcentagem"]
+        uso_gps: ["Operador", "Porcentagem", "porcentagem"],
+        media_velocidade: ["Operador", "Velocidade", "texto", "decimal"]
       },
       componentes: {
         mostrarImageUpload: true,

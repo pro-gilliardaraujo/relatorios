@@ -22,6 +22,7 @@ import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
 import { GraficoMotorOciosoSemanal } from '@/components/Charts/Transbordo/Semanal/GraficoMotorOciosoSemanal';
 import { GraficoFaltaApontamentoSemanal } from '@/components/Charts/Transbordo/Semanal/GraficoFaltaApontamentoSemanal';
 import { GraficoDisponibilidadeMecanicaColheita } from '@/components/Charts/Colheita/Diario/GraficoDisponibilidadeMecanicaColheita';
+import { GraficoMediaVelocidadeSemanal } from '@/components/Charts/Transbordo/Semanal/GraficoMediaVelocidadeSemanal';
 
 // Dados de exemplo para visualização offline
 const exemplosDados: DadosProcessados = {
@@ -40,11 +41,11 @@ const exemplosDados: DadosProcessados = {
     { operador: '0', eficiencia: 0.0 }
   ],
   motor_ocioso: [
-    { frota: '6031', ociosidade: 0.25 },
-    { frota: '6082', ociosidade: 0.22 },
-    { frota: '6087', ociosidade: 0.27 },
-    { frota: '6096', ociosidade: 0.21 },
-    { frota: '0', ociosidade: 0.0 }
+    { id: '6031', nome: 'João Silva', percentual: 0.25, tempoLigado: 8, tempoOcioso: 2 },
+    { id: '6082', nome: 'Maria Oliveira', percentual: 0.22, tempoLigado: 8, tempoOcioso: 1.76 },
+    { id: '6087', nome: 'Pedro Santos', percentual: 0.27, tempoLigado: 8, tempoOcioso: 2.16 },
+    { id: '6096', nome: 'Ana Souza', percentual: 0.21, tempoLigado: 8, tempoOcioso: 1.68 },
+    { id: '0', nome: '0', percentual: 0, tempoLigado: 0, tempoOcioso: 0 }
   ],
   uso_gps: [
     { frota: '6031', uso: 0.95 },
@@ -71,6 +72,13 @@ const exemplosDados: DadosProcessados = {
     '6082',
     '6087',
     '6096'
+  ],
+  media_velocidade: [
+    { operador: 'João Silva', velocidade: 14.5 },
+    { operador: 'Maria Oliveira', velocidade: 15.2 },
+    { operador: 'Pedro Santos', velocidade: 13.8 },
+    { operador: 'Ana Souza', velocidade: 16.1 },
+    { operador: '0', velocidade: 0.0 }
   ]
 };
 
@@ -79,14 +87,28 @@ interface TransbordoSemanalA4Props {
   carregandoDados?: boolean;
 }
 
+interface DadosMotorOcioso {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoLigado: number;
+  tempoOcioso: number;
+}
+
+interface DadosVelocidade {
+  operador: string;
+  velocidade: number;
+}
+
 interface DadosProcessados {
   disponibilidade_mecanica: Array<any>;
   eficiencia_energetica: Array<any>;
-  motor_ocioso: Array<any>;
+  motor_ocioso: Array<DadosMotorOcioso>;
   uso_gps: Array<any>;
   falta_apontamento: Array<any>;
   exemplosOperadores: Array<any>;
   exemplosFrotas: Array<any>;
+  media_velocidade: Array<DadosVelocidade>;
 }
 
 interface HorasPorFrota {
@@ -148,6 +170,18 @@ const normalizarDados = (dados: any) => {
     '5uso_gps': 'uso_gps',
     'uso gps': 'uso_gps',
     '5_uso gps': 'uso_gps',
+    // Média Velocidade - variações
+    'media_velocidade': 'media_velocidade',
+    'mediavelocidade': 'media_velocidade',
+    'media-velocidade': 'media_velocidade',
+    'média velocidade': 'media_velocidade',
+    'média_velocidade': 'media_velocidade',
+    'media velocidade': 'media_velocidade',
+    'velocidade_media': 'media_velocidade',
+    'velocidademedia': 'media_velocidade',
+    'velocidade-media': 'media_velocidade',
+    'velocidade média': 'media_velocidade',
+    'velocidade_média': 'media_velocidade',
   };
   
   // Verificar cada chave no objeto original
@@ -231,54 +265,32 @@ const filtrarTrocaDeTurno = (array: any[]): any[] => {
 };
 
 const processarDadosApi = (data: any): DadosProcessados => {
-  try {
-    if (!data || typeof data !== 'object') {
-      console.error('Dados inválidos recebidos da API:', data);
-      return exemplosDados;
-    }
+  console.log("🔄 Processando dados da API:", data);
+  
+  // Normalizar dados recebidos
+  const dadosNormalizados = normalizarDados(data);
+  
+  const dadosProcessados: DadosProcessados = {
+    disponibilidade_mecanica: processarArray(dadosNormalizados.disponibilidade_mecanica),
+    eficiencia_energetica: processarArray(dadosNormalizados.eficiencia_energetica),
+    motor_ocioso: processarArray(dadosNormalizados.motor_ocioso).map(item => ({
+      id: item.id || '',
+      nome: item.nome || '',
+      percentual: item.percentual || 0,
+      tempoLigado: item.tempoLigado || 0,
+      tempoOcioso: item.tempoOcioso || 0
+    })),
+    uso_gps: processarArray(dadosNormalizados.uso_gps),
+    falta_apontamento: processarArray(dadosNormalizados.falta_apontamento),
+    exemplosOperadores: processarArray(dadosNormalizados.exemplosOperadores),
+    exemplosFrotas: processarArray(dadosNormalizados.exemplosFrotas),
+    media_velocidade: processarArray(dadosNormalizados.media_velocidade).map(item => ({
+      operador: item.operador || item.nome || '',
+      velocidade: parseFloat(item.velocidade) || 0
+    }))
+  };
 
-    // Log para debug dos dados recebidos
-    console.log('📊 DADOS RECEBIDOS DA API:', Object.keys(data));
-    
-    // Garantir que todos os arrays existam, mesmo que vazios
-    let disponibilidade = Array.isArray(data.disponibilidade_mecanica) ? data.disponibilidade_mecanica : [];
-    let eficiencia = Array.isArray(data.eficiencia_energetica) ? data.eficiencia_energetica : [];  
-    let motorOcioso = Array.isArray(data.motor_ocioso) ? data.motor_ocioso : [];
-    let faltaApontamento = Array.isArray(data.falta_apontamento) ? data.falta_apontamento : [];
-    let usoGps = Array.isArray(data.uso_gps) ? data.uso_gps : [];
-    
-    // Filtrar todas as entradas "TROCA DE TURNO"
-    disponibilidade = filtrarTrocaDeTurno(disponibilidade);
-    eficiencia = filtrarTrocaDeTurno(eficiencia);
-    motorOcioso = filtrarTrocaDeTurno(motorOcioso);
-    faltaApontamento = filtrarTrocaDeTurno(faltaApontamento);
-    usoGps = filtrarTrocaDeTurno(usoGps);
-    
-    console.log('📊 Quantidades encontradas após filtrar TROCA DE TURNO:', {
-      disponibilidade: disponibilidade.length,
-      eficiencia: eficiencia.length,
-      motorOcioso: motorOcioso.length,
-      faltaApontamento: faltaApontamento.length,
-      usoGps: usoGps.length
-    });
-
-    return {
-      disponibilidade_mecanica: disponibilidade,
-      eficiencia_energetica: eficiencia,
-      motor_ocioso: motorOcioso,
-      falta_apontamento: faltaApontamento,
-      uso_gps: usoGps,
-      exemplosOperadores: disponibilidade.length > 0 
-        ? eficiencia 
-        : exemplosDados.exemplosOperadores,
-      exemplosFrotas: disponibilidade.length > 0 
-        ? disponibilidade 
-        : exemplosDados.exemplosFrotas,
-    };
-  } catch (error) {
-    console.error('Erro ao processar dados da API:', error);
-    return exemplosDados;
-  }
+  return dadosProcessados;
 };
 
 export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) {
@@ -593,105 +605,17 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
       </Heading>
   );
 
-  // Dados processados para os gráficos
-  const dadosProcessados = useMemo(() => {
-    // Se estiver carregando, não processar nada
+  // Dentro do useMemo que processa os dados finais
+  const finalData = useMemo(() => {
+    console.log('📊 Recalculando finalData com reportData:', reportData);
     if (loading) return exemplosDados;
-    
-    console.log('📊 Processando relatório:', reportData ? Object.keys(reportData).join(', ') : 'null');
-    
-    // Se não houver dados do relatório ou se useExampleData estiver definido, usar dados de exemplo
-    if (!reportData || useExampleData) {
-      console.log("📊 Usando dados de exemplo");
+    if (!reportData?.dados) {
+      console.warn('📊 Não há dados disponíveis para processamento');
       return exemplosDados;
     }
     
-    try {
-      // Obter os dados diretamente do relatório
-      const dados = reportData;
-      
-      console.log("📊 Processando dados do relatório:", 
-        dados?.disponibilidade_mecanica ? 
-          `tem dados diretos: ${dados.disponibilidade_mecanica.length} itens disp. mecânica` : 
-          "sem dados diretos"
-      );
-      
-      if (dados?.disponibilidade_mecanica) {
-        console.log("📊 Usando dados diretos do relatório");
-        
-        // Aplicar filtro para remover TROCA DE TURNO
-        const dispMecanica = filtrarTrocaDeTurno(Array.isArray(dados.disponibilidade_mecanica) ? dados.disponibilidade_mecanica : []);
-        const eficEnerg = filtrarTrocaDeTurno(Array.isArray(dados.eficiencia_energetica) ? dados.eficiencia_energetica : []);
-        const motorOcioso = filtrarTrocaDeTurno(Array.isArray(dados.motor_ocioso) ? dados.motor_ocioso : []);
-        const faltaApontamento = filtrarTrocaDeTurno(Array.isArray(dados.falta_apontamento) ? dados.falta_apontamento : []);
-        const usoGps = filtrarTrocaDeTurno(Array.isArray(dados.uso_gps) ? dados.uso_gps : []);
-        
-        console.log("📊 Dados após filtrar TROCA DE TURNO:", {
-          disponibilidade: dispMecanica.length,
-          eficiencia: eficEnerg.length,
-          motorOcioso: motorOcioso.length,
-          faltaApontamento: faltaApontamento.length,
-          usoGps: usoGps.length
-        });
-        
-        // Dados já estão no formato correto na raiz do objeto
-        return {
-          disponibilidade_mecanica: dispMecanica,
-          eficiencia_energetica: eficEnerg,
-          motor_ocioso: motorOcioso,
-          falta_apontamento: faltaApontamento,
-          uso_gps: usoGps,
-          exemplosOperadores: eficEnerg.length > 0 
-            ? eficEnerg 
-            : exemplosDados.exemplosOperadores,
-          exemplosFrotas: dispMecanica.length > 0 
-            ? dispMecanica 
-            : exemplosDados.exemplosFrotas
-        };
-      } 
-      
-      if (dados?.dados) {
-        console.log("📊 Tentando usar dados do objeto 'dados'");
-        
-        // Aplicar filtro para remover TROCA DE TURNO
-        const dispMecanica = filtrarTrocaDeTurno(Array.isArray(dados.dados.disponibilidade_mecanica) ? dados.dados.disponibilidade_mecanica : []);
-        const eficEnerg = filtrarTrocaDeTurno(Array.isArray(dados.dados.eficiencia_energetica) ? dados.dados.eficiencia_energetica : []);
-        const motorOcioso = filtrarTrocaDeTurno(Array.isArray(dados.dados.motor_ocioso) ? dados.dados.motor_ocioso : []);
-        const faltaApontamento = filtrarTrocaDeTurno(Array.isArray(dados.dados.falta_apontamento) ? dados.dados.falta_apontamento : []);
-        const usoGps = filtrarTrocaDeTurno(Array.isArray(dados.dados.uso_gps) ? dados.dados.uso_gps : []);
-        
-        console.log("📊 Dados após filtrar TROCA DE TURNO:", {
-          disponibilidade: dispMecanica.length,
-          eficiencia: eficEnerg.length,
-          motorOcioso: motorOcioso.length,
-          faltaApontamento: faltaApontamento.length,
-          usoGps: usoGps.length
-        });
-        
-        // Dados estão dentro da propriedade 'dados'
-        return {
-          disponibilidade_mecanica: dispMecanica,
-          eficiencia_energetica: eficEnerg,
-          motor_ocioso: motorOcioso,
-          falta_apontamento: faltaApontamento,
-          uso_gps: usoGps,
-          exemplosOperadores: eficEnerg.length > 0 
-            ? eficEnerg 
-            : exemplosDados.exemplosOperadores,
-          exemplosFrotas: dispMecanica.length > 0 
-            ? dispMecanica 
-            : exemplosDados.exemplosFrotas
-        };
-      }
-      
-      // Se não encontrou dados no formato esperado, usar exemplos
-      console.log("❌ Não encontrou dados no formato esperado, usando dados de exemplo");
-      return exemplosDados;
-    } catch (error) {
-      console.error('❌ ERRO NO PROCESSAMENTO DE DADOS:', error);
-      return exemplosDados;
-    }
-  }, [reportData, loading, useExampleData, searchParams]);
+    return processarDadosApi(reportData.dados);
+  }, [reportData, loading]);
 
   // Formatação dos dados de frota para remover decimais
   const processarFrota = (frota: any) => {
@@ -738,15 +662,15 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
   useEffect(() => {
     if (!loading) {
       console.log('📊 Dados para TabelaOperadores:', {
-        eficiencia: dadosProcessados.eficiencia_energetica?.length || 0,
-        motorOcioso: dadosProcessados.motor_ocioso?.length || 0,
-        faltaApontamento: dadosProcessados.falta_apontamento?.length || 0,
-        usoGPS: dadosProcessados.uso_gps?.length || 0
+        eficiencia: finalData.eficiencia_energetica?.length || 0,
+        motorOcioso: finalData.motor_ocioso?.length || 0,
+        faltaApontamento: finalData.falta_apontamento?.length || 0,
+        usoGPS: finalData.uso_gps?.length || 0
       });
       
       console.log('📊 Dados para HorasPorFrotaFooter:', dadosHorasPorFrota.length);
     }
-  }, [loading, dadosProcessados, dadosHorasPorFrota]);
+  }, [loading, finalData, dadosHorasPorFrota]);
 
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
@@ -827,13 +751,13 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
                   <IndicatorCard
                     title=""
-                    value={calcularMedia(dadosProcessados.disponibilidade_mecanica, 'disponibilidade')}
+                    value={calcularMedia(finalData.disponibilidade_mecanica, 'disponibilidade')}
                     meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
                     unitType="porcentagem"
                     acimaMeta={{
-                      quantidade: contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica),
-                      total: dadosProcessados.disponibilidade_mecanica.length,
-                      percentual: (contarItensMeta(dadosProcessados.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica) / dadosProcessados.disponibilidade_mecanica.length) * 100
+                      quantidade: contarItensMeta(finalData.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica),
+                      total: finalData.disponibilidade_mecanica.length,
+                      percentual: (contarItensMeta(finalData.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_semanal').disponibilidadeMecanica) / finalData.disponibilidade_mecanica.length) * 100
                     }}
                   />
                 </SimpleGrid>
@@ -846,7 +770,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoDisponibilidadeMecanicaColheita
-                    data={dadosProcessados.disponibilidade_mecanica}
+                    data={finalData.disponibilidade_mecanica}
                     meta={configManager.getMetas('transbordo_semanal').disponibilidadeMecanica}
                   />
                 </Box>
@@ -864,16 +788,16 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               <Box flex="1">
                 <SectionTitle title="Eficiência Energética" />
                 <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
-                  {dadosProcessados.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
+                  {finalData.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
                     <IndicatorCard
                       title=""
-                      value={calcularMedia(dadosProcessados.eficiencia_energetica, 'eficiencia')}
+                      value={calcularMedia(finalData.eficiencia_energetica, 'eficiencia')}
                       meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
                       unitType="porcentagem"
                       acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
-                        total: dadosProcessados.eficiencia_energetica.length,
-                        percentual: (contarItensMeta(dadosProcessados.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / dadosProcessados.eficiencia_energetica.length) * 100
+                        quantidade: contarItensMeta(finalData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica),
+                        total: finalData.eficiencia_energetica.length,
+                        percentual: (contarItensMeta(finalData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_semanal').eficienciaEnergetica) / finalData.eficiencia_energetica.length) * 100
                       }}
                     />
                   )}
@@ -887,7 +811,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoEficienciaEnergetica 
-                    data={dadosProcessados.eficiencia_energetica}
+                    data={finalData.eficiencia_energetica}
                     meta={configManager.getMetas('transbordo_semanal').eficienciaEnergetica}
                   />
                 </Box>
@@ -905,17 +829,17 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               <Box flex="1">
                 <SectionTitle title="Motor Ocioso" />
                 <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
-                  {dadosProcessados.motor_ocioso.length > 0 && secoes.motorOcioso && (
+                  {finalData.motor_ocioso.length > 0 && secoes.motorOcioso && (
                     <IndicatorCard
                       title=""
-                      value={calcularMedia(dadosProcessados.motor_ocioso, 'percentual')}
+                      value={calcularMedia(finalData.motor_ocioso, 'percentual')}
                       meta={configManager.getMetas('transbordo_semanal').motorOcioso}
                       unitType="porcentagem"
                       isInverted={true}
                       acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso),
-                        total: dadosProcessados.motor_ocioso.length,
-                        percentual: (contarItensMeta(dadosProcessados.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso) / dadosProcessados.motor_ocioso.length) * 100
+                        quantidade: contarItensMeta(finalData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso),
+                        total: finalData.motor_ocioso.length,
+                        percentual: (contarItensMeta(finalData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_semanal').motorOcioso) / finalData.motor_ocioso.length) * 100
                       }}
                     />
                   )}
@@ -929,7 +853,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoMotorOciosoSemanal
-                    data={dadosProcessados.motor_ocioso}
+                    data={finalData.motor_ocioso}
                     meta={configManager.getMetas('transbordo_semanal').motorOcioso}
                   />
                 </Box>
@@ -947,17 +871,17 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
               <Box flex="1">
                 <SectionTitle title="Falta Apontamento" />
                 <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
-                  {dadosProcessados.falta_apontamento.length > 0 && secoes.faltaApontamento && (
+                  {finalData.falta_apontamento.length > 0 && secoes.faltaApontamento && (
                     <IndicatorCard
                       title=""
-                      value={calcularMedia(dadosProcessados.falta_apontamento, 'percentual')}
+                      value={calcularMedia(finalData.falta_apontamento, 'percentual')}
                       meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
                       unitType="porcentagem"
                       isInverted={true}
                       acimaMeta={{
-                        quantidade: contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento),
-                        total: dadosProcessados.falta_apontamento.length,
-                        percentual: (contarItensMeta(dadosProcessados.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento) / dadosProcessados.falta_apontamento.length) * 100
+                        quantidade: contarItensMeta(finalData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento),
+                        total: finalData.falta_apontamento.length,
+                        percentual: (contarItensMeta(finalData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_semanal').faltaApontamento) / finalData.falta_apontamento.length) * 100
                       }}
                     />
                   )}
@@ -971,7 +895,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                   overflow="hidden"
                 >
                   <GraficoFaltaApontamentoSemanal
-                    data={dadosProcessados.falta_apontamento}
+                    data={finalData.falta_apontamento}
                     meta={configManager.getMetas('transbordo_semanal').faltaApontamento}
                   />
                 </Box>
@@ -980,7 +904,48 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           </Box>
         </A4Transbordo>
         
-        {/* Quinta Página - Uso GPS */}
+        {/* Quinta Página - Média de Velocidade */}
+        <A4Transbordo>
+          <Box h="100%" display="flex" flexDirection="column">
+            <PageHeader showDate={true} />
+            <Box flex="1" display="flex" flexDirection="column">
+              {/* Média de Velocidade */}
+              <Box flex="1">
+                <SectionTitle title="Média de Velocidade" />
+                <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
+                  {finalData.media_velocidade.length > 0 && secoes.mediaVelocidade && (
+                    <IndicatorCard
+                      title=""
+                      value={calcularMedia(finalData.media_velocidade, 'velocidade')}
+                      meta={configManager.getMetas('transbordo_semanal').mediaVelocidade}
+                      unitType="velocidade"
+                      acimaMeta={{
+                        quantidade: contarItensMeta(finalData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_semanal').mediaVelocidade),
+                        total: finalData.media_velocidade.length,
+                        percentual: (contarItensMeta(finalData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_semanal').mediaVelocidade) / finalData.media_velocidade.length) * 100
+                      }}
+                    />
+                  )}
+                </SimpleGrid>
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 100px)"
+                  overflow="hidden"
+                >
+                  <GraficoMediaVelocidadeSemanal 
+                    dados={finalData.media_velocidade || []} 
+                    meta={configManager.getTipoRelatorio('transbordo_semanal')?.metas?.mediaVelocidade || 15}
+                  />
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </A4Transbordo>
+
+        {/* Sexta Página - Uso GPS */}
         {secoes.usoGPS && (
           <A4Transbordo>
             <Box h="100%" display="flex" flexDirection="column">
@@ -990,16 +955,16 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <Box flex="1">
                   <SectionTitle title="Uso GPS" />
                   <SimpleGrid columns={1} spacing={3} w="100%" mb={2}>
-                    {dadosProcessados.uso_gps.length > 0 && (
+                    {finalData.uso_gps.length > 0 && (
                       <IndicatorCard
                         title=""
-                        value={calcularMedia(dadosProcessados.uso_gps, 'porcentagem')}
+                        value={calcularMedia(finalData.uso_gps, 'porcentagem')}
                         meta={configManager.getMetas('transbordo_semanal').usoGPS}
                         unitType="porcentagem"
                         acimaMeta={{
-                          quantidade: contarItensMeta(dadosProcessados.uso_gps, 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS),
-                          total: dadosProcessados.uso_gps.length,
-                          percentual: (contarItensMeta(dadosProcessados.uso_gps, 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS) / dadosProcessados.uso_gps.length) * 100
+                          quantidade: contarItensMeta(finalData.uso_gps, 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS),
+                          total: finalData.uso_gps.length,
+                          percentual: (contarItensMeta(finalData.uso_gps, 'porcentagem', configManager.getMetas('transbordo_semanal').usoGPS) / finalData.uso_gps.length) * 100
                         }}
                       />
                     )}
@@ -1013,7 +978,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                     overflow="hidden"
                   >
                     <GraficoUsoGPS
-                      data={dadosProcessados.uso_gps}
+                      data={finalData.uso_gps}
                       meta={configManager.getMetas('transbordo_semanal').usoGPS}
                     />
                   </Box>
@@ -1023,7 +988,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           </A4Transbordo>
         )}
         
-        {/* Sexta Página - Resumo de Frotas */}
+        {/* Sétima Página - Resumo de Frotas */}
         <A4Transbordo>
           <Box h="100%" display="flex" flexDirection="column">
             <PageHeader showDate={true} />
@@ -1047,7 +1012,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 </Text>
                 <Box>
                   <TabelaFrotas 
-                    dados={dadosProcessados.disponibilidade_mecanica
+                    dados={finalData.disponibilidade_mecanica
                       .filter((item: any) => {
                         // Verificar se frota é 0
                         if (item.frota === 0 || item.frota === '0') return false;
@@ -1077,7 +1042,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
           </Box>
         </A4Transbordo>
         
-        {/* Sétima Página - Resumo de Operadores */}
+        {/* Oitava Página - Resumo de Operadores */}
         <A4Transbordo 
           isLastPage={true}
           footer={
@@ -1109,7 +1074,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                 <Box>
                   <TabelaOperadores 
                     dados={{
-                      eficiencia_energetica: dadosProcessados.eficiencia_energetica
+                      eficiencia_energetica: finalData.eficiencia_energetica
                         .filter(item => 
                           item && 
                           !item.nome?.includes('TROCA DE TURNO') &&
@@ -1122,7 +1087,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                           nome: item.nome || item.operador?.split(' - ')?.[1] || item.operador || '',
                           eficiencia: typeof item.eficiencia === 'number' ? item.eficiencia : 0
                         })),
-                      motor_ocioso: dadosProcessados.motor_ocioso
+                      motor_ocioso: finalData.motor_ocioso
                         .filter(item => 
                           item && 
                           !item.nome?.includes('TROCA DE TURNO') &&
@@ -1135,7 +1100,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                           nome: item.nome || item.operador?.split(' - ')?.[1] || item.operador || '',
                           percentual: typeof item.percentual === 'number' ? item.percentual : 0
                         })),
-                      falta_apontamento: dadosProcessados.falta_apontamento
+                      falta_apontamento: finalData.falta_apontamento
                         .filter(item => 
                           item && 
                           !item.nome?.includes('TROCA DE TURNO') &&
@@ -1148,7 +1113,7 @@ export default function TransbordoSemanalA4({ data }: TransbordoSemanalA4Props) 
                           nome: item.nome || item.operador?.split(' - ')?.[1] || item.operador || '',
                           percentual: typeof item.percentual === 'number' ? item.percentual : 0
                         })),
-                      uso_gps: dadosProcessados.uso_gps
+                      uso_gps: finalData.uso_gps
                         .filter(item => 
                           item && 
                           !item.nome?.includes('TROCA DE TURNO') &&

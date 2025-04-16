@@ -1,0 +1,238 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-15",
+    "frente": "frente4",
+    "generated_at": "2025-04-16T16:54:03.669128",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7030.0",
+      "disponibilidade": 61.96
+    },
+    {
+      "frota": "7031.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "7033.0",
+      "disponibilidade": 98.61999999999999
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 48.230000000000004
+    },
+    {
+      "id": 2,
+      "nome": "121944 - WESLEY SILVA",
+      "eficiencia": 64.02
+    },
+    {
+      "id": 3,
+      "nome": "129365 - ABDIAS GOMES DOS SANTOS",
+      "eficiencia": 59.29
+    },
+    {
+      "id": 4,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "eficiencia": 61.17
+    },
+    {
+      "id": 5,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "eficiencia": 69.43
+    },
+    {
+      "id": 6,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "eficiencia": 55.61000000000001
+    },
+    {
+      "id": 7,
+      "nome": "982550 - MANUEL BATISTA DA SILVA",
+      "eficiencia": 16.39
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 1.13
+    },
+    {
+      "id": 2,
+      "nome": "121944 - WESLEY SILVA",
+      "horas": 4.02
+    },
+    {
+      "id": 3,
+      "nome": "129365 - ABDIAS GOMES DOS SANTOS",
+      "horas": 3.58
+    },
+    {
+      "id": 4,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "horas": 4.43
+    },
+    {
+      "id": 5,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "horas": 4.72
+    },
+    {
+      "id": 6,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "horas": 0.98
+    },
+    {
+      "id": 7,
+      "nome": "982550 - MANUEL BATISTA DA SILVA",
+      "horas": 0.08
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 9.993773349937735,
+      "tempoLigado": 1.784444444444444,
+      "tempoOcioso": 0.1783333333333333
+    },
+    {
+      "id": 2,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "percentual": 0.12642225031605558,
+      "tempoLigado": 1.318333333333333,
+      "tempoOcioso": 0.001666666666666667
+    },
+    {
+      "id": 3,
+      "nome": "982550 - MANUEL BATISTA DA SILVA",
+      "percentual": 23.93320964749536,
+      "tempoLigado": 0.4491666666666667,
+      "tempoOcioso": 0.1075
+    },
+    {
+      "id": 4,
+      "nome": "121944 - WESLEY SILVA",
+      "percentual": 5.777334220447992,
+      "tempoLigado": 5.01,
+      "tempoOcioso": 0.2894444444444444
+    },
+    {
+      "id": 5,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "percentual": 6.945042330319989,
+      "tempoLigado": 5.807499999999999,
+      "tempoOcioso": 0.4033333333333333
+    },
+    {
+      "id": 6,
+      "nome": "129365 - ABDIAS GOMES DOS SANTOS",
+      "percentual": 12.385926993275701,
+      "tempoLigado": 4.626666666666666,
+      "tempoOcioso": 0.5730555555555557
+    },
+    {
+      "id": 7,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "percentual": 5.846930846930847,
+      "tempoLigado": 5.72,
+      "tempoOcioso": 0.3344444444444444
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "121944 - WESLEY SILVA",
+      "porcentagem": 67.63
+    },
+    {
+      "id": 3,
+      "nome": "129365 - ABDIAS GOMES DOS SANTOS",
+      "porcentagem": 97.71
+    },
+    {
+      "id": 4,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "porcentagem": 77.53
+    },
+    {
+      "id": 5,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "porcentagem": 89.98
+    },
+    {
+      "id": 6,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "porcentagem": 3.55
+    },
+    {
+      "id": 7,
+      "nome": "982550 - MANUEL BATISTA DA SILVA",
+      "porcentagem": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 3.72
+    },
+    {
+      "id": 2,
+      "nome": "808860 - CLEBERSON RIBEIRO DE SOUZA",
+      "velocidade": 3.75
+    },
+    {
+      "id": 3,
+      "nome": "982550 - MANUEL BATISTA DA SILVA",
+      "velocidade": 3.63
+    },
+    {
+      "id": 4,
+      "nome": "121944 - WESLEY SILVA",
+      "velocidade": 3.71
+    },
+    {
+      "id": 5,
+      "nome": "136852 - JADIELSON JUNIO SILVA PAIXAO",
+      "velocidade": 3.04
+    },
+    {
+      "id": 6,
+      "nome": "129365 - ABDIAS GOMES DOS SANTOS",
+      "velocidade": 3.81
+    },
+    {
+      "id": 7,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "velocidade": 3.35
+    }
+  ]
+}
