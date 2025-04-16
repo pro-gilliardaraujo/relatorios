@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
-import { limparIdOperador, formatarExibicaoOperador } from '@/utils/formatters';
+import { limparIdOperador, formatarExibicaoOperador, formatarHoras } from '@/utils/formatters';
 
 interface HorasElevadorData {
   id: string;
@@ -140,7 +140,7 @@ export const GraficoHorasElevador: React.FC<HorasElevadorProps> = ({
                     />
                   </Box>
                   <Text fontSize="10px" fontWeight="bold" w="40px" textAlign="right" color={getBarColor(item.horas)}>
-                    {item.horas !== undefined ? formatHoursToHHMM(item.horas) : "0h00"}
+                    {formatarHoras(item.horas)}
                   </Text>
                 </Flex>
               </Box>

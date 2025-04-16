@@ -93,4 +93,14 @@ export const formatarHoras = (horas: number): string => {
   const minutosFormatados = minutos.toString().padStart(2, '0');
   
   return `${horasInteiras}h${minutosFormatados}m`;
+};
+
+export const formatarHorasEmHorasMinutos = (horas: number): string => {
+  if (horas === undefined || isNaN(horas)) return '0h00m';
+  
+  const totalMinutos = Math.round(horas * 60);
+  const h = Math.floor(totalMinutos / 60);
+  const m = totalMinutos % 60;
+  
+  return `${h}h${m.toString().padStart(2, '0')}m`;
 }; 

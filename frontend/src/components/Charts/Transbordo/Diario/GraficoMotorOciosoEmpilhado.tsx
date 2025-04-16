@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
-import { limparIdOperador, formatarExibicaoOperador } from '@/utils/formatters';
+import { limparIdOperador, formatarExibicaoOperador, formatarHorasEmHorasMinutos } from '@/utils/formatters';
 
 // Interface para os dados recebidos pelo componente
 interface MotorOciosoData {
@@ -20,14 +20,6 @@ interface GraficoMotorOciosoEmpilhadoProps {
   title?: string;
   height?: number;       // Altura personalizada do gráfico
 }
-
-// Função auxiliar para formatar o tempo em horas
-const formatHours = (hours: number): string => {
-  if (hours === undefined || hours === null) return '0h';
-  const h = Math.floor(hours);
-  const m = Math.floor((hours - h) * 60);
-  return `${h}h${m > 0 ? `${m.toString().padStart(2, '0')}m` : ''}`;
-};
 
 // Valores padrão para cores
 const DEFAULT_COLORS = {
@@ -174,7 +166,7 @@ export const GraficoMotorOciosoEmpilhado: React.FC<GraficoMotorOciosoEmpilhadoPr
                           color={barColor === '#E53E3E' ? "white" : "black"}
                           zIndex={3}
                         >
-                          {formatHours(item.ocioso)}
+                          {formatarHorasEmHorasMinutos(item.ocioso)}
                         </Text>
                       </Box>
                       
@@ -198,7 +190,7 @@ export const GraficoMotorOciosoEmpilhado: React.FC<GraficoMotorOciosoEmpilhadoPr
                           fontWeight="bold"
                           color="black"
                         >
-                          {formatHours(item.produtivo)}
+                          {formatarHorasEmHorasMinutos(item.produtivo)}
                         </Text>
                       </Box>
                       

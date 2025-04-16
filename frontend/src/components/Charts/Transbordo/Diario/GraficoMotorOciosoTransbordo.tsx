@@ -3,7 +3,7 @@
 import React from 'react';
 import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
-import { limparIdOperador, formatarExibicaoOperador, formatarHoras } from '@/utils/formatters';
+import { limparIdOperador, formatarExibicaoOperador, formatarHorasEmHorasMinutos } from '@/utils/formatters';
 
 interface MotorOciosoData {
   id: string;
@@ -145,7 +145,7 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoTransbordoProps> 
                   {/* Grupo de Tempo Ocioso à esquerda */}
                   <Flex direction="column" align="center" minW="65px">
                     <Text fontSize="9px" color={cores.critico} fontWeight="medium">
-                      {formatarHoras(item.tempoOcioso || 0)}
+                      {formatarHorasEmHorasMinutos(item.tempoOcioso || 0)}
                     </Text>
                     <Text fontSize="8px" color={cores.critico}>Tempo Ocioso</Text>
                   </Flex>
@@ -180,14 +180,14 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoTransbordoProps> 
                       w="2px"
                       bg="rgba(0,0,0,0.7)"
                       zIndex="2"
-                      title={`Meta: ${meta}% (${metaEmHorasFormatado}h)`}
+                      title={`Meta: ${meta}% (${formatarHorasEmHorasMinutos(metaEmHoras)})`}
                     />
                   </Box>
                   
                   {/* Grupo de Tempo Ligado à direita */}
                   <Flex direction="column" align="center" minW="65px">
                     <Text fontSize="9px" color={cores.meta_atingida} fontWeight="medium">
-                      {formatarHoras(item.tempoTotal || 0)}
+                      {formatarHorasEmHorasMinutos(item.tempoTotal || 0)}
                     </Text>
                     <Text fontSize="8px" color={cores.meta_atingida}>Tempo Ligado</Text>
                   </Flex>
