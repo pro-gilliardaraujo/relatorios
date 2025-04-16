@@ -13,7 +13,8 @@
         "eficienciaEnergetica": 70,
         "motorOcioso": 4,
         "horaElevador": 5,
-        "usoGPS": 90
+        "usoGPS": 90,
+        "mediaVelocidade": 7
       },
       "secoes": {
         "disponibilidadeMecanica": true,
@@ -114,7 +115,8 @@
         "eficienciaEnergetica": 65,
         "motorOcioso": 6,
         "faltaApontamento": 10,
-        "usoGPS": 90
+        "usoGPS": 90,
+        "mediaVelocidade": 15
       },
       "secoes": {
         "disponibilidadeMecanica": true,

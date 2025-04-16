@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel } from '@chakra-ui/react';
+import { Box, VStack, Heading, Image, Flex, Text, SimpleGrid, Center, Spinner, Button, Switch, FormControl, FormLabel, Grid } from '@chakra-ui/react';
 import A4Colheita from '@/components/Layout/A4Colheita';
 import { useReportStore } from '@/store/useReportStore';
 import { GraficoDisponibilidadeMecanicaTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoDisponibilidadeMecanicaTransbordo';
@@ -20,6 +20,10 @@ import IndicatorCard from '@/components/IndicatorCard';
 import TabelaOperadores from '@/components/TabelaOperadores';
 import TabelaFrotas from '@/components/TabelaFrotas';
 import HorasPorFrotaFooter from '@/components/HorasPorFrotaFooter';
+import { Column as AntColumn } from '@ant-design/plots';
+import type { ColumnConfig } from '@ant-design/plots';
+import type { Chart } from '@antv/g2';
+import { GraficoMediaVelocidadeTransbordo } from '@/components/Charts/Transbordo/Diario/GraficoMediaVelocidadeTransbordo';
 
 // Dados de exemplo para visualização offline
 const exemplosDados: DadosProcessados = {
@@ -70,6 +74,16 @@ const exemplosDados: DadosProcessados = {
     { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', percentual: 14.99 },
     { id: '7', nome: 'VITOR SOARES FREITAS', percentual: 5.30 },
     { id: '8', nome: 'DANILO JESUS BRITO', percentual: 1.02 }
+  ],
+  media_velocidade: [
+    { id: '1', nome: 'JOAO BATISTA DA ROCHA', velocidade: 35.5 },
+    { id: '2', nome: 'TROCA DE TURNO', velocidade: 0.0 },
+    { id: '3', nome: 'LEONARDO RODRIGUES DE MENEZES', velocidade: 42.8 },
+    { id: '4', nome: 'GERALDO BRITO DA SILVA', velocidade: 38.2 },
+    { id: '5', nome: 'MANUEL RICARDO ALVES DOS SANTOS', velocidade: 45.6 },
+    { id: '6', nome: 'JOSE HUMBERTO DE OLIVEIRA', velocidade: 33.9 },
+    { id: '7', nome: 'VITOR SOARES FREITAS', velocidade: 40.1 },
+    { id: '8', nome: 'DANILO JESUS BRITO', velocidade: 37.4 }
   ]
 };
 
@@ -91,6 +105,8 @@ interface DadosProcessados {
     id: string;
     nome: string;
     percentual: number;
+    tempoTotal?: number;
+    tempoOcioso?: number;
   }>;
   uso_gps: Array<{
     id: string;
@@ -102,12 +118,165 @@ interface DadosProcessados {
     nome: string;
     percentual: number;
   }>;
+  media_velocidade: Array<{
+    id: string;
+    nome: string;
+    velocidade: number;
+  }>;
 }
 
 interface HorasPorFrota {
   frota: string;
   horasRegistradas: number;
   diferencaPara24h: number;
+}
+
+interface DadosMotorOcioso {
+  id: string;
+  nome: string;
+  percentual: string;
+  horasTotal?: number;
+}
+
+interface DadosMotorOciosoProcessado {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoTotal: number;
+  tempoOcioso: number;
+}
+
+interface DadosFaltaApontamento {
+  id: string;
+  nome: string;
+  percentual: string;
+  horasTotal?: number;
+}
+
+interface DadosFaltaApontamentoProcessado {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoTotal: number;
+  tempoSemApontamento: number;
+}
+
+interface DadosParadaOperacional {
+  id: string;
+  nome: string;
+  percentual: string;
+  horasTotal?: number;
+}
+
+interface DadosParadaOperacionalProcessado {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoTotal: number;
+  tempoParado: number;
+}
+
+interface DadosGPS {
+  id: string;
+  nome: string;
+  percentual: string;
+  horasTotal?: number;
+}
+
+interface DadosGPSProcessado {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoTotal: number;
+  tempoSemGPS: number;
+}
+
+interface DadosVelocidade {
+  id: string;
+  nome: string;
+  porcentagem: string;
+  horasTotal?: number;
+}
+
+interface DadosVelocidadeProcessado {
+  id: string;
+  nome: string;
+  porcentagem: number;
+  tempoTotal: number;
+  tempoExcedido: number;
+}
+
+// Interfaces para tipagem dos dados
+interface OperadorEficiencia {
+  id: string;
+  nome: string;
+  eficiencia: number;
+}
+
+interface OperadorMotorOcioso {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoTotal: number;
+  tempoOcioso: number;
+}
+
+interface OperadorFaltaApontamento {
+  id: string;
+  nome: string;
+  percentual: number;
+  horasTotal?: number;
+}
+
+interface OperadorUsoGPS {
+  id: string;
+  nome: string;
+  porcentagem: number;
+}
+
+interface OperadorVelocidade {
+  id: string;
+  nome: string;
+  velocidade: number;
+}
+
+interface RawDataItem {
+  operador: string;
+  frota: string;
+  tdh: string | number;
+  diesel: string | number;
+  velocidade: string | number;
+  media_velocidade: string | number;
+  impureza_vegetal: string | number;
+  impureza_mineral: string | number;
+  perdas_invisiveis: string | number;
+  perdas_visiveis: string | number;
+  perdas_totais: string | number;
+  densidade: string | number;
+  data_hora: string;
+}
+
+interface ProcessedData {
+  operador: string;
+  frota: string;
+  tdh: number;
+  diesel: number;
+  velocidade: number;
+  media_velocidade: number;
+  impureza_vegetal: number;
+  impureza_mineral: number;
+  perdas_invisiveis: number;
+  perdas_visiveis: number;
+  perdas_totais: number;
+  densidade: number;
+  data_hora: string;
+}
+
+interface GraficoProps {
+  data: ProcessedData[];
+  xField: keyof ProcessedData;
+  yField: keyof ProcessedData;
+  seriesField?: keyof ProcessedData;
 }
 
 // Função para verificar se os dados estão no formato esperado
@@ -213,6 +382,24 @@ const calcularTempoTotalEOcioso = (dadosMotorOcioso: Array<{percentual: number}>
     meta: configManager.getMetas('transbordo_diario').motorOcioso || 6 // Meta padrão de 6%
   };
 };
+
+function processarDados(dados: RawDataItem[]): ProcessedData[] {
+  return dados.map((item: RawDataItem): ProcessedData => ({
+    operador: item.operador,
+    frota: item.frota,
+    tdh: Number(item.tdh) || 0,
+    diesel: Number(item.diesel) || 0,
+    velocidade: Number(item.velocidade) || 0,
+    media_velocidade: Number(item.media_velocidade) || 0,
+    impureza_vegetal: Number(item.impureza_vegetal) || 0,
+    impureza_mineral: Number(item.impureza_mineral) || 0,
+    perdas_invisiveis: Number(item.perdas_invisiveis) || 0,
+    perdas_visiveis: Number(item.perdas_visiveis) || 0,
+    perdas_totais: Number(item.perdas_totais) || 0,
+    densidade: Number(item.densidade) || 0,
+    data_hora: item.data_hora
+  }));
+}
 
 export default function TransbordoA4({ data }: TransbordoA4Props) {
   // Hooks e estados
@@ -333,78 +520,29 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
   };
 
   // Funções para cálculos estatísticos
-  const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
-    if (!array || array.length === 0) return 0;
-    
-    // Log de entrada para debug
-    // console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`, 
-    //   array.map(item => ({
-    //     id: item.frota || item.nome || 'desconhecido',
-    //     valor: item[propriedade]
-    //   }))
-    // );
-    
-    // Filtrar apenas itens com valores válidos
-    const itensFiltrados = array.filter(item => {
-      if (!item) return false;
-      
-      // Verificação adicional para garantir que o valor existe e é válido
-      const valorExiste = item[propriedade] !== undefined && item[propriedade] !== null;
-      
-      // Para disponibilidade, verificar se tem frota
-      if (propriedade === 'disponibilidade') {
-        return item.frota && item.frota.trim() !== '' && valorExiste;
-      }
-      
-      // Para outros, verificar se tem nome de operador (exceto se for valor de frota)
-      if (item.frota) {
-        return item.frota.trim() !== '' && valorExiste;
-      } else {
-        return item.nome && item.nome.trim() !== '' && valorExiste;
-      }
-    });
-    
-    // Log para depuração dos itens filtrados
-    // console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
-    
-    // Se não há itens válidos, retorna zero
-    if (itensFiltrados.length === 0) return 0;
-    
-    // Convertendo cada valor para número com cuidado para preservar valores pequenos
-    const valores = itensFiltrados.map(item => {
+  const calcularMedia = (dados: ProcessedData[], propriedade: keyof ProcessedData): number => {
+    const itensValidos = dados.filter((item: ProcessedData) => {
       const valor = item[propriedade];
-      // Garantir que valores como "0.01" sejam preservados como 0.01 e não convertidos para 0
-      if (typeof valor === 'string') {
-        return parseFloat(valor);
-      }
-      return typeof valor === 'number' ? valor : 0;
+      return Boolean(item.operador) && typeof valor === 'number' && !isNaN(valor);
     });
-    
-    // Log individual de cada valor para debug
-    // valores.forEach((valor, index) => {
-    //   console.log(`📊 Valor[${index}] para média de "${propriedade}": ${valor} (${typeof valor})`);
-    // });
-    
-    // Calculando a soma manualmente para garantir precisão com números pequenos
-    let soma = 0;
-    for (let i = 0; i < valores.length; i++) {
-      soma += valores[i];
-    }
-    
-    // Calcular média com alta precisão
-    const media = soma / valores.length;
-    
-    // Log para depuração da soma e média calculada
-    // console.log(`📊 Soma para "${propriedade}": ${soma}, Itens: ${valores.length}, Média: ${media}`);
-    
-    // Retorna a média calculada sem arredondar
-    return media;
+
+    if (itensValidos.length === 0) return 0;
+
+    const soma = itensValidos.reduce((acc: number, item: ProcessedData) => {
+      const valor = item[propriedade];
+      return acc + (typeof valor === 'number' ? valor : 0);
+    }, 0);
+
+    return Number((soma / itensValidos.length).toFixed(2));
   };
 
-  const calcularTotal = (array: any[] | undefined, propriedade: string): number => {
-    if (!array || array.length === 0) return 0;
-    
-    return array.reduce((acc, item) => {
+  const calcularTotal = (dados: ProcessedData[], propriedade: keyof ProcessedData): number => {
+    const itensValidos = dados.filter((item: ProcessedData) => {
+      const valor = item[propriedade];
+      return Boolean(item.operador) && typeof valor === 'number' && !isNaN(valor);
+    });
+
+    return itensValidos.reduce((acc: number, item: ProcessedData) => {
       const valor = item[propriedade];
       return acc + (typeof valor === 'number' ? valor : 0);
     }, 0);
@@ -565,8 +703,8 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
     const dados = reportData.dados;
     return {
       disponibilidade_mecanica: (dados.disponibilidade_mecanica || [])
-        .filter(item => item && item.frota && item.frota !== '0')
-        .map(item => {
+        .filter((item: { frota: string }) => item && item.frota && item.frota !== '0')
+        .map((item: { frota: string; disponibilidade: number; horasTotal?: number }) => {
           // Remover qualquer decimal do número da frota
           const frotaStr = String(item.frota).trim();
           const frotaFormatada = frotaStr.includes('.') ? frotaStr.split('.')[0] : frotaStr;
@@ -578,38 +716,73 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           };
         }),
       eficiencia_energetica: (dados.eficiencia_energetica || [])
-        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
-        .map(item => ({
+        .filter((item: { nome: string }) => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
+        .map((item: { id: string; nome: string; eficiencia: number; horasTotal?: number }) => ({
           id: item.id,
           nome: item.nome,
           eficiencia: Number(Number(item.eficiencia).toFixed(2)),
           horasTotal: item.horasTotal || 24 // Adicionar horasTotal
         })),
-      motor_ocioso: (dados.motor_ocioso || [])
-        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
-        .map(item => ({
+      motor_ocioso: (dados.motor_ocioso || [] as DadosMotorOcioso[])
+        .filter((item: DadosMotorOcioso) => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
+        .map((item: DadosMotorOcioso) => ({
           id: item.id,
           nome: item.nome,
           percentual: Number(Number(item.percentual).toFixed(2)),
-          horasTotal: item.horasTotal || 24 // Usar horasTotal dos dados ou padrão 24h
+          tempoTotal: Number(item.horasTotal || 24),
+          tempoOcioso: Number(((item.horasTotal || 24) * (Number(item.percentual) / 100)).toFixed(2))
         }))
-        .sort((a, b) => b.percentual - a.percentual),
-      falta_apontamento: (dados.falta_apontamento || [])
-        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
-        .map(item => ({
+        .sort((a: DadosMotorOciosoProcessado, b: DadosMotorOciosoProcessado) => b.percentual - a.percentual),
+      falta_apontamento: (dados.falta_apontamento || [] as DadosFaltaApontamento[])
+        .filter((item: DadosFaltaApontamento) => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
+        .map((item: DadosFaltaApontamento) => ({
           id: item.id,
           nome: item.nome,
           percentual: Number(Number(item.percentual).toFixed(2)),
-          horasTotal: item.horasTotal || 24 // Adicionar horasTotal
-        })),
-      uso_gps: (dados.uso_gps || dados.gps || []) // Tenta uso_gps primeiro, depois gps, ou array vazio
-        .filter(item => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
-        .map(item => ({
+          tempoTotal: Number(item.horasTotal || 24),
+          tempoSemApontamento: Number(((item.horasTotal || 24) * (Number(item.percentual) / 100)).toFixed(2))
+        }))
+        .sort((a: DadosFaltaApontamentoProcessado, b: DadosFaltaApontamentoProcessado) => b.percentual - a.percentual),
+      uso_gps: (dados.uso_gps || dados.gps || [] as DadosGPS[])
+        .filter((item: DadosGPS) => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
+        .map((item: DadosGPS) => ({
+          id: item.id,
+          nome: item.nome,
+          percentual: Number(Number(item.percentual).toFixed(2)),
+          tempoTotal: Number(item.horasTotal || 24),
+          tempoSemGPS: Number(((item.horasTotal || 24) * (Number(item.percentual) / 100)).toFixed(2))
+        }))
+        .sort((a: DadosGPSProcessado, b: DadosGPSProcessado) => b.percentual - a.percentual),
+      velocidade: (dados.velocidade || [] as DadosVelocidade[])
+        .filter((item: DadosVelocidade) => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
+        .map((item: DadosVelocidade) => ({
           id: item.id,
           nome: item.nome,
           porcentagem: Number(Number(item.porcentagem).toFixed(2)),
-          horasTotal: item.horasTotal || 24 // Adicionar horasTotal
+          tempoTotal: Number(item.horasTotal || 24),
+          tempoExcedido: Number(((item.horasTotal || 24) * (Number(item.porcentagem) / 100)).toFixed(2))
         }))
+        .sort((a: DadosVelocidadeProcessado, b: DadosVelocidadeProcessado) => b.porcentagem - a.porcentagem),
+      parada_operacional: (dados.parada_operacional || [] as DadosParadaOperacional[])
+        .filter((item: DadosParadaOperacional) => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
+        .map((item: DadosParadaOperacional) => ({
+          id: item.id,
+          nome: item.nome,
+          percentual: Number(Number(item.percentual).toFixed(2)),
+          tempoTotal: Number(item.horasTotal || 24),
+          tempoParado: Number(((item.horasTotal || 24) * (Number(item.percentual) / 100)).toFixed(2))
+        }))
+        .sort((a: DadosParadaOperacionalProcessado, b: DadosParadaOperacionalProcessado) => b.percentual - a.percentual),
+      media_velocidade: (dados.media_velocidade || [])
+        .filter((item: any) => item && item.nome && !['0', 'TROCA DE TURNO'].includes(item.nome))
+        .map((item: any) => ({
+          id: item.id,
+          nome: item.nome,
+          velocidade: Number(Number(item.velocidade).toFixed(2)),
+          tempoTotal: Number(item.horasTotal || 24),
+          tempoExcedido: Number(((item.horasTotal || 24) * (Number(item.velocidade) / 100)).toFixed(2))
+        }))
+        .sort((a: any, b: any) => b.velocidade - a.velocidade)
     };
   }, [reportData]);
 
@@ -669,196 +842,178 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
   
   // RENDERIZAÇÃO PRINCIPAL
   return (
-    <Box 
-      className="relatorio-container" 
-      bg="white" 
-      p={0}
-      m={0}
-      sx={{
-        '@media print': {
-          bg: 'white',
-          m: '0 !important',
-          p: '0 !important',
-          '& > *': {
-            m: '0 !important',
-            p: '0 !important'
-          },
-          breakAfter: 'avoid !important',
-          pageBreakAfter: 'avoid !important'
-        }
-      }}
-    >
-      <VStack 
-        spacing={0} 
-        m={0}
-        p={0}
-        className="paginas"
-        sx={{
-          '@media screen': {
-            '& > *:not(:last-child)': {
-              mb: '2rem'
-            }
-          },
-          '@media print': {
-            m: '0 !important',
-            p: '0 !important',
-            '& > *': {
-              m: '0 !important',
-              p: '0 !important'
-            }
-          }
-        }}
-      >
-        {/* Primeira Página - Disponibilidade, Eficiência e Falta de Apontamento */}
-        {(processedData.disponibilidade_mecanica.length > 0 || processedData.eficiencia_energetica.length > 0 || processedData.falta_apontamento.length > 0) && (
-          <A4Colheita>
-            <Box h="100%" display="flex" flexDirection="column">
-              <PageHeader />
-              <Box flex="1" display="flex" flexDirection="column">
-                {/* Disponibilidade Mecânica */}
-                {secoes.disponibilidadeMecanica && (
-                  <Box flex="1" mb={2}>
-                    <SectionTitle title="Disponibilidade Mecânica" />
-                    <Box 
-                      border="1px solid"
-                      borderColor="black"
-                      borderRadius="md"
-                      p={2}
-                      h="16.5%"
-                      minH="calc(43.5mm - 17px)"
-                      overflow="hidden"
-                    >
-                      <GraficoDisponibilidadeMecanicaTransbordo
-                        data={processedData.disponibilidade_mecanica}
-                        meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
-                        height={150}
+    <Box>
+      {/* Conteúdo do relatório */}
+      <Box className="report-content">
+        {/* Página 1 - Disponibilidade Mecânica e Eficiência Energética */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader />
+            
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Disponibilidade Mecânica */}
+              {secoes.disponibilidadeMecanica && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Disponibilidade Mecânica" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {processedData.disponibilidade_mecanica.length > 0 ? (
+                      <GraficoDisponibilidadeMecanicaTransbordo 
+                        data={processedData.disponibilidade_mecanica} 
+                        meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica} 
                       />
-                    </Box>
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de disponibilidade mecânica</Text>
+                      </Center>
+                    )}
                   </Box>
-                )}
-                
-                {/* Eficiência Energética */}
-                {secoes.eficienciaEnergetica && (
-                  <Box flex="1" mb={2}>
-                    <SectionTitle title="Eficiência Energética" />
-                    <Box 
-                      border="1px solid"
-                      borderColor="black"
-                      borderRadius="md"
-                      p={2}
-                      h="41.75%"
-                      minH="calc(108.5mm - 36px)"
-                      overflow="hidden"
-                    >
-                      <GraficoEficienciaEnergetica 
-                        data={processedData.eficiencia_energetica}
-                        meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
-                      />
-                    </Box>
-                  </Box>
-                )}
-                
-                {/* Falta de Apontamento */}
-                {secoes.faltaApontamento && processedData.falta_apontamento.length > 0 && (
-                  <Box flex="1">
-                    <SectionTitle title="Falta de Apontamento" />
-                    <Box 
-                      border="1px solid"
-                      borderColor="black"
-                      borderRadius="md"
-                      p={2}
-                      h="41.75%"
-                      minH="calc(108.5mm - 36px)"
-                      overflow="hidden"
-                    >
-                      <GraficoFaltaApontamentoTransbordo
-                        data={processedData.falta_apontamento}
-                        meta={configManager.getMetas('transbordo_diario').faltaApontamento}
-                      />
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          </A4Colheita>
-        )}
+                </Box>
+              )}
               
-        {/* Página de Motor Ocioso */}
-        {secoes.motorOcioso && (
-          <A4Colheita>
-            <Box h="100%" display="flex" flexDirection="column">
-              <PageHeader />
-              <Box flex="1" display="flex" flexDirection="column">
+              {/* Eficiência Energética */}
+              {secoes.eficienciaEnergetica && (
                 <Box flex="1">
-                  <SectionTitle title="Motor Ocioso por Operador" />
-                  
+                  <SectionTitle title="Eficiência Energética" centered={true} />
                   <Box 
                     border="1px solid"
                     borderColor="black"
                     borderRadius="md"
                     p={2}
-                    h="calc(100% - 30px)"
-                    minH="calc(262mm - 70px)"
-                    overflow="auto"
+                    h="calc(100% - 25px)"
                   >
-                    <GraficoMotorOciosoEmpilhado
-                      data={processedData.motor_ocioso}
-                      meta={configManager.getMetas('transbordo_diario').motorOcioso}
-                      height={450}
-                    />
+                    {processedData.eficiencia_energetica.length > 0 ? (
+                      <GraficoEficienciaEnergetica 
+                        data={processedData.eficiencia_energetica} 
+                        meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de eficiência energética</Text>
+                      </Center>
+                    )}
                   </Box>
                 </Box>
-              </Box>
-            </Box>
-          </A4Colheita>
-        )}
-
-        {/* Página de Uso GPS */}
-        {secoes.usoGPS && (
-          <A4Colheita>
-            <Box h="100%" display="flex" flexDirection="column">
-              <PageHeader />
-              <Box flex="1" display="flex" flexDirection="column">
-                {/* Uso GPS */}
-                <Box flex="1">
-                  <SectionTitle title="Uso GPS" />
-                  <Box 
-                    border="1px solid"
-                    borderColor="black"
-                    borderRadius="md"
-                    p={2}
-                    h="calc(100% - 30px)"
-                    minH="calc(262mm - 70px)"
-                    overflow="hidden"
-                  >
-                    <GraficoUsoGPS 
-                      data={processedData.uso_gps}
-                      meta={configManager.getMetas('transbordo_diario').usoGPS}
-                    />
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </A4Colheita>
-        )}
+              )}
+            </Flex>
+          </Box>
+        </A4Colheita>
         
-        {/* Quarta Página - Resumo */}
+        {/* Página 2 - Falta de Apontamento e Motor Ocioso */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader />
+            
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Falta de Apontamento */}
+              {secoes.faltaApontamento && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Falta de Apontamento" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {processedData.falta_apontamento.length > 0 ? (
+                      <GraficoFaltaApontamentoTransbordo 
+                        data={processedData.falta_apontamento} 
+                        meta={configManager.getMetas('transbordo_diario').faltaApontamento} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de falta de apontamento</Text>
+                      </Center>
+                    )}
+                  </Box>
+                </Box>
+              )}
+              
+              {/* Motor Ocioso */}
+              {secoes.motorOcioso && (
+                <Box flex="1">
+                  <SectionTitle title="Motor Ocioso" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {processedData.motor_ocioso.length > 0 ? (
+                      <GraficoMotorOciosoTransbordo 
+                        data={processedData.motor_ocioso} 
+                        meta={configManager.getMetas('transbordo_diario').motorOcioso} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de motor ocioso</Text>
+                      </Center>
+                    )}
+                  </Box>
+                </Box>
+              )}
+            </Flex>
+          </Box>
+        </A4Colheita>
+        
+        {/* Página 3 - Média de Velocidade */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader />
+            
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Média de Velocidade */}
+              <Box flex="1">
+                <SectionTitle title="Média de Velocidade" centered={true} />
+                <Box 
+                  border="1px solid"
+                  borderColor="black"
+                  borderRadius="md"
+                  p={2}
+                  h="calc(100% - 25px)"
+                >
+                  {processedData.media_velocidade.length > 0 ? (
+                    <GraficoMediaVelocidadeTransbordo 
+                      data={processedData.media_velocidade} 
+                      meta={configManager.getMetas('transbordo_diario').mediaVelocidade} 
+                    />
+                  ) : (
+                    <Center h="100%">
+                      <Text>Sem dados de média de velocidade</Text>
+                    </Center>
+                  )}
+                </Box>
+              </Box>
+            </Flex>
+          </Box>
+        </A4Colheita>
+        
+        {/* Página 4 - Resumo Geral */}
         <A4Colheita 
-          isLastPage={true}
+          isLastPage={true} 
           footer={
             dadosHorasPorFrota && dadosHorasPorFrota.length > 0 ? 
             <HorasPorFrotaFooter dados={dadosHorasPorFrota} /> : 
             null
           }
         >
-          <Box h="100%" display="flex" flexDirection="column">
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
             <PageHeader />
-            <Box flex="1" display="flex" flexDirection="column" p={3}>
+            
+            <Box p={4} flex="1">
+              {/* Título Principal do Resumo */}
               <Heading
                 as="h1"
                 size="sm"
                 textAlign="center"
-                mb={2}
+                mb={4}
                 color="black"
                 fontWeight="bold"
                 fontSize="15px"
@@ -867,75 +1022,115 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
               </Heading>
 
               {/* Seção Frotas */}
-              {processedData.disponibilidade_mecanica.length > 0 && (
-                <Box mb={2}>
-                  <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
-                    Frotas
-                  </Text>
-                  <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
-                    <IndicatorCard
-                      title="Disponibilidade Mecânica"
-                      value={calcularIndicador(processedData.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica).valor}
-                      meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
-                      unitType="porcentagem"
-                      acimaMeta={calcularIndicador(processedData.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica).acimaMeta}
-                    />
-                  </SimpleGrid>
-                </Box>
-              )}
+              <Box mb={6}>
+                <SectionTitle title="Frotas" centered={true} />
+                
+                {/* Cards de indicadores de frotas */}
+                <SimpleGrid columns={2} spacing={4} mb={4}>
+                  {/* Garantir que os dados de disponibilidade mecânica são sempre exibidos */}
+                  <IndicatorCard 
+                    title="Disponibilidade Mecânica"
+                    value={calcularIndicador(processedData.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica).valor}
+                    meta={configManager.getMetas('transbordo_diario').disponibilidadeMecanica}
+                    unitType="porcentagem"
+                    acimaMeta={calcularIndicador(processedData.disponibilidade_mecanica, 'disponibilidade', configManager.getMetas('transbordo_diario').disponibilidadeMecanica).acimaMeta}
+                  />
+                </SimpleGrid>
+              </Box>
 
               {/* Seção Operadores */}
-              {(processedData.eficiencia_energetica.length > 0 || processedData.motor_ocioso.length > 0 || processedData.falta_apontamento.length > 0) && (
-                <Box>
-                  <Text fontSize="13px" fontWeight="bold" color="black" mb={1} textAlign="center">
-                    Operadores
-                  </Text>
-                  <SimpleGrid columns={2} spacing={3} w="100%" mb={2}>
-                    {processedData.eficiencia_energetica.length > 0 && secoes.eficienciaEnergetica && (
-                      <IndicatorCard
-                        title="Eficiência Energética"
-                        value={calcularIndicador(processedData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).valor}
-                        meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
-                        unitType="porcentagem"
-                        acimaMeta={calcularIndicador(processedData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).acimaMeta}
-                      />
-                    )}
-                    {processedData.motor_ocioso.length > 0 && secoes.motorOcioso && (
-                      <IndicatorCard
-                        title="Motor Ocioso"
-                        value={calcularIndicador(processedData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, true).valor}
-                        meta={configManager.getMetas('transbordo_diario').motorOcioso}
-                        unitType="porcentagem"
-                        isInverted={true}
-                        acimaMeta={calcularIndicador(processedData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, true).acimaMeta}
-                      />
-                    )}
-                    {processedData.falta_apontamento.length > 0 && secoes.faltaApontamento && (
-                      <IndicatorCard
-                        title="Falta Apontamento"
-                        value={calcularIndicador(processedData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, true).valor}
-                        meta={configManager.getMetas('transbordo_diario').faltaApontamento}
-                        unitType="porcentagem"
-                        isInverted={true}
-                        acimaMeta={calcularIndicador(processedData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, true).acimaMeta}
-                      />
-                    )}
-                  </SimpleGrid>
+              <Box>
+                <SectionTitle title="Operadores" centered={true} />
+                
+                {/* Cards de indicadores de operadores */}
+                <SimpleGrid columns={2} spacing={4} mb={4}>
+                  {/* Garantir que os dados de eficiência são renderizados mesmo se a média calculada for zero */}
+                  <IndicatorCard 
+                    title="Eficiência Energética"
+                    value={calcularIndicador(processedData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).valor}
+                    meta={configManager.getMetas('transbordo_diario').eficienciaEnergetica}
+                    unitType="porcentagem"
+                    acimaMeta={calcularIndicador(processedData.eficiencia_energetica, 'eficiencia', configManager.getMetas('transbordo_diario').eficienciaEnergetica).acimaMeta}
+                  />
+                  
+                  {/* Garantir que os dados de motor ocioso são renderizados mesmo se a média calculada for zero */}
+                  <IndicatorCard 
+                    title="Motor Ocioso"
+                    value={calcularIndicador(processedData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, true).valor}
+                    meta={configManager.getMetas('transbordo_diario').motorOcioso}
+                    isInverted={true}
+                    unitType="porcentagem"
+                    acimaMeta={calcularIndicador(processedData.motor_ocioso, 'percentual', configManager.getMetas('transbordo_diario').motorOcioso, true).acimaMeta}
+                  />
+                  
+                  {/* Garantir que os dados de falta de apontamento são renderizados mesmo se a média calculada for zero */}
+                  <IndicatorCard 
+                    title="Falta de Apontamento"
+                    value={calcularIndicador(processedData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, true).valor}
+                    meta={configManager.getMetas('transbordo_diario').faltaApontamento}
+                    isInverted={true}
+                    unitType="porcentagem"
+                    acimaMeta={calcularIndicador(processedData.falta_apontamento, 'percentual', configManager.getMetas('transbordo_diario').faltaApontamento, true).acimaMeta}
+                  />
+                  
+                  {/* Garantir que os dados de uso GPS são renderizados mesmo se a média calculada for zero */}
+                  <IndicatorCard 
+                    title="Uso GPS"
+                    value={calcularIndicador(processedData.uso_gps, 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS).valor}
+                    meta={configManager.getMetas('transbordo_diario').usoGPS}
+                    unitType="porcentagem"
+                    acimaMeta={calcularIndicador(processedData.uso_gps, 'porcentagem', configManager.getMetas('transbordo_diario').usoGPS).acimaMeta}
+                  />
+                  
+                  {/* Novo card para Média de Velocidade */}
+                  <IndicatorCard 
+                    title="Média de Velocidade"
+                    value={calcularIndicador(processedData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_diario').mediaVelocidade).valor}
+                    meta={configManager.getMetas('transbordo_diario').mediaVelocidade}
+                    unitType="velocidade"
+                    isInverted={true}
+                    acimaMeta={calcularIndicador(processedData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_diario').mediaVelocidade).acimaMeta}
+                  />
+                </SimpleGrid>
 
-                  {/* Tabela de Operadores */}
-                  <Box>
-                    <TabelaOperadores 
-                      dados={processedData} 
-                      tipo="transbordo_diario" 
-                      mostrarUsoGPS={secoes.usoGPS}
-                    />
-                  </Box>
-                </Box>
-              )}
+                {/* Tabela de operadores */}
+                <TabelaOperadores 
+                  dados={{
+                    eficiencia_energetica: processedData.eficiencia_energetica.map((item: OperadorEficiencia) => ({
+                      id: item.id,
+                      nome: item.nome,
+                      eficiencia: item.eficiencia
+                    })),
+                    motor_ocioso: processedData.motor_ocioso.map((item: OperadorMotorOcioso) => ({
+                      id: item.id || '',
+                      nome: item.nome || '',
+                      percentual: item.percentual || 0,
+                      tempoLigado: item.tempoTotal || 0,
+                      tempoOcioso: item.tempoOcioso || 0
+                    })),
+                    falta_apontamento: processedData.falta_apontamento.map((item: OperadorFaltaApontamento) => ({
+                      id: item.id,
+                      nome: item.nome,
+                      percentual: item.percentual
+                    })),
+                    uso_gps: processedData.uso_gps.map((item: OperadorUsoGPS) => ({
+                      id: item.id || '',
+                      nome: item.nome || '',
+                      porcentagem: item.porcentagem || 0
+                    })),
+                    media_velocidade: processedData.media_velocidade.map((item: OperadorVelocidade) => ({
+                      id: item.id || '',
+                      nome: item.nome || '',
+                      velocidade: item.velocidade || 0
+                    }))
+                  }}
+                  tipo="transbordo_diario"
+                />
+              </Box>
             </Box>
           </Box>
         </A4Colheita>
-      </VStack>
+      </Box>
     </Box>
   );
 } 

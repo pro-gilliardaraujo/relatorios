@@ -1,184 +1,121 @@
 'use client';
 
 import React from 'react';
-import { Box, Text, Flex, VStack, HStack } from '@chakra-ui/react';
+import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
+import { formatarFrota } from '@/utils/formatters';
 
-// Interface para os dados recebidos pelo componente
-interface DisponibilidadeMecanicaData {
+interface DisponibilidadeData {
   frota: string;
   disponibilidade: number;
 }
 
-interface GraficoDisponibilidadeMecanicaTransbordoProps {
-  data: DisponibilidadeMecanicaData[];
+interface DisponibilidadeMecanicaProps {
+  data?: DisponibilidadeData[];
   meta?: number;
-  title?: string;
-  height?: number;
   exibirCards?: boolean;
 }
 
-// Valores padrão para cores e tolerâncias
-const DEFAULT_COLORS = {
-  meta_atingida: '#48BB78',     // Verde
-  proximo_meta: '#90EE90',      // Verde claro
-  alerta: '#ECC94B',            // Amarelo
-  critico: '#E53E3E',           // Vermelho
-};
+// Obter a meta do configManager
+const META_DISPONIBILIDADE_MECANICA = configManager.getMetas('transbordo_diario').disponibilidadeMecanica;
 
-const DEFAULT_TOLERANCES = {
-  proximo_meta: 5,
-  alerta: 15
-};
-
-// Valores padrão para formatação
-const DEFAULT_FORMATTING = {
-  decimal: {
-    casas: 4,
-    separador: "."
-  },
-  porcentagem: {
-    casas: 1,
-    separador: "."
-  },
-  horas: {
-    formato: "Xh00m"
-  }
-};
-
-export const GraficoDisponibilidadeMecanicaTransbordo: React.FC<GraficoDisponibilidadeMecanicaTransbordoProps> = ({
+export const GraficoDisponibilidadeMecanicaTransbordo: React.FC<DisponibilidadeMecanicaProps> = ({ 
   data = [],
-  meta = configManager.getMetas('transbordo_diario').disponibilidadeMecanica || 95,
-  title = 'Disponibilidade Mecânica por Transbordo',
-  height = 400,
+  meta = META_DISPONIBILIDADE_MECANICA,
   exibirCards = false
 }) => {
-  // Obter configurações com fallback para valores padrão
-  const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
-  const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
-  const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
+  // Verificar se há dados válidos
+  const dadosValidos = Array.isArray(data) && data.length > 0 && 
+    data.some(item => item && typeof item.disponibilidade === 'number' && item.disponibilidade > 0);
   
-  // Filtrar e processar os dados
-  const filteredData = data.filter(item => item && item.frota && item.frota !== '0');
+  // Log para diagnóstico
+  console.log('📊 GraficoDisponibilidadeMecanicaTransbordo recebeu dados:', 
+    Array.isArray(data) ? `${data.length} itens` : 'não é array', 
+    dadosValidos ? 'válidos' : 'inválidos');
+  
+  if (Array.isArray(data) && data.length > 0) {
+    console.log('📊 Amostra de dados:', data.slice(0, 2));
+  }
+  
+  // Caso não haja dados válidos, exibir mensagem
+  if (!dadosValidos) {
+    return (
+      <Center h="100%" flexDirection="column">
+        <Text fontSize="14px" color="gray.500" fontWeight="medium">Sem dados disponíveis</Text>
+        <Text fontSize="12px" color="gray.400">Verifique o relatório selecionado</Text>
+      </Center>
+    );
+  }
   
   // Calcula a média de disponibilidade
-  const mediaDisponibilidade = filteredData.length > 0 
-    ? filteredData.reduce((acc, item) => acc + item.disponibilidade, 0) / filteredData.length
-    : 0;
-  
-  // Encontra o valor máximo para definir a escala
-  const maxDisponibilidade = Math.max(...filteredData.map(item => item.disponibilidade), meta);
-  
-  // Para "maior melhor", usamos o maior valor como referência para a escala
-  const valorReferencia = Math.max(maxDisponibilidade, meta * 1.2); // Garante que a meta fique visível
-  
-  // Função de escala que garante que nunca ultrapasse 100%
-  const scalePercentage = (disponibilidade: number) => Math.min((disponibilidade / valorReferencia) * 100, 100);
-  
-  // Calcula onde ficará a linha de meta na escala relativa
-  const metaScaled = (meta / valorReferencia) * 100;
+  const mediaDisponibilidade = data.reduce((acc, item) => acc + (item?.disponibilidade || 0), 0) / data.length;
 
-  // Ordena por disponibilidade (do maior para o menor)
-  const sortedData = [...filteredData].sort((a, b) => b.disponibilidade - a.disponibilidade);
+  // Ordena os dados de disponibilidade (do maior para o menor)
+  const sortedData = [...data].sort((a, b) => (b?.disponibilidade || 0) - (a?.disponibilidade || 0));
   
-  // Divide os dados em 3 colunas
-  const distributeInColumns = (data: DisponibilidadeMecanicaData[]) => {
-    const column1: DisponibilidadeMecanicaData[] = [];
-    const column2: DisponibilidadeMecanicaData[] = [];
-    const column3: DisponibilidadeMecanicaData[] = [];
-    
-    data.forEach((item, index) => {
-      const columnIndex = index % 3;
-      if (columnIndex === 0) column1.push(item);
-      else if (columnIndex === 1) column2.push(item);
-      else column3.push(item);
-    });
-    
-    return [column1, column2, column3];
-  };
-  
-  const [column1Data, column2Data, column3Data] = distributeInColumns(sortedData);
-  
-  // Define as cores com base no valor da disponibilidade (maior melhor)
+  // Define as cores com base no valor da disponibilidade
   const getBarColor = (value: number) => {
-    const diferenca = ((value - meta) / meta) * 100;
-
-    if (value >= meta) return cores.meta_atingida;
-    if (diferenca >= -tolerancias.proximo_meta) return cores.proximo_meta;
-    if (diferenca >= -tolerancias.alerta) return cores.alerta;
-    return cores.critico;
+    if (value >= meta) return '#48BB78'; // verde para acima da meta
+    if (value >= meta * 0.8) return '#ECC94B'; // amarelo para próximo da meta
+    return '#E53E3E'; // vermelho para abaixo da meta
   };
 
-  // Componente para renderizar uma coluna
-  const ColumnComponent = ({ columnData }: { columnData: DisponibilidadeMecanicaData[] }) => (
-    <VStack spacing={0} align="stretch" flex="1">
-      {columnData.map((item, index) => {
-        const barColor = getBarColor(item.disponibilidade);
-        const displayName = `Frota ${item.frota}`;
-        
-        return (
-          <Box 
-            key={index}
-            py={0.5}
-            px={1}
-            bg={index % 2 === 0 ? "gray.50" : "white"}
-            borderRadius="sm"
-          >
-            {/* Primeira linha: Nome da frota */}
-            <Text 
-              fontSize="10px" 
-              fontWeight="medium" 
-              noOfLines={1} 
-              title={displayName} 
-              mb={0.5} 
-              color="black"
-            >
-              {displayName}
-            </Text>
-            
-            {/* Segunda linha: Barra de progresso e valor percentual */}
-            <Flex direction="row" align="center">
-              <Box flex="1" h="13px" position="relative" mr={2} maxW="calc(100% - 40px)">
-                <Flex 
-                  position="absolute" 
-                  bg={barColor} 
-                  h="100%" 
-                  w={`${scalePercentage(item.disponibilidade)}%`}
-                  borderRadius="sm"
-                  alignItems="center"
-                />
+  // Formata o valor de porcentagem com vírgula em vez de ponto (pt-BR)
+  const formatarPorcentagem = (valor: number) => {
+    if (valor === undefined || valor === null) {
+      return '0,00%';
+    }
+    return valor.toFixed(2).replace('.', ',') + '%';
+  };
+
+  return (
+    <Box h="100%">
+      <VStack spacing={1} align="stretch" h="100%" justify="center">
+        {sortedData.map((item, index) => {
+          // Formatar o código da frota como texto, removendo prefixos desnecessários
+          const frotaFormatada = formatarFrota(item?.frota || '');
+          
+          return (
+            <Box key={index} w="100%">
+              <Flex justify="space-between" mb={1}>
+                <Text fontSize="11px" fontWeight="bold" color="black">{frotaFormatada}</Text>
+                <Text fontSize="11px" fontWeight="bold" color={getBarColor(item?.disponibilidade || 0)}>
+                  {formatarPorcentagem(item?.disponibilidade || 0)}
+                </Text>
+              </Flex>
+              <Box position="relative" w="100%">
+                {/* Barra de fundo */}
+                <Flex w="100%" h="20px" bg="gray.100" borderRadius="md" overflow="hidden">
+                  <Box 
+                    h="100%" 
+                    w={`${item?.disponibilidade || 0}%`} 
+                    bg={getBarColor(item?.disponibilidade || 0)}
+                    borderRadius="md 0 0 md"
+                  />
+                </Flex>
                 
                 {/* Linha vertical indicando a meta */}
                 <Box 
                   position="absolute" 
                   top="0" 
-                  left={`${metaScaled}%`} 
-                  h="13px"
+                  left={`${meta}%`} 
+                  h="23px"
                   w="2px"
                   bg="rgba(0,0,0,0.7)"
                   zIndex="2"
                 />
               </Box>
-              <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={barColor}>
-                {item.disponibilidade.toFixed(formatacao.porcentagem.casas)}%
-              </Text>
-            </Flex>
-          </Box>
-        );
-      })}
-    </VStack>
-  );
-
-  return (
-    <Box h="100%">      
-      {/* Container principal para o gráfico */}
-      <Box h="100%" overflowY="auto">
-        <HStack spacing={2} align="start">
-          <ColumnComponent columnData={column1Data} />
-          <ColumnComponent columnData={column2Data} />
-          <ColumnComponent columnData={column3Data} />
-        </HStack>
-      </Box>
+              <Flex mt={1} justify="space-between">
+                <Text fontSize="9px" color="gray.500">0%</Text>
+                <Text fontSize="9px" color="gray.500">
+                  Meta: {meta}%
+                </Text>
+                <Text fontSize="9px" color="gray.500">100%</Text>
+              </Flex>
+            </Box>
+          );
+        })}
+      </VStack>
     </Box>
   );
 }; 

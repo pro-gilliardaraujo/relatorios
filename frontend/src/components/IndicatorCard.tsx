@@ -33,8 +33,8 @@ interface IndicatorCardProps {
   title: string;
   value: number;
   meta: number;
+  unitType?: 'horas' | 'porcentagem' | 'decimal' | 'velocidade';
   isInverted?: boolean;
-  unitType?: 'porcentagem' | 'decimal' | 'horas';
   acimaMeta?: {
     quantidade: number;
     total: number;
@@ -42,6 +42,7 @@ interface IndicatorCardProps {
   };
   showMetaOnTop?: boolean;
   showSummaryOnBottom?: boolean;
+  formatValue?: (value: number) => string;
 }
 
 export default function IndicatorCard({ 
@@ -52,7 +53,8 @@ export default function IndicatorCard({
   unitType = 'porcentagem',
   acimaMeta,
   showMetaOnTop = false,
-  showSummaryOnBottom = false
+  showSummaryOnBottom = false,
+  formatValue: customFormatValue
 }: IndicatorCardProps) {
   // Obter configurações de cores e tolerâncias com fallback para valores padrão
   const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
@@ -101,81 +103,26 @@ export default function IndicatorCard({
     null;
 
   // Formatar valor de acordo com o tipo de unidade (preservando precisão)
-  const formatValue = (val: number): string => {
-    // Log detalhado para debug
-    console.log(`📊 Formatando valor (${unitType}) para '${title}':`, {
-      valor: val,
-      tipo: typeof val,
-      isNaN: isNaN(val),
-      isUndefined: val === undefined
-    });
-    
-    // Garantir valor válido
-    if (val === undefined || val === null || isNaN(val)) {
-      console.warn(`⚠️ Valor inválido passado para IndicatorCard '${title}':`, val);
-      val = 0;
+  const formatValue = (value: number, unitType?: string, customFormat?: (value: number) => string) => {
+    if (customFormat) {
+      return customFormat(value);
     }
-    
-    if (unitType === 'porcentagem') {
-      // Formatação para porcentagem com 2 casas decimais sem arredondamento
-      const valueStr = String(val);
-      const decimalIndex = valueStr.indexOf('.');
-      
-      if (decimalIndex === -1) {
-        // Sem casa decimal, adicionar .0%
-        return `${valueStr}.0%`;
-      } else {
-        const integerPart = valueStr.substring(0, decimalIndex);
-        const decimalPart = valueStr.substring(decimalIndex + 1);
-        
-        // Se tem mais que 2 casas decimais, truncar para 2 (sem arredondamento)
-        if (decimalPart.length >= 2) {
-          return `${integerPart}.${decimalPart.substring(0, 2)}%`;
-        } 
-        // Se tem menos que 2 casas, completar com zeros
-        else {
-          return `${integerPart}.${decimalPart}${'0'.repeat(2 - decimalPart.length)}%`;
-        }
-      }
-    } else if (unitType === 'decimal') {
-      // Formatação para decimal com 4 casas decimais sem arredondamento
-      const valueStr = String(val);
-      const decimalIndex = valueStr.indexOf('.');
-      
-      if (decimalIndex === -1) {
-        // Sem casa decimal, adicionar .0000
-        return `${valueStr}.0000`;
-      } else {
-        const integerPart = valueStr.substring(0, decimalIndex);
-        const decimalPart = valueStr.substring(decimalIndex + 1);
-        
-        // Se tem mais que 4 casas decimais, truncar para 4 (sem arredondamento)
-        if (decimalPart.length >= 4) {
-          return `${integerPart}.${decimalPart.substring(0, 4)}`;
-        } 
-        // Se tem menos que 4 casas, completar com zeros
-        else {
-          return `${integerPart}.${decimalPart}${'0'.repeat(4 - decimalPart.length)}`;
-        }
-      }
-    } else if (unitType === 'horas') {
-      const hours = Math.floor(val);
-      const minutes = Math.round((val - hours) * 60);
-      return `${hours}h${minutes.toString().padStart(2, '0')}`;
+
+    switch (unitType) {
+      case 'horas':
+        return `${value.toFixed(1)}h`;
+      case 'porcentagem':
+        return `${value.toFixed(1)}%`;
+      case 'velocidade':
+        return `${value.toFixed(2)} km/h`;
+      case 'decimal':
+      default:
+        return value.toFixed(2);
     }
-    return `${val}`;
   };
 
   // Formatar meta de acordo com o tipo de unidade (preservando precisão)
   const formatMeta = (val: number): string => {
-    // Log detalhado para debug
-    console.log(`📊 Formatando meta (${unitType}) para '${title}':`, {
-      valor: val,
-      tipo: typeof val,
-      isNaN: isNaN(val),
-      isUndefined: val === undefined
-    });
-    
     // Garantir valor válido
     if (val === undefined || val === null || isNaN(val)) {
       console.warn(`⚠️ Meta inválida passada para IndicatorCard '${title}':`, val);
@@ -228,6 +175,8 @@ export default function IndicatorCard({
       const hours = Math.floor(val);
       const minutes = Math.round((val - hours) * 60);
       return `${hours}h${minutes.toString().padStart(2, '0')}`;
+    } else if (unitType === 'velocidade') {
+      return `${val.toFixed(2)} km/h`;
     }
     return `${val}`;
   };
@@ -240,7 +189,9 @@ export default function IndicatorCard({
         <Text fontSize="10px" color="#3182CE">Meta</Text>
       </VStack>
       <VStack spacing={0} align="center">
-        <Text fontSize="sm" fontWeight="bold" color={getValueColor()}>{formatValue(value)}</Text>
+        <Text fontSize="sm" fontWeight="bold" color={getValueColor()}>
+          {formatValue(value, unitType, customFormatValue)}
+        </Text>
         <Text fontSize="10px" color="#3182CE">Média</Text>
       </VStack>
     </Flex>
@@ -272,7 +223,7 @@ export default function IndicatorCard({
         <Text fontSize="sm" fontWeight="bold" mb={1} color="black" textAlign="center" w="100%">{title}</Text>
         <Flex direction="row" align="center" justify="space-between">
           <VStack spacing={0} align="center">
-            <Text fontSize="md" fontWeight="bold" color={cores.meta_atingida}>{formatMeta(meta)}</Text>
+            <Text fontSize="sm" fontWeight="bold" color={cores.meta_atingida}>{formatMeta(meta)}</Text>
             <Text fontSize="10px" color="#3182CE">Meta</Text>
           </VStack>
           {metaText && (
@@ -287,7 +238,9 @@ export default function IndicatorCard({
             </Text>
           )}
           <VStack spacing={0} align="center">
-            <Text fontSize="md" fontWeight="bold" color={getValueColor()}>{formatValue(value)}</Text>
+            <Text fontSize="sm" fontWeight="bold" color={getValueColor()}>
+              {formatValue(value, unitType, customFormatValue)}
+            </Text>
             <Text fontSize="10px" color="#3182CE">Média</Text>
           </VStack>
         </Flex>

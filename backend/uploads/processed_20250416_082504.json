@@ -1,0 +1,209 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-15",
+    "frente": "frente1",
+    "generated_at": "2025-04-16T08:25:04.268687",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7032.0",
+      "disponibilidade": 93.53
+    },
+    {
+      "frota": "7038.0",
+      "disponibilidade": 66.75
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "eficiencia": 81.01
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 25.88
+    },
+    {
+      "id": 3,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "eficiencia": 65.62
+    },
+    {
+      "id": 4,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "eficiencia": 41.260000000000005
+    },
+    {
+      "id": 5,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "eficiencia": 47.43
+    },
+    {
+      "id": 6,
+      "nome": "1331016 - NAO CADASTRADO",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "eficiencia": 70.17
+    },
+    {
+      "id": 8,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "eficiencia": 61.89
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "horas": 0.08
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.16
+    },
+    {
+      "id": 3,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "horas": 4.01
+    },
+    {
+      "id": 4,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "horas": 4.0
+    },
+    {
+      "id": 5,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "horas": 1.24
+    },
+    {
+      "id": 6,
+      "nome": "1331016 - NAO CADASTRADO",
+      "horas": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "horas": 2.06
+    },
+    {
+      "id": 8,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "horas": 5.86
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "percentual": 18.990000000000002
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "percentual": 25.019999999999996
+    },
+    {
+      "id": 4,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "percentual": 31.419999999999998
+    },
+    {
+      "id": 5,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "percentual": 29.23
+    },
+    {
+      "id": 6,
+      "nome": "1331016 - NAO CADASTRADO",
+      "percentual": 1.0
+    },
+    {
+      "id": 7,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "percentual": 18.57
+    },
+    {
+      "id": 8,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "percentual": 8.62
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "133769 - JOELTON DOS SANTOS",
+      "porcentagem": 100.0
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 81.93
+    },
+    {
+      "id": 3,
+      "nome": "701026 - ELIZEU SILVA OLIVEIRA",
+      "porcentagem": 82.50999999999999
+    },
+    {
+      "id": 4,
+      "nome": "784911 - PAULIANO DOS SANTOS",
+      "porcentagem": 62.33
+    },
+    {
+      "id": 5,
+      "nome": "133472 - WELLINGTON OLIVEIRA MENEZES",
+      "porcentagem": 86.14
+    },
+    {
+      "id": 6,
+      "nome": "1331016 - NAO CADASTRADO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "112996 - JOELTON DOS SANTOS",
+      "porcentagem": 86.50999999999999
+    },
+    {
+      "id": 8,
+      "nome": "108717 - JOSE EDUARDO DE DEUS SANTOS",
+      "porcentagem": 88.46000000000001
+    }
+  ],
+  "horas_por_frota": [
+    {
+      "frota": "7032.0",
+      "horasRegistradas": 23.96,
+      "diferencaPara24h": 0.04
+    },
+    {
+      "frota": "7038.0",
+      "horasRegistradas": 22.36,
+      "diferencaPara24h": 1.64
+    }
+  ]
+}

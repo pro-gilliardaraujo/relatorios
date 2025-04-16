@@ -1,20 +1,33 @@
 import { Box } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
+import { useMemo } from 'react';
+import { ColumnDef, CellContext } from '@tanstack/react-table';
 
 interface OperadorData {
   id: string;
   nome: string;
   eficiencia: number;
   horasTotal?: number;
+  percentual?: number;
+  horas?: number;
+  porcentagem?: number;
+  velocidade?: number;
 }
 
 interface TabelaOperadoresProps {
   dados: {
     eficiencia_energetica: OperadorData[];
-    motor_ocioso: Array<{ id: string; nome: string; percentual: number; horasTotal?: number }>;
+    motor_ocioso: Array<{ 
+      id: string; 
+      nome: string; 
+      percentual: number; 
+      tempoLigado: number;
+      tempoOcioso: number;
+    }>;
     falta_apontamento?: Array<{ id: string; nome: string; percentual: number; horasTotal?: number }>;
     uso_gps: Array<{ id: string; nome: string; porcentagem: number; horasTotal?: number }>;
     hora_elevador?: Array<{ id: string; nome: string; horas: number; horasTotal?: number }>;
+    media_velocidade?: Array<{ id: string; nome: string; velocidade: number }>;
   };
   tipo?: string;
   mostrarUsoGPS?: boolean;
@@ -76,7 +89,40 @@ const limparIdOperador = (idCompleto: string): string => {
   return idCompleto;
 };
 
-export default function TabelaOperadores({ dados, tipo = 'colheita_diario', mostrarUsoGPS = true }: TabelaOperadoresProps) {
+const TabelaOperadores: React.FC<TabelaOperadoresProps> = ({ dados, tipo = 'colheita_diario', mostrarUsoGPS = true }) => {
+  const columns = useMemo<ColumnDef<OperadorData>[]>(() => [
+    {
+      accessorKey: 'nome',
+      header: 'Operador',
+      cell: (info: CellContext<OperadorData, unknown>) => info.getValue() as string,
+    },
+    {
+      accessorKey: 'eficiencia',
+      header: 'Eficiência',
+      cell: (info: CellContext<OperadorData, unknown>) => `${(info.getValue() as number).toFixed(1)}%`,
+    },
+    {
+      accessorKey: 'percentual',
+      header: 'Motor Ocioso',
+      cell: (info: CellContext<OperadorData, unknown>) => `${(info.getValue() as number).toFixed(1)}%`,
+    },
+    {
+      accessorKey: 'horas',
+      header: 'Horas Elevador',
+      cell: (info: CellContext<OperadorData, unknown>) => `${(info.getValue() as number).toFixed(1)}h`,
+    },
+    {
+      accessorKey: 'porcentagem',
+      header: 'Uso GPS',
+      cell: (info: CellContext<OperadorData, unknown>) => `${(info.getValue() as number).toFixed(1)}%`,
+    },
+    {
+      accessorKey: 'velocidade',
+      header: 'Média Velocidade',
+      cell: (info: CellContext<OperadorData, unknown>) => `${(info.getValue() as number).toFixed(2)} km/h`,
+    },
+  ], []);
+
   // Log para depuração
   console.log('📊 TabelaOperadores recebeu dados:', {
     tipo: tipo,
@@ -94,8 +140,6 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
     motorOcioso: true, // Mostrar em todos os tipos
     horaElevador: tipo.startsWith('colheita_'), // Apenas para relatórios de colheita
     usoGPS: mostrarUsoGPS, // Usar o valor da prop
-    faltaApontamento: tipo.startsWith('transbordo_'), // Apenas para relatórios de transbordo
-    horasTotal: tipo.endsWith('_diario') // Mostrar apenas em relatórios diários
   };
   
   console.log('📊 Configuração de colunas para tabela:', mostrarColunas);
@@ -181,6 +225,7 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
   const metaHorasElevador = metas.horaElevador || 5;
   const metaUsoGPS = metas.usoGPS || 90;
   const metaFaltaApontamento = metas.faltaApontamento || 15;
+  const metaVelocidade = metas.mediaVelocidade || 5.5;
 
   // Valores intermediários (85% do valor meta)
   const metaEficienciaIntermediaria = metaEficiencia * 0.8;
@@ -188,6 +233,7 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
   const metaHorasElevadorIntermediaria = metaHorasElevador * 0.8;
   const metaUsoGPSIntermediaria = metaUsoGPS * 0.85;
   const metaFaltaApontamentoIntermediaria = metaFaltaApontamento * 1.2;
+  const metaVelocidadeIntermediaria = metaVelocidade * 0.85;
 
   // Função auxiliar para procurar operador pelo nome exato (não pelo ID)
   const encontrarValorOperadorPorNome = (
@@ -207,31 +253,6 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
     return 0;
   };
 
-  // Nova função - encontrar horasTotal pelo nome do operador
-  const encontrarHorasTotalPorNome = (
-    arrays: {
-      motor_ocioso?: Array<any>,
-      eficiencia_energetica?: Array<any>,
-      falta_apontamento?: Array<any>,
-      uso_gps?: Array<any>,
-    }, 
-    operadorNome: string
-  ): number => {
-    // Verificar em cada array
-    const checkArray = (arr?: Array<any>): number | undefined => {
-      if (!arr || !Array.isArray(arr)) return undefined;
-      const item = arr.find(m => m.nome === operadorNome);
-      return item?.horasTotal;
-    };
-    
-    // Verificar em cada fonte de dados
-    return checkArray(arrays.motor_ocioso) || 
-           checkArray(arrays.eficiencia_energetica) || 
-           checkArray(arrays.falta_apontamento) || 
-           checkArray(arrays.uso_gps) || 
-           24; // Valor padrão se não encontrar em nenhum lugar
-  };
-
   return (
     <Box 
       w="100%" 
@@ -247,11 +268,6 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
             <Box as="th" p={2} textAlign="left" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
               Operador
             </Box>
-            {mostrarColunas.horasTotal && (
-              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
-                Horas Totais
-              </Box>
-            )}
             {mostrarColunas.eficiencia && (
               <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
                 Eficiência
@@ -267,21 +283,18 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                 Horas Elevador
               </Box>
             )}
-            {mostrarColunas.faltaApontamento && (
-              <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
-                Falta Apontamento
-              </Box>
-            )}
             {mostrarColunas.usoGPS && (
               <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
                 Uso GPS
               </Box>
             )}
+            <Box as="th" p={2} textAlign="center" borderBottom="1px solid" borderColor="black" color="black" fontWeight="bold">
+              Média Velocidade
+            </Box>
           </Box>
         </Box>
         <Box as="tbody">
           {todosOperadores.map((item, index) => {
-              // Usar nossa função auxiliar para encontrar os valores pelo nome do operador
               const eficiencia = encontrarValorOperadorPorNome(
                 dados.eficiencia_energetica,
                 item.nome, 
@@ -294,35 +307,22 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                 'percentual'
               );
               
-              // Buscar ou calcular horas totais com nossa nova função
-              const horasTotal = encontrarHorasTotalPorNome(
-                {
-                  motor_ocioso: dados.motor_ocioso,
-                  eficiencia_energetica: dados.eficiencia_energetica,
-                  falta_apontamento: dados.falta_apontamento,
-                  uso_gps: dados.uso_gps
-                },
-                item.nome
-              );
-              
-              console.log(`TabelaOperadores - Horas totais para ${item.nome}:`, horasTotal);
-              
               const horasElevador = encontrarValorOperadorPorNome(
                 dados.hora_elevador, 
                 item.nome, 
                 'horas'
               );
               
-              const faltaApontamento = encontrarValorOperadorPorNome(
-                dados.falta_apontamento,
-                item.nome,
-                'percentual'
-              );
-              
               const usoGPS = encontrarValorOperadorPorNome(
                 dados.uso_gps, 
                 item.nome, 
                 'porcentagem'
+              );
+              
+              const velocidade = encontrarValorOperadorPorNome(
+                dados.media_velocidade,
+                item.nome,
+                'velocidade'
               );
               
               // Determinar cores conforme o valor
@@ -346,11 +346,11 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
               
               // Decidir se mostra ou não o operador
               // Vamos esconder a linha se todos os valores do operador forem 0
-              const temAlgumValor = eficiencia > 0 || motorOcioso > 0 || horasElevador > 0 || faltaApontamento > 0 || usoGPS > 0;
+              const temAlgumValor = eficiencia > 0 || motorOcioso > 0 || horasElevador > 0 || usoGPS > 0 || velocidade > 0;
               if (!temAlgumValor) return null;
               
-              // Formatação do ID: mostrar apenas se existir
-              const idDisplay = item.id ? `${item.id} - ` : '';
+              // Extrair apenas o nome do operador (após o " - " se existir)
+              const nomeOperador = item.nome.includes(" - ") ? item.nome.split(" - ")[1] : item.nome;
               
               return (
                 <Box 
@@ -370,21 +370,8 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                     title={item.nome}
                     noOfLines={1}
                   >
-                    {idDisplay}{item.nome}
+                    {nomeOperador}
                   </Box>
-                  
-                  {mostrarColunas.horasTotal && (
-                    <Box 
-                      as="td" 
-                      p={2} 
-                      textAlign="center" 
-                      borderRight="1px solid" 
-                      borderColor="gray.200"
-                      fontWeight="bold"
-                    >
-                      {formatHoras(horasTotal)}
-                    </Box>
-                  )}
                   
                   {mostrarColunas.eficiencia && (
                     <Box 
@@ -428,31 +415,29 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
                     </Box>
                   )}
                   
-                  {mostrarColunas.faltaApontamento && (
+                  {mostrarColunas.usoGPS && (
                     <Box 
                       as="td" 
                       p={2} 
                       textAlign="center" 
                       borderRight="1px solid" 
                       borderColor="gray.200"
-                      color={getInvertedColor(faltaApontamento, metaFaltaApontamento, metaFaltaApontamentoIntermediaria)}
-                      fontWeight="bold"
-                    >
-                      {formatPercentage(faltaApontamento)}
-                    </Box>
-                  )}
-                  
-                  {mostrarColunas.usoGPS && (
-                    <Box 
-                      as="td" 
-                      p={2} 
-                      textAlign="center"
                       color={usoGPS >= metaUsoGPS ? 'green.600' : (usoGPS >= metaUsoGPSIntermediaria ? 'orange.500' : 'red.500')}
                       fontWeight="bold"
                     >
                       {formatPercentage(usoGPS)}
                     </Box>
                   )}
+                  
+                  <Box 
+                    as="td" 
+                    p={2} 
+                    textAlign="center"
+                    color={velocidade >= metaVelocidade ? 'green.600' : (velocidade >= metaVelocidadeIntermediaria ? 'orange.500' : 'red.500')}
+                    fontWeight="bold"
+                  >
+                    {velocidade.toFixed(2)} km/h
+                  </Box>
                 </Box>
               );
             })}
@@ -460,4 +445,6 @@ export default function TabelaOperadores({ dados, tipo = 'colheita_diario', most
       </Box>
     </Box>
   );
-} 
+};
+
+export default TabelaOperadores; 

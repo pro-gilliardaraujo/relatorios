@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Text, Flex, VStack } from '@chakra-ui/react';
+import { Box, Text, Flex, VStack, Center } from '@chakra-ui/react';
 import { configManager } from '@/utils/config';
 import { limparIdOperador, formatarExibicaoOperador } from '@/utils/formatters';
 
@@ -9,21 +9,21 @@ interface MotorOciosoData {
   id: string;
   nome: string;
   percentual: number;
+  tempoTotal?: number; // Tempo total em horas
+  tempoOcioso?: number; // Tempo ocioso em horas
 }
 
-interface MotorOciosoProps {
+interface MotorOciosoTransbordoProps {
   data: MotorOciosoData[];
   meta?: number;
-  inverterMeta?: boolean;
-  exibirCards?: boolean;
 }
 
 // Valores padrão para cores e tolerâncias
 const DEFAULT_COLORS = {
-  meta_atingida: '#48BB78',
-  proximo_meta: '#98FB98',
-  alerta: '#ECC94B',
-  critico: '#E53E3E'
+  meta_atingida: '#48BB78', // Verde
+  proximo_meta: '#90EE90', // Verde claro
+  alerta: '#ECC94B', // Amarelo
+  critico: '#E53E3E' // Vermelho
 };
 
 const DEFAULT_TOLERANCES = {
@@ -34,158 +34,178 @@ const DEFAULT_TOLERANCES = {
 // Valores padrão para formatação
 const DEFAULT_FORMATTING = {
   decimal: {
-    casas: 4,
+    casas: 1,
     separador: "."
   },
   porcentagem: {
-    casas: 2,
+    casas: 1,
     separador: "."
-  },
-  horas: {
-    formato: "Xh00m"
   }
 };
 
 // Dados de exemplo para o caso de não serem fornecidos
 const defaultData: MotorOciosoData[] = [
-  { id: '1', nome: 'SEM OPERADOR', percentual: 28.1 },
-  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', percentual: 25.1 },
-  { id: '9999', nome: 'TROCA DE TURNO', percentual: 29.9 },
-  { id: '289948', nome: 'FABIO JUNIOR DA SILVA COSTA', percentual: 22.0 },
-  { id: '11', nome: 'NAO CADASTRADO', percentual: 19.4 },
-  { id: '379118', nome: 'DAYMAN GARCIA DE SOUZA', percentual: 40.1 },
-  { id: '507194', nome: 'GERSON RODRIGUES DOS SANTOS', percentual: 31.5 },
-  { id: '357887', nome: 'EVERTON TIAGO MARQUES', percentual: 32.0 },
-  { id: '218534', nome: 'ADEMIR CARVALHO DE MELO', percentual: 36.8 }
+  { id: '1', nome: 'SEM OPERADOR', percentual: 12.5, tempoTotal: 10, tempoOcioso: 1.25 },
+  { id: '1292073', nome: 'RENATO SOUZA SANTOS LIMA', percentual: 8.7, tempoTotal: 20, tempoOcioso: 1.74 }
 ];
 
-export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoProps> = ({ 
-  data = defaultData,
-  meta = configManager.getMetas('transbordo_diario').motorOcioso,
-  inverterMeta = true,
-  exibirCards = false
+export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoTransbordoProps> = ({ 
+  data = [],
+  meta = configManager.getMetas('transbordo_diario').motorOcioso
 }) => {
+  // Verificar se há dados válidos
+  const dadosValidos = Array.isArray(data) && data.length > 0 && 
+    data.some(item => item && item.nome && typeof item.percentual === 'number');
+  
+  // Se não tiver dados válidos, usar dados padrão
+  const dadosFinais = dadosValidos ? data : defaultData;
+
   // Obter configurações de cores e tolerâncias com fallback para valores padrão
   const cores = configManager.getConfig()?.graficos?.cores || DEFAULT_COLORS;
   const tolerancias = configManager.getConfig()?.graficos?.tolerancias || DEFAULT_TOLERANCES;
   const formatacao = configManager.getConfig()?.graficos?.formatacao || DEFAULT_FORMATTING;
-  const diferencas = configManager.getConfig()?.graficos?.diferencas_meta?.invertido || {
-    meta_atingida: "<=",
-    proximo_meta: 5,
-    alerta: 15,
-    critico: ">15"
-  };
 
-  // Calcula a média de percentual ocioso
-  const mediaPercentual = data.reduce((acc, item) => acc + item.percentual, 0) / data.length;
-  
-  // Encontra o valor máximo para definir a escala
-  const maxPercentual = Math.max(...data.map(item => item.percentual));
-  
-  // Para "menor melhor", usamos 100% como referência para a escala
-  const valorReferencia = Math.max(maxPercentual, meta * 1.2); // Garante que a meta fique visível
-  
-  // Função de escala que garante que nunca ultrapasse 100%
-  const scalePercentage = (percentual: number) => Math.min((percentual / valorReferencia) * 100, 100);
-  
-  // Calcula onde ficará a linha de meta na escala relativa
-  const metaScaled = (meta / valorReferencia) * 100;
+  // Calcular tempos faltantes se necessário
+  const dadosProcessados = dadosFinais.map(item => {
+    let tempoTotal = item.tempoTotal;
+    let tempoOcioso = item.tempoOcioso;
+    
+    // Se tiver percentual mas não tiver algum dos tempos, calcular baseado no outro
+    if (typeof tempoTotal === 'number' && typeof tempoOcioso !== 'number' && item.percentual) {
+      tempoOcioso = tempoTotal * (item.percentual / 100);
+    } else if (typeof tempoOcioso === 'number' && typeof tempoTotal !== 'number' && item.percentual) {
+      tempoTotal = tempoOcioso / (item.percentual / 100);
+    }
+    
+    return {
+      ...item,
+      tempoTotal: tempoTotal || 0,
+      tempoOcioso: tempoOcioso || 0
+    };
+  });
 
-  // Ordena por percentual (do menor para o maior - melhor performance no topo)
-  const sortedData = [...data].sort((a, b) => a.percentual - b.percentual);
+  // Ordena por percentual (do menor para o maior, pois menor é melhor)
+  const sortedData = [...dadosProcessados].sort((a, b) => a.percentual - b.percentual);
   
-  // Define as cores com base no valor do percentual (menor melhor)
+  // Define as cores com base no valor (menor melhor)
   const getBarColor = (value: number) => {
-    // Para "menor é melhor", a lógica é invertida
-    const diferenca = ((value - meta) / meta) * 100;
-
-    // Se está abaixo ou igual à meta, está ótimo (verde)
     if (value <= meta) return cores.meta_atingida;
-    
-    // Se está até 5% acima da meta, está próximo (verde claro)
-    if (diferenca <= tolerancias.proximo_meta) return cores.proximo_meta;
-    
-    // Se está até 15% acima da meta, está em alerta (amarelo)
-    if (diferenca <= tolerancias.alerta) return cores.alerta;
-    
-    // Se está mais que 15% acima da meta, está crítico (vermelho)
+    if (value <= meta * 1.5) return cores.proximo_meta;
+    if (value <= meta * 2) return cores.alerta;
     return cores.critico;
   };
 
-  // Define cores dos cards com transparência (0.3 para 30% de opacidade)
-  const getCardBgColor = (color: string) => {
-    if (color.startsWith('#')) {
-      // Conversão simplificada de hex para rgba
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, 0.3)`;
-    } else if (color.startsWith('rgb')) {
-      // Se já for rgb, apenas adiciona alpha
-      return color.replace('rgb', 'rgba').replace(')', ', 0.3)');
-    }
-    return color;
+  // Formatar horas para exibição
+  const formatHoras = (horas: number): string => {
+    return horas.toFixed(1).replace('.', ',') + 'h';
   };
 
-  const metaCardColor = getCardBgColor('#48BB78'); // Verde com transparência
-  const mediaCardColor = getCardBgColor(getBarColor(mediaPercentual));
+  // Se não tiver dados, mostrar mensagem
+  if (!dadosValidos && data.length === 0) {
+    return (
+      <Center h="100%" flexDirection="column">
+        <Text fontSize="14px" color="gray.500" fontWeight="medium">Sem dados disponíveis</Text>
+        <Text fontSize="12px" color="gray.400">Verifique o relatório selecionado</Text>
+      </Center>
+    );
+  }
 
   return (
     <Box h="100%">
-      {/* Container principal apenas para o gráfico */}
       <Box h="100%" overflowY="auto">
-        <VStack spacing={0} align="stretch">
+        <VStack spacing={1} align="stretch">
           {sortedData.map((item, index) => {
-            const barColor = getBarColor(item.percentual);
-            // Limpar o ID do operador para remover numerações desnecessárias
-            const idLimpo = limparIdOperador(item.id);
+            // Limpar e formattar nome do operador
+            const idOperador = limparIdOperador(item.id);
+            const nomeOperador = formatarExibicaoOperador(item.nome, idOperador);
+            const percentual = item.percentual;
+            const percentualFormatado = percentual.toFixed(formatacao.porcentagem.casas) + '%';
             
-            // Formatar a exibição do operador baseado no ID limpo
-            const operadorExibicao = formatarExibicaoOperador(idLimpo, item.nome);
+            // Calcular valor da meta em horas de forma segura
+            const metaEmHoras = item.tempoTotal && meta ? (meta * item.tempoTotal / 100) : 0;
+            const metaEmHorasFormatado = metaEmHoras ? metaEmHoras.toFixed(1) : '0.0';
             
             return (
               <Box 
                 key={index}
-                py={0.5}
-                px={1}
+                py={1}
+                px={2}
                 bg={index % 2 === 0 ? "gray.50" : "white"}
                 borderRadius="sm"
               >
-                {/* Primeira linha: Nome do operador (com ID apenas se for relevante) */}
+                {/* Primeira linha: Nome do operador */}
                 <Text 
                   fontSize="10px" 
                   fontWeight="medium" 
                   noOfLines={1} 
-                  title={operadorExibicao} 
-                  mb={0.5} 
+                  title={nomeOperador} 
+                  mb={1} 
                   color="black"
                 >
-                  {operadorExibicao}
+                  {nomeOperador}
                 </Text>
                 
-                <Flex direction="row" align="center">
-                  <Box flex="1" h="13px" position="relative" mr={2} maxW="calc(100% - 40px)">
+                {/* Segunda linha: Valores de tempo e barra empilhada */}
+                <Flex direction="row" align="center" justify="space-between">
+                  {/* Grupo de Tempo Ocioso à esquerda */}
+                  <Flex direction="column" align="center" minW="55px">
+                    <Text fontSize="9px" color={cores.critico} fontWeight="medium">
+                      {formatHoras(item.tempoOcioso || 0)}
+                    </Text>
+                    <Text fontSize="8px" color={cores.critico}>Tempo Ocioso</Text>
+                  </Flex>
+                  
+                  {/* Barra empilhada */}
+                  <Box flex="1" h="16px" position="relative" mx={2}>
+                    {/* Barra de fundo total (verde) */}
                     <Flex 
-                      position="absolute" 
-                      bg={barColor}
+                      w="100%" 
                       h="100%" 
-                      w={`${scalePercentage(item.percentual)}%`}
-                      borderRadius="sm"
-                      alignItems="center"
-                    />
+                      bg={cores.meta_atingida}
+                      borderRadius="md"
+                      overflow="hidden"
+                      border="1px solid"
+                      borderColor="gray.200"
+                    >
+                      {/* Barra de tempo ocioso sobreposta (vermelha) */}
+                      <Box 
+                        h="100%" 
+                        w={`${percentual}%`} 
+                        bg={cores.critico}
+                        borderRadius="md 0 0 md"
+                      />
+                    </Flex>
                     
+                    {/* Linha vertical indicando a meta */}
                     <Box 
                       position="absolute" 
                       top="0" 
-                      left={`${metaScaled}%`} 
-                      h="13px"
+                      left={`${meta}%`} 
+                      h="16px"
                       w="2px"
                       bg="rgba(0,0,0,0.7)"
                       zIndex="2"
+                      title={`Meta: ${meta}% (${metaEmHorasFormatado}h)`}
                     />
                   </Box>
-                  <Text fontSize="10px" fontWeight="bold" w="35px" textAlign="right" color={barColor}>
-                    {item.percentual.toFixed(formatacao.porcentagem.casas)}%
+                  
+                  {/* Grupo de Tempo Ligado à direita */}
+                  <Flex direction="column" align="center" minW="55px">
+                    <Text fontSize="9px" color={cores.meta_atingida} fontWeight="medium">
+                      {formatHoras(item.tempoTotal || 0)}
+                    </Text>
+                    <Text fontSize="8px" color={cores.meta_atingida}>Tempo Ligado</Text>
+                  </Flex>
+                  
+                  {/* Percentual */}
+                  <Text 
+                    fontSize="10px" 
+                    fontWeight="medium" 
+                    color={getBarColor(percentual)}
+                    minW="45px"
+                    textAlign="right"
+                  >
+                    {percentualFormatado}
                   </Text>
                 </Flex>
               </Box>
@@ -195,4 +215,6 @@ export const GraficoMotorOciosoTransbordo: React.FC<MotorOciosoProps> = ({
       </Box>
     </Box>
   );
-}; 
+};
+
+export default GraficoMotorOciosoTransbordo; 

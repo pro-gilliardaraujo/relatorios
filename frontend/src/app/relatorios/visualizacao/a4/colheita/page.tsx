@@ -9,6 +9,7 @@ import { GraficoEficienciaEnergetica } from '@/components/Charts/Colheita/Diario
 import { GraficoHorasElevador } from '@/components/Charts/Colheita/Diario/GraficoHorasElevador';
 import { GraficoMotorOciosoColheita } from '@/components/Charts/Colheita/Diario/GraficoMotorOciosoColheita';
 import { GraficoUsoGPS } from '@/components/Charts/Colheita/Diario/GraficoUsoGPS';
+import { GraficoMediaVelocidadeColheita } from '@/components/Charts/Colheita/Diario/GraficoMediaVelocidadeColheita';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { FaPrint } from 'react-icons/fa';
@@ -60,12 +61,49 @@ interface DadosProcessados {
     nome: string;
     porcentagem: number;
   }>;
+  media_velocidade: Array<{
+    id: string;
+    nome: string;
+    velocidade: number;
+  }>;
 }
 
 interface HorasPorFrota {
   frota: string;
   horasRegistradas: number;
   diferencaPara24h: number;
+}
+
+interface DadosMotorOcioso {
+  id: string;
+  nome: string;
+  percentual: number;
+  tempoLigado: number;
+  tempoOcioso: number;
+}
+
+interface DadosVelocidade {
+  id: string;
+  nome: string;
+  velocidade: number;
+}
+
+interface OperadorData {
+  id: string;
+  nome: string;
+  percentual?: number;
+  horas?: number;
+  porcentagem?: number;
+  eficiencia?: number;
+  velocidade?: number;
+}
+
+interface DadosTabelaOperadores {
+  eficiencia_energetica: Array<{ id: string; nome: string; eficiencia: number; }>;
+  motor_ocioso: DadosMotorOcioso[];
+  hora_elevador?: Array<{ id: string; nome: string; horas: number; }>;
+  uso_gps: Array<{ id: string; nome: string; porcentagem: number; }>;
+  media_velocidade: Array<{ id: string; nome: string; velocidade: number; }>;
 }
 
 // Função para verificar se os dados estão no formato esperado
@@ -213,7 +251,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
         eficiencia_energetica: [],
         hora_elevador: [],
         motor_ocioso: [],
-        uso_gps: []
+        uso_gps: [],
+        media_velocidade: []
       };
     }
 
@@ -368,7 +407,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       eficienciaEnergetica: true,
       motorOcioso: true,
       horaElevador: true,
-      usoGPS: true
+      usoGPS: true,
+      mediaVelocidade: true
     };
     
     // Removendo o log aqui
@@ -389,17 +429,11 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
   };
 
   // Função para calcular média
-  const calcularMedia = (array: any[] | undefined, propriedade: string): number => {
+  const calcularMedia = (array: any[] | undefined, propriedade: string, acima: boolean = true): number => {
     // Verificação inicial mais robusta
     if (!array || !Array.isArray(array) || array.length === 0) {
-      // Reduzindo logs
-      // console.log(`📊 calcularMedia: Array vazio ou inválido para propriedade "${propriedade}"`);
       return 0;
     }
-    
-    // Reduzindo logs
-    // console.log(`📊 Calculando média para propriedade "${propriedade}" com ${array.length} itens`);
-    // console.log(`📊 Primeiro item do array:`, array[0]);
     
     // Filtrar apenas itens com valores válidos
     const itensFiltrados = array.filter(item => {
@@ -411,8 +445,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       const valorValido = typeof valor === 'number' || (typeof valor === 'string' && !isNaN(parseFloat(valor)));
       
       if (!valorExiste || !valorValido) {
-        // Reduzindo logs
-        // console.log(`📊 calcularMedia: Item com valor inválido para "${propriedade}":`, item);
         return false;
       }
       
@@ -430,16 +462,8 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
       return item.nome && item.nome.trim() !== '' && valorExiste && valorValido;
     });
     
-    // Reduzindo logs
-    // console.log(`📊 Itens filtrados para média de "${propriedade}":`, itensFiltrados.length);
-    // if (itensFiltrados.length > 0) {
-    //   console.log(`📊 Primeiro item filtrado:`, itensFiltrados[0]);
-    // }
-    
     // Se não há itens válidos, retorna zero
     if (itensFiltrados.length === 0) {
-      // Reduzindo logs
-      // console.log(`📊 calcularMedia: Nenhum item válido para "${propriedade}" após filtragem`);
       return 0;
     }
     
@@ -462,9 +486,6 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     
     // Calcular média com alta precisão
     const media = soma / valores.length;
-    
-    // Reduzindo logs
-    // console.log(`📊 Média final para "${propriedade}": ${media.toFixed(4)} (Soma: ${soma}, Itens: ${valores.length})`);
     
     // Retorna a média calculada sem arredondar
     return media;
@@ -596,6 +617,12 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
           media: 0,
           acimaMeta: { quantidade: 0, total: 0, percentual: 0 }
         },
+        mediaVelocidade: {
+          data: [],
+          meta: 0,
+          media: 0,
+          acimaMeta: { quantidade: 0, total: 0, percentual: 0 }
+        },
         frotas: [],
         operadores: []
       };
@@ -694,6 +721,17 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             (finalDataUsoGPS.length || 1)) * 100
         }
       },
+      mediaVelocidade: {
+        data: finalData.media_velocidade || [],
+        meta: reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade,
+        media: calcularMedia(finalData.media_velocidade, 'velocidade', true),
+        acimaMeta: {
+          quantidade: contarItensMeta(finalData.media_velocidade, 'velocidade', reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade, true),
+          total: finalData.media_velocidade?.length || 0,
+          percentual: ((contarItensMeta(finalData.media_velocidade, 'velocidade', reportData?.metas?.mediaVelocidade || configManager.getMetas('colheita_diario').mediaVelocidade, true) / 
+            (finalData.media_velocidade?.length || 1)) * 100)
+        }
+      },
       frotas,
       operadores
     };
@@ -739,7 +777,7 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
     <Box>
       {/* Conteúdo do relatório */}
       <Box className="report-content">
-        {/* Página 1 - Disponibilidade, Eficiência e Motor Ocioso */}
+        {/* Página 1 - Disponibilidade Mecânica e Eficiência Energética */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column" bg="white">
             <PageHeader />
@@ -747,142 +785,176 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
             <Flex flex="1" direction="column" justify="space-between">
               {/* Disponibilidade Mecânica */}
               {secoes.disponibilidadeMecanica && (
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Disponibilidade Mecânica" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={3}
-                  h="calc(100% - 25px)"
-                >
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Disponibilidade Mecânica" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
                     {finalDataDisponibilidade.length > 0 ? (
-                  <GraficoDisponibilidadeMecanicaColheita 
-                    data={finalDataDisponibilidade} 
-                        meta={resumoData.disponibilidadeMecanica.meta || 0} 
-                  />
+                      <GraficoDisponibilidadeMecanicaColheita 
+                        data={finalDataDisponibilidade} 
+                        meta={resumoData.disponibilidadeMecanica.meta} 
+                      />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de disponibilidade mecânica</Text>
                       </Center>
                     )}
+                  </Box>
                 </Box>
-              </Box>
               )}
               
               {/* Eficiência Energética */}
               {secoes.eficienciaEnergetica && (
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Eficiência Energética" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
+                <Box flex="1">
+                  <SectionTitle title="Eficiência Energética" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
                     {finalDataEficiencia.length > 0 ? (
-                  <GraficoEficienciaEnergetica 
-                    data={finalDataEficiencia} 
-                        meta={resumoData.eficienciaEnergetica.meta || 0} 
-                  />
+                      <GraficoEficienciaEnergetica 
+                        data={finalDataEficiencia} 
+                        meta={resumoData.eficienciaEnergetica.meta} 
+                      />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de eficiência energética</Text>
                       </Center>
                     )}
+                  </Box>
                 </Box>
-              </Box>
-              )}
-              
-              {/* Motor Ocioso */}
-              {secoes.motorOcioso && (
-                <Box flex="1" mb={3}>
-                <SectionTitle title="Motor Ocioso" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                    p={2}
-                  h="calc(100% - 25px)"
-                >
-                    {finalDataMotorOcioso.length > 0 ? (
-                  <GraficoMotorOciosoColheita 
-                    data={finalDataMotorOcioso} 
-                        meta={resumoData.motorOcioso.meta} 
-                  />
-                    ) : (
-                      <Center h="100%">
-                        <Text>Sem dados de motor ocioso</Text>
-                      </Center>
-                    )}
-                </Box>
-              </Box>
               )}
             </Flex>
           </Box>
         </A4Colheita>
         
-        {/* Página 2 - Horas Elevador e Uso GPS */}
+        {/* Página 2 - Motor Ocioso e Horas Elevador */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column" bg="white">
             <PageHeader />
             
             <Flex flex="1" direction="column" justify="space-between">
+              {/* Motor Ocioso */}
+              {secoes.motorOcioso && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Motor Ocioso" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataMotorOcioso.length > 0 ? (
+                      <GraficoMotorOciosoColheita 
+                        data={finalDataMotorOcioso} 
+                        meta={resumoData.motorOcioso.meta} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de motor ocioso</Text>
+                      </Center>
+                    )}
+                  </Box>
+                </Box>
+              )}
+              
               {/* Horas Elevador */}
               {secoes.horaElevador && (
-              <Box flex="1" mb={3}>
-                <SectionTitle title="Horas Elevador" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
+                <Box flex="1">
+                  <SectionTitle title="Horas Elevador" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
                     {finalDataHorasElevador.length > 0 ? (
-                  <GraficoHorasElevador 
-                    data={finalDataHorasElevador} 
-                        meta={resumoData.horaElevador.meta || 0} 
-                  />
+                      <GraficoHorasElevador 
+                        data={finalDataHorasElevador} 
+                        meta={resumoData.horaElevador.meta} 
+                      />
                     ) : (
                       <Center h="100%">
                         <Text>Sem dados de hora elevador</Text>
                       </Center>
                     )}
+                  </Box>
                 </Box>
-              </Box>
-              )}
-              
-              {/* Uso GPS */}
-              {secoes.usoGPS && (
-              <Box flex="1">
-                <SectionTitle title="Uso GPS" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                    {finalDataUsoGPS.length > 0 ? (
-                  <GraficoUsoGPS 
-                    data={finalDataUsoGPS} 
-                        meta={resumoData.usoGPS.meta} 
-                  />
-                    ) : (
-                      <Center h="100%">
-                        <Text>Sem dados de uso GPS</Text>
-                      </Center>
-                    )}
-                </Box>
-              </Box>
               )}
             </Flex>
           </Box>
         </A4Colheita>
         
-        {/* Página 3 - Resumo Geral */}
+        {/* Página 3 - Uso GPS e Média de Velocidade */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader />
+            
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Uso GPS */}
+              {secoes.usoGPS && (
+                <Box flex="1" mb={3}>
+                  <SectionTitle title="Uso GPS" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataUsoGPS.length > 0 ? (
+                      <GraficoUsoGPS 
+                        data={finalDataUsoGPS} 
+                        meta={resumoData.usoGPS.meta} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de uso GPS</Text>
+                      </Center>
+                    )}
+                  </Box>
+                </Box>
+              )}
+              
+              {/* Média de Velocidade */}
+              {secoes.mediaVelocidade && (
+                <Box flex="1">
+                  <SectionTitle title="Média de Velocidade" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalData.media_velocidade?.length > 0 ? (
+                      <GraficoMediaVelocidadeColheita 
+                        data={finalData.media_velocidade} 
+                        meta={resumoData.mediaVelocidade.meta} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de média de velocidade</Text>
+                      </Center>
+                    )}
+                  </Box>
+                </Box>
+              )}
+            </Flex>
+          </Box>
+        </A4Colheita>
+        
+        {/* Página 4 - Resumo Geral */}
         <A4Colheita 
           isLastPage={true} 
           footer={
@@ -967,20 +1039,49 @@ export default function ColheitaA4({ data }: ColheitaA4Props) {
                     unitType="porcentagem"
                     acimaMeta={resumoData.usoGPS.acimaMeta}
                   />
+                  
+                  {/* Novo card para Média de Velocidade */}
+                  <IndicatorCard 
+                    title="Média de Velocidade"
+                    value={resumoData.mediaVelocidade.media || 0}
+                    meta={resumoData.mediaVelocidade.meta || 0}
+                    unitType="velocidade"
+                    isInverted={true}
+                    acimaMeta={resumoData.mediaVelocidade.acimaMeta}
+                  />
                 </SimpleGrid>
 
                 {/* Tabela de operadores */}
                 <TabelaOperadores 
                   dados={{
-                    eficiencia_energetica: finalDataEficiencia,
-                    motor_ocioso: finalDataMotorOcioso,
-                    hora_elevador: finalDataHorasElevador,
+                    eficiencia_energetica: finalDataEficiencia.map(item => ({
+                      id: item.id,
+                      nome: item.nome,
+                      eficiencia: item.eficiencia
+                    })),
+                    motor_ocioso: (finalDataMotorOcioso || []).map(item => ({
+                      id: item.id || '',
+                      nome: item.nome || '',
+                      percentual: item.percentual || 0,
+                      tempoLigado: (item as any).tempoLigado || 0,
+                      tempoOcioso: (item as any).tempoOcioso || 0
+                    })),
+                    hora_elevador: finalDataHorasElevador.map(item => ({
+                      id: item.id,
+                      nome: item.nome,
+                      horas: item.horas
+                    })),
                     uso_gps: finalDataUsoGPS.map(item => ({
                       id: item.id || '',
                       nome: item.nome || '',
                       porcentagem: item.porcentagem || 0
+                    })),
+                    media_velocidade: (finalData.media_velocidade || []).map(item => ({
+                      id: item.id || '',
+                      nome: item.nome || '',
+                      velocidade: item.velocidade || 0
                     }))
-                  }} 
+                  }}
                   tipo="colheita_diario"
                 />
               </Box>

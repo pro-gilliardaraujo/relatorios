@@ -779,15 +779,20 @@ class ExcelProcessor:
                     # Separar ID e nome do operador
                     operator_id, operator_name = process_operator_id(row['Operador'])
                     
-                    # Converter o valor usando o método da classe
+                    # Converter os valores usando o método da classe
                     valor = self.convert_value(row, 'Porcentagem', "porcentagem")
+                    tempo_ligado = self.convert_value(row, 'Tempo_Ligado', "horas")
+                    tempo_ocioso = self.convert_value(row, 'Tempo_Ocioso', "horas")
+                    
                     if valor is None:
                         continue
                     
                     result['motor_ocioso'].append({
                         'id': operator_id,
                         'nome': operator_name,
-                        'percentual': valor
+                        'percentual': valor,
+                        'tempoLigado': tempo_ligado or 0,
+                        'tempoOcioso': tempo_ocioso or 0
                     })
                 print(f"Processados {len(result['motor_ocioso'])} registros de motor ocioso")
                 

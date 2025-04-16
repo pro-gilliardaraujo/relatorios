@@ -874,7 +874,9 @@ class UnifiedTXTProcessor:
             
             resultados.append({
                 'Operador': operador,
-                'Porcentagem': percentual
+                'Porcentagem': percentual,
+                'Tempo_Ligado': motor_ligado_sum,
+                'Tempo_Ocioso': parado_motor_sum
             })
         
         return pd.DataFrame(resultados)
@@ -1054,7 +1056,9 @@ class UnifiedTXTProcessor:
             
             resultados.append({
                 'Operador': operador,
-                'Porcentagem': percentual
+                'Porcentagem': percentual,
+                'Tempo_Ligado': motor_ligado_sum,
+                'Tempo_Ocioso': parado_motor_sum
             })
         
         return pd.DataFrame(resultados)
