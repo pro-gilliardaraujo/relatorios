@@ -132,10 +132,10 @@ const normalizarDados = (dados: any) => {
     '3_motor ocioso': 'motor_ocioso',
     
     // Falta Apontamento - variações
-    'falta_apontamento': 'falta_apontamento',
+    'falta apontamento': 'falta_apontamento',
+    '4_falta apontamento': 'falta_apontamento',
     'faltaapontamento': 'falta_apontamento',
     'falta-apontamento': 'falta_apontamento',
-    '4_falta_apontamento': 'falta_apontamento',
     '4falta_apontamento': 'falta_apontamento',
     'falta de apontamento': 'falta_apontamento',
     '4_falta de apontamento': 'falta_apontamento',

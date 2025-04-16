@@ -92,8 +92,10 @@ const defaultConfig = {
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
         "3_Motor Ocioso",
-        "4_Falta de Apontamento",
-        "5_Uso GPS"
+        "4_Falta Apontamento",
+        "5_Uso GPS",
+        "Horas por Frota",
+        "Média Velocidade"
       ],
       colunas_excel: {
         disponibilidade_mecanica: ["Frota", "Disponibilidade", "porcentagem"],
@@ -134,7 +136,7 @@ const defaultConfig = {
         "1_Disponibilidade Mecânica",
         "2_Eficiência Energética",
         "3_Motor Ocioso",
-        "4_Falta de Apontamento",
+        "4_Falta Apontamento",
         "5_Uso GPS"
       ],
       colunas_excel: {

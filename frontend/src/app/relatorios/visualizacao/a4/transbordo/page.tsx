@@ -815,7 +815,8 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       eficienciaEnergetica: true,
       motorOcioso: true,
       faltaApontamento: true,
-      usoGPS: false  // Para transbordo, o padrão para Uso GPS é false
+      usoGPS: false,  // Para transbordo, o padrão para Uso GPS é false
+      mediaVelocidade: true
     };
     
     // console.log('🔧 Configuração de seções para', tipoRelatorio, ':', configSections);
@@ -854,6 +855,15 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
       velocidade: item.velocidade
     }));
   }, [reportData?.dados?.media_velocidade]);
+
+  const finalDataFaltaApontamento = useMemo(() => {
+    if (!reportData?.dados?.falta_apontamento) return [];
+    return reportData.dados.falta_apontamento.map((item: any) => ({
+      id: item.id,
+      nome: item.nome,
+      percentual: item.percentual
+    }));
+  }, [reportData?.dados?.falta_apontamento]);
 
   // Renderização condicional baseada no estado de carregamento
   if (loading) {
@@ -944,7 +954,41 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
           </Box>
         </A4Colheita>
         
-        {/* Página 2 - Falta de Apontamento e Motor Ocioso */}
+        {/* Página 2 - Motor Ocioso */}
+        <A4Colheita>
+          <Box h="100%" display="flex" flexDirection="column" bg="white">
+            <PageHeader />
+            
+            <Flex flex="1" direction="column" justify="space-between">
+              {/* Motor Ocioso */}
+              {secoes.motorOcioso && (
+                <Box flex="1">
+                  <SectionTitle title="Motor Ocioso" centered={true} />
+                  <Box 
+                    border="1px solid"
+                    borderColor="black"
+                    borderRadius="md"
+                    p={2}
+                    h="calc(100% - 25px)"
+                  >
+                    {finalDataMotorOcioso.length > 0 ? (
+                      <GraficoMotorOciosoTransbordo 
+                        data={finalDataMotorOcioso} 
+                        meta={configManager.getMetas('transbordo_diario').motorOcioso} 
+                      />
+                    ) : (
+                      <Center h="100%">
+                        <Text>Sem dados de motor ocioso</Text>
+                      </Center>
+                    )}
+                  </Box>
+                </Box>
+              )}
+            </Flex>
+          </Box>
+        </A4Colheita>
+        
+        {/* Página 3 - Falta de Apontamento e Média de Velocidade */}
         <A4Colheita>
           <Box h="100%" display="flex" flexDirection="column" bg="white">
             <PageHeader />
@@ -961,9 +1005,9 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     p={2}
                     h="calc(100% - 25px)"
                   >
-                    {processedData.falta_apontamento.length > 0 ? (
+                    {finalDataFaltaApontamento.length > 0 ? (
                       <GraficoFaltaApontamentoTransbordo 
-                        data={processedData.falta_apontamento} 
+                        data={finalDataFaltaApontamento} 
                         meta={configManager.getMetas('transbordo_diario').faltaApontamento} 
                       />
                     ) : (
@@ -974,11 +1018,11 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                   </Box>
                 </Box>
               )}
-              
-              {/* Motor Ocioso */}
-              {secoes.motorOcioso && (
+
+              {/* Média de Velocidade */}
+              {secoes.mediaVelocidade && (
                 <Box flex="1">
-                  <SectionTitle title="Motor Ocioso" centered={true} />
+                  <SectionTitle title="Média de Velocidade" centered={true} />
                   <Box 
                     border="1px solid"
                     borderColor="black"
@@ -986,51 +1030,19 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     p={2}
                     h="calc(100% - 25px)"
                   >
-                    {processedData.motor_ocioso.length > 0 ? (
-                      <GraficoMotorOciosoTransbordo 
-                        data={processedData.motor_ocioso} 
-                        meta={configManager.getMetas('transbordo_diario').motorOcioso} 
+                    {finalDataMediaVelocidade.length > 0 ? (
+                      <GraficoMediaVelocidadeTransbordo 
+                        data={finalDataMediaVelocidade} 
+                        meta={15} 
                       />
                     ) : (
                       <Center h="100%">
-                        <Text>Sem dados de motor ocioso</Text>
+                        <Text>Sem dados de média de velocidade</Text>
                       </Center>
                     )}
                   </Box>
                 </Box>
               )}
-            </Flex>
-          </Box>
-        </A4Colheita>
-        
-        {/* Página 3 - Média de Velocidade */}
-        <A4Colheita>
-          <Box h="100%" display="flex" flexDirection="column" bg="white">
-            <PageHeader />
-            
-            <Flex flex="1" direction="column" justify="space-between">
-              {/* Média de Velocidade */}
-              <Box flex="1">
-                <SectionTitle title="Média de Velocidade" centered={true} />
-                <Box 
-                  border="1px solid"
-                  borderColor="black"
-                  borderRadius="md"
-                  p={2}
-                  h="calc(100% - 25px)"
-                >
-                  {processedData.media_velocidade.length > 0 ? (
-                    <GraficoMediaVelocidadeTransbordo 
-                      data={processedData.media_velocidade} 
-                      meta={configManager.getMetas('transbordo_diario').mediaVelocidade} 
-                    />
-                  ) : (
-                    <Center h="100%">
-                      <Text>Sem dados de média de velocidade</Text>
-                    </Center>
-                  )}
-                </Box>
-              </Box>
             </Flex>
           </Box>
         </A4Colheita>
@@ -1125,12 +1137,12 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                   {/* Novo card para Média de Velocidade */}
                   <IndicatorCard 
                     title="Média de Velocidade"
-                    value={calcularIndicador(processedData.media_velocidade, 'velocidade', configManager.getMetas('transbordo_diario').mediaVelocidade, true).valor}
-                    meta={configManager.getMetas('transbordo_diario').mediaVelocidade}
+                    value={calcularIndicador(processedData.media_velocidade, 'velocidade', 15, true).valor}
+                    meta={15}
                     unitType="velocidade"
                     isInverted={true}
                     acimaMeta={(() => {
-                      const meta = configManager.getMetas('transbordo_diario').mediaVelocidade;
+                      const meta = 15;
                       const quantidade = processedData.media_velocidade.filter((item: OperadorVelocidade) => item.velocidade <= meta).length;
                       const total = processedData.media_velocidade.length;
                       return {
@@ -1174,6 +1186,7 @@ export default function TransbordoA4({ data }: TransbordoA4Props) {
                     }))
                   }}
                   tipo="transbordo_diario"
+                  mostrarUsoGPS={false}
                 />
               </Box>
             </Box>
