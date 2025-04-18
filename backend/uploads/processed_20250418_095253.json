@@ -1,0 +1,207 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-17",
+    "frente": "frente2",
+    "generated_at": "2025-04-18T09:52:53.570288",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "mediaVelocidade": 15,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6108",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6113",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "101034 - JOAO CARLOS DA SILVA",
+      "eficiencia": 33.37442218798151
+    },
+    {
+      "id": 3,
+      "nome": "110552 - IELSIN SANTINO CAMPOS",
+      "eficiencia": 20.27320034692107
+    },
+    {
+      "id": 4,
+      "nome": "115860 - EDER DIEGO FREITAS DOS SANTOS",
+      "eficiencia": 35.71368913388456
+    },
+    {
+      "id": 5,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "eficiencia": 45.84840894331572
+    },
+    {
+      "id": 6,
+      "nome": "148535 - ALTEMAR ALVES RISSATE JUNIOR",
+      "eficiencia": 0.0
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 1.0,
+      "tempoLigado": 4.453333333333333,
+      "tempoOcioso": 4.453333333333333
+    },
+    {
+      "id": 2,
+      "nome": "101034 - JOAO CARLOS DA SILVA",
+      "percentual": 27.904468412943,
+      "tempoLigado": 1.802777777777778,
+      "tempoOcioso": 0.5030555555555556
+    },
+    {
+      "id": 3,
+      "nome": "110552 - IELSIN SANTINO CAMPOS",
+      "percentual": 50.1517779705117,
+      "tempoLigado": 1.281111111111111,
+      "tempoOcioso": 0.6425000000000001
+    },
+    {
+      "id": 4,
+      "nome": "115860 - EDER DIEGO FREITAS DOS SANTOS",
+      "percentual": 38.07734068320386,
+      "tempoLigado": 3.325833333333334,
+      "tempoOcioso": 1.266388888888889
+    },
+    {
+      "id": 5,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "percentual": 12.672789683644131,
+      "tempoLigado": 2.994166666666666,
+      "tempoOcioso": 0.3794444444444445
+    },
+    {
+      "id": 6,
+      "nome": "148535 - ALTEMAR ALVES RISSATE JUNIOR",
+      "percentual": 1.0,
+      "tempoLigado": 0.01555555555555556,
+      "tempoOcioso": 0.01555555555555556
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": "1",
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 0.436626746506986
+    },
+    {
+      "id": "2",
+      "nome": "101034 - JOAO CARLOS DA SILVA",
+      "percentual": 0.0
+    },
+    {
+      "id": "3",
+      "nome": "110552 - IELSIN SANTINO CAMPOS",
+      "percentual": 6.0928013876842995
+    },
+    {
+      "id": "4",
+      "nome": "115860 - EDER DIEGO FREITAS DOS SANTOS",
+      "percentual": 2.739497202037918
+    },
+    {
+      "id": "5",
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "percentual": 5.1117914463308285
+    },
+    {
+      "id": "6",
+      "nome": "148535 - ALTEMAR ALVES RISSATE JUNIOR",
+      "percentual": 0.0
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "101034 - JOAO CARLOS DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "110552 - IELSIN SANTINO CAMPOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "115860 - EDER DIEGO FREITAS DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "148535 - ALTEMAR ALVES RISSATE JUNIOR",
+      "porcentagem": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "101034 - JOAO CARLOS DA SILVA",
+      "velocidade": 5.7
+    },
+    {
+      "id": 3,
+      "nome": "110552 - IELSIN SANTINO CAMPOS",
+      "velocidade": 4.74
+    },
+    {
+      "id": 4,
+      "nome": "115860 - EDER DIEGO FREITAS DOS SANTOS",
+      "velocidade": 5.226666666666667
+    },
+    {
+      "id": 5,
+      "nome": "139813 - JACKSON DE LIMA OLIVEIRA",
+      "velocidade": 6.732258064516129
+    },
+    {
+      "id": 6,
+      "nome": "148535 - ALTEMAR ALVES RISSATE JUNIOR",
+      "velocidade": 0.0
+    }
+  ]
+}

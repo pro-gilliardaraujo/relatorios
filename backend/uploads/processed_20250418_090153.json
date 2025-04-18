@@ -1,0 +1,179 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-17",
+    "frente": "frente2",
+    "generated_at": "2025-04-18T09:01:53.803301",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7034.0",
+      "disponibilidade": 91.45
+    },
+    {
+      "frota": "7035.0",
+      "disponibilidade": 84.64
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 69.36838262139467
+    },
+    {
+      "id": 2,
+      "nome": "138289 - EDER ALVES CARVALHO",
+      "eficiencia": 34.80654761904763
+    },
+    {
+      "id": 3,
+      "nome": "139577 - ALLAN MANOEL DE ARAUJO",
+      "eficiencia": 58.396424336404266
+    },
+    {
+      "id": 4,
+      "nome": "453796 - FLAVIO DOS SANTOS SILVA",
+      "eficiencia": 54.568413457202126
+    },
+    {
+      "id": 5,
+      "nome": "745638 - THIAGO DOS REIS CRUZ",
+      "eficiencia": 75.97849462365592
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.01583333333333333
+    },
+    {
+      "id": 2,
+      "nome": "138289 - EDER ALVES CARVALHO",
+      "horas": 0.6497222222222224
+    },
+    {
+      "id": 3,
+      "nome": "139577 - ALLAN MANOEL DE ARAUJO",
+      "horas": 1.778333333333333
+    },
+    {
+      "id": 4,
+      "nome": "453796 - FLAVIO DOS SANTOS SILVA",
+      "horas": 1.680555555555556
+    },
+    {
+      "id": 5,
+      "nome": "745638 - THIAGO DOS REIS CRUZ",
+      "horas": 1.962777777777778
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 92.73457466228548,
+      "tempoLigado": 2.2825,
+      "tempoOcioso": 2.116666666666666
+    },
+    {
+      "id": 2,
+      "nome": "138289 - EDER ALVES CARVALHO",
+      "percentual": 29.88095238095238,
+      "tempoLigado": 1.866666666666667,
+      "tempoOcioso": 0.5577777777777778
+    },
+    {
+      "id": 3,
+      "nome": "139577 - ALLAN MANOEL DE ARAUJO",
+      "percentual": 16.11785095320624,
+      "tempoLigado": 3.045277777777778,
+      "tempoOcioso": 0.4908333333333333
+    },
+    {
+      "id": 4,
+      "nome": "453796 - FLAVIO DOS SANTOS SILVA",
+      "percentual": 28.952827635970053,
+      "tempoLigado": 3.079722222222222,
+      "tempoOcioso": 0.8916666666666666
+    },
+    {
+      "id": 5,
+      "nome": "745638 - THIAGO DOS REIS CRUZ",
+      "percentual": 8.000000000000002,
+      "tempoLigado": 2.583333333333333,
+      "tempoOcioso": 0.2066666666666667
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "138289 - EDER ALVES CARVALHO",
+      "porcentagem": 28.100775193798462
+    },
+    {
+      "id": 3,
+      "nome": "139577 - ALLAN MANOEL DE ARAUJO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "453796 - FLAVIO DOS SANTOS SILVA",
+      "porcentagem": 5.97136348844777
+    },
+    {
+      "id": 5,
+      "nome": "745638 - THIAGO DOS REIS CRUZ",
+      "porcentagem": 44.856853306308594
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 2.02
+    },
+    {
+      "id": 2,
+      "nome": "453796 - FLAVIO DOS SANTOS SILVA",
+      "velocidade": 5.77
+    },
+    {
+      "id": 3,
+      "nome": "745638 - THIAGO DOS REIS CRUZ",
+      "velocidade": 5.6
+    },
+    {
+      "id": 4,
+      "nome": "138289 - EDER ALVES CARVALHO",
+      "velocidade": 4.52
+    },
+    {
+      "id": 5,
+      "nome": "139577 - ALLAN MANOEL DE ARAUJO",
+      "velocidade": 5.07
+    }
+  ]
+}

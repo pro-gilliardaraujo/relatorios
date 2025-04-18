@@ -1,0 +1,185 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-17",
+    "frente": "frente3",
+    "generated_at": "2025-04-18T10:29:20.624342",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "mediaVelocidade": 15,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "2127",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6087",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6088",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 22.67536704730832
+    },
+    {
+      "id": 2,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "eficiencia": 65.93740186328901
+    },
+    {
+      "id": 3,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "eficiencia": 55.65459610027853
+    },
+    {
+      "id": 4,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "eficiencia": 57.34065934065937
+    },
+    {
+      "id": 5,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "eficiencia": 53.40947262344643
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 73.2463295269168,
+      "tempoLigado": 0.1702777777777778,
+      "tempoOcioso": 0.1247222222222222
+    },
+    {
+      "id": 2,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 12.896472312362611,
+      "tempoLigado": 2.653611111111111,
+      "tempoOcioso": 0.3422222222222222
+    },
+    {
+      "id": 3,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 16.74651810584958,
+      "tempoLigado": 2.493055555555556,
+      "tempoOcioso": 0.4175
+    },
+    {
+      "id": 4,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 13.032967032967042,
+      "tempoLigado": 1.263888888888889,
+      "tempoOcioso": 0.1647222222222222
+    },
+    {
+      "id": 5,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 11.03459858918374,
+      "tempoLigado": 1.653888888888889,
+      "tempoOcioso": 0.1825
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": "1",
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 4.241435562805871
+    },
+    {
+      "id": "2",
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "percentual": 1.549251544017586
+    },
+    {
+      "id": "3",
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "percentual": 7.364902506963787
+    },
+    {
+      "id": "4",
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "percentual": 1.384615384615385
+    },
+    {
+      "id": "5",
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "percentual": 1.360429963050051
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "porcentagem": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 4.533333333333334
+    },
+    {
+      "id": 2,
+      "nome": "113310 - VITOR SOARES FREITAS",
+      "velocidade": 5.504
+    },
+    {
+      "id": 3,
+      "nome": "127144 - EDMAR BATISTA SILVA FILHO",
+      "velocidade": 6.34
+    },
+    {
+      "id": 4,
+      "nome": "136455 - RAFAEL ALEXANDRE DA SILVA",
+      "velocidade": 6.57948717948718
+    },
+    {
+      "id": 5,
+      "nome": "143536 - LUCAS SANTOS SILVA",
+      "velocidade": 5.626666666666667
+    }
+  ]
+}

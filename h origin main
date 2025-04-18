@@ -1,5 +1,0 @@
-[33mb273db1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Corrigido layout RelatorioColheitaResumo: bordas pretas, fontes corretas e ajustes nas cores conforme solicitado
-[33m5ad1d14[m feat: adicionado layout do relatório semanal de colheita com novos indicadores (TDH, Diesel, Impureza Vegetal)
-[33m33fc025[m fix: corrigido tipo do relatório de colheita_diario para obter as metas corretamente
-[33m7763106[m fix: corrige formatação de data para padrão brasileiro (DD/MM/YYYY) e remove conversões de timezone que causavam diferença de um dia
-[33ma1a9c41[m feat: adiciona endpoint e serviço para geração de PDF

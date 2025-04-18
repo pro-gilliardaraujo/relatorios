@@ -1,0 +1,179 @@
+{
+  "metadata": {
+    "type": "colheita_diario",
+    "date": "2025-04-17",
+    "frente": "frente3",
+    "generated_at": "2025-04-18T09:04:02.116174",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 70,
+    "motorOcioso": 4,
+    "horaElevador": 5,
+    "usoGPS": 90,
+    "mediaVelocidade": 7,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "7041.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "7042.0",
+      "disponibilidade": 99.47
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "109905 - GENILSON DA SILVA SANTOS",
+      "eficiencia": 68.40812315754997
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "eficiencia": 76.27000695894225
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "eficiencia": 90.9309021113244
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "eficiencia": 69.93677340403835
+    }
+  ],
+  "hora_elevador": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "horas": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "109905 - GENILSON DA SILVA SANTOS",
+      "horas": 1.160277777777778
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "horas": 0.3044444444444445
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "horas": 0.5263888888888889
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "horas": 0.9525000000000001
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 85.06787330316742,
+      "tempoLigado": 0.1841666666666666,
+      "tempoOcioso": 0.1566666666666666
+    },
+    {
+      "id": 2,
+      "nome": "109905 - GENILSON DA SILVA SANTOS",
+      "percentual": 19.32525384867344,
+      "tempoLigado": 1.696111111111111,
+      "tempoOcioso": 0.3277777777777778
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "percentual": 4.453723034098817,
+      "tempoLigado": 0.3991666666666667,
+      "tempoOcioso": 0.01777777777777778
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "percentual": 5.902111324376199,
+      "tempoLigado": 0.5788888888888888,
+      "tempoOcioso": 0.03416666666666666
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "percentual": 9.137262900265142,
+      "tempoLigado": 1.361944444444445,
+      "tempoOcioso": 0.1244444444444444
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "109905 - GENILSON DA SILVA SANTOS",
+      "porcentagem": 91.36453526697429
+    },
+    {
+      "id": 3,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "porcentagem": 90.42464612822648
+    },
+    {
+      "id": 4,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "porcentagem": 94.30641821946172
+    },
+    {
+      "id": 5,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "porcentagem": 86.85987619583567
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 1.38
+    },
+    {
+      "id": 2,
+      "nome": "919777 - JOAO OSMAR DA SILVA",
+      "velocidade": 4.8
+    },
+    {
+      "id": 3,
+      "nome": "855523 - RODRIGO FABIANO DA SILVA",
+      "velocidade": 4.44
+    },
+    {
+      "id": 4,
+      "nome": "1298 - ROBSON JOSE DA SILVA",
+      "velocidade": 4.5
+    },
+    {
+      "id": 5,
+      "nome": "109905 - GENILSON DA SILVA SANTOS",
+      "velocidade": 4.64
+    }
+  ]
+}

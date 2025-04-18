@@ -1,0 +1,279 @@
+{
+  "metadata": {
+    "type": "transbordo_diario",
+    "date": "2025-04-16",
+    "frente": "frente1",
+    "generated_at": "2025-04-17T07:58:55.742734",
+    "equipment_ids": null
+  },
+  "metas": {
+    "disponibilidadeMecanica": 90,
+    "eficienciaEnergetica": 65,
+    "motorOcioso": 6,
+    "faltaApontamento": 10,
+    "usoGPS": 90,
+    "mediaVelocidade": 15,
+    "horaElevador": 5,
+    "tdh": 0.0124,
+    "diesel": 0.718,
+    "impureza_vegetal": 64
+  },
+  "disponibilidade_mecanica": [
+    {
+      "frota": "6034.0",
+      "disponibilidade": 96.78999999999999
+    },
+    {
+      "frota": "6086.0",
+      "disponibilidade": 9.34
+    },
+    {
+      "frota": "6096.0",
+      "disponibilidade": 100.0
+    },
+    {
+      "frota": "6100.0",
+      "disponibilidade": 100.0
+    }
+  ],
+  "eficiencia_energetica": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "eficiencia": 38.37
+    },
+    {
+      "id": 3,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "eficiencia": 39.36
+    },
+    {
+      "id": 4,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "1331007 - NAO CADASTRADO",
+      "eficiencia": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "eficiencia": 29.74
+    },
+    {
+      "id": 7,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "eficiencia": 39.23
+    },
+    {
+      "id": 8,
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "eficiencia": 22.2
+    },
+    {
+      "id": 9,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "eficiencia": 32.67
+    }
+  ],
+  "motor_ocioso": [
+    {
+      "id": 1,
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "percentual": 19.81,
+      "tempoLigado": 1.981666666666666,
+      "tempoOcioso": 0.3925
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 37.269999999999996,
+      "tempoLigado": 0.2466666666666667,
+      "tempoOcioso": 0.09194444444444444
+    },
+    {
+      "id": 3,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 23.74,
+      "tempoLigado": 3.106388888888889,
+      "tempoOcioso": 0.7375
+    },
+    {
+      "id": 4,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 9.08,
+      "tempoLigado": 3.435555555555556,
+      "tempoOcioso": 0.3119444444444445
+    },
+    {
+      "id": 5,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "percentual": 18.94,
+      "tempoLigado": 3.218611111111111,
+      "tempoOcioso": 0.6097222222222222
+    },
+    {
+      "id": 6,
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 15.78,
+      "tempoLigado": 2.572777777777778,
+      "tempoOcioso": 0.4061111111111111
+    },
+    {
+      "id": 7,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "percentual": 10.63,
+      "tempoLigado": 3.139166666666667,
+      "tempoOcioso": 0.3336111111111111
+    }
+  ],
+  "falta_apontamento": [
+    {
+      "id": "1",
+      "nome": "1 - SEM OPERADOR",
+      "percentual": 9.664233576642335
+    },
+    {
+      "id": "2",
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "percentual": 0.5105535147251105
+    },
+    {
+      "id": "3",
+      "nome": "1331007 - NAO CADASTRADO",
+      "percentual": 0.0
+    },
+    {
+      "id": "4",
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "percentual": 0.5093962965512495
+    },
+    {
+      "id": "5",
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "percentual": 3.363323470804902
+    },
+    {
+      "id": "6",
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "percentual": 8.598980406608932
+    },
+    {
+      "id": "7",
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "percentual": 0.0
+    },
+    {
+      "id": "8",
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "percentual": 3.714493809176985
+    },
+    {
+      "id": "9",
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "percentual": 2.032629045199251
+    }
+  ],
+  "uso_gps": [
+    {
+      "id": 1,
+      "nome": "1 - SEM OPERADOR",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 2,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 3,
+      "nome": "1331007 - NAO CADASTRADO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 4,
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 5,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 6,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 7,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 8,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "porcentagem": 0.0
+    },
+    {
+      "id": 9,
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "porcentagem": 0.0
+    }
+  ],
+  "horas_por_frota": [
+    {},
+    {},
+    {},
+    {}
+  ],
+  "media_velocidade": [
+    {
+      "id": 1,
+      "nome": "953792 - LUIZITO MARCAL DE MORAIS",
+      "velocidade": 3.29
+    },
+    {
+      "id": 2,
+      "nome": "1 - SEM OPERADOR",
+      "velocidade": 3.14
+    },
+    {
+      "id": 3,
+      "nome": "876839 - CLAUDIO CAMPOS DA SILVA",
+      "velocidade": 3.66
+    },
+    {
+      "id": 4,
+      "nome": "795183 - CREGINALDO BATISTA DE ARAUJO",
+      "velocidade": 2.9
+    },
+    {
+      "id": 5,
+      "nome": "327574 - GILVAN CIRIACO DA SILVA",
+      "velocidade": 5.4
+    },
+    {
+      "id": 6,
+      "nome": "101063 - GEANDERSON VIEIRA DOS SANTOS",
+      "velocidade": 4.34
+    },
+    {
+      "id": 7,
+      "nome": "267399 - LUIZ CARLOS SATIRIO DE OLIVEIRA",
+      "velocidade": 4.86
+    },
+    {
+      "id": 8,
+      "nome": "579965 - JOSE EDVALDO DA SILVA",
+      "velocidade": 5.17
+    }
+  ]
+}
