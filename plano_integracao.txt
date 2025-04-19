@@ -1,0 +1,101 @@
+PLANO DE INTEGRAÇÃO - PROCESSAMENTO DE ARQUIVOS ZIP
+
+ESTRUTURA DE ARQUIVOS E COMPONENTES:
+
+1. SCRIPTS DE PROCESSAMENTO (Mover para backend):
+   Origem: /config/
+   Destino: backend/app/processors/
+   - processamento_colhedoras.py -> Processa ZIPs de colhedoras
+   - processamento_transbordos.py -> Processa ZIPs de transbordos
+
+2. FRONTEND (Componentes e Páginas):
+   Path: frontend/src/
+   
+   2.1 COMPONENTES:
+   - components/ZipUpload.tsx -> Componente de upload de ZIP
+   - components/ui/toast.tsx -> Componente de notificações
+   - components/ui/toaster.tsx -> Gerenciador de notificações
+   - components/ui/use-toast.ts -> Hook para gerenciar toasts
+
+   2.2 PÁGINAS:
+   - app/integracao/page.tsx -> Página principal de integração
+     * Formulário com:
+       - Select para tipo de relatório (colheita_diario, colheita_semanal, transbordo_diario, transbordo_semanal)
+       - Select para frente
+       - Input date para data (relatório diário)
+       - Input date para startDate e endDate (relatório semanal)
+       - Componente ZipUpload
+       - Botão de processamento
+
+3. BACKEND (Rotas e Processamento):
+   Path: backend/app/
+
+   3.1 ROTAS API:
+   - api/integracao/upload-zip/route.ts -> Recebe ZIP e parâmetros
+   - api/integracao/process-metrics/route.ts -> Processa dados após geração do Excel
+
+   3.2 PROCESSADORES:
+   Path: backend/app/processors/
+   - integracao/processamento_colhedoras.py:
+     * Função principal: processar_arquivo(caminho_arquivo, diretorio_saida)
+     * Retorna: caminho do Excel gerado
+
+   - integracao/processamento_transbordos.py:
+     * Função principal: processar_arquivo(caminho_arquivo, diretorio_saida)
+     * Retorna: caminho do Excel gerado
+
+FLUXO DE EXECUÇÃO DETALHADO:
+
+1. UPLOAD E PROCESSAMENTO:
+   a. Frontend envia para /api/integracao/upload-zip:
+      {
+        file: File (ZIP),
+        reportType: string (colheita_diario | colheita_semanal | transbordo_diario | transbordo_semanal),
+        frente: string,
+        date?: string (para diário),
+        startDate?: string (para semanal),
+        endDate?: string (para semanal)
+      }
+
+   b. Backend:
+      - Salva ZIP em pasta temporária
+      - Identifica tipo (colheita/transbordo)
+      - Chama processador apropriado
+      - Obtém Excel gerado
+      - Alimenta Excel no fluxo existente
+      - Limpa arquivos temporários
+
+2. INTEGRAÇÃO COM FLUXO EXISTENTE:
+   - NÃO modificar lógica dos processadores
+   - NÃO validar planilhas com reports.config.json
+   - Usar Excel gerado como entrada para o fluxo atual
+
+TRATAMENTO DE ERROS:
+1. Frontend:
+   - Validar tipo de arquivo (somente ZIP)
+   - Validar campos obrigatórios
+   - Exibir feedback via toasts
+
+2. Backend:
+   - Try/catch em todas as operações de arquivo
+   - Limpeza garantida de arquivos temporários
+   - Logs detalhados de cada etapa
+   - Retornos de erro padronizados
+
+SEQUÊNCIA DE IMPLEMENTAÇÃO:
+1. Mover processadores para backend/app/processors/
+2. Implementar ZipUpload.tsx
+3. Criar página de integração
+4. Implementar rotas de API
+5. Integrar com processadores
+6. Conectar ao fluxo existente
+7. Implementar tratamento de erros
+8. Testar fluxo completo
+
+IMPORTANTE:
+- Manter separação clara entre processos
+- Não modificar lógica dos processadores
+- Não misturar validações de reports.config.json com processamento
+- Garantir limpeza de recursos temporários
+
+STATUS: Aguardando aprovação para início da implementação. 
